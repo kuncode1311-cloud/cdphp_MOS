@@ -1,8 +1,9 @@
 <!doctype html>
-<html lang="vi">
+<html lang="vi" translate="no" class="notranslate">
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+    <meta name="google" content="notranslate">
     <meta name="csrf-token" content="{{ csrf_token() }}">
     <title>{{ $practiceTest->name }} — {{ $practiceTest->topic->name }} (Khối {{ $practiceTest->topic->level->grade }})</title>
     <meta name="description" content="Đấu trường thử thách số thông minh IC3 GS6 — {{ $practiceTest->topic->name }}">

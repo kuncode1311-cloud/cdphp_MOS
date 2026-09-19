@@ -500,7 +500,7 @@
         </p>
         <div class="modal-arcade-actions" style="display:flex;gap:12px;justify-content:center;">
             <button class="button modal-cancel" data-modal-close style="background:#f1f5f9!important;border:2px solid #cbd5e1!important;color:#475569!important;border-radius:16px!important;padding:14px 22px!important;font-size:14px!important;font-weight:850!important;cursor:pointer;">Để sau nhé</button>
-            <a class="button modal-launch" href="{{ route('tests.launch', $practiceTest) }}" style="background:linear-gradient(180deg,#ffc048,#ff9f1a)!important;border:3px solid #ffffff!important;color:#4a2700!important;border-radius:16px!important;padding:14px 28px!important;font-size:15px!important;font-weight:1000!important;box-shadow:0 5px 0 #b35600,0 12px 25px rgba(255,159,26,0.45)!important;display:inline-flex;align-items:center;gap:8px;text-decoration:none;">
+            <a class="button modal-launch notranslate" translate="no" href="{{ route('tests.launch', $practiceTest) }}" style="background:linear-gradient(180deg,#ffc048,#ff9f1a)!important;border:3px solid #ffffff!important;color:#4a2700!important;border-radius:16px!important;padding:14px 28px!important;font-size:15px!important;font-weight:1000!important;box-shadow:0 5px 0 #b35600,0 12px 25px rgba(255,159,26,0.45)!important;display:inline-flex;align-items:center;gap:8px;text-decoration:none;">
                 <span>🚀</span> BẮT ĐẦU LÀM BÀI
             </a>
         </div>

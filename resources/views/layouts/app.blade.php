@@ -1,9 +1,10 @@
 {{-- Khung dùng chung: menu, thanh trên và tài nguyên CSS/JS. Nội dung từng trang được chèn ở yield. --}}
 <!doctype html>
-<html lang="vi">
+<html lang="vi" translate="no" class="notranslate">
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="google" content="notranslate">
     <meta name="theme-color" content="#1070b8">
     <title>@yield('title', 'IC3 Adventure — Game Khám Phá Kỹ Năng Số')</title>
     <meta name="description" content="Nền tảng luyện tập kỹ năng số IC3 GS6 dành cho học sinh tiểu học.">
