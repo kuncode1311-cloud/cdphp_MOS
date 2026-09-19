@@ -297,68 +297,118 @@
         }
 
         /* ==========================================================================
-           📊 STATS METRIC CARDS (Sleek, Compact, High Contrast)
+           📊 STATS METRIC CARDS (3D Gamified, Rich Gradient Accents, No AI Look)
            ========================================================================== */
         .stats-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
-            gap: 14px;
-            margin-bottom: 20px;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 16px;
+            margin-bottom: 24px;
         }
         .stat-card {
             background: #ffffff;
-            border: 1px solid var(--border);
-            border-radius: var(--radius-md);
-            padding: 14px 18px;
-            box-shadow: var(--shadow-sm);
-            transition: transform 0.15s, box-shadow 0.15s;
+            border: 1.5px solid #e2e8f0;
+            border-radius: 16px;
+            padding: 16px 20px;
+            box-shadow: 0 4px 16px rgba(15, 23, 42, 0.04), 0 1px 3px rgba(15, 23, 42, 0.02);
+            transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
             position: relative;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+        }
+        .stat-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: #cbd5e1;
+            transition: height 0.2s ease;
         }
         .stat-card:hover {
-            transform: translateY(-2px);
-            box-shadow: var(--shadow-md);
+            transform: translateY(-3px);
+            box-shadow: 0 12px 26px rgba(15, 23, 42, 0.08), 0 2px 6px rgba(15, 23, 42, 0.04);
+            border-color: #cbd5e1;
         }
-        .stat-card.c-purple { border-left: 4px solid #8b5cf6; }
-        .stat-card.c-blue { border-left: 4px solid #0284c7; }
-        .stat-card.c-emerald { border-left: 4px solid #10b981; }
-        .stat-card.c-amber { border-left: 4px solid #f59e0b; }
+        .stat-card:hover::before {
+            height: 5px;
+        }
+
+        /* Từng tone màu chuyên biệt: Gradient góc nhẹ & Accent Bar sắc nét */
+        .stat-card.c-purple {
+            border-color: #e9d5ff;
+            background: radial-gradient(circle at top right, rgba(168, 85, 247, 0.09) 0%, #ffffff 65%);
+        }
+        .stat-card.c-purple::before {
+            background: linear-gradient(90deg, #7c3aed, #a855f7);
+        }
+        .stat-card.c-blue {
+            border-color: #bae6fd;
+            background: radial-gradient(circle at top right, rgba(2, 132, 199, 0.09) 0%, #ffffff 65%);
+        }
+        .stat-card.c-blue::before {
+            background: linear-gradient(90deg, #0284c7, #38bdf8);
+        }
+        .stat-card.c-emerald, .stat-card.c-green {
+            border-color: #a7f3d0;
+            background: radial-gradient(circle at top right, rgba(16, 185, 129, 0.09) 0%, #ffffff 65%);
+        }
+        .stat-card.c-emerald::before, .stat-card.c-green::before {
+            background: linear-gradient(90deg, #059669, #34d399);
+        }
+        .stat-card.c-amber {
+            border-color: #fde68a;
+            background: radial-gradient(circle at top right, rgba(245, 158, 11, 0.09) 0%, #ffffff 65%);
+        }
+        .stat-card.c-amber::before {
+            background: linear-gradient(90deg, #d97706, #fbbf24);
+        }
 
         .stat-header {
             display: flex;
             align-items: center;
             justify-content: space-between;
+            margin-bottom: 8px;
         }
         .stat-label {
             font-size: 11px;
             font-weight: 850;
-            color: var(--text-muted);
+            color: #64748b;
             text-transform: uppercase;
-            letter-spacing: 0.5px;
+            letter-spacing: 0.6px;
         }
         .stat-icon {
-            width: 32px;
-            height: 32px;
-            border-radius: 8px;
+            width: 36px;
+            height: 36px;
+            border-radius: 10px;
             display: grid;
             place-items: center;
-            font-size: 16px;
+            font-size: 18px;
+            flex-shrink: 0;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+            border: 1px solid rgba(255, 255, 255, 0.8);
         }
-        .c-purple .stat-icon { background: #f5f3ff; color: #7c3aed; }
+        .c-purple .stat-icon { background: #f3e8ff; color: #7c3aed; }
         .c-blue .stat-icon { background: #e0f2fe; color: #0284c7; }
-        .c-amber .stat-icon { background: #fffbeb; color: #d97706; }
-        .c-emerald .stat-icon { background: #ecfdf5; color: #059669; }
+        .c-amber .stat-icon { background: #fef3c7; color: #d97706; }
+        .c-emerald .stat-icon, .c-green .stat-icon { background: #ecfdf5; color: #059669; }
 
-        .stat-num {
-            font-size: 22px;
-            font-weight: 900;
+        .stat-num, .stat-value {
+            font-size: 26px;
+            font-weight: 950;
             color: #0f172a;
-            margin: 6px 0 2px;
-            line-height: 1.15;
+            margin: 4px 0 6px;
+            line-height: 1.1;
+            letter-spacing: -0.5px;
         }
-        .stat-desc {
+        .stat-desc, .stat-footer {
             font-size: 12px;
-            color: var(--text-muted);
+            color: #64748b;
             font-weight: 600;
+            line-height: 1.35;
         }
 
 
@@ -628,44 +678,118 @@
             border-color: var(--primary);
         }
 
-        .table-responsive {
+        /* ==========================================================================
+           📊 EXCEL / SPREADSHEET GRID TABLE (Chuẩn lưới Excel đậm nét, rõ ràng Row & Column)
+           ========================================================================== */
+        .table-responsive,
+        .excel-table-wrap {
             overflow-x: auto;
             width: 100%;
             -webkit-overflow-scrolling: touch;
+            border: 2px solid #94a3b8; /* Viền ngoài đậm nét rõ ràng */
+            border-radius: 12px;
+            background: #ffffff;
+            box-shadow: 0 4px 14px rgba(15, 23, 42, 0.08);
         }
-        table {
-            width: 100%;
-            border-collapse: collapse;
+        
+        table,
+        .modal-roster-table,
+        .user-table {
+            width: 100% !important;
+            border-collapse: separate !important;
+            border-spacing: 0 !important;
             text-align: left;
             font-size: 12.5px;
-            min-width: 860px;
+            background: #ffffff;
         }
-        thead th {
-            padding: 10px 10px;
-            background: #f8fafc;
-            color: var(--text-muted);
-            font-size: 10.5px;
-            font-weight: 850;
-            letter-spacing: 0.4px;
-            text-transform: uppercase;
-            border-bottom: 1.5px solid var(--border);
-            white-space: nowrap;
-            overflow: hidden;
-            text-overflow: ellipsis;
+        
+        /* THEAD - Chuẩn thanh tiêu đề bảng tính Excel đậm nét */
+        thead th,
+        .modal-roster-table thead th,
+        .user-table thead th {
+            padding: 11px 12px !important;
+            background: #e2e8f0 !important; /* Nền xám đậm nổi rõ thanh header */
+            color: #0f172a !important; /* Chữ đen đậm rõ */
+            font-size: 11.5px !important;
+            font-weight: 900 !important;
+            letter-spacing: 0.6px !important;
+            text-transform: uppercase !important;
+            border-bottom: 2.5px solid #64748b !important; /* Kẻ ngang dưới header đậm */
+            border-right: 1.5px solid #94a3b8 !important; /* Kẻ dọc ngăn cách cột đậm */
+            white-space: nowrap !important;
+            vertical-align: middle !important;
+            position: sticky;
+            top: 0;
+            z-index: 2;
         }
-        tbody tr {
-            border-bottom: 1px solid var(--border);
-            transition: background 0.1s;
+        thead th:last-child,
+        .modal-roster-table thead th:last-child,
+        .user-table thead th:last-child {
+            border-right: none !important;
         }
-        tbody tr:hover {
-            background: #f8fafc;
+
+        /* TBODY - Từng cell kẻ lưới Excel đậm rõ từng hàng & cột */
+        tbody tr,
+        .modal-roster-table tbody tr,
+        .user-table tbody tr {
+            transition: background 0.12s ease-in-out;
+            background: #ffffff;
         }
-        tbody td {
-            padding: 10px 10px;
-            vertical-align: middle;
-            white-space: nowrap;
-            overflow: hidden;
-            text-overflow: ellipsis;
+        /* Zebra striping xen kẽ đậm hơn để dễ phân biệt hàng */
+        tbody tr:nth-child(even),
+        .modal-roster-table tbody tr:nth-child(even),
+        .user-table tbody tr:nth-child(even) {
+            background: #f1f5f9;
+        }
+        /* Hover làm nổi bật cả dòng mượt mà */
+        tbody tr:hover,
+        .modal-roster-table tbody tr:hover,
+        .user-table tbody tr:hover {
+            background: #e0f2fe !important; /* Xanh sky sáng rõ */
+        }
+
+        tbody td,
+        .modal-roster-table tbody td,
+        .user-table tbody td {
+            padding: 10px 12px !important;
+            vertical-align: middle !important;
+            border-bottom: 1.5px solid #cbd5e1 !important; /* Kẻ ngang đậm rõ */
+            border-right: 1.5px solid #cbd5e1 !important; /* Kẻ dọc đậm rõ chuẩn Excel */
+            color: #0f172a;
+            font-size: 12.5px;
+        }
+        tbody td:last-child,
+        .modal-roster-table tbody td:last-child,
+        .user-table tbody td:last-child {
+            border-right: none !important;
+        }
+
+        /* Cột số thứ tự # - Chuẩn số hàng của Excel */
+        tbody td:first-child,
+        thead th:first-child,
+        .modal-roster-table td:first-child,
+        .modal-roster-table th:first-child {
+            text-align: center !important;
+            background: #e2e8f0;
+            font-weight: 900;
+            color: #334155;
+            border-right: 2px solid #64748b !important;
+        }
+        tbody tr:hover td:first-child {
+            background: #bae6fd !important;
+            color: #0369a1 !important;
+        }
+
+        /* Căn giữa tiện ích cho các ô */
+        .text-center,
+        th.text-center,
+        td.text-center {
+            text-align: center !important;
+        }
+        .text-right,
+        th.text-right,
+        td.text-right {
+            text-align: right !important;
         }
 
         /* 🏷️ PILL BADGES */
@@ -759,93 +883,81 @@
             background: #fee2e2 !important;
         }
 
-        /* 🛠️ TABLE ACTION BUTTONS VIP — COMPACT & SLEEK */
+        /* 🛠️ TABLE ACTION BUTTONS VIP — TACTILE, COMPACT & SLEEK */
         .action-btn-group {
             display: inline-flex;
             align-items: center;
-            gap: 4px;
+            gap: 5px;
             justify-content: flex-end;
             flex-wrap: nowrap;
         }
         .btn-action-edit, .btn-action-grant, .btn-action-view, .btn-action-delete {
-            padding: 3.5px 7px;
-            border-radius: 6px;
+            padding: 4px 8px;
+            border-radius: 7px;
             font-size: 11px;
-            font-weight: 800;
+            font-weight: 850;
             cursor: pointer;
             display: inline-flex;
             align-items: center;
-            gap: 3px;
+            gap: 4px;
             white-space: nowrap;
             line-height: 1.2;
             transition: all 0.15s ease;
-            box-shadow: 0 1px 2px rgba(0,0,0,0.03);
+            box-shadow: 0 1px 2px rgba(0, 0, 0, 0.04);
             text-decoration: none;
             flex-shrink: 0;
+            border-width: 1.5px;
+            border-style: solid;
         }
         .btn-action-edit {
             background: #ffffff;
             color: #334155;
-            border: 1px solid #cbd5e1;
+            border-color: #cbd5e1;
         }
         .btn-action-edit:hover {
             background: #f1f5f9;
             color: #0f172a;
             border-color: #94a3b8;
+            transform: translateY(-1px);
         }
         .btn-action-grant {
             background: #eef2ff;
             color: #4338ca;
-            border: 1px solid #c7d2fe;
+            border-color: #c7d2fe;
         }
         .btn-action-grant:hover {
-            background: #e0e7ff;
-            color: #3730a3;
-            border-color: #a5b4fc;
+            background: #4338ca;
+            color: #ffffff;
+            border-color: #4338ca;
+            transform: translateY(-1px);
+            box-shadow: 0 2px 6px rgba(67, 56, 202, 0.25);
         }
         .btn-action-view {
-            background: #f0fdf4;
-            color: #15803d;
-            border: 1px solid #bbf7d0;
+            background: #eef2ff;
+            color: #4338ca;
+            border-color: #c7d2fe;
         }
         .btn-action-view:hover {
-            background: #dcfce7;
-            color: #166534;
-            border-color: #86efac;
+            background: #4338ca;
+            color: #ffffff;
+            border-color: #4338ca;
+            transform: translateY(-1px);
+            box-shadow: 0 3px 8px rgba(67, 56, 202, 0.28);
+        }
+        .btn-action-view:active, .btn-action-edit:active, .btn-action-grant:active, .btn-action-delete:active {
+            transform: translateY(1px);
         }
         .btn-action-delete {
             background: #fff1f2;
             color: #e11d48;
-            border: 1px solid #fecdd3;
+            border-color: #fecdd3;
         }
         .btn-action-delete:hover {
-            background: #ffe4e6;
-            color: #be123c;
-            border-color: #fda4af;
-        }
-
-        /* 👥 MODAL ROSTER TABLE — HOÀN TOÀN KHÔNG BỊ CUỘN NGANG */
-        .modal-roster-table {
-            width: 100% !important;
-            min-width: 0 !important;
-            max-width: 100% !important;
-            border-collapse: collapse;
-            table-layout: fixed;
-        }
-        .modal-roster-table th, .modal-roster-table td {
-            padding: 10px 10px !important;
-            white-space: normal !important;
-            word-break: break-word !important;
-            overflow: visible !important;
-            text-overflow: clip !important;
-            vertical-align: middle !important;
-        }
-        .modal-roster-table thead th {
-            font-size: 11px !important;
-            font-weight: 850;
-            letter-spacing: 0.3px;
-            background: #f8fafc !important;
-            border-bottom: 1.5px solid var(--border) !important;
+            background: #e11d48;
+            color: #ffffff;
+            border-color: #e11d48;
+            transform: translateY(-1px);
+            box-shadow: 0 2px 6px rgba(225, 29, 72, 0.25);
         }
 
         /* Level Hero Cards VIP — Vibrant & High Contrast */
@@ -1126,107 +1238,106 @@
         .btn-excel {
             display: inline-flex;
             align-items: center;
-            gap: 8px;
+            gap: 7px;
             padding: 8px 16px;
-            background: linear-gradient(135deg, #059669, #10b981);
-            color: #ffffff;
-            font-size: 13px;
-            font-weight: 800;
-            border-radius: var(--radius-sm);
+            background: linear-gradient(135deg, #047857 0%, #10b981 100%);
+            color: #ffffff !important;
+            font-size: 12.5px;
+            font-weight: 850;
+            border-radius: 9px;
             text-decoration: none;
-            border: none;
+            border: 1.5px solid #059669;
             cursor: pointer;
-            box-shadow: 0 4px 10px rgba(16, 185, 129, 0.25);
-            transition: all 0.15s;
+            box-shadow: 0 3px 10px rgba(16, 185, 129, 0.3);
+            transition: all 0.15s ease;
+            line-height: 1.2;
         }
         .btn-excel:hover {
-            transform: translateY(-1px);
-            box-shadow: 0 6px 14px rgba(16, 185, 129, 0.35);
+            transform: translateY(-2px);
+            box-shadow: 0 6px 16px rgba(16, 185, 129, 0.4);
+            color: #ffffff !important;
+        }
+        .btn-excel:active {
+            transform: translateY(1px);
         }
         .btn-ghost {
             display: inline-flex;
             align-items: center;
             gap: 6px;
             padding: 8px 14px;
-            background: #f8fafc;
+            background: #ffffff;
             color: #334155;
-            font-size: 13px;
-            font-weight: 800;
-            border-radius: var(--radius-sm);
-            border: 1.5px solid var(--border-strong);
+            font-size: 12.5px;
+            font-weight: 850;
+            border-radius: 9px;
+            border: 1.5px solid #cbd5e1;
             cursor: pointer;
             text-decoration: none;
-            transition: all 0.15s;
+            transition: all 0.15s ease;
+            box-shadow: 0 1px 2px rgba(0, 0, 0, 0.04);
+            line-height: 1.2;
         }
         .btn-ghost:hover {
-            background: #f1f5f9;
+            background: #f8fafc;
             color: #0f172a;
-            border-color: #cbd5e1;
+            border-color: #94a3b8;
+            transform: translateY(-1px);
+        }
+        .btn-ghost:active {
+            transform: translateY(1px);
         }
 
-        .btn-action-view {
-            padding: 5px 10px;
-            background: #eef2ff;
-            color: #4f46e5;
-            border: 1px solid #c7d2fe;
-            border-radius: 6px;
-            font-weight: 800;
-            font-size: 11.5px;
-            cursor: pointer;
-            transition: 0.15s;
-            display: inline-flex;
-            align-items: center;
-            gap: 4px;
-        }
-        .btn-action-view:hover {
-            background: #4f46e5;
-            color: #ffffff;
-            border-color: #4f46e5;
-        }
-
-        /* 📈 TOPIC MASTERY MATRIX */
+        /* 📈 TOPIC MASTERY MATRIX (Thẻ đánh giá năng lực đa sắc màu sắc nét) */
         .mastery-container {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-            gap: 12px;
+            gap: 14px;
             margin-top: 14px;
         }
         .mastery-item {
-            background: #f8fafc;
-            border: 1px solid var(--border);
-            border-radius: var(--radius-sm);
-            padding: 12px 14px;
-            transition: all 0.15s;
+            background: #ffffff;
+            border: 1.5px solid #e2e8f0;
+            border-radius: 14px;
+            padding: 14px 18px;
+            box-shadow: 0 2px 8px rgba(15, 23, 42, 0.03);
+            transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+            position: relative;
+            overflow: hidden;
         }
         .mastery-item:hover {
             background: #ffffff;
-            border-color: var(--border-strong);
-            box-shadow: var(--shadow-sm);
+            border-color: #cbd5e1;
+            box-shadow: 0 8px 20px rgba(15, 23, 42, 0.06);
+            transform: translateY(-2px);
         }
         .mastery-header {
             display: flex;
             justify-content: space-between;
             align-items: center;
-            margin-bottom: 6px;
+            margin-bottom: 8px;
         }
         .mastery-title {
-            font-size: 12.5px;
-            font-weight: 800;
-            color: #1e293b;
+            font-size: 13px;
+            font-weight: 850;
+            color: #0f172a;
             white-space: nowrap;
             overflow: hidden;
             text-overflow: ellipsis;
         }
         .mastery-score {
-            font-size: 13px;
-            font-weight: 900;
+            font-size: 14px;
+            font-weight: 950;
+            padding: 2px 8px;
+            border-radius: 6px;
+            background: #f8fafc;
         }
         .mastery-track {
-            height: 8px;
+            height: 9px;
             background: #e2e8f0;
             border-radius: 999px;
             overflow: hidden;
-            margin-top: 6px;
+            margin-top: 8px;
+            border: 1px solid #cbd5e1;
         }
         .mastery-fill {
             height: 100%;
@@ -1236,10 +1347,10 @@
         .mastery-footer {
             display: flex;
             justify-content: space-between;
-            font-size: 11px;
-            color: var(--text-muted);
-            margin-top: 4px;
-            font-weight: 700;
+            font-size: 11.5px;
+            color: #64748b;
+            margin-top: 8px;
+            font-weight: 750;
         }
 
         /* 🔍 MULTI-FILTER TOOLBAR */
@@ -1785,8 +1896,8 @@
                         </div>
                     </div>
 
-                    <!-- DATA TABLE (VỪA VẶN 100%, KHÔNG CUỘN NGANG, THOÁNG ĐÃNG) -->
-                    <div style="border: 1.5px solid #e2e8f0; border-radius: 12px; background: #fff; overflow-x: hidden; width: 100%;">
+                    <!-- DATA TABLE (CHUẨN LƯỚI EXCEL SẮC NÉT, VỪA VẶN 100%) -->
+                    <div class="excel-table-wrap" style="overflow-x: hidden;">
                         <table id="attempts-data-table" class="modal-roster-table" style="width: 100% !important; table-layout: fixed;">
                             <colgroup>
                                 <col style="width: 4%;">
@@ -1802,12 +1913,12 @@
                                 <tr>
                                     <th style="text-align:center;">#</th>
                                     <th>HỌC SINH</th>
-                                    <th>{{ $isTeacher ? 'KHỐI HỌC' : 'GIÁO VIÊN / KHỐI' }}</th>
+                                    <th style="text-align:center;">{{ $isTeacher ? 'KHỐI HỌC' : 'GIÁO VIÊN / KHỐI' }}</th>
                                     <th>BÀI LUYỆN / CHỦ ĐỀ</th>
-                                    <th>ĐIỂM SỐ</th>
-                                    <th>CÂU ĐÚNG</th>
-                                    <th>THỜI ĐIỂM NỘP</th>
-                                    <th style="text-align:right;">CHI TIẾT</th>
+                                    <th style="text-align:center;">ĐIỂM SỐ</th>
+                                    <th style="text-align:center;">CÂU ĐÚNG</th>
+                                    <th style="text-align:center;">THỜI ĐIỂM NỘP</th>
+                                    <th style="text-align:center;">CHI TIẾT</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -1844,7 +1955,7 @@
                                                 </div>
                                             </div>
                                         </td>
-                                        <td>
+                                        <td style="text-align:center;">
                                             @if(! $isTeacher && $a->user?->teacher)
                                                 <div style="font-weight:750; color:#059669; font-size:11.5px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">👩‍🏫 {{ $a->user->teacher->name }}</div>
                                             @endif
@@ -1858,21 +1969,21 @@
                                                 📚 {{ $a->practiceTest?->topic?->name }}
                                             </div>
                                         </td>
-                                        <td>
-                                            <div class="score-bar-wrap">
+                                        <td style="text-align:center;">
+                                            <div class="score-bar-wrap" style="justify-content:center;">
                                                 <b style="font-size:13px; color: {{ $isPassed ? '#15803d' : '#b91c1c' }}; font-weight:900;">
                                                     {{ $a->score }}
                                                 </b>
-                                                <div class="score-bar-track" style="width: 100%;">
+                                                <div class="score-bar-track" style="width: 60px;">
                                                     <div class="score-bar-fill" style="width: {{ min(100, max(0, $a->score / 10)) }}%; background: {{ $isPassed ? '#10b981' : '#ef4444' }};"></div>
                                                 </div>
                                             </div>
                                         </td>
-                                        <td>
+                                        <td style="text-align:center;">
                                             <b style="color:#0f172a; font-size:12px;">{{ $a->correct_answers }}</b>
                                             <span style="color:#94a3b8; font-size:10.5px;">/{{ $a->total_questions }}</span>
                                         </td>
-                                        <td>
+                                        <td style="text-align:center;">
                                             <div style="font-size:11px; color:#334155;" title="{{ $a->completed_at_vn }}">
                                                 {{ $a->completed_date_vn }}
                                             </div>
@@ -1880,8 +1991,8 @@
                                                 ⏱️ {{ $timeFormatted }}
                                             </div>
                                         </td>
-                                        <td style="text-align:right;">
-                                            <button type="button" class="btn-action-view" style="padding: 4px 8px; font-size: 11px; display: inline-flex; align-items: center; gap: 3px;"
+                                        <td style="text-align:center;">
+                                            <button type="button" class="btn-action-view" style="margin: 0 auto;"
                                                 data-student="{{ $a->user?->name ?? 'Học sinh #' . $a->user_id }}"
                                                 data-code="{{ $a->user?->student_code ?? '' }}"
                                                 data-class="{{ $a->user?->classroom?->name ?? 'Tự do' }}"
@@ -2273,7 +2384,7 @@
                             </div>
                         </div>
 
-                        <div style="border: 1.5px solid #e2e8f0; border-radius: 12px; background: #fff; overflow-x: auto; width: 100%;">
+                        <div class="excel-table-wrap">
                             <table id="users-data-table" class="modal-roster-table" style="width:100% !important; max-width:100% !important; table-layout:fixed; min-width: 760px;">
                                 <colgroup>
                                     <col style="width: 5%;">
@@ -2288,9 +2399,9 @@
                                         <th style="text-align:center;">#</th>
                                         <th>HỌC SINH</th>
                                         <th style="text-align:center;">TRẠNG THÁI</th>
-                                        <th>KHỐI ĐƯỢC CẤP</th>
-                                        <th>LƯỢT THI</th>
-                                        <th style="text-align:right;">THAO TÁC</th>
+                                        <th style="text-align:center;">KHỐI ĐƯỢC CẤP</th>
+                                        <th style="text-align:center;">LƯỢT THI</th>
+                                        <th style="text-align:center;">THAO TÁC</th>
                                     </tr>
                                 </thead>
                                 <tbody>
@@ -2341,8 +2452,8 @@
                                                     </button>
                                                 @endif
                                             </td>
-                                            <td>
-                                                <div style="display:flex; gap:3px; flex-wrap:wrap;">
+                                            <td style="text-align:center;">
+                                                <div style="display:flex; gap:3px; flex-wrap:wrap; justify-content:center;">
                                                     @forelse($u->accessibleLevels as $lvl)
                                                         <span class="pill-badge pill-grade" style="font-size:10px; padding:2px 6px;">Khối {{ $lvl->grade }}</span>
                                                     @empty
@@ -2350,11 +2461,11 @@
                                                     @endforelse
                                                 </div>
                                             </td>
-                                            <td>
+                                            <td style="text-align:center;">
                                                 <span class="pill-badge pill-time" style="font-size:10.5px; padding:2px 6px;">📝 {{ $u->attempts_count ?? $u->attempts()->count() }} lượt</span>
                                             </td>
-                                            <td style="text-align:right;">
-                                                <div class="action-btn-group" style="justify-content:flex-end; gap:3px; flex-wrap:nowrap;">
+                                            <td style="text-align:center;">
+                                                <div class="action-btn-group" style="justify-content:center; gap:4px; flex-wrap:nowrap;">
                                                     <button type="button" class="btn-action-edit"
                                                         data-id="{{ $u->id }}"
                                                         data-name="{{ $u->name }}"
@@ -2407,7 +2518,7 @@
                             </div>
                         </div>
 
-                        <div style="border: 1.5px solid #e2e8f0; border-radius: 12px; background: #fff; overflow-x: auto; width: 100%;">
+                        <div class="excel-table-wrap">
                             <table id="users-data-table" class="modal-roster-table" style="width:100% !important; max-width:100% !important; table-layout: fixed; min-width: 800px;">
                                 <colgroup>
                                     <col style="width: 24%;">
@@ -2420,11 +2531,11 @@
                                 <thead>
                                     <tr>
                                         <th>NGƯỜI DÙNG</th>
-                                        <th>VAI TRÒ</th>
+                                        <th style="text-align:center;">VAI TRÒ</th>
                                         <th style="text-align:center;">TRẠNG THÁI</th>
-                                        <th>GIÁO VIÊN / GÓI & KHỐI</th>
-                                        <th>TIẾN ĐỘ</th>
-                                        <th style="text-align:right;">THAO TÁC</th>
+                                        <th style="text-align:center;">GIÁO VIÊN / GÓI & KHỐI</th>
+                                        <th style="text-align:center;">TIẾN ĐỘ</th>
+                                        <th style="text-align:center;">THAO TÁC</th>
                                     </tr>
                                 </thead>
                                 <tbody>
