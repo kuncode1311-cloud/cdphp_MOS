@@ -4171,7 +4171,7 @@
                                     $isPending = $msg->status === 'pending';
                                     $gradient = $gradients[$index % count($gradients)];
                                     $initials = mb_strtoupper(mb_substr($msg->name, 0, 2, 'UTF-8'), 'UTF-8');
-                                    $timeDiff = $msg->created_at ? $msg->created_at->diffForHumans(null, true) : 'Mới';
+                                    $timeDiff = $msg->created_at ? $msg->created_at->setTimezone('Asia/Ho_Chi_Minh')->diffForHumans(null, true) : 'Mới';
                                     $userType = $msg->user_type ?? 'guest';
                                     $userTypeLabel = $msg->user_type_label ?? '🌐 Khách Vãng Lai';
                                     $cleanMessage = ($msg->message === 'undefined' || empty(trim($msg->message))) ? 'Khách gửi yêu cầu tư vấn' : $msg->message;
@@ -4183,13 +4183,13 @@
                                      data-email="{{ $msg->email }}"
                                      data-message="{{ $cleanMessage }}"
                                      data-admin-reply="{{ $msg->admin_reply }}"
-                                     data-replied-at="{{ $msg->replied_at ? \Illuminate\Support\Carbon::parse($msg->replied_at)->format('H:i d/m/Y') : '' }}"
+                                     data-replied-at="{{ $msg->replied_at ? \Illuminate\Support\Carbon::parse($msg->replied_at)->setTimezone('Asia/Ho_Chi_Minh')->format('H:i d/m/Y') : '' }}"
                                      data-status="{{ $msg->status }}"
                                      data-initials="{{ $initials }}"
                                      data-gradient="{{ $gradient }}"
                                      data-user-type="{{ $userType }}"
                                      data-user-type-label="{{ $userTypeLabel }}"
-                                     data-time="{{ $msg->created_at ? $msg->created_at->format('H:i d/m/Y') : '' }}"
+                                     data-time="{{ $msg->created_at ? $msg->created_at->setTimezone('Asia/Ho_Chi_Minh')->format('H:i d/m/Y') : '' }}"
                                      onclick="selectChatConversation(this)">
 
                                     <!-- 1. Cột Avatar -->
@@ -4289,7 +4289,7 @@
                             <!-- Messages Body: Cuộn Mượt Mà & Không Bao Giờ Tràn -->
                             <div class="ms-stream-body" id="chat-conversation-body">
                                 <div class="ms-date-divider" id="chat-detail-time-stamp">
-                                    <span>{{ $activeMsg->created_at ? $activeMsg->created_at->format('H:i, d/m/Y') : 'Hôm nay' }}</span>
+                                    <span>{{ $activeMsg->created_at ? $activeMsg->created_at->setTimezone('Asia/Ho_Chi_Minh')->format('H:i, d/m/Y') : 'Hôm nay' }}</span>
                                 </div>
 
                                 <!-- Dynamic Incoming Message Bubbles Container -->
@@ -4414,7 +4414,7 @@
                                 </div>
                                 <div class="drawer-info-row">
                                     <span class="label">🕐 Gửi lúc</span>
-                                    <span class="val" id="drawer-time">{{ $activeMsg->created_at ? $activeMsg->created_at->format('H:i d/m') : '' }}</span>
+                                    <span class="val" id="drawer-time">{{ $activeMsg->created_at ? $activeMsg->created_at->setTimezone('Asia/Ho_Chi_Minh')->format('H:i d/m/Y') : '' }}</span>
                                 </div>
                             </div>
                         </div>
@@ -6109,7 +6109,14 @@
 
     // ⚡ REAL-TIME POLLING CHO ADMIN CHAT MESSENGER
     let adminChatPollingTimer = null;
-    let lastPolledMsgId = parseInt('{{ $supportMessages->isNotEmpty() ? $supportMessages->max("id") : 0 }}') || 0;
+    let lastPolledMsgId = 0;
+    document.querySelectorAll('.ms-conv-item').forEach(card => {
+        const cid = parseInt(card.getAttribute('data-id') || '0', 10);
+        if (cid > lastPolledMsgId) lastPolledMsgId = cid;
+    });
+    if (!lastPolledMsgId) {
+        lastPolledMsgId = parseInt('{{ $supportMessages->isNotEmpty() ? $supportMessages->max("id") : 0 }}') || 0;
+    }
 
     function pollAdminChat() {
         fetch(`/quan-tri/tin-nhan/realtime-poll?last_id=${lastPolledMsgId}&active_id=${currentChatMsgId || 0}`)
@@ -6133,15 +6140,15 @@
 
                 // Nếu có tin nhắn mới
                 if (data.new_messages && data.new_messages.length > 0) {
-                    playAdminChime();
-                    showAdminToast(`🔔 Có ${data.new_messages.length} tin nhắn tư vấn mới!`, 'info');
-
                     const list = document.getElementById('chat-conversation-list');
+                    let hasReallyNewMessage = false;
+
                     data.new_messages.forEach(msg => {
                         if (msg.id > lastPolledMsgId) lastPolledMsgId = msg.id;
 
                         let existingCard = document.querySelector(`.ms-conv-item[data-id="${msg.id}"]`);
                         if (!existingCard && list) {
+                            hasReallyNewMessage = true;
                             const initials = (msg.name || 'KH').substring(0, 2).toUpperCase();
                             const uType = msg.user_type || 'guest';
                             const uLabel = msg.user_type_label || '🌐 Khách Vãng Lai';
@@ -6203,6 +6210,12 @@
                             }
                         }
                     });
+
+                    // CHỈ phát chuông và hiện thông báo khi có tin nhắn thực sự mới
+                    if (hasReallyNewMessage) {
+                        playAdminChime();
+                        showAdminToast(`🔔 Có tin nhắn tư vấn mới!`, 'info');
+                    }
                 }
 
                 // Nếu cuộc trò chuyện đang mở có tin nhắn mới hoặc có cập nhật nội dung
@@ -6210,12 +6223,13 @@
                     const activeCard = document.querySelector(`.ms-conv-item[data-id="${currentChatMsgId}"]`);
                     if (activeCard) {
                         const oldMsg = activeCard.getAttribute('data-message') || '';
-                        if (oldMsg !== data.active_message.message) {
+                        // CHỈ cập nhật và phát chuông nếu message là chuỗi hợp lệ và khác với tin nhắn cũ
+                        if (typeof data.active_message.message === 'string' && data.active_message.message.trim().length > 0 && oldMsg !== data.active_message.message) {
                             activeCard.setAttribute('data-message', data.active_message.message);
                             selectChatConversation(activeCard);
                             playAdminChime();
                         }
-                        if (activeCard.getAttribute('data-status') !== data.active_message.status) {
+                        if (data.active_message.status && activeCard.getAttribute('data-status') !== data.active_message.status) {
                             activeCard.setAttribute('data-status', data.active_message.status);
                         }
                         if (data.active_message.admin_reply && activeCard.getAttribute('data-admin-reply') !== data.active_message.admin_reply) {

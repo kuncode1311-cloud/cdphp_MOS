@@ -366,9 +366,9 @@ class AdminController extends Controller
                     'status' => $m->status,
                     'user_type' => $userType,
                     'user_type_label' => $userTypeLabel,
-                    'replied_at' => $m->replied_at ? \Illuminate\Support\Carbon::parse($m->replied_at)->format('H:i d/m/Y') : null,
-                    'created_at' => $m->created_at ? $m->created_at->format('H:i d/m/Y') : null,
-                    'time_diff' => $m->created_at ? $m->created_at->diffForHumans(null, true) : 'Vừa xong',
+                    'replied_at' => $m->replied_at ? \Illuminate\Support\Carbon::parse($m->replied_at)->setTimezone('Asia/Ho_Chi_Minh')->format('H:i d/m/Y') : null,
+                    'created_at' => $m->created_at ? $m->created_at->setTimezone('Asia/Ho_Chi_Minh')->format('H:i d/m/Y') : null,
+                    'time_diff' => $m->created_at ? $m->created_at->setTimezone('Asia/Ho_Chi_Minh')->diffForHumans(null, true) : 'Vừa xong',
                 ];
             });
 
@@ -379,8 +379,10 @@ class AdminController extends Controller
                 $activeMessage = [
                     'id' => $active->id,
                     'status' => $active->status,
+                    'message' => $active->message,
                     'admin_reply' => $active->admin_reply,
-                    'replied_at' => $active->replied_at ? \Illuminate\Support\Carbon::parse($active->replied_at)->format('H:i d/m/Y') : null,
+                    'replied_at' => $active->replied_at ? \Illuminate\Support\Carbon::parse($active->replied_at)->setTimezone('Asia/Ho_Chi_Minh')->format('H:i d/m/Y') : null,
+                    'created_at' => $active->created_at ? $active->created_at->setTimezone('Asia/Ho_Chi_Minh')->format('H:i d/m/Y') : null,
                     'updated_at' => $active->updated_at ? $active->updated_at->timestamp : 0,
                 ];
             }
