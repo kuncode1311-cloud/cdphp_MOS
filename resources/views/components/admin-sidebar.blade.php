@@ -61,7 +61,9 @@
                     <span class="group-icon">📊</span>
                     <span class="group-title">BÁO CÁO & THEO DÕI</span>
                 </div>
-                <span class="group-chevron">▾</span>
+                <svg class="chevron-svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                    <polyline points="9 18 15 12 9 6"></polyline>
+                </svg>
             </button>
             <div class="nav-submenu">
                 @if($isDashboard)
@@ -83,7 +85,9 @@
                     <span class="group-icon">👥</span>
                     <span class="group-title">QUẢN TRỊ TÀI KHOẢN</span>
                 </div>
-                <span class="group-chevron">▾</span>
+                <svg class="chevron-svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                    <polyline points="9 18 15 12 9 6"></polyline>
+                </svg>
             </button>
             <div class="nav-submenu">
                 @if($isTeacher)
@@ -123,7 +127,9 @@
                     <span class="group-icon">📚</span>
                     <span class="group-title">CHUYÊN MÔN ĐỀ THI</span>
                 </div>
-                <span class="group-chevron">▾</span>
+                <svg class="chevron-svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                    <polyline points="9 18 15 12 9 6"></polyline>
+                </svg>
             </button>
             <div class="nav-submenu">
                 @if(! $isTeacher)
@@ -140,7 +146,7 @@
                         </a>
                     @endif
                 @else
-                    <a href="{{ route('programs') }}" class="nav-sub-item" style="background: #ecfdf5; color: #047857; border: 1px solid #a7f3d0;">
+                    <a href="{{ route('programs') }}" class="nav-sub-item" style="background: rgba(16, 185, 129, 0.2); color: #34d399; border: 1px solid rgba(16, 185, 129, 0.4);">
                         <span class="sub-icon">🎮</span> <span class="nav-text">Cổng Luyện thi ➔</span>
                     </a>
                 @endif
@@ -155,13 +161,15 @@
                     <span class="group-icon">🎮</span>
                     <span class="group-title">KHU TRÒ CHƠI & THƯỞNG</span>
                 </div>
-                <span class="group-chevron">▾</span>
+                <svg class="chevron-svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                    <polyline points="9 18 15 12 9 6"></polyline>
+                </svg>
             </button>
             <div class="nav-submenu">
                 <a href="{{ route('admin.games.settings') }}" class="nav-sub-item {{ $currentRoute === 'admin.games.settings' ? 'on' : '' }}" title="Cài đặt quy đổi Sao & Giờ chơi mini-game">
                     <span class="sub-icon">⚙️</span> <span class="nav-text">Cài đặt Khu Trò Chơi</span>
                 </a>
-                <a href="{{ asset('games/bao-ve-em-be.html') }}" target="_blank" class="nav-sub-item" style="color: #0284c7;" title="Mở phòng chơi game điều khiển bằng Camera chuyển động">
+                <a href="{{ asset('games/bao-ve-em-be.html') }}" target="_blank" class="nav-sub-item" style="color: #7dd3fc;" title="Mở phòng chơi game điều khiển bằng Camera chuyển động">
                     <span class="sub-icon">⚔️</span> <span class="nav-text">Chơi thử Song Kiếm ↗</span>
                 </a>
             </div>
@@ -176,7 +184,9 @@
                     <span class="group-icon">💎</span>
                     <span class="group-title">GÓI & BẢN QUYỀN</span>
                 </div>
-                <span class="group-chevron">▾</span>
+                <svg class="chevron-svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                    <polyline points="9 18 15 12 9 6"></polyline>
+                </svg>
             </button>
             <div class="nav-submenu">
                 @if($isDashboard)
@@ -213,7 +223,9 @@
                     <span class="group-icon">💬</span>
                     <span class="group-title">TƯ VẤN & LIVE CHAT</span>
                 </div>
-                <span class="group-chevron">▾</span>
+                <svg class="chevron-svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                    <polyline points="9 18 15 12 9 6"></polyline>
+                </svg>
             </button>
             <div class="nav-submenu">
                 @if($isDashboard)
@@ -241,7 +253,9 @@
                     <span class="group-icon">💎</span>
                     <span class="group-title">GÓI BẢN QUYỀN</span>
                 </div>
-                <span class="group-chevron">▾</span>
+                <svg class="chevron-svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                    <polyline points="9 18 15 12 9 6"></polyline>
+                </svg>
             </button>
             <div class="nav-submenu">
                 <a href="{{ route('pricing.index') }}" class="nav-sub-item" title="Bảng giá & Thuê gói bản quyền IC3 GS6">
@@ -272,198 +286,189 @@
 
 <style>
     /* =========================================================================
-       🌊 UNIFIED SMART ADMIN SIDEBAR STYLING (AQUA OCEAN & ICE PASTEL THEME)
+       🌊 VIVID ROYAL BLUE ADMIN SIDEBAR (HIGH CONTRAST - CỰC KỲ DỄ ĐỌC)
        ========================================================================= */
     .admin-unified-sidebar {
         position: sticky;
         top: 0;
         height: 100vh;
         max-height: 100vh;
-        padding: 18px 14px 14px;
-        background: linear-gradient(180deg, #ffffff 0%, #f0fdfa 35%, #e0f2fe 100%);
-        color: #0f172a;
+        padding: 16px 12px 14px;
+        /* Nền Xanh Dương Hoàng Gia - Đồng bộ hoàn toàn với Topbar */
+        background: linear-gradient(180deg, #0284c7 0%, #0369a1 45%, #075985 100%);
+        color: #ffffff;
         display: flex;
         flex-direction: column;
-        border-right: 2px solid #bae6fd;
-        box-shadow: 4px 0 24px rgba(2, 132, 199, 0.08);
+        border-right: 1.5px solid rgba(255, 255, 255, 0.18);
+        box-shadow: 4px 0 20px rgba(7, 89, 133, 0.25);
         z-index: 50;
         transition: width 0.22s cubic-bezier(0.4, 0, 0.2, 1), padding 0.22s ease;
         overflow: hidden;
         box-sizing: border-box;
     }
 
+    /* 1. Brand & Logo */
     .brand {
         display: flex;
         align-items: center;
-        gap: 12px;
-        margin: 0 4px 16px;
-        padding-bottom: 14px;
-        border-bottom: 1.5px solid #e0f2fe;
+        gap: 10px;
+        margin: 0 2px 14px;
+        padding-bottom: 12px;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.2);
         text-decoration: none;
     }
     .brand-logo-img {
-        width: 44px;
-        height: 44px;
-        border-radius: 13px;
+        width: 40px;
+        height: 40px;
+        border-radius: 11px;
         object-fit: cover;
-        box-shadow: 0 4px 12px rgba(2, 132, 199, 0.16);
-        border: 2px solid #bae6fd;
+        box-shadow: 0 3px 10px rgba(0, 0, 0, 0.25);
+        border: 2px solid rgba(255, 255, 255, 0.4);
         flex-shrink: 0;
-        transition: transform 0.2s cubic-bezier(0.16, 1, 0.3, 1);
-    }
-    .brand:hover .brand-logo-img {
-        transform: scale(1.06) rotate(-2deg);
-        border-color: #0284c7;
     }
     .brand-text {
-        font-size: 19px;
-        font-weight: 1000;
-        letter-spacing: 0.5px;
-        color: #0f172a;
-        line-height: 1.1;
+        font-size: 18px;
+        font-weight: 900;
+        letter-spacing: -0.3px;
+        color: #ffffff !important;
+        line-height: 1.15;
     }
     .brand-text span {
-        color: #0284c7;
+        color: #67e8f9 !important;
     }
     .brand-text small {
         display: block;
         font-size: 9.5px;
         font-weight: 800;
-        color: #0d9488;
-        letter-spacing: 1.5px;
-        margin-top: 3px;
+        color: #dbeafe !important;
+        letter-spacing: 1.2px;
+        margin-top: 2px;
     }
 
-    /* Admin Badge / Profile Box */
+    /* 2. Admin Badge / Profile Box */
     .admin-badge-box {
         display: flex;
         align-items: center;
-        gap: 12px;
-        padding: 10px 12px;
-        background: #ffffff;
-        border: 1.5px solid #bae6fd;
-        border-radius: 14px;
-        margin-bottom: 16px;
+        gap: 10px;
+        padding: 8px 10px;
+        background: rgba(255, 255, 255, 0.14);
+        border: 1.5px solid rgba(255, 255, 255, 0.25);
+        border-radius: 11px;
+        margin-bottom: 14px;
         cursor: pointer;
-        box-shadow: 0 2px 8px rgba(2, 132, 199, 0.06);
-        transition: all 0.2s ease;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        transition: background-color 0.15s ease, border-color 0.15s ease;
     }
     .admin-badge-box:hover {
-        background: #f0f9ff;
-        border-color: #38bdf8;
-        box-shadow: 0 4px 14px rgba(2, 132, 199, 0.12);
-        transform: translateY(-1px);
+        background: rgba(255, 255, 255, 0.22);
+        border-color: rgba(255, 255, 255, 0.45);
     }
     .avatar {
-        width: 38px;
-        height: 38px;
-        border-radius: 11px;
+        width: 34px;
+        height: 34px;
+        border-radius: 9px;
         display: grid;
         place-items: center;
-        font-size: 14px;
+        font-size: 13px;
         font-weight: 900;
         color: #ffffff;
-        border: 2px solid #bae6fd;
-        box-shadow: 0 3px 8px rgba(2, 132, 199, 0.18);
+        border: 1.5px solid rgba(255, 255, 255, 0.5);
         flex-shrink: 0;
     }
     .admin-info b {
         display: block;
-        font-size: 13.5px;
-        color: #0f172a;
+        font-size: 13px;
+        color: #ffffff !important;
         font-weight: 850;
     }
     .admin-info small {
         display: block;
         font-size: 11px;
-        color: #0284c7;
+        color: #dbeafe !important;
         font-weight: 750;
-        margin-top: 2px;
+        margin-top: 1px;
     }
 
-    /* Accordion Groups */
+    /* 3. Accordion Nav - Modern Flat Tree Style */
     .sidebar-accordion {
         flex: 1;
         overflow-y: auto;
         overflow-x: hidden;
-        padding-right: 4px;
-        margin-bottom: 12px;
+        padding-right: 2px;
+        margin-bottom: 10px;
         display: flex;
         flex-direction: column;
-        gap: 8px;
+        gap: 3px;
     }
     .sidebar-accordion::-webkit-scrollbar {
         width: 4px;
     }
     .sidebar-accordion::-webkit-scrollbar-thumb {
-        background: #bae6fd;
+        background: rgba(255, 255, 255, 0.3);
         border-radius: 999px;
-    }
-    .sidebar-accordion::-webkit-scrollbar-thumb:hover {
-        background: #38bdf8;
     }
 
     .nav-group {
-        border-radius: 12px;
-        transition: all 0.2s ease;
+        border-radius: 8px;
+        transition: background-color 0.15s ease;
     }
-    .nav-group.open {
-        background: rgba(240, 249, 255, 0.65);
-        border: 1px solid #e0f2fe;
-    }
+
+    /* Tiêu đề nhóm: Chữ TRẮNG TUYẾT #ffffff sắc nét, KHÔNG đóng hộp button */
     .nav-group-header {
         width: 100%;
         display: flex;
         align-items: center;
         justify-content: space-between;
-        padding: 9px 12px;
-        background: rgba(255, 255, 255, 0.75);
-        border: 1px solid #e2e8f0;
-        border-radius: 10px;
-        color: #334155;
+        padding: 8px 9px;
+        background: transparent !important;
+        border: none !important;
+        border-radius: 7px;
+        color: #ffffff !important;
         font-size: 11.5px;
         font-weight: 850;
         letter-spacing: 0.5px;
         cursor: pointer;
-        transition: all 0.18s ease;
+        transition: background-color 0.15s ease;
+        text-align: left;
+    }
+    .nav-group-header .group-title {
+        color: #ffffff !important;
+        font-weight: 850;
     }
     .nav-group-header:hover {
-        color: #0284c7;
-        background: #e0f2fe;
-        border-color: #7dd3fc;
+        background: rgba(255, 255, 255, 0.12) !important;
+        color: #ffffff !important;
     }
     .nav-group.open .nav-group-header {
-        background: linear-gradient(90deg, #e0f2fe 0%, #f0fdfa 100%);
-        border-color: #7dd3fc;
-        color: #0369a1;
-        font-weight: 900;
+        background: rgba(255, 255, 255, 0.16) !important;
+        color: #ffffff !important;
     }
     .group-title-wrap {
         display: flex;
         align-items: center;
-        gap: 9px;
+        gap: 7px;
     }
     .group-icon {
-        font-size: 15px;
+        font-size: 14px;
     }
-    .group-chevron {
-        font-size: 13px;
-        transition: transform 0.25s ease;
-        color: #64748b;
+    .chevron-svg {
+        transition: transform 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+        color: #bae6fd;
+        flex-shrink: 0;
     }
-    .nav-group.open .group-chevron {
-        transform: rotate(180deg);
-        color: #0284c7;
+    .nav-group.open .chevron-svg {
+        transform: rotate(90deg);
+        color: #ffffff;
     }
 
-    /* Submenu items */
+    /* Submenu items: Danh sách nhánh cây */
     .nav-submenu {
         display: none;
         flex-direction: column;
-        gap: 4px;
-        padding: 6px 4px 8px 12px;
-        margin-left: 12px;
-        border-left: 2px solid #bae6fd;
+        gap: 2px;
+        padding: 3px 0 5px 10px;
+        margin-left: 14px;
+        border-left: 2px solid rgba(255, 255, 255, 0.3);
     }
     .nav-group.open .nav-submenu {
         display: flex;
@@ -471,122 +476,129 @@
     .nav-sub-item {
         display: flex;
         align-items: center;
-        gap: 10px;
-        padding: 8px 12px;
-        border-radius: 10px;
-        color: #334155;
+        gap: 8px;
+        padding: 7px 10px;
+        border-radius: 7px;
+        color: #f0f9ff !important;
         font-size: 13px;
-        font-weight: 750;
+        font-weight: 700;
         text-decoration: none;
-        transition: all 0.15s ease;
-        border: 1px solid transparent;
+        transition: background-color 0.12s ease;
         position: relative;
+        transform: none !important;
     }
+    .nav-sub-item .nav-text {
+        color: #f0f9ff !important;
+        font-weight: 700;
+    }
+    /* RÊ CHUỘT: CHỈ ĐỔI NỀN MỜ ÊM ÁI - KHÔNG DỊCH CHUYỂN */
     .nav-sub-item:hover {
-        background: #e0f2fe;
-        color: #0284c7;
-        transform: translateX(3px);
-    }
-    .nav-sub-item.on, .nav-sub-item.active {
-        background: linear-gradient(135deg, #0284c7 0%, #0d9488 100%);
+        background: rgba(255, 255, 255, 0.2) !important;
         color: #ffffff !important;
-        border-color: #38bdf8;
-        box-shadow: 0 4px 14px rgba(2, 132, 199, 0.35);
-        font-weight: 900;
+        transform: none !important;
+    }
+    .nav-sub-item:hover .nav-text {
+        color: #ffffff !important;
+    }
+    /* KHI MỤC ĐƯỢC CHỌN: TÔ NỀN TRẮNG CHỮ XANH ĐẬM RỰC RỠ, TƯƠNG PHẢN TUYỆT ĐỐI */
+    .nav-sub-item.on, .nav-sub-item.active {
+        background: #ffffff !important;
+        color: #0284c7 !important;
+        font-weight: 900 !important;
+        border-radius: 7px;
+        box-shadow: 0 4px 14px rgba(0, 0, 0, 0.25);
+        transform: none !important;
+    }
+    .nav-sub-item.on .nav-text, .nav-sub-item.active .nav-text {
+        color: #0284c7 !important;
+        font-weight: 900 !important;
     }
     .nav-sub-item.on .sub-icon, .nav-sub-item.active .sub-icon {
-        color: #ffffff;
+        color: #0284c7 !important;
     }
     .nav-sub-item .sub-icon {
-        font-size: 15px;
+        font-size: 14px;
         flex-shrink: 0;
     }
 
     /* Badge Counter */
     .badge-counter {
         font-size: 10px;
-        font-weight: 900;
-        padding: 2px 7px;
+        font-weight: 850;
+        padding: 1.5px 6px;
         border-radius: 999px;
         margin-left: auto;
         flex-shrink: 0;
     }
     .badge-counter.red {
-        background: linear-gradient(135deg, #ef4444, #dc2626);
+        background: #ef4444;
         color: #ffffff;
-        box-shadow: 0 2px 6px rgba(239, 68, 68, 0.35);
     }
     .badge-counter.blue {
-        background: linear-gradient(135deg, #0284c7, #0369a1);
+        background: rgba(255, 255, 255, 0.3);
         color: #ffffff;
-        box-shadow: 0 2px 6px rgba(2, 132, 199, 0.35);
     }
 
-    /* Sidebar Footer */
+    /* 4. Chân Sidebar: Tinh gọn & Phẳng */
     .sidebar-footer {
-        padding-top: 12px;
-        border-top: 1.5px solid #e0f2fe;
+        padding-top: 10px;
+        border-top: 1px solid rgba(255, 255, 255, 0.2);
         display: flex;
         flex-direction: column;
-        gap: 8px;
+        gap: 6px;
     }
     .btn-sidebar-student-switch {
         display: flex;
         align-items: center;
         justify-content: center;
-        gap: 8px;
-        padding: 9px 12px;
-        border-radius: 10px;
-        background: linear-gradient(135deg, #0d9488 0%, #059669 100%);
-        border: 1px solid #34d399;
-        color: #ffffff;
-        font-size: 12.5px;
-        font-weight: 850;
+        gap: 7px;
+        padding: 7.5px 10px;
+        border-radius: 8px;
+        background: #059669;
+        color: #ffffff !important;
+        font-size: 12px;
+        font-weight: 800;
         text-decoration: none;
-        box-shadow: 0 4px 12px rgba(13, 148, 136, 0.25);
-        transition: all 0.18s ease;
+        border: 1px solid #34d399;
+        transition: background-color 0.15s ease;
+        transform: none !important;
     }
     .btn-sidebar-student-switch:hover {
-        background: linear-gradient(135deg, #0f766e 0%, #047857 100%);
-        color: #ffffff;
-        box-shadow: 0 6px 16px rgba(13, 148, 136, 0.35);
-        transform: translateY(-1px);
+        background: #047857;
+        transform: none !important;
     }
     .btn-sidebar-logout {
         width: 100%;
         display: flex;
         align-items: center;
         justify-content: center;
-        gap: 8px;
-        padding: 8.5px 12px;
-        border-radius: 10px;
-        background: #fff1f2;
-        border: 1.5px solid #fecdd3;
-        color: #e11d48;
-        font-size: 12.5px;
-        font-weight: 850;
+        gap: 7px;
+        padding: 7px 10px;
+        border-radius: 8px;
+        background: rgba(239, 68, 68, 0.25);
+        border: 1px solid rgba(239, 68, 68, 0.5);
+        color: #ffffff !important;
+        font-size: 12px;
+        font-weight: 800;
         cursor: pointer;
-        transition: all 0.18s ease;
+        transition: background-color 0.15s ease;
+        transform: none !important;
     }
     .btn-sidebar-logout:hover {
-        background: #e11d48;
-        color: #ffffff;
-        border-color: #e11d48;
-        box-shadow: 0 4px 12px rgba(225, 29, 72, 0.25);
-        transform: translateY(-1px);
+        background: #ef4444;
+        border-color: #ef4444;
+        transform: none !important;
     }
 
-    /* =========================================================================
-       🔄 SIDEBAR COLLAPSED MODE
-       ========================================================================= */
+    /* 🔄 COLLAPSED SIDEBAR */
     .shell.sidebar-collapsed .admin-unified-sidebar {
-        width: 76px !important;
-        padding: 16px 8px !important;
+        width: 70px !important;
+        padding: 14px 6px !important;
     }
     .shell.sidebar-collapsed .brand-text,
     .shell.sidebar-collapsed .admin-info,
     .shell.sidebar-collapsed .group-title,
-    .shell.sidebar-collapsed .group-chevron,
+    .shell.sidebar-collapsed .chevron-svg,
     .shell.sidebar-collapsed .nav-text,
     .shell.sidebar-collapsed .badge-counter,
     .shell.sidebar-collapsed .btn-sidebar-student-switch span:last-child,
@@ -595,30 +607,32 @@
     }
     .shell.sidebar-collapsed .brand {
         justify-content: center;
-        margin-bottom: 14px;
-        padding-bottom: 10px;
+        margin-bottom: 12px;
+        padding-bottom: 8px;
     }
     .shell.sidebar-collapsed .admin-badge-box {
         justify-content: center;
-        padding: 6px;
+        padding: 5px;
     }
     .shell.sidebar-collapsed .nav-group-header {
         justify-content: center;
-        padding: 10px 0;
+        padding: 8px 0;
     }
     .shell.sidebar-collapsed .nav-submenu {
-        padding: 4px 0;
+        padding: 2px 0;
         margin-left: 0;
         border-left: none;
     }
     .shell.sidebar-collapsed .nav-sub-item {
         justify-content: center;
-        padding: 10px 0;
+        padding: 8px 0;
+        transform: none !important;
     }
     .shell.sidebar-collapsed .btn-sidebar-student-switch,
     .shell.sidebar-collapsed .btn-sidebar-logout {
-        padding: 10px 0;
+        padding: 8px 0;
         justify-content: center;
+        transform: none !important;
     }
 </style>
 
