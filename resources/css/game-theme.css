@@ -1,0 +1,134 @@
+/* Màu sắc và trang trí kiểu trò chơi; file này được nạp sau app.css trong layout chung. */
+@layer components {
+  /* Mission Stage & Inner Pages Gamified Arcade Styling */
+  .vip-topbar{position:sticky;top:0;z-index:100;height:84px;padding:0 28px;display:flex;align-items:center;justify-content:space-between;gap:16px;background:linear-gradient(180deg,#1070b8 0%,#0d5b94 100%);border-bottom:3.5px solid #48c3f7;box-shadow:inset 0 -4px 0 #073a61,0 10px 25px rgba(6,38,68,.45);color:#fff}
+  .vip-player-pill{display:flex;align-items:center;gap:12px;padding:8px 16px;background:#eaffff;border:3px solid #fff;border-radius:18px;color:#12375e;box-shadow:0 5px 0 #094775;flex-shrink:0}
+  .player-avatar{font-size:32px;line-height:1}
+  .player-details b{display:block;font-size:13px;font-weight:900;color:#12375e}
+  .player-details small{display:block;font-size:11px;font-weight:800;color:#557799;margin-top:2px}
+  .player-stars{color:#e67e22;font-weight:900}
+
+  .vip-adventure-branding{display:flex;align-items:center;justify-content:center;gap:12px;text-align:center;flex:1}
+  .brand-star{font-size:26px;filter:drop-shadow(0 3px 0 #8c4c00)}
+  .branding-text h1{margin:0;color:#ffe658;font-size:26px;font-family:'Fredoka',cursive,sans-serif;line-height:1.1;text-shadow:0 3px 0 #6e350c,2px 0 #6e350c,-2px 0 #6e350c;font-weight:1000;letter-spacing:.5px}
+  .branding-text small{display:block;color:#fff;font-size:10px;letter-spacing:2px;margin-top:4px;font-weight:900;text-shadow:0 2px 0 #074775}
+
+  .vip-top-actions{display:flex;align-items:center;gap:10px;flex-shrink:0}
+  .vip-btn{height:44px;display:inline-flex;align-items:center;justify-content:center;gap:8px;padding:0 16px;border:2.5px solid #9ee6ff;border-radius:14px;background:#0866a7;color:#fff;font-size:14px;font-weight:900;box-shadow:inset 0 -4px 0 #064875,0 4px 10px rgba(0,0,0,.2);cursor:pointer;text-decoration:none;transition:transform .15s,background .15s}
+  .vip-btn:hover{transform:translateY(-2px);background:#0b7cc9}
+  .vip-btn em{font-style:normal}
+  .vip-btn-theme,.vip-btn-logout{width:44px;padding:0;border-radius:50%;font-size:18px}
+  .vip-btn-logout{background:#c0392b;border-color:#ff7675;box-shadow:inset 0 -4px 0 #851e13,0 4px 10px rgba(0,0,0,.2)}
+  .vip-btn-logout:hover{background:#e74c3c}
+
+  /* Mission Stage Layout */
+  .mission-stage{padding:20px 24px 60px}
+  .mission-nav-bar{display:flex;align-items:center;justify-content:space-between;gap:15px;margin:18px 0 20px;flex-wrap:wrap}
+  .nav-back-chip{display:inline-flex;align-items:center;gap:8px;padding:10px 18px;border:3px solid #fff;border-radius:999px;background:linear-gradient(180deg,#1877b8,#105a8f);color:#fff;font-size:12px;font-weight:900;box-shadow:0 6px 0 #073a61,0 12px 20px #06233d55;transition:.18s}
+  .nav-back-chip:hover{transform:translateY(-3px);background:linear-gradient(180deg,#2491dc,#1674b8);box-shadow:0 9px 0 #073a61,0 16px 25px #06233d77}
+  .nav-back-chip span{font-size:16px;font-weight:1000}
+  .breadcrumbs-game{display:flex;align-items:center;gap:8px;padding:8px 16px;background:#0d3962aa;border:2px solid #6cd2ff77;border-radius:14px;color:#cceeff;font-size:11px;font-weight:800}
+  .breadcrumbs-game a{color:#fff;transition:.15s}
+  .breadcrumbs-game a:hover{color:#ffe464;text-decoration:underline}
+  .breadcrumbs-game span{color:#68c3ff}
+
+  .mission-stage-grid{display:grid;grid-template-columns:1.35fr .85fr;gap:24px;align-items:start}
+  .stage-card{border:4px solid #fff;border-radius:26px;box-shadow:inset 0 -8px #0002,0 12px 0 #0c355e70,0 24px 45px #07213d66;overflow:hidden;position:relative}
+
+  /* Main Briefing Card */
+  .main-briefing{padding:34px;background:linear-gradient(160deg,#0e4579 0%,#153866 50%,#1a2a56 100%);color:#fff}
+  .stage-badge-row{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:18px}
+  .stage-pill{display:inline-flex;align-items:center;gap:6px;padding:7px 13px;border-radius:12px;font-size:11px;font-weight:900;letter-spacing:.5px;border:2px solid #fff;box-shadow:0 4px 0 #0003}
+  .grade-badge{background:linear-gradient(135deg,#ffcf33,#ff9b26);color:#4a2700}
+  .topic-badge{background:linear-gradient(135deg,#32c5ff,#1588ee);color:#fff}
+  .diff-badge{background:linear-gradient(135deg,#4ce38b,#1ca857);color:#033d18}
+
+  .stage-header{margin:10px 0 14px}
+  .stage-number{display:inline-block;padding:4px 10px;background:#ffffff22;border:2px solid #ffffff66;border-radius:8px;color:#ffe86c;font-size:11px;font-weight:1000;letter-spacing:1px;margin-bottom:8px}
+  .stage-header h1{margin:0;font-size:38px;color:#fff;font-weight:1000;text-shadow:0 4px 0 #092344,0 0 25px rgba(110,212,255,.4)}
+  .stage-subtitle{margin:6px 0 0;font-size:20px;color:#8be0ff;font-weight:800;text-shadow:0 2px 0 #082442}
+  .stage-desc{font-size:14px;line-height:1.7;color:#d5ebff;margin:15px 0 25px;font-weight:500}
+
+  /* 4 Game Stats Cubes */
+  .game-stats-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:14px;margin:25px 0}
+  .stat-cube{display:flex;align-items:center;gap:14px;padding:16px 18px;border:3px solid #fff;border-radius:18px;color:#fff;box-shadow:inset 0 -6px #0002,0 8px 0 #08284766;transition:.2s}
+  .stat-cube:hover{transform:translateY(-4px)}
+  .stat-time{background:linear-gradient(145deg,#3988e0,#1d5ea8)}
+  .stat-questions{background:linear-gradient(145deg,#2eb88a,#187f5d)}
+  .stat-target{background:linear-gradient(145deg,#f39c12,#c97305)}
+  .stat-reward{background:linear-gradient(145deg,#9b59b6,#6c3483)}
+  .stat-icon{width:46px;height:46px;display:grid;place-items:center;border-radius:14px;background:#ffffff28;border:2px solid #ffffff77;font-size:24px;flex-shrink:0}
+  .stat-info small,.stat-info b,.stat-info span{display:block}
+  .stat-info small{font-size:9px;font-weight:900;letter-spacing:1px;color:#ffe885}
+  .stat-info b{font-size:16px;margin:3px 0 2px}
+  .stat-info span{font-size:11px;color:#e8f4ff;opacity:.9}
+
+  /* Action Button */
+  .stage-action-row{display:flex;flex-direction:column;gap:12px;margin-top:28px}
+  .game-start-btn{display:flex;align-items:center;justify-content:space-between;gap:18px;padding:18px 28px;border:4px solid #fff;border-radius:20px;background:linear-gradient(180deg,#ffc933 0%,#ff8e1c 100%);color:#4f2600;box-shadow:inset 0 -8px 0 #b35600,0 10px 0 #08294977,0 20px 35px #ff952655;cursor:pointer;transition:.18s;width:100%}
+  .game-start-btn:hover{transform:translateY(-4px);background:linear-gradient(180deg,#ffdb58 0%,#ffa033 100%);box-shadow:inset 0 -8px 0 #b35600,0 14px 0 #08294977,0 25px 45px #ff952677}
+  .game-start-btn:active{transform:translateY(4px);box-shadow:inset 0 -2px 0 #b35600,0 4px 0 #08294977}
+  .btn-icon{font-size:36px;filter:drop-shadow(0 4px 0 #9e4700);animation:rocket-bounce 1.5s infinite ease-in-out}
+  @keyframes rocket-bounce{0%,100%{transform:translateY(0) rotate(0deg)}50%{transform:translateY(-5px) rotate(-6deg)}}
+  .btn-text{text-align:left;flex:1}
+  .btn-text b{display:block;font-size:20px;font-weight:1000;letter-spacing:.5px;text-shadow:0 1px 0 #ffeaa8}
+  .btn-text small{display:block;font-size:12px;font-weight:800;color:#6f3300;margin-top:2px}
+  .btn-arrow{width:42px;height:42px;display:grid;place-items:center;border-radius:50%;background:#fff;color:#c95e00;font-size:24px;font-weight:1000;box-shadow:0 4px 0 #ba5800}
+  .auto-save-pill{display:flex;align-items:center;gap:8px;font-size:12px;color:#c7e6ff;font-weight:700;padding:6px 12px}
+
+  /* Side Briefing Card */
+  .side-briefing{background:linear-gradient(180deg,#14497e,#193b68);color:#fff}
+  .side-art-wrapper{height:200px;position:relative;overflow:hidden;background:linear-gradient(145deg,#1b6ca8,#5b3ba8)}
+  .side-hero-img{width:100%;height:100%;object-fit:cover;object-position:center 30%;opacity:.95}
+  .side-floating-tag{position:absolute;left:14px;top:14px;display:flex;align-items:center;gap:6px;padding:6px 12px;background:#0d2d52e6;border:2px solid #57c7ff;border-radius:12px;font-size:10px;font-weight:900;color:#fff}
+  .side-score-tag{position:absolute;right:14px;bottom:14px;display:flex;align-items:center;gap:6px;padding:6px 12px;background:#ffd83b;border:2px solid #fff;border-radius:12px;font-size:11px;font-weight:1000;color:#4f2c00;box-shadow:0 5px 0 #aa6f00}
+
+  .side-mission-content{padding:24px}
+  .side-kicker{font-size:11px;font-weight:900;color:#ffd747;letter-spacing:1px;display:block}
+  .side-mission-content h3{margin:6px 0 16px;font-size:22px;color:#fff;font-weight:1000}
+
+  .mission-checklist{list-style:none;padding:0;margin:0 0 20px;display:flex;flex-direction:column;gap:12px}
+  .mission-checklist li{display:flex;align-items:flex-start;gap:12px;padding:12px;background:#ffffff15;border:2px solid #ffffff33;border-radius:16px}
+  .check-badge{width:28px;height:28px;display:grid;place-items:center;border-radius:50%;background:#20cb7a;color:#fff;font-size:14px;font-weight:1000;border:2px solid #fff;box-shadow:0 3px 0 #0d6e3f;flex-shrink:0}
+  .mission-checklist b{display:block;font-size:13px;color:#fff}
+  .mission-checklist small{display:block;font-size:11px;color:#c0e2ff;margin-top:2px}
+
+  .game-tip-box{padding:14px 16px;background:linear-gradient(135deg,#fff8d6,#ffe8a1);border:3px solid #fff;border-radius:18px;color:#4f3306;box-shadow:0 6px 0 #9c670866}
+  .tip-header{display:flex;align-items:center;gap:6px;margin-bottom:4px}
+  .tip-header span{font-size:18px}
+  .tip-header b{font-size:13px;font-weight:900}
+  .game-tip-box p{margin:0;font-size:12px;line-height:1.5;color:#5a3f12;font-weight:600}
+
+  /* Arcade Launch Modal - Bright White 3D Tone (Top Z-Index) */
+  .modal{position:fixed!important;inset:0!important;z-index:999999!important;display:none;align-items:center;justify-content:center;padding:20px}
+  .modal.is-open,.modal:not([aria-hidden="true"]){display:flex!important}
+  .modal-backdrop{position:fixed!important;inset:0!important;background:rgba(4,14,32,0.85)!important;backdrop-filter:blur(12px)!important;z-index:1!important}
+  .arcade-modal{position:relative!important;z-index:2!important;background:#ffffff!important;border:4px solid #ffffff!important;box-shadow:0 30px 85px rgba(0,0,0,0.45),0 0 45px rgba(0,242,254,0.3)!important;color:#0f172a!important;border-radius:32px!important;padding:40px 34px!important;max-width:520px;width:100%;text-align:center}
+  .modal-close-btn{position:absolute;right:18px;top:18px;width:38px;height:38px;display:grid;place-items:center;border:2px solid #e2e8f0;border-radius:50%;background:#f1f5f9;color:#64748b;font-size:16px;font-weight:900;cursor:pointer;transition:all .15s}
+  .modal-close-btn:hover{background:#fee2e2;color:#ef4444;border-color:#fca5a5;transform:scale(1.08)}
+  .modal-glow-ring{width:86px;height:86px;margin:0 auto 16px;border-radius:50%;background:linear-gradient(135deg,#fef08a,#facc15);border:3.5px solid #ffffff;display:grid;place-items:center;box-shadow:0 10px 25px rgba(234,179,8,0.35),0 0 25px rgba(250,204,21,0.5)}
+  .arcade-badge{font-size:42px}
+  .arcade-kicker{font-size:12px;font-weight:900;color:#d97706;letter-spacing:1.5px;display:block}
+  .arcade-modal h2{margin:8px 0 14px;font-family:'Fredoka',cursive,sans-serif!important;font-size:28px!important;color:#0f172a!important;font-weight:700!important;text-shadow:none!important}
+  .modal-test-preview{padding:16px;background:#f8fafc;border:2px solid #e2e8f0;border-radius:20px;margin:16px 0}
+  .preview-grade{display:inline-block;padding:4px 10px;background:linear-gradient(135deg,#0ea5e9,#0284c7);color:#ffffff;border-radius:999px;font-size:11px;font-weight:900;margin-bottom:6px}
+  .modal-test-preview b{display:block;font-size:18px;color:#0f172a;font-weight:900}
+  .modal-test-preview small{display:block;font-size:13px;color:#64748b;margin-top:4px;font-weight:750}
+  .modal-desc{font-size:14px;line-height:1.6;color:#475569!important;margin:14px 0 24px!important;font-weight:700}
+  .modal-arcade-actions{display:flex;gap:12px;justify-content:center}
+  .modal-cancel{background:#f1f5f9!important;border:2px solid #cbd5e1!important;color:#475569!important;border-radius:16px!important;padding:14px 22px!important;font-size:14px!important;font-weight:850!important;cursor:pointer}
+  .modal-cancel:hover{background:#e2e8f0!important;color:#1e293b!important}
+  .modal-launch{background:linear-gradient(180deg,#ffc048,#ff9f1a)!important;border:3px solid #ffffff!important;color:#4a2700!important;border-radius:16px!important;padding:14px 28px!important;font-size:15px!important;font-weight:1000!important;box-shadow:0 5px 0 #b35600,0 12px 25px rgba(255,159,26,0.45)!important;display:inline-flex;align-items:center;gap:8px;text-decoration:none;transition:transform .15s}
+  .modal-launch:hover{transform:translateY(-2px);box-shadow:0 7px 0 #b35600,0 15px 30px rgba(255,159,26,0.6)!important}
+
+  @media(max-width:1050px){
+    .mission-stage-grid{grid-template-columns:1fr}
+  }
+  @media(max-width:760px){
+    .game-stats-grid{grid-template-columns:1fr}
+    .stage-header h1{font-size:28px}
+    .main-briefing{padding:22px}
+    .side-briefing{padding:0}
+    .side-mission-content{padding:18px}
+  }
+}

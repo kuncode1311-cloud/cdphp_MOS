@@ -1,0 +1,1010 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hiệp Sĩ Song Kiếm: Bảo Vệ Em Bé (Súng Plasma Cực Ngầu)</title>
+    <script>
+        // Camera APIs are blocked on plain HTTP custom domains. Laragon's localhost
+        // is a browser-trusted development origin, so transparently reopen there.
+        if (location.hostname.toLowerCase() === 'mos.test' && !window.isSecureContext) {
+            location.replace('http://localhost/MOS/public/games/bao-ve-em-be.html');
+        }
+    </script>
+    
+    <!-- Thư viện MediaPipe Pose & Hands -->
+    <script src="https://cdn.jsdelivr.net/npm/@mediapipe/camera_utils/camera_utils.js" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@mediapipe/pose/pose.js" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@mediapipe/hands/hands.js" crossorigin="anonymous"></script>
+
+    <style>
+        :root {
+            --ui-bg: rgba(44, 62, 80, 0.85);
+            --neon-blue: #00ffff;
+            --neon-pink: #ff00ff;
+            --neon-yellow: #f1c40f;
+        }
+
+        body, html {
+            margin: 0; padding: 0; width: 100%; height: 100vh;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            overflow: hidden; background: #000; color: white;
+            user-select: none;
+        }
+
+        #game-bg {
+            position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+            background-image: linear-gradient(rgba(255,255,255,.02),rgba(30,38,90,.10)), url('../images/ic3-quest-hero.png');
+            background-size: cover; background-position: center;
+            z-index: 0; filter: brightness(0.96) saturate(1.08);
+            transition: transform 0.1s;
+        }
+
+        #video-element {
+            position: absolute; top: 20px; right: 20px; width: 240px; height: 180px;
+            object-fit: cover; transform: scaleX(-1);
+            border-radius: 12px; border: 3px solid #f1c40f; box-shadow: 0 10px 20px rgba(0,0,0,0.5);
+            z-index: 20;
+        }
+
+        #tracking-canvas { position:absolute; top:20px; right:20px; width:240px; height:180px; border-radius:12px; z-index:21; transform:scaleX(-1); pointer-events:none; }
+
+        #game-canvas {
+            position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+            z-index: 5; transform: scaleX(-1); 
+        }
+
+        #ui-layer {
+            position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+            z-index: 10; display: flex; flex-direction: column;
+            align-items: center; justify-content: center; pointer-events: none;
+        }
+
+        #top-bar {
+            position: absolute; top: 20px; left: 20px; display: flex; gap: 15px;
+            align-items: flex-start; flex-wrap: wrap;
+        }
+        
+        .box { background: var(--ui-bg); padding: 10px 25px; border-radius: 12px; border: 2px solid #fff; }
+        #score-box { font-size: 26px; font-weight: bold; background: #3498db; box-shadow: 0 5px 15px rgba(0,0,0,0.3);}
+        #level-box { font-size: 26px; font-weight: bold; background: #9b59b6; box-shadow: 0 5px 15px rgba(0,0,0,0.3);}
+        #hp-box { font-size: 26px; font-weight: bold; background: #e74c3c; box-shadow: 0 5px 15px rgba(0,0,0,0.3); letter-spacing: 2px;}
+        #weapon-box { font-size: 26px; font-weight: bold; background: #f39c12; box-shadow: 0 5px 15px rgba(0,0,0,0.3); color: #fff;}
+
+        .panel {
+            background: var(--ui-bg); padding: 40px; border-radius: 20px;
+            text-align: center; border: 4px solid #f1c40f; pointer-events: auto;
+            max-width: 600px; width: 90%; box-shadow: 0 15px 30px rgba(0,0,0,0.5);
+            backdrop-filter: blur(10px);
+        }
+        
+        .btn {
+            background: #f1c40f; color: #2c3e50; border: none; padding: 15px 40px;
+            font-size: 26px; font-weight: bold; border-radius: 50px; cursor: pointer;
+            margin-top: 20px; transition: 0.2s; border: 3px solid #fff; box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+        }
+        .btn:hover { background: #f39c12; transform: scale(1.05); }
+
+        #debug-info {
+            position: absolute; bottom: 20px; left: 20px; background: rgba(0,0,0,0.5);
+            padding: 5px; font-size: 14px; color: #f1c40f; z-index: 100; font-weight: bold;
+        }
+        #combo-box { position: absolute; top: 110px; left: 25px; padding: 8px 18px; border-radius: 30px; background: linear-gradient(135deg,#ff477e,#ff9f1c); border: 2px solid #fff; font-size: 20px; font-weight: 900; transform: scale(0); transition: transform .15s; box-shadow: 0 8px 24px rgba(255,71,126,.45); }
+        #combo-box.show { transform: scale(1); animation: comboPulse .28s ease; }
+        @keyframes comboPulse { 50% { transform: scale(1.22) rotate(-3deg); } }
+        #next-unlock { position:absolute; top:155px; left:25px; background:rgba(20,28,62,.9); border:1px solid rgba(255,255,255,.6); border-radius:12px; padding:8px 13px; font-size:13px; box-shadow:0 7px 20px rgba(0,0,0,.2); }
+        #next-unlock b { color:#ffd43b; } #next-unlock span { color:#dce5ff; }
+        #guide-btn { position:fixed; right:25px; bottom:22px; z-index:120; pointer-events:auto; border:2px solid #fff; border-radius:50px; padding:10px 17px; color:#fff; background:linear-gradient(135deg,#536dec,#8459e8); font-weight:800; cursor:pointer; box-shadow:0 9px 25px rgba(60,70,150,.38); }
+        #guide-panel { display:none; position:fixed; inset:0; z-index:130; background:rgba(10,16,45,.68); backdrop-filter:blur(7px); align-items:center; justify-content:center; pointer-events:auto; }
+        #guide-panel.open { display:flex; }.guide-card { width:min(650px,calc(100% - 30px)); padding:28px; border-radius:22px; background:#fff; color:#20284b; box-shadow:0 25px 70px rgba(0,0,0,.35); }.guide-card h2{margin:0 0 6px;color:#5b60e7}.guide-card>p{color:#727a97;margin:0 0 20px}.guide-levels{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}.guide-levels article{padding:16px;border-radius:15px;background:#f4f6ff;border:1px solid #e1e5f5}.guide-levels i{font-style:normal;font-size:30px}.guide-levels b,.guide-levels small{display:block}.guide-levels b{margin:8px 0 5px}.guide-levels small{font-size:12px;line-height:1.5;color:#6e7694}.guide-tip{margin-top:15px;padding:12px;border-radius:12px;background:#fff7d8;font-size:13px}.guide-close{float:right;border:0;border-radius:10px;padding:10px 16px;background:#5b60e7;color:#fff;font-weight:700;cursor:pointer;margin-top:16px}@media(max-width:600px){.guide-levels{grid-template-columns:1fr}.guide-card{max-height:90vh;overflow:auto}#guide-btn{right:12px;bottom:12px}#next-unlock{top:210px;left:10px}}
+    </style>
+</head>
+<body>
+
+    <div id="game-bg"></div>
+    <video id="video-element" autoplay playsinline></video>
+    <canvas id="tracking-canvas" width="240" height="180"></canvas>
+    <canvas id="game-canvas"></canvas>
+    
+    <div id="debug-info">Đang tải Thư viện AI Camera...</div>
+
+    <div id="ui-layer">
+        <div id="top-bar">
+            <div id="score-box" class="box">Điểm: <span id="score">0</span></div>
+            <div id="level-box" class="box">Cấp: <span id="level">1</span></div>
+            <div id="hp-box" class="box">💖 <span id="baby-hp">3</span></div>
+            <div id="weapon-box" class="box">Vũ khí: <span id="weapon-name">KIẾM</span></div>
+        </div>
+        <div id="combo-box">COMBO <span id="combo-count">×2</span></div>
+        <div id="next-unlock"><b>⚔️ Song kiếm</b> <span>· Còn 5 cấp để mở Súng Plasma</span></div>
+
+        <div id="start-panel" class="panel">
+            <h1 style="margin: 0 0 10px 0; color: #f1c40f;">⚔️ Hiệp Sĩ Song Kiếm Pro</h1>
+            <p style="font-size:18px;">
+                Vung tay chém Virus bảo vệ em bé.<br>
+                <b style="color:#e74c3c;">Cấp 6: Mở Súng Plasma · Cấp 10: Thêm em bé!</b><br>
+                <i>Nhặt súng: GIỮ CHẶT TAY để xả đạn liên thanh!</i>
+            </p>
+            <button id="start-btn" class="btn" disabled>ĐANG TẢI AI...</button>
+        </div>
+
+        <div id="game-over-panel" class="panel" style="display:none; border-color: #e74c3c;">
+            <h1 style="color: #e74c3c;">💀 GAME OVER</h1>
+            <p style="font-size:24px;">Virus đã làm hại em bé!<br>Tổng điểm: <span id="final-score" style="color: #f1c40f; font-weight: bold;">0</span></p>
+            <button class="btn" onclick="location.reload()">CHƠI LẠI</button>
+        </div>
+        <button id="guide-btn">❔ Hướng dẫn</button>
+        <div id="guide-panel"><div class="guide-card"><h2>🗺️ Lộ trình Hiệp sĩ</h2><p>Càng lên cấp, em càng mở khóa nhiều thử thách và vũ khí mới.</p><div class="guide-levels"><article><i>⚔️</i><b>Cấp 1 · Song kiếm</b><small>Vung hai tay để chém virus và tạo combo liên tiếp.</small></article><article><i>🔫</i><b>Cấp 6 · Súng Plasma</b><small>Chém vào vật phẩm súng để nhặt. Nắm chặt tay để bắn liên thanh trong 15 giây.</small></article><article><i>👶👶</i><b>Cấp 10 · Song vệ</b><small>Xuất hiện thêm một em bé. Hãy quan sát cả hai phía để bảo vệ an toàn.</small></article></div><div class="guide-tip">💡 Mỗi <b>200 điểm</b> tăng 1 cấp. Combo càng dài, điểm thưởng càng lớn!</div><button class="guide-close">Đã hiểu, chơi thôi!</button></div></div>
+    </div>
+
+<script>
+    // --- 0. ÂM THANH GOOGLE ---
+    let audioContext = null;
+    class SoundEffect {
+        constructor(type, volume = 0.45) { this.type = type; this.volume = volume; }
+        play() {
+            if (gameState !== 'PLAYING') return;
+            audioContext ||= new (window.AudioContext || window.webkitAudioContext)();
+            if (audioContext.state === 'suspended') audioContext.resume();
+            const now = audioContext.currentTime;
+            const gain = audioContext.createGain();
+            gain.connect(audioContext.destination);
+            gain.gain.setValueAtTime(this.volume, now);
+            gain.gain.exponentialRampToValueAtTime(0.001, now + (this.type === 'swoosh' ? .22 : .12));
+
+            const oscillator = audioContext.createOscillator();
+            oscillator.connect(gain);
+            oscillator.type = this.type === 'shot' ? 'square' : this.type === 'pickup' ? 'triangle' : 'sine';
+            const frequencies = { swoosh: [520, 120], hit: [210, 70], pickup: [420, 940], shot: [150, 55] };
+            const [start, end] = frequencies[this.type];
+            oscillator.frequency.setValueAtTime(start, now);
+            oscillator.frequency.exponentialRampToValueAtTime(end, now + (this.type === 'swoosh' ? .22 : .1));
+            oscillator.start(now); oscillator.stop(now + (this.type === 'swoosh' ? .23 : .11));
+
+            if (this.type === 'hit') {
+                const sparkle = audioContext.createOscillator(), sparkleGain = audioContext.createGain();
+                sparkle.type = 'triangle'; sparkle.frequency.setValueAtTime(1150, now); sparkle.frequency.exponentialRampToValueAtTime(520, now + .14);
+                sparkleGain.gain.setValueAtTime(.22, now); sparkleGain.gain.exponentialRampToValueAtTime(.001, now + .16);
+                sparkle.connect(sparkleGain); sparkleGain.connect(audioContext.destination); sparkle.start(now); sparkle.stop(now + .17);
+            }
+            if (this.type === 'pickup') {
+                [0, .07, .14].forEach((delay, index) => {
+                    const note = audioContext.createOscillator(), noteGain = audioContext.createGain();
+                    note.type = 'sine'; note.frequency.value = [523, 659, 784][index];
+                    noteGain.gain.setValueAtTime(.16, now + delay); noteGain.gain.exponentialRampToValueAtTime(.001, now + delay + .18);
+                    note.connect(noteGain); noteGain.connect(audioContext.destination); note.start(now + delay); note.stop(now + delay + .2);
+                });
+            }
+
+            if (this.type === 'hit' || this.type === 'shot') {
+                const length = Math.floor(audioContext.sampleRate * .08);
+                const buffer = audioContext.createBuffer(1, length, audioContext.sampleRate);
+                const data = buffer.getChannelData(0);
+                for (let i = 0; i < length; i++) data[i] = (Math.random() * 2 - 1) * (1 - i / length);
+                const noise = audioContext.createBufferSource();
+                const noiseGain = audioContext.createGain();
+                noiseGain.gain.value = this.volume * .35;
+                noise.buffer = buffer; noise.connect(noiseGain); noiseGain.connect(audioContext.destination); noise.start(now);
+            }
+        }
+    }
+
+    const sndSwoosh = new SoundEffect('swoosh', .2);
+    const sndHit = new SoundEffect('hit', .34);
+    const sndGunGet = new SoundEffect('pickup', .4);
+    const sndShot = new SoundEffect('shot', .18);
+
+    // --- 1. TẢI HÌNH ẢNH ---
+    const imgVirus = new Image();
+    imgVirus.src = "assets/virus-original.png";
+    
+    const imgBaby1 = new Image();
+    imgBaby1.src = "assets/baby-original.png";
+    const imgBaby2 = imgBaby1; 
+
+    // --- 2. CẤU HÌNH DOM ---
+    const video = document.getElementById('video-element');
+    const canvas = document.getElementById('game-canvas');
+    const ctx = canvas.getContext('2d');
+    const trackingCanvas = document.getElementById('tracking-canvas');
+    const trackingCtx = trackingCanvas.getContext('2d');
+    
+    const scoreEl = document.getElementById('score');
+    const levelEl = document.getElementById('level');
+    const hpEl = document.getElementById('baby-hp');
+    const weaponNameEl = document.getElementById('weapon-name');
+    const startPanel = document.getElementById('start-panel');
+    const gameOverPanel = document.getElementById('game-over-panel');
+    const startBtn = document.getElementById('start-btn');
+    const debugEl = document.getElementById('debug-info');
+    const comboBox = document.getElementById('combo-box');
+    const comboCountEl = document.getElementById('combo-count');
+    const nextUnlockEl = document.getElementById('next-unlock');
+    const guidePanel = document.getElementById('guide-panel');
+    document.getElementById('guide-btn').onclick = () => guidePanel.classList.add('open');
+    document.querySelector('.guide-close').onclick = () => guidePanel.classList.remove('open');
+    guidePanel.addEventListener('click', event => { if (event.target === guidePanel) guidePanel.classList.remove('open'); });
+
+    function updateUnlockHint() {
+        if (level < 6) nextUnlockEl.innerHTML = `<b>⚔️ Song kiếm</b> <span>· Còn ${6-level} cấp để mở Súng Plasma</span>`;
+        else if (level < 10) nextUnlockEl.innerHTML = `<b>🔫 Đã mở Súng Plasma</b> <span>· Còn ${10-level} cấp để mở Song vệ</span>`;
+        else nextUnlockEl.innerHTML = '<b>👑 Đã mở toàn bộ</b> <span>· Bảo vệ cả hai em bé!</span>';
+    }
+
+    let gameState = 'LOADING'; 
+    let controlMode = 'CAMERA';
+    let pointer = { x: window.innerWidth / 2, y: window.innerHeight / 2, active: false };
+    let score = 0;
+    let level = 1;
+    let babyHP = 3; 
+    let combo = 0;
+    let lastHitAt = 0;
+    let floatingTexts = [];
+    let impactFlash = 0;
+    
+    let objects = []; 
+    let particles = [];
+    let bullets = []; 
+    let swords = { left: null, right: null }; 
+    let handTrackingActive = false;
+
+    let currentWeapon = 'SWORD'; 
+    let gunTimers = { left: 0, right: 0 }; 
+    const GUN_DURATION = 15000; 
+
+    let handStates = {
+        left: { current: 'open', previous: 'open', lastShotTime: 0 },
+        right: { current: 'open', previous: 'open', lastShotTime: 0 }
+    };
+    
+    const SHOT_COOLDOWN = 120; // 120ms = ~8 viên đạn/giây
+
+    let babies = [];
+
+    function enablePointerMode(reason = '') {
+        controlMode = 'POINTER';
+        video.style.display = 'none';
+        gameState = 'START';
+        startBtn.disabled = false;
+        startBtn.innerText = 'BẮT ĐẦU CHƠI';
+        debugEl.innerText = '🖱️ Chế độ chuột/cảm ứng: di chuyển để điều khiển song kiếm';
+        const hint = document.querySelector('#start-panel p');
+        hint.innerHTML = 'Di chuyển chuột hoặc ngón tay để điều khiển song kiếm.<br><b style="color:#00ffff">Không cần camera — chơi được ngay!</b>';
+        if (reason) console.info('Camera fallback:', reason);
+    }
+
+    function updatePointer(event) {
+        const point = event.touches ? event.touches[0] : event;
+        pointer.x = point.clientX;
+        pointer.y = point.clientY;
+        pointer.active = true;
+    }
+    window.addEventListener('mousemove', updatePointer, { passive: true });
+    window.addEventListener('touchmove', updatePointer, { passive: true });
+    window.addEventListener('mousedown', () => { if (controlMode === 'POINTER') handStates.left.current = handStates.right.current = 'closed'; });
+    window.addEventListener('mouseup', () => { if (controlMode === 'POINTER') handStates.left.current = handStates.right.current = 'open'; });
+    window.addEventListener('touchstart', event => { updatePointer(event); if (controlMode === 'POINTER') handStates.left.current = handStates.right.current = 'closed'; }, { passive: true });
+    window.addEventListener('touchend', () => { if (controlMode === 'POINTER') handStates.left.current = handStates.right.current = 'open'; }, { passive: true });
+
+    function updatePointerWeapons() {
+        const centerX = canvas.width / 2;
+        const centerY = canvas.height * 0.78;
+        const targetX = pointer.active ? pointer.x : centerX;
+        const targetY = pointer.active ? pointer.y : canvas.height * 0.35;
+        const create = (offset, color, side) => {
+            const start = { x: centerX + offset, y: centerY };
+            let dx = targetX - start.x + offset * 0.35;
+            let dy = targetY - start.y;
+            const length = Math.max(1, Math.sqrt(dx * dx + dy * dy));
+            dx /= length; dy /= length;
+            const weaponLength = currentWeapon === 'GUN' && gunTimers[side] > 0 ? 140 : 200;
+            return { start, end: { x: start.x + dx * weaponLength, y: start.y + dy * weaponLength }, dir: { x: dx, y: dy }, color, angle: Math.atan2(dy, dx), length: weaponLength, side };
+        };
+        swords.left = create(-95, '#00ffff', 'left');
+        swords.right = create(95, '#ff00ff', 'right');
+    }
+
+    function initBabies() {
+        babies = [{ 
+            id: 1, x: 0, y: 0, width: 120, height: 120, radius: 40, dx: 4, 
+            img: imgBaby1, filter: 'none' 
+        }];
+        if (level >= 10) {
+            babies.push({
+                id: 2, x: canvas.width, y: 0, width: 120, height: 120, radius: 40, dx: -5,
+                img: imgBaby2, filter: 'hue-rotate(120deg)' 
+            });
+        }
+        babies.forEach(b => {
+            b.y = canvas.height - 80;
+            if(b.id === 1) b.x = canvas.width / 4;
+            if(b.id === 2) b.x = canvas.width * 3/4;
+        });
+    }
+
+    function resizeCanvas() {
+        canvas.width = window.innerWidth;
+        canvas.height = window.innerHeight;
+        if (gameState === 'PLAYING' || gameState === 'START' ) {
+             babies.forEach(b => b.y = canvas.height - 80);
+        }
+    }
+    window.addEventListener('resize', resizeCanvas);
+    resizeCanvas();
+
+    // --- 3. KHỞI TẠO AI ---
+    const pose = new Pose({locateFile: (file) => `https://cdn.jsdelivr.net/npm/@mediapipe/pose/${file}`});
+    pose.setOptions({ modelComplexity: 1, smoothLandmarks: true, minDetectionConfidence: 0.5 });
+    
+    const hands = new Hands({locateFile: (file) => `https://cdn.jsdelivr.net/npm/@mediapipe/hands/${file}`});
+    hands.setOptions({ maxNumHands: 2, modelComplexity: 1, minDetectionConfidence: 0.6 });
+
+    let poseResults = null;
+    let libLoaded = { pose: false, hands: false };
+
+    pose.onResults((results) => {
+        poseResults = results;
+        if(!libLoaded.pose) { libLoaded.pose = true; checkLibLoaded(); }
+    });
+
+    hands.onResults((results) => {
+        if(!libLoaded.hands) { libLoaded.hands = true; checkLibLoaded(); }
+        drawHandTrackingDebug(results);
+        if (gameState === 'PLAYING') {
+            processHandGestures(results);
+            updateWeaponsFromHands(results);
+        }
+    });
+
+    function drawHandTrackingDebug(results) {
+        trackingCtx.clearRect(0, 0, trackingCanvas.width, trackingCanvas.height);
+        // Vẽ vai - khuỷu - cổ tay để kiểm tra phần Pose hỗ trợ làm mượt kiếm.
+        if (poseResults && poseResults.poseLandmarks) {
+            [[11,13,15],[12,14,16]].forEach((arm, armIndex) => {
+                const points = arm.map(index => poseResults.poseLandmarks[index]);
+                if (points.some(point => !point || point.visibility < .35)) return;
+                trackingCtx.beginPath();
+                trackingCtx.moveTo(points[0].x * 240, points[0].y * 180);
+                trackingCtx.lineTo(points[1].x * 240, points[1].y * 180);
+                trackingCtx.lineTo(points[2].x * 240, points[2].y * 180);
+                trackingCtx.strokeStyle = armIndex === 0 ? '#39ff88' : '#ff9f43';
+                trackingCtx.lineWidth = 4; trackingCtx.stroke();
+                points.forEach(point => {
+                    trackingCtx.beginPath(); trackingCtx.arc(point.x * 240, point.y * 180, 4, 0, Math.PI * 2);
+                    trackingCtx.fillStyle = '#ffffff'; trackingCtx.fill();
+                });
+            });
+        }
+        if (!results.multiHandLandmarks) return;
+        const connections = [[0,1],[1,2],[2,3],[3,4],[0,5],[5,6],[6,7],[7,8],[0,9],[9,10],[10,11],[11,12],[0,13],[13,14],[14,15],[15,16],[0,17],[17,18],[18,19],[19,20],[5,9],[9,13],[13,17]];
+        results.multiHandLandmarks.forEach((landmarks, handIndex) => {
+            const color = handIndex === 0 ? '#00ffff' : '#ff4fd8';
+            trackingCtx.lineCap = 'round'; trackingCtx.lineJoin = 'round';
+            trackingCtx.strokeStyle = color; trackingCtx.lineWidth = 2;
+            connections.forEach(([a,b]) => {
+                trackingCtx.beginPath(); trackingCtx.moveTo(landmarks[a].x*240, landmarks[a].y*180); trackingCtx.lineTo(landmarks[b].x*240, landmarks[b].y*180); trackingCtx.stroke();
+            });
+            landmarks.forEach((point, index) => {
+                const anchor = index === 0 || index === 9 || index === 12;
+                trackingCtx.beginPath(); trackingCtx.arc(point.x*240, point.y*180, anchor ? 5 : 2.5, 0, Math.PI*2);
+                trackingCtx.fillStyle = anchor ? '#ffd43b' : '#ffffff'; trackingCtx.fill();
+                if (anchor) { trackingCtx.lineWidth=2; trackingCtx.strokeStyle='#17204b'; trackingCtx.stroke(); }
+            });
+            trackingCtx.beginPath(); trackingCtx.moveTo(landmarks[0].x*240, landmarks[0].y*180); trackingCtx.lineTo(landmarks[12].x*240, landmarks[12].y*180);
+            trackingCtx.strokeStyle='#ffd43b'; trackingCtx.lineWidth=4; trackingCtx.stroke();
+        });
+    }
+
+    function updateWeaponsFromHands(results) {
+        handTrackingActive = false;
+        if (!results.multiHandLandmarks || !results.multiHandedness) return;
+        const next = { left: null, right: null };
+        results.multiHandLandmarks.forEach((landmarks, index) => {
+            // Hand landmarks are much more reliable than pose wrists when only the
+            // player's head and hands are visible in the camera preview.
+            const detected = results.multiHandedness[index].label.toLowerCase();
+            const side = detected === 'left' ? 'left' : 'right';
+            const wrist = { x: landmarks[0].x * canvas.width, y: landmarks[0].y * canvas.height };
+            const middleBase = { x: landmarks[9].x * canvas.width, y: landmarks[9].y * canvas.height };
+            const middleTip = { x: landmarks[12].x * canvas.width, y: landmarks[12].y * canvas.height };
+            let dx = (middleTip.x * .7 + middleBase.x * .3) - wrist.x;
+            let dy = (middleTip.y * .7 + middleBase.y * .3) - wrist.y;
+            // Ghép hướng cẳng tay từ Pose với hướng bàn tay. Tìm cổ tay Pose
+            // gần bàn tay nhất để không phụ thuộc nhãn trái/phải khi camera lật.
+            if (poseResults && poseResults.poseLandmarks) {
+                const poseArms = [[13,15],[14,16]].map(([elbowIndex, wristIndex]) => ({
+                    elbow: poseResults.poseLandmarks[elbowIndex], wrist: poseResults.poseLandmarks[wristIndex]
+                })).filter(arm => arm.elbow && arm.wrist && arm.elbow.visibility > .35 && arm.wrist.visibility > .35);
+                if (poseArms.length) {
+                    const nearest = poseArms.sort((a,b) =>
+                        Math.hypot(a.wrist.x - landmarks[0].x, a.wrist.y - landmarks[0].y) -
+                        Math.hypot(b.wrist.x - landmarks[0].x, b.wrist.y - landmarks[0].y)
+                    )[0];
+                    let armDx = (nearest.wrist.x - nearest.elbow.x) * canvas.width;
+                    let armDy = (nearest.wrist.y - nearest.elbow.y) * canvas.height;
+                    const armMagnitude = Math.max(1, Math.hypot(armDx, armDy));
+                    armDx /= armMagnitude; armDy /= armMagnitude;
+                    const handMagnitude = Math.max(1, Math.hypot(dx, dy));
+                    dx = (dx / handMagnitude) * .72 + armDx * .28;
+                    dy = (dy / handMagnitude) * .72 + armDy * .28;
+                }
+            }
+            const magnitude = Math.max(1, Math.sqrt(dx * dx + dy * dy));
+            dx /= magnitude; dy /= magnitude;
+            // Mũi vũ khí bám đúng đầu ngón giữa. Chuôi được kéo lùi về phía
+            // cổ tay, nên khi hai đầu ngón chạm nhau thì hai mũi kiếm cũng chạm.
+            const handLength = Math.hypot(middleTip.x - wrist.x, middleTip.y - wrist.y);
+            const weaponLength = currentWeapon === 'GUN' && gunTimers[side] > 0
+                ? 140
+                : Math.min(220, Math.max(125, handLength * 1.35));
+            const tip = { x: middleTip.x, y: middleTip.y };
+            const handle = { x: tip.x - dx * weaponLength, y: tip.y - dy * weaponLength };
+            next[side] = { start: handle, end: tip, dir: { x: dx, y: dy }, color: side === 'left' ? '#00ffff' : '#ff00ff', angle: Math.atan2(dy, dx), length: weaponLength, side };
+            handTrackingActive = true;
+        });
+        ['left','right'].forEach(side => {
+            if (!next[side]) { swords[side] = null; return; }
+            const old = swords[side], fresh = next[side], smooth = .34;
+            if (old) {
+                fresh.start.x = old.start.x + (fresh.start.x - old.start.x) * smooth;
+                fresh.start.y = old.start.y + (fresh.start.y - old.start.y) * smooth;
+                fresh.end.x = old.end.x + (fresh.end.x - old.end.x) * smooth;
+                fresh.end.y = old.end.y + (fresh.end.y - old.end.y) * smooth;
+                fresh.length = Math.max(1, Math.hypot(fresh.end.x - fresh.start.x, fresh.end.y - fresh.start.y));
+                fresh.dir.x = (fresh.end.x - fresh.start.x) / fresh.length;
+                fresh.dir.y = (fresh.end.y - fresh.start.y) / fresh.length;
+                fresh.angle = Math.atan2(fresh.dir.y, fresh.dir.x);
+            }
+            swords[side] = fresh;
+        });
+    }
+
+    function checkLibLoaded() {
+        if (libLoaded.pose && libLoaded.hands) {
+            gameState = 'START';
+            startBtn.disabled = false;
+            startBtn.innerText = "BẮT ĐẦU CHÉM";
+            debugEl.innerText = "AI đã sẵn sàng!";
+        }
+    }
+
+    const camera = new Camera(video, {
+        onFrame: async () => { 
+            await pose.send({image: video});
+            await hands.send({image: video});
+        },
+        width: 640, height: 480
+    });
+
+    // --- 4. CỬ CHỈ TAY ---
+    function processHandGestures(results) {
+        handStates.left.current = 'open';
+        handStates.right.current = 'open';
+        
+        if (results.multiHandLandmarks && results.multiHandedness) {
+            for (let i = 0; i < results.multiHandLandmarks.length; i++) {
+                const landmarks = results.multiHandLandmarks[i];
+                const label = results.multiHandedness[i].label.toLowerCase(); 
+
+                if (isHandClosed(landmarks)) {
+                    handStates[label].current = 'closed';
+                }
+            }
+        }
+    }
+
+    function isHandClosed(landmarks) {
+        const wrist = landmarks[0];
+        const fingerTips = [8, 12, 16, 20];
+        let closedFingers = 0;
+        const baseIndices = [5, 9, 13, 17];
+        let avgBaseDist = 0;
+        baseIndices.forEach(idx => {
+            avgBaseDist += Math.sqrt(Math.pow(landmarks[idx].x - wrist.x, 2) + Math.pow(landmarks[idx].y - wrist.y, 2));
+        });
+        avgBaseDist /= 4;
+        fingerTips.forEach(idx => {
+            const tip = landmarks[idx];
+            const dist = Math.sqrt(Math.pow(tip.x - wrist.x, 2) + Math.pow(tip.y - wrist.y, 2));
+            if (dist < avgBaseDist * 1.2) closedFingers++;
+        });
+        return closedFingers >= 3;
+    }
+
+    // --- 5. LOGIC KIẾM & SÚNG ---
+    function distToSegmentSquared(p, v, w) {
+        let l2 = (v.x - w.x)**2 + (v.y - w.y)**2;
+        if (l2 === 0) return (p.x - v.x)**2 + (p.y - v.y)**2;
+        let t = ((p.x - v.x) * (w.x - v.x) + (p.y - v.y) * (w.y - v.y)) / l2;
+        t = Math.max(0, Math.min(1, t));
+        return (p.x - (v.x + t * (w.x - v.x)))**2 + (p.y - (v.y + t * (w.y - v.y)))**2;
+    }
+
+    function updateWeapons(landmarks) {
+        const getPoint = (index) => ({ x: landmarks[index].x * canvas.width, y: landmarks[index].y * canvas.height });
+
+        const lElbow = getPoint(13); const lWrist = getPoint(15);
+        const rElbow = getPoint(14); const rWrist = getPoint(16);
+        let isSwinging = false;
+
+        const createWeapon = (elbow, wrist, color, side) => {
+            let dx = wrist.x - elbow.x; let dy = wrist.y - elbow.y;
+            let length = Math.sqrt(dx*dx + dy*dy);
+            if (length < 15) return null; 
+            
+            let dirX = dx / length; let dirY = dy / length;
+            let angle = Math.atan2(dirY, dirX);
+
+            if (swords[side]) {
+                const vel = Math.sqrt(Math.pow(wrist.x - swords[side].start.x, 2) + Math.pow(wrist.y - swords[side].start.y, 2));
+                if (vel > 30) isSwinging = true; 
+            }
+
+            // CHUẨN HÓA CHIỀU DÀI SÚNG: Súng dài chính xác 140px
+            const weaponExtLen = (currentWeapon === 'GUN' && gunTimers[side] > 0) ? 140 : 200; 
+            
+            let tipX = wrist.x + dirX * weaponExtLen; 
+            let tipY = wrist.y + dirY * weaponExtLen;
+
+            return { start: wrist, end: {x: tipX, y: tipY}, dir: {x: dirX, y: dirY}, color: color, angle: angle, length: weaponExtLen, side: side };
+        };
+
+        swords.left = createWeapon(lElbow, lWrist, "#00ffff", 'left'); 
+        swords.right = createWeapon(rElbow, rWrist, "#ff00ff", 'right'); 
+
+        if (isSwinging && currentWeapon === 'SWORD') sndSwoosh.play();
+    }
+
+    // --- 6. LOGIC GAMEPLAY CHÍNH ---
+    function spawnObject() {
+        if(gameState !== 'PLAYING') return;
+        
+        if (level >= 6 && Math.random() < 0.15) {
+            spawnGunItem();
+        } else {
+            spawnVirus();
+        }
+        let nextSpawn = Math.max(300, 2000 - (level * 120)) + (Math.random() - 0.5) * 200; 
+        setTimeout(spawnObject, nextSpawn);
+    }
+
+    function spawnVirus() {
+        let spawnCount = (level > 5) ? 2 : 1;
+        for(let i=0; i<spawnCount; i++) {
+            let radius = Math.random() * 25 + 25; 
+            objects.push({
+                type: 'VIRUS', x: Math.random() * (canvas.width - radius*2) + radius, y: -radius, radius: radius,
+                speed: (Math.random() * 2 + 3) + (level * 0.4), 
+                angle: Math.random() * Math.PI * 2, rotSpeed: (Math.random() - 0.5) * 0.05
+            });
+        }
+    }
+
+    function spawnGunItem() {
+        const size = 60;
+        objects.push({ type: 'GUN_ITEM', x: Math.random() * (canvas.width - size) + size/2, y: -size, width: size, height: size, radius: size/2, speed: 4, angle: 0, rotSpeed: 0 });
+    }
+
+    function handleShooting() {
+        if (currentWeapon !== 'GUN') return;
+        
+        ['left', 'right'].forEach(side => {
+            const state = handStates[side]; 
+            const weapon = swords[side];
+            if (gunTimers[side] <= 0 || !weapon) return;
+            
+            // Xả đạn liên tục nếu đang nắm tay
+            if (state.current === 'closed') {
+                const now = Date.now();
+                if (now - state.lastShotTime > SHOT_COOLDOWN) {
+                    performShot(weapon); 
+                    state.lastShotTime = now;
+                }
+            }
+            state.previous = state.current;
+        });
+    }
+
+    function performShot(weapon) {
+        sndShot.play();
+        // Sinh đạn chính xác tại weapon.end (mũi nòng súng ở độ dài 140px)
+        bullets.push({ 
+            x: weapon.end.x, y: weapon.end.y, 
+            vx: weapon.dir.x * 35, vy: weapon.dir.y * 35, 
+            radius: 8, color: weapon.color 
+        });
+        
+        document.getElementById('game-bg').style.transform = "scale(1.01)";
+        setTimeout(() => document.getElementById('game-bg').style.transform = "scale(1)", 50);
+    }
+
+    function spawnExplosion(x, y, color, count = 10) {
+        sndHit.play();
+        for(let i=0; i<count; i++) {
+            particles.push({
+                x: x, y: y, vx: (Math.random() - 0.5) * 15, vy: (Math.random() - 0.5) * 15,
+                life: 1.0, color: color, size: Math.random() * 5 + 2
+            });
+        }
+    }
+
+    // --- 7. VÒNG LẶP RENDER ---
+    const fps = 60; const interval = 1000 / fps; let then = Date.now();
+
+    async function gameLoop() {
+        requestAnimationFrame(gameLoop);
+        const now = Date.now(); const delta = now - then;
+
+        if (delta > interval) {
+            then = now - (delta % interval);
+            ctx.clearRect(0, 0, canvas.width, canvas.height); 
+
+            if (gameState === 'PLAYING') {
+                if (controlMode === 'POINTER') updatePointerWeapons();
+                else if (!handTrackingActive && poseResults && poseResults.poseLandmarks) updateWeapons(poseResults.poseLandmarks);
+                handleShooting();
+                drawAndRunBabies();
+                drawAndManageBullets();
+                drawAndManageObjects(delta);
+                drawParticles();
+                drawRewardEffects();
+                drawWeapons();
+            }
+        }
+    }
+
+    function drawAndRunBabies() {
+        for (let i = babies.length - 1; i >= 0; i--) {
+            let b = babies[i];
+            b.x += b.dx;
+            if (b.x < b.width/2 || b.x > canvas.width - b.width/2) b.dx *= -1;
+            ctx.save();
+            ctx.translate(b.x, b.y);
+            ctx.filter = b.filter;
+            if (b.dx > 0) ctx.scale(-1, 1); 
+            ctx.drawImage(b.img, -b.width/2, -b.height/2, b.width, b.height);
+            ctx.restore();
+        }
+    }
+
+    function drawAndManageBullets() {
+        for (let i = bullets.length - 1; i >= 0; i--) {
+            let b = bullets[i];
+            b.x += b.vx; b.y += b.vy;
+            ctx.save(); ctx.shadowBlur = 10; ctx.shadowColor = b.color; ctx.fillStyle = '#fff';
+            ctx.beginPath(); ctx.arc(b.x, b.y, b.radius, 0, Math.PI*2); ctx.fill(); ctx.restore();
+
+            if (b.x < 0 || b.x > canvas.width || b.y < 0 || b.y > canvas.height) { bullets.splice(i, 1); continue; }
+
+            for (let j = objects.length - 1; j >= 0; j--) {
+                let obj = objects[j];
+                if (obj.type === 'VIRUS') {
+                    let dist = Math.sqrt(Math.pow(b.x - obj.x, 2) + Math.pow(b.y - obj.y, 2));
+                    if (dist < b.radius + obj.radius) {
+                        spawnExplosion(obj.x, obj.y, "#ff00ff", 15);
+                        objects.splice(j, 1); bullets.splice(i, 1); 
+                        addScore(15, obj.x, obj.y); 
+                        break; 
+                    }
+                }
+            }
+        }
+    }
+
+    function drawAndManageObjects(delta) {
+        let hasActiveGun = false;
+        ['left', 'right'].forEach(side => {
+            if (gunTimers[side] > 0) {
+                gunTimers[side] -= delta; hasActiveGun = true;
+                if (gunTimers[side] <= 0) { gunTimers[side] = 0; spawnExplosion(swords[side]?.start.x || 0, swords[side]?.start.y || 0, '#aaa', 5); }
+            }
+        });
+        
+        if (!hasActiveGun && currentWeapon === 'GUN') {
+            currentWeapon = 'SWORD'; weaponNameEl.innerText = "KIẾM";
+        }
+
+        for (let i = objects.length - 1; i >= 0; i--) {
+            let obj = objects[i];
+            obj.y += obj.speed; obj.angle += obj.rotSpeed;
+            let isDestroyed = false;
+
+            if (obj.type === 'VIRUS') {
+                const checkSwordCut = (side) => {
+                    const sword = swords[side];
+                    if(!sword) return false;
+                    return distToSegmentSquared(obj, sword.start, sword.end) < (obj.radius * obj.radius);
+                };
+
+                if (checkSwordCut('left') || checkSwordCut('right')) {
+                    isDestroyed = true; spawnExplosion(obj.x, obj.y, "#00ffff"); addScore(10, obj.x, obj.y);
+                }
+
+                if (!isDestroyed) {
+                    for(let baby of babies) {
+                        let distToBaby = Math.sqrt((obj.x - baby.x)**2 + (obj.y - baby.y)**2);
+                        if (distToBaby < (obj.radius + baby.radius - 15)) { 
+                            isDestroyed = true;
+                            babyHP--;
+                            hpEl.innerText = babyHP;
+                            spawnExplosion(baby.x, baby.y, '#e74c3c', 30);
+                            
+                            document.getElementById('game-bg').style.transform = "scale(1.05) translate(10px, 10px) rotate(2deg)";
+                            setTimeout(() => document.getElementById('game-bg').style.transform = "scale(1)", 100);
+
+                            if (babyHP <= 0) {
+                                endGame();
+                                return; 
+                            }
+                            break; 
+                        }
+                    }
+                }
+
+                if (!isDestroyed) {
+                    ctx.save(); ctx.translate(obj.x, obj.y); ctx.rotate(obj.angle);
+                    ctx.drawImage(imgVirus, -obj.radius, -obj.radius, obj.radius*2, obj.radius*2); ctx.restore();
+                }
+
+            } else if (obj.type === 'GUN_ITEM') {
+                const checkGunPickup = (side) => {
+                    const sword = swords[side]; if(!sword) return false;
+                    return distToSegmentSquared(obj, sword.start, sword.end) < (obj.radius * 2 * obj.radius * 2);
+                };
+
+                let pickedSide = null;
+                if (checkGunPickup('left')) pickedSide = 'left';
+                else if (checkGunPickup('right')) pickedSide = 'right';
+
+                if (pickedSide) {
+                    isDestroyed = true; activateGun(pickedSide);
+                } else {
+                    // Vẽ Icon súng Plasma để người dùng nhặt
+                    ctx.save(); ctx.translate(obj.x, obj.y); ctx.scale(0.8, 0.8);
+                    ctx.shadowBlur = 15; ctx.shadowColor = '#00ffff';
+                    ctx.fillStyle = "#2c3e50"; ctx.beginPath(); ctx.moveTo(-35, -15); ctx.lineTo(30, -15); ctx.lineTo(40, -5); ctx.lineTo(40, 15); ctx.lineTo(-25, 15); ctx.lineTo(-35, 5); ctx.fill();
+                    ctx.fillStyle = "#34495e"; ctx.fillRect(40, -8, 60, 16); 
+                    ctx.fillStyle = "#00ffff"; ctx.fillRect(35, -2, 70, 4); 
+                    ctx.fillStyle = "#111"; ctx.beginPath(); ctx.moveTo(-15, 10); ctx.lineTo(10, 10); ctx.lineTo(0, 45); ctx.lineTo(-20, 45); ctx.fill();
+                    ctx.fillStyle = "#111"; ctx.fillRect(-10, -28, 35, 12); 
+                    ctx.restore();
+                }
+            }
+
+            if (obj.y > canvas.height + 100) isDestroyed = true;
+            if (isDestroyed) objects.splice(i, 1);
+        }
+    }
+
+    // --- VẼ SÚNG SCI-FI VÀ KIẾM ---
+    function drawWeapons() {
+        const drawSingleWeapon = (sword) => {
+            if(!sword) return;
+            
+            ctx.save();
+            ctx.translate(sword.start.x, sword.start.y);
+            ctx.rotate(sword.angle); 
+            
+            // Xoay súng để báng súng luôn hướng xuống dưới bất kể tay đang chĩa về hướng nào
+            let isFlipped = (Math.cos(sword.angle) < 0);
+            if (isFlipped) {
+                ctx.scale(1, -1);
+            }
+
+            if (currentWeapon === 'GUN' && gunTimers[sword.side] > 0) {
+                // Tỉ lệ súng
+                let gunLen = sword.length; // Đã set = 140
+                let c = sword.color;
+                
+                // Nhấp nháy khi sắp hết đạn
+                if (gunTimers[sword.side] < 3000 && Math.floor(gunTimers[sword.side]/100) % 2 === 0) {
+                    ctx.globalAlpha = 0.5; 
+                }
+
+                // 1. Báng súng & Vòng bảo vệ cò
+                ctx.shadowBlur = 0;
+                ctx.fillStyle = "#111"; // Tay cầm đen nhám
+                ctx.beginPath(); ctx.moveTo(-15, 10); ctx.lineTo(10, 10); ctx.lineTo(0, 45); ctx.lineTo(-20, 45); ctx.fill();
+                ctx.strokeStyle = "#333"; ctx.lineWidth = 3;
+                ctx.beginPath(); ctx.moveTo(10, 10); ctx.lineTo(10, 25); ctx.lineTo(-5, 25); ctx.stroke(); 
+
+                // 2. Thân súng (Body)
+                ctx.fillStyle = "#2c3e50"; // Xanh thép tối
+                ctx.beginPath(); ctx.moveTo(-35, -15); ctx.lineTo(30, -15); ctx.lineTo(40, -5); ctx.lineTo(40, 15); ctx.lineTo(-25, 15); ctx.lineTo(-35, 5); ctx.fill();
+                ctx.strokeStyle = c; ctx.lineWidth = 1.5; ctx.stroke(); // Viền Neon
+
+                // 3. Ống ngắm công nghệ cao (Scope)
+                ctx.fillStyle = "#111"; ctx.fillRect(-10, -28, 35, 12);
+                ctx.fillStyle = "#34495e"; ctx.fillRect(-5, -32, 25, 4);
+                ctx.shadowBlur = 10; ctx.shadowColor = c; ctx.fillStyle = c;
+                ctx.fillRect(22, -26, 4, 8); // Mắt ngắm sáng
+
+                // 4. Nòng súng nhiều lớp
+                ctx.shadowBlur = 0;
+                ctx.fillStyle = "#34495e"; ctx.fillRect(40, -8, gunLen - 60, 16); // Nòng ngoài
+                ctx.fillStyle = "#111"; 
+                for(let i=45; i<gunLen-30; i+=12) ctx.fillRect(i, -9, 4, 18); // Khe tản nhiệt
+
+                // 5. Lõi năng lượng chạy dọc nòng
+                ctx.shadowBlur = 15; ctx.shadowColor = c; ctx.fillStyle = c;
+                ctx.fillRect(35, -2, gunLen - 40, 4); 
+
+                // 6. Lò phản ứng trung tâm (Pulsing Core)
+                let pulse = Math.abs(Math.sin(Date.now() * 0.01)) * 3;
+                ctx.beginPath(); ctx.arc(0, 0, 6 + pulse, 0, Math.PI*2); ctx.fillStyle = "#fff"; ctx.fill();
+                ctx.beginPath(); ctx.arc(0, 0, 12, 0, Math.PI*2); ctx.strokeStyle = c; ctx.lineWidth = 2; ctx.stroke();
+
+                // 7. Đầu nòng súng (Muzzle Flash Hider) được đặt chính xác tại gunLen (140)
+                ctx.fillStyle = "#2c3e50";
+                ctx.beginPath(); ctx.moveTo(gunLen - 20, -12); ctx.lineTo(gunLen, -6); ctx.lineTo(gunLen, 6); ctx.lineTo(gunLen - 20, 12); ctx.fill();
+                
+                // Ánh sáng tụ tại miệng nòng
+                ctx.globalAlpha = 0.8;
+                ctx.beginPath(); ctx.arc(gunLen, 0, 8 + Math.random()*5, 0, Math.PI*2); ctx.fill();
+                ctx.globalAlpha = 1.0;
+
+            } else {
+                // VẼ KIẾM KIM LOẠI
+                let grad = ctx.createLinearGradient(0, -12, 0, 12);
+                grad.addColorStop(0, "#bdc3c7");
+                grad.addColorStop(0.5, "#ffffff");
+                grad.addColorStop(1, "#95a5a6");
+
+                ctx.shadowBlur = 15; 
+                ctx.shadowColor = sword.color;
+
+                ctx.fillStyle = grad;
+                ctx.beginPath();
+                ctx.moveTo(0, -12); 
+                ctx.lineTo(sword.length - 30, -8); 
+                ctx.lineTo(sword.length, 0); 
+                ctx.lineTo(sword.length - 30, 8); 
+                ctx.lineTo(0, 12); 
+                ctx.closePath();
+                ctx.fill();
+
+                ctx.strokeStyle = "rgba(0,0,0,0.3)";
+                ctx.lineWidth = 2;
+                ctx.beginPath();
+                ctx.moveTo(0, 0);
+                ctx.lineTo(sword.length - 30, 0);
+                ctx.stroke();
+
+                ctx.shadowBlur = 0; 
+                
+                ctx.fillStyle = "#f1c40f"; 
+                ctx.fillRect(-12, -35, 12, 70);
+                ctx.beginPath();
+                ctx.arc(-6, -35, 6, 0, Math.PI*2);
+                ctx.arc(-6, 35, 6, 0, Math.PI*2);
+                ctx.fill();
+
+                ctx.fillStyle = (sword.color === '#00ffff') ? "#2980b9" : "#c0392b"; 
+                ctx.fillRect(-50, -8, 38, 16);
+
+                ctx.fillStyle = "#f1c40f";
+                ctx.beginPath();
+                ctx.arc(-50, 0, 12, 0, Math.PI*2);
+                ctx.fill();
+            }
+            ctx.restore();
+        };
+
+        drawSingleWeapon(swords.left);
+        drawSingleWeapon(swords.right);
+    }
+
+    function drawParticles() {
+        for (let i = particles.length - 1; i >= 0; i--) {
+            let p = particles[i];
+            p.x += p.vx; p.y += p.vy; p.vy += 0.5; 
+            p.life -= 0.025;
+            if (p.life <= 0) { particles.splice(i, 1); } 
+            else {
+                ctx.save(); ctx.globalAlpha = p.life; ctx.fillStyle = p.color;
+                ctx.shadowBlur = 5; ctx.shadowColor = p.color;
+                ctx.beginPath(); ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2); ctx.fill(); ctx.restore();
+            }
+        }
+    }
+
+    function drawRewardEffects() {
+        if (impactFlash > 0) {
+            ctx.save(); ctx.globalAlpha = impactFlash; ctx.fillStyle = '#fff9b8'; ctx.fillRect(0, 0, canvas.width, canvas.height); ctx.restore();
+            impactFlash = Math.max(0, impactFlash - .045);
+        }
+        for (let i = floatingTexts.length - 1; i >= 0; i--) {
+            const text = floatingTexts[i]; text.y -= 1.8; text.life -= .022;
+            if (text.life <= 0) { floatingTexts.splice(i, 1); continue; }
+            ctx.save(); ctx.globalAlpha = Math.min(1, text.life * 1.5); ctx.textAlign = 'center'; ctx.lineJoin = 'round';
+            // The gameplay canvas is mirrored to match the camera. Counter-mirror
+            // only text so scores remain readable while weapons still follow hands.
+            ctx.translate(text.x, text.y); ctx.scale(-1, 1);
+            ctx.font = `900 ${Math.round(25 + (1 - text.life) * 8)}px Segoe UI`;
+            ctx.lineWidth = 7; ctx.strokeStyle = '#17204b'; ctx.strokeText(text.label, 0, 0);
+            ctx.fillStyle = text.color; ctx.shadowBlur = 18; ctx.shadowColor = text.color; ctx.fillText(text.label, 0, 0); ctx.restore();
+        }
+    }
+
+    function addScore(pts, x = canvas.width / 2, y = canvas.height / 2) {
+        const now = Date.now();
+        combo = now - lastHitAt < 1300 ? combo + 1 : 1; lastHitAt = now;
+        const bonus = Math.min(20, Math.max(0, combo - 1) * 2);
+        const earned = pts + bonus;
+        score += earned; scoreEl.innerText = score;
+        impactFlash = .16;
+        floatingTexts.push({ x, y, life: 1, color: combo >= 4 ? '#ffcf33' : '#ffffff', label: `+${earned} ★${combo >= 2 ? '  COMBO ×' + combo : ''}` });
+        for (let i = 0; i < 8; i++) particles.push({ x, y, vx:(Math.random()-.5)*18, vy:(Math.random()-.8)*15, life:1, color:['#ffd43b','#ff6b91','#52e2c0','#66a6ff'][i%4], size:Math.random()*5+3 });
+        if (combo >= 2) { comboCountEl.innerText = `×${combo}`; comboBox.classList.add('show'); }
+        const comboSnapshot = combo;
+        setTimeout(() => { if (combo === comboSnapshot && Date.now() - lastHitAt >= 1200) { combo = 0; comboBox.classList.remove('show'); } }, 1350);
+        let newLevel = Math.floor(score / 200) + 1;
+        if (newLevel > level) {
+            level = newLevel; levelEl.innerText = level;
+            updateUnlockHint();
+            document.getElementById('game-bg').style.filter = "brightness(1.5)";
+            floatingTexts.push({ x: canvas.width / 2, y: canvas.height / 2, life: 1.5, color: '#ffd43b', label: `🎉 LÊN CẤP ${level}!` });
+            setTimeout(()=> document.getElementById('game-bg').style.filter = "brightness(0.96) saturate(1.08)", 220);
+            if (level === 10) {
+                initBabies(); 
+                spawnExplosion(canvas.width/2, canvas.height/2, "#f1c40f", 30); 
+            }
+        }
+    }
+
+    function activateGun(side) {
+        sndGunGet.play(); currentWeapon = 'GUN';
+        gunTimers[side] = GUN_DURATION; 
+        weaponNameEl.innerText = "SÚNG TIỂU LIÊN";
+    }
+
+    async function setupAI() {
+        if (!window.isSecureContext || !navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+            if (!['localhost', '127.0.0.1'].includes(location.hostname)) {
+                const localUrl = `http://localhost/MOS/public/games/bao-ve-em-be.html${location.search}${location.hash}`;
+                location.replace(localUrl);
+                return;
+            }
+            enablePointerMode('Trình duyệt yêu cầu HTTPS hoặc localhost để dùng camera.');
+            requestAnimationFrame(gameLoop);
+            return;
+        }
+        try {
+            await camera.start();
+            requestAnimationFrame(gameLoop); 
+        } catch (e) {
+            enablePointerMode(e.message || 'Không thể truy cập camera');
+            requestAnimationFrame(gameLoop);
+        }
+    }
+
+    function startGame() {
+        startPanel.style.display = 'none';
+        gameState = 'PLAYING';
+        score = 0; level = 1; babyHP = 3; 
+        combo = 0; lastHitAt = 0; floatingTexts = []; comboBox.classList.remove('show');
+        currentWeapon = 'SWORD'; gunTimers = { left: 0, right: 0 };
+        objects = []; particles = []; bullets = [];
+        
+        scoreEl.innerText = score;
+        levelEl.innerText = level;
+        hpEl.innerText = babyHP;
+        weaponNameEl.innerText = "KIẾM";
+        updateUnlockHint();
+
+        initBabies(); 
+        setTimeout(spawnObject, 1000);
+    }
+
+    function endGame() {
+        if (gameState === 'GAMEOVER') return;
+        gameState = 'GAMEOVER';
+        document.getElementById('final-score').innerText = score;
+        gameOverPanel.style.display = 'block';
+    }
+
+    window.onload = setupAI;
+    document.getElementById('start-btn').onclick = startGame;
+</script>
+</body>
+</html>

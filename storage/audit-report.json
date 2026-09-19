@@ -1,0 +1,922 @@
+[
+  {
+    "grade": 3,
+    "slug": "gs6sparkl1-cd1-t1",
+    "name": "GS6SparkL1-CD1-T1 (Published)",
+    "sourceUrl": "https://ic3review.iigvietnam.edu.vn/newdata/GS6SparkL1/GS6SparkL1-CD1-T1%20%28Published%29/index.html",
+    "expectedPassword": "25103011",
+    "actualPassword": null,
+    "passwordMatches": false,
+    "onlineIndexAccessible": true,
+    "onlineQuiz1Accessible": true,
+    "quizJsonMatchesOnline": true,
+    "totalQuestions": 14,
+    "questionTypes": {
+      "MultipleChoice": 10,
+      "MultipleChoiceText": 1,
+      "Hotspot": 1,
+      "MultipleResponse": 1,
+      "Matching": 1
+    },
+    "missingLocalAssets": [],
+    "missingOnlineAssets": [],
+    "assetAudit": {
+      "total": 18,
+      "localOk": 18,
+      "localMissing": 0
+    },
+    "questionAuditErrors": []
+  },
+  {
+    "grade": 3,
+    "slug": "gs6sparkl1-cd1-t2",
+    "name": "GS6SparkL1-CD1-T2 (Published)",
+    "sourceUrl": "https://ic3review.iigvietnam.edu.vn/newdata/GS6SparkL1/GS6SparkL1-CD1-T2%20(Published)/index.html",
+    "expectedPassword": "25103010",
+    "actualPassword": null,
+    "passwordMatches": false,
+    "onlineIndexAccessible": true,
+    "onlineQuiz1Accessible": true,
+    "quizJsonMatchesOnline": true,
+    "totalQuestions": 15,
+    "questionTypes": {
+      "MultipleChoice": 6,
+      "Hotspot": 1,
+      "Matching": 3,
+      "MultipleChoiceText": 3,
+      "MultipleResponse": 2
+    },
+    "missingLocalAssets": [],
+    "missingOnlineAssets": [],
+    "assetAudit": {
+      "total": 9,
+      "localOk": 9,
+      "localMissing": 0
+    },
+    "questionAuditErrors": []
+  },
+  {
+    "grade": 3,
+    "slug": "gs6sparkl1-cd2-t1",
+    "name": "GS6SparkL1-CD2-T1 (Published)",
+    "sourceUrl": "https://ic3review.iigvietnam.edu.vn/newdata/GS6SparkL1/GS6SparkL1-CD2-T1%20(Published)/index.html",
+    "expectedPassword": "25103009",
+    "actualPassword": null,
+    "passwordMatches": false,
+    "onlineIndexAccessible": true,
+    "onlineQuiz1Accessible": true,
+    "quizJsonMatchesOnline": true,
+    "totalQuestions": 15,
+    "questionTypes": {
+      "MultipleChoice": 11,
+      "MultipleChoiceText": 2,
+      "MultipleResponse": 1,
+      "Matching": 1
+    },
+    "missingLocalAssets": [],
+    "missingOnlineAssets": [],
+    "assetAudit": {
+      "total": 8,
+      "localOk": 8,
+      "localMissing": 0
+    },
+    "questionAuditErrors": []
+  },
+  {
+    "grade": 3,
+    "slug": "gs6sparkl1-cd3-t1",
+    "name": "GS6SparkL1-CD3-T1 (Published)",
+    "sourceUrl": "https://ic3review.iigvietnam.edu.vn/newdata/GS6SparkL1/GS6SparkL1-CD3-T1%20(Published)/index.html",
+    "expectedPassword": "25103008",
+    "actualPassword": null,
+    "passwordMatches": false,
+    "onlineIndexAccessible": true,
+    "onlineQuiz1Accessible": true,
+    "quizJsonMatchesOnline": true,
+    "totalQuestions": 12,
+    "questionTypes": {
+      "MultipleChoice": 8,
+      "Matching": 1,
+      "Hotspot": 3
+    },
+    "missingLocalAssets": [],
+    "missingOnlineAssets": [],
+    "assetAudit": {
+      "total": 12,
+      "localOk": 12,
+      "localMissing": 0
+    },
+    "questionAuditErrors": []
+  },
+  {
+    "grade": 3,
+    "slug": "gs6sparkl1-cd3-t2",
+    "name": "GS6SparkL1-CD3-T2 (Published)",
+    "sourceUrl": "https://ic3review.iigvietnam.edu.vn/newdata/GS6SparkL1/GS6SparkL1-CD3-T2%20(Published)/index.html",
+    "expectedPassword": "25103007",
+    "actualPassword": null,
+    "passwordMatches": false,
+    "onlineIndexAccessible": true,
+    "onlineQuiz1Accessible": true,
+    "quizJsonMatchesOnline": true,
+    "totalQuestions": 12,
+    "questionTypes": {
+      "MultipleChoice": 7,
+      "MultipleChoiceText": 1,
+      "Matching": 2,
+      "MultipleResponse": 2
+    },
+    "missingLocalAssets": [],
+    "missingOnlineAssets": [],
+    "assetAudit": {
+      "total": 8,
+      "localOk": 8,
+      "localMissing": 0
+    },
+    "questionAuditErrors": []
+  },
+  {
+    "grade": 3,
+    "slug": "gs6sparkl1-cd4-t1",
+    "name": "GS6SparkL1-CD4-T1 (Published)",
+    "sourceUrl": "https://ic3review.iigvietnam.edu.vn/newdata/GS6SparkL1/GS6SparkL1-CD4-T1%20(Published)/index.html",
+    "expectedPassword": "25103006",
+    "actualPassword": null,
+    "passwordMatches": false,
+    "onlineIndexAccessible": true,
+    "onlineQuiz1Accessible": true,
+    "quizJsonMatchesOnline": true,
+    "totalQuestions": 16,
+    "questionTypes": {
+      "MultipleChoice": 10,
+      "MultipleChoiceText": 1,
+      "Hotspot": 2,
+      "MultipleResponse": 1,
+      "Matching": 2
+    },
+    "missingLocalAssets": [],
+    "missingOnlineAssets": [],
+    "assetAudit": {
+      "total": 10,
+      "localOk": 10,
+      "localMissing": 0
+    },
+    "questionAuditErrors": []
+  },
+  {
+    "grade": 3,
+    "slug": "gs6sparkl1-cd5-t1",
+    "name": "GS6SparkL1-CD5-T1 (Published)",
+    "sourceUrl": "https://ic3review.iigvietnam.edu.vn/newdata/GS6SparkL1/GS6SparkL1-CD5-T1%20(Published)/index.html",
+    "expectedPassword": "25103005",
+    "actualPassword": null,
+    "passwordMatches": false,
+    "onlineIndexAccessible": true,
+    "onlineQuiz1Accessible": true,
+    "quizJsonMatchesOnline": true,
+    "totalQuestions": 12,
+    "questionTypes": {
+      "Hotspot": 2,
+      "MultipleChoice": 5,
+      "Matching": 3,
+      "MultipleChoiceText": 1,
+      "MultipleResponse": 1
+    },
+    "missingLocalAssets": [],
+    "missingOnlineAssets": [],
+    "assetAudit": {
+      "total": 10,
+      "localOk": 10,
+      "localMissing": 0
+    },
+    "questionAuditErrors": []
+  },
+  {
+    "grade": 3,
+    "slug": "gs6sparkl1-cd5-t2",
+    "name": "GS6SparkL1-CD5-T2 (Published)",
+    "sourceUrl": "https://ic3review.iigvietnam.edu.vn/newdata/GS6SparkL1/GS6SparkL1-CD5-T2%20(Published)/index.html",
+    "expectedPassword": "25103004",
+    "actualPassword": null,
+    "passwordMatches": false,
+    "onlineIndexAccessible": true,
+    "onlineQuiz1Accessible": true,
+    "quizJsonMatchesOnline": true,
+    "totalQuestions": 14,
+    "questionTypes": {
+      "MultipleChoice": 11,
+      "MultipleChoiceText": 2,
+      "Hotspot": 1
+    },
+    "missingLocalAssets": [],
+    "missingOnlineAssets": [],
+    "assetAudit": {
+      "total": 13,
+      "localOk": 13,
+      "localMissing": 0
+    },
+    "questionAuditErrors": []
+  },
+  {
+    "grade": 3,
+    "slug": "gs6sparkl1-cd6-t1",
+    "name": "GS6SparkL1-CD6-T1 (Published)",
+    "sourceUrl": "https://ic3review.iigvietnam.edu.vn/newdata/GS6SparkL1/GS6SparkL1-CD6-T1%20(Published)/index.html",
+    "expectedPassword": "25103003",
+    "actualPassword": null,
+    "passwordMatches": false,
+    "onlineIndexAccessible": true,
+    "onlineQuiz1Accessible": true,
+    "quizJsonMatchesOnline": true,
+    "totalQuestions": 15,
+    "questionTypes": {
+      "MultipleChoice": 12,
+      "MultipleChoiceText": 3
+    },
+    "missingLocalAssets": [],
+    "missingOnlineAssets": [],
+    "assetAudit": {
+      "total": 9,
+      "localOk": 9,
+      "localMissing": 0
+    },
+    "questionAuditErrors": []
+  },
+  {
+    "grade": 3,
+    "slug": "gs6sparkl1-cd6-t2",
+    "name": "GS6SparkL1-CD6-T2 (Published)",
+    "sourceUrl": "https://ic3review.iigvietnam.edu.vn/newdata/GS6SparkL1/GS6SparkL1-CD6-T2%20(Published)/index.html",
+    "expectedPassword": "25103002",
+    "actualPassword": null,
+    "passwordMatches": false,
+    "onlineIndexAccessible": true,
+    "onlineQuiz1Accessible": true,
+    "quizJsonMatchesOnline": true,
+    "totalQuestions": 16,
+    "questionTypes": {
+      "MultipleChoice": 10,
+      "MultipleResponse": 3,
+      "MultipleChoiceText": 2,
+      "Matching": 1
+    },
+    "missingLocalAssets": [],
+    "missingOnlineAssets": [],
+    "assetAudit": {
+      "total": 8,
+      "localOk": 8,
+      "localMissing": 0
+    },
+    "questionAuditErrors": []
+  },
+  {
+    "grade": 3,
+    "slug": "gs6sparkl1-cdmr",
+    "name": "GS6SparkL1-CDMR (Published)",
+    "sourceUrl": "https://ic3review.iigvietnam.edu.vn/newdata/GS6SparkL1/GS6SparkL1-CDMR%20(Published)/index.html",
+    "expectedPassword": "25103001",
+    "actualPassword": null,
+    "passwordMatches": false,
+    "onlineIndexAccessible": true,
+    "onlineQuiz1Accessible": true,
+    "quizJsonMatchesOnline": true,
+    "totalQuestions": 6,
+    "questionTypes": {
+      "MultipleChoiceText": 3,
+      "MultipleChoice": 2,
+      "MultipleResponse": 1
+    },
+    "missingLocalAssets": [],
+    "missingOnlineAssets": [],
+    "assetAudit": {
+      "total": 8,
+      "localOk": 8,
+      "localMissing": 0
+    },
+    "questionAuditErrors": []
+  },
+  {
+    "grade": 4,
+    "slug": "gs6sparkl2-cd1-t1",
+    "name": "GS6SparkL2-CD1-T1 (Published)",
+    "sourceUrl": "https://ic3review.iigvietnam.edu.vn/newdata/GS6SparkL2/GS6SparkL2-CD1-T1%20(Published)/index.html",
+    "expectedPassword": "41025013",
+    "actualPassword": null,
+    "passwordMatches": false,
+    "onlineIndexAccessible": true,
+    "onlineQuiz1Accessible": true,
+    "quizJsonMatchesOnline": true,
+    "totalQuestions": 18,
+    "questionTypes": {
+      "MultipleChoice": 11,
+      "MultipleChoiceText": 2,
+      "MultipleResponse": 5
+    },
+    "missingLocalAssets": [],
+    "missingOnlineAssets": [],
+    "assetAudit": {
+      "total": 8,
+      "localOk": 8,
+      "localMissing": 0
+    },
+    "questionAuditErrors": []
+  },
+  {
+    "grade": 4,
+    "slug": "gs6sparkl2-cd1-t2",
+    "name": "GS6SparkL2-CD1-T2 (Published)",
+    "sourceUrl": "https://ic3review.iigvietnam.edu.vn/newdata/GS6SparkL2/GS6SparkL2-CD1-T2%20(Published)/index.html",
+    "expectedPassword": "41025012",
+    "actualPassword": null,
+    "passwordMatches": false,
+    "onlineIndexAccessible": true,
+    "onlineQuiz1Accessible": true,
+    "quizJsonMatchesOnline": true,
+    "totalQuestions": 18,
+    "questionTypes": {
+      "MultipleChoice": 13,
+      "MultipleResponse": 5
+    },
+    "missingLocalAssets": [],
+    "missingOnlineAssets": [],
+    "assetAudit": {
+      "total": 8,
+      "localOk": 8,
+      "localMissing": 0
+    },
+    "questionAuditErrors": []
+  },
+  {
+    "grade": 4,
+    "slug": "gs6sparkl2-cd2-t1",
+    "name": "GS6SparkL2-CD2-T1 (Published)",
+    "sourceUrl": "https://ic3review.iigvietnam.edu.vn/newdata/GS6SparkL2/GS6SparkL2-CD2-T1%20(Published)/index.html",
+    "expectedPassword": "41025011",
+    "actualPassword": null,
+    "passwordMatches": false,
+    "onlineIndexAccessible": true,
+    "onlineQuiz1Accessible": true,
+    "quizJsonMatchesOnline": true,
+    "totalQuestions": 23,
+    "questionTypes": {
+      "MultipleChoice": 12,
+      "MultipleChoiceText": 6,
+      "MultipleResponse": 5
+    },
+    "missingLocalAssets": [],
+    "missingOnlineAssets": [],
+    "assetAudit": {
+      "total": 8,
+      "localOk": 8,
+      "localMissing": 0
+    },
+    "questionAuditErrors": []
+  },
+  {
+    "grade": 4,
+    "slug": "gs6sparkl2-cd3-t1",
+    "name": "GS6SparkL2-CD3-T1 (Published)",
+    "sourceUrl": "https://ic3review.iigvietnam.edu.vn/newdata/GS6SparkL2/GS6SparkL2-CD3-T1%20(Published)/index.html",
+    "expectedPassword": "41025010",
+    "actualPassword": null,
+    "passwordMatches": false,
+    "onlineIndexAccessible": true,
+    "onlineQuiz1Accessible": true,
+    "quizJsonMatchesOnline": true,
+    "totalQuestions": 15,
+    "questionTypes": {
+      "MultipleChoiceText": 3,
+      "Matching": 3,
+      "MultipleChoice": 8,
+      "MultipleResponse": 1
+    },
+    "missingLocalAssets": [],
+    "missingOnlineAssets": [],
+    "assetAudit": {
+      "total": 8,
+      "localOk": 8,
+      "localMissing": 0
+    },
+    "questionAuditErrors": []
+  },
+  {
+    "grade": 4,
+    "slug": "gs6sparkl2-cd3-t2",
+    "name": "GS6SparkL2-CD3-T2 (Published)",
+    "sourceUrl": "https://ic3review.iigvietnam.edu.vn/newdata/GS6SparkL2/GS6SparkL2-CD3-T2%20(Published)/index.html",
+    "expectedPassword": "41025009",
+    "actualPassword": null,
+    "passwordMatches": false,
+    "onlineIndexAccessible": true,
+    "onlineQuiz1Accessible": true,
+    "quizJsonMatchesOnline": true,
+    "totalQuestions": 14,
+    "questionTypes": {
+      "MultipleChoice": 11,
+      "MultipleChoiceText": 2,
+      "MultipleResponse": 1
+    },
+    "missingLocalAssets": [],
+    "missingOnlineAssets": [],
+    "assetAudit": {
+      "total": 8,
+      "localOk": 8,
+      "localMissing": 0
+    },
+    "questionAuditErrors": []
+  },
+  {
+    "grade": 4,
+    "slug": "gs6sparkl2-cd4-t1",
+    "name": "GS6SparkL2-CD4-T1 (Published)",
+    "sourceUrl": "https://ic3review.iigvietnam.edu.vn/newdata/GS6SparkL2/GS6SparkL2-CD4-T1%20(Published)/index.html",
+    "expectedPassword": "41025008",
+    "actualPassword": null,
+    "passwordMatches": false,
+    "onlineIndexAccessible": true,
+    "onlineQuiz1Accessible": true,
+    "quizJsonMatchesOnline": true,
+    "totalQuestions": 16,
+    "questionTypes": {
+      "Matching": 3,
+      "Hotspot": 5,
+      "MultipleChoice": 4,
+      "MultipleChoiceText": 4
+    },
+    "missingLocalAssets": [],
+    "missingOnlineAssets": [],
+    "assetAudit": {
+      "total": 13,
+      "localOk": 13,
+      "localMissing": 0
+    },
+    "questionAuditErrors": []
+  },
+  {
+    "grade": 4,
+    "slug": "gs6sparkl2-cd4-t2",
+    "name": "GS6SparkL2-CD4-T2 (Published)",
+    "sourceUrl": "https://ic3review.iigvietnam.edu.vn/newdata/GS6SparkL2/GS6SparkL2-CD4-T2%20(Published)/index.html",
+    "expectedPassword": "41025007",
+    "actualPassword": null,
+    "passwordMatches": false,
+    "onlineIndexAccessible": true,
+    "onlineQuiz1Accessible": true,
+    "quizJsonMatchesOnline": true,
+    "totalQuestions": 16,
+    "questionTypes": {
+      "MultipleChoiceText": 1,
+      "MultipleChoice": 13,
+      "MultipleResponse": 2
+    },
+    "missingLocalAssets": [],
+    "missingOnlineAssets": [],
+    "assetAudit": {
+      "total": 8,
+      "localOk": 8,
+      "localMissing": 0
+    },
+    "questionAuditErrors": []
+  },
+  {
+    "grade": 4,
+    "slug": "gs6sparkl2-cd4-t3",
+    "name": "GS6SparkL2-CD4-T3 (Published)",
+    "sourceUrl": "https://ic3review.iigvietnam.edu.vn/newdata/GS6SparkL2/GS6SparkL2-CD4-T3%20(Published)/index.html",
+    "expectedPassword": "41025006",
+    "actualPassword": null,
+    "passwordMatches": false,
+    "onlineIndexAccessible": true,
+    "onlineQuiz1Accessible": true,
+    "quizJsonMatchesOnline": true,
+    "totalQuestions": 17,
+    "questionTypes": {
+      "MultipleChoice": 17
+    },
+    "missingLocalAssets": [],
+    "missingOnlineAssets": [],
+    "assetAudit": {
+      "total": 8,
+      "localOk": 8,
+      "localMissing": 0
+    },
+    "questionAuditErrors": []
+  },
+  {
+    "grade": 4,
+    "slug": "gs6sparkl2-cd5-t1",
+    "name": "GS6SparkL2-CD5-T1 (Published)",
+    "sourceUrl": "https://ic3review.iigvietnam.edu.vn/newdata/GS6SparkL2/GS6SparkL2-CD5-T1%20(Published)/index.html",
+    "expectedPassword": "41025005",
+    "actualPassword": null,
+    "passwordMatches": false,
+    "onlineIndexAccessible": true,
+    "onlineQuiz1Accessible": true,
+    "quizJsonMatchesOnline": true,
+    "totalQuestions": 12,
+    "questionTypes": {
+      "Matching": 2,
+      "MultipleResponse": 1,
+      "MultipleChoice": 4,
+      "MultipleChoiceText": 5
+    },
+    "missingLocalAssets": [],
+    "missingOnlineAssets": [],
+    "assetAudit": {
+      "total": 8,
+      "localOk": 8,
+      "localMissing": 0
+    },
+    "questionAuditErrors": []
+  },
+  {
+    "grade": 4,
+    "slug": "gs6sparkl2-cd5-t2",
+    "name": "GS6SparkL2-CD5-T2 (Published)",
+    "sourceUrl": "https://ic3review.iigvietnam.edu.vn/newdata/GS6SparkL2/GS6SparkL2-CD5-T2%20(Published)/index.html",
+    "expectedPassword": "41025004",
+    "actualPassword": null,
+    "passwordMatches": false,
+    "onlineIndexAccessible": true,
+    "onlineQuiz1Accessible": true,
+    "quizJsonMatchesOnline": true,
+    "totalQuestions": 12,
+    "questionTypes": {
+      "Matching": 1,
+      "MultipleChoice": 9,
+      "MultipleResponse": 2
+    },
+    "missingLocalAssets": [],
+    "missingOnlineAssets": [],
+    "assetAudit": {
+      "total": 8,
+      "localOk": 8,
+      "localMissing": 0
+    },
+    "questionAuditErrors": []
+  },
+  {
+    "grade": 4,
+    "slug": "gs6sparkl2-cd6-t1",
+    "name": "GS6SparkL2-CD6-T1 (Published)",
+    "sourceUrl": "https://ic3review.iigvietnam.edu.vn/newdata/GS6SparkL2/GS6SparkL2-CD6-T1%20(Published)/index.html",
+    "expectedPassword": "41025003",
+    "actualPassword": null,
+    "passwordMatches": false,
+    "onlineIndexAccessible": true,
+    "onlineQuiz1Accessible": true,
+    "quizJsonMatchesOnline": true,
+    "totalQuestions": 16,
+    "questionTypes": {
+      "MultipleChoice": 13,
+      "MultipleResponse": 3
+    },
+    "missingLocalAssets": [],
+    "missingOnlineAssets": [],
+    "assetAudit": {
+      "total": 8,
+      "localOk": 8,
+      "localMissing": 0
+    },
+    "questionAuditErrors": []
+  },
+  {
+    "grade": 4,
+    "slug": "gs6sparkl2-cd7-t1",
+    "name": "GS6SparkL2-CD7-T1 (Published)",
+    "sourceUrl": "https://ic3review.iigvietnam.edu.vn/newdata/GS6SparkL2/GS6SparkL2-CD7-T1%20(Published)/index.html",
+    "expectedPassword": "41025002",
+    "actualPassword": null,
+    "passwordMatches": false,
+    "onlineIndexAccessible": true,
+    "onlineQuiz1Accessible": true,
+    "quizJsonMatchesOnline": true,
+    "totalQuestions": 12,
+    "questionTypes": {
+      "MultipleChoiceText": 10,
+      "MultipleChoice": 1,
+      "Matching": 1
+    },
+    "missingLocalAssets": [],
+    "missingOnlineAssets": [],
+    "assetAudit": {
+      "total": 8,
+      "localOk": 8,
+      "localMissing": 0
+    },
+    "questionAuditErrors": []
+  },
+  {
+    "grade": 4,
+    "slug": "gs6sparkl2-cd7-t2",
+    "name": "GS6SparkL2-CD7-T2 (Published)",
+    "sourceUrl": "https://ic3review.iigvietnam.edu.vn/newdata/GS6SparkL2/GS6SparkL2-CD7-T2%20(Published)/index.html",
+    "expectedPassword": "41025001",
+    "actualPassword": null,
+    "passwordMatches": false,
+    "onlineIndexAccessible": true,
+    "onlineQuiz1Accessible": true,
+    "quizJsonMatchesOnline": true,
+    "totalQuestions": 14,
+    "questionTypes": {
+      "Matching": 1,
+      "MultipleChoice": 10,
+      "MultipleChoiceText": 2,
+      "MultipleResponse": 1
+    },
+    "missingLocalAssets": [],
+    "missingOnlineAssets": [],
+    "assetAudit": {
+      "total": 8,
+      "localOk": 8,
+      "localMissing": 0
+    },
+    "questionAuditErrors": []
+  },
+  {
+    "grade": 5,
+    "slug": "gs6sparkl3-cd1-t1",
+    "name": "GS6SparkL3-CD1-T1 (Published)",
+    "sourceUrl": "https://ic3review.iigvietnam.edu.vn/newdata/Ispring_SparkL3/GS6SparkL3-CD1-T1%20(Published)/index.html",
+    "expectedPassword": "68759341",
+    "actualPassword": null,
+    "passwordMatches": false,
+    "onlineIndexAccessible": true,
+    "onlineQuiz1Accessible": true,
+    "quizJsonMatchesOnline": true,
+    "totalQuestions": 15,
+    "questionTypes": {
+      "MultipleChoiceText": 4,
+      "MultipleChoice": 11
+    },
+    "missingLocalAssets": [],
+    "missingOnlineAssets": [],
+    "assetAudit": {
+      "total": 9,
+      "localOk": 9,
+      "localMissing": 0
+    },
+    "questionAuditErrors": []
+  },
+  {
+    "grade": 5,
+    "slug": "gs6sparkl3-cd1-t2",
+    "name": "GS6SparkL3-CD1-T2 (Published)",
+    "sourceUrl": "https://ic3review.iigvietnam.edu.vn/newdata/Ispring_SparkL3/GS6SparkL3-CD1-T2%20(Published)/index.html",
+    "expectedPassword": "68759342",
+    "actualPassword": null,
+    "passwordMatches": false,
+    "onlineIndexAccessible": true,
+    "onlineQuiz1Accessible": true,
+    "quizJsonMatchesOnline": true,
+    "totalQuestions": 14,
+    "questionTypes": {
+      "Hotspot": 1,
+      "MultipleChoice": 9,
+      "Matching": 1,
+      "MultipleChoiceText": 3
+    },
+    "missingLocalAssets": [],
+    "missingOnlineAssets": [],
+    "assetAudit": {
+      "total": 11,
+      "localOk": 11,
+      "localMissing": 0
+    },
+    "questionAuditErrors": []
+  },
+  {
+    "grade": 5,
+    "slug": "gs6sparkl3-cd2-t1",
+    "name": "GS6SparkL3-CD2-T1 (Published)",
+    "sourceUrl": "https://ic3review.iigvietnam.edu.vn/newdata/Ispring_SparkL3/GS6SparkL3-CD2-T1%20(Published)/index.html",
+    "expectedPassword": "68759343",
+    "actualPassword": null,
+    "passwordMatches": false,
+    "onlineIndexAccessible": true,
+    "onlineQuiz1Accessible": true,
+    "quizJsonMatchesOnline": true,
+    "totalQuestions": 13,
+    "questionTypes": {
+      "MultipleChoice": 10,
+      "Matching": 3
+    },
+    "missingLocalAssets": [],
+    "missingOnlineAssets": [],
+    "assetAudit": {
+      "total": 9,
+      "localOk": 9,
+      "localMissing": 0
+    },
+    "questionAuditErrors": []
+  },
+  {
+    "grade": 5,
+    "slug": "gs6sparkl3-cd2-t2",
+    "name": "GS6SparkL3-CD2-T2 (Published)",
+    "sourceUrl": "https://ic3review.iigvietnam.edu.vn/newdata/Ispring_SparkL3/GS6SparkL3-CD2-T2%20(Published)/index.html",
+    "expectedPassword": "68759344",
+    "actualPassword": null,
+    "passwordMatches": false,
+    "onlineIndexAccessible": true,
+    "onlineQuiz1Accessible": true,
+    "quizJsonMatchesOnline": true,
+    "totalQuestions": 11,
+    "questionTypes": {
+      "MultipleResponse": 2,
+      "MultipleChoiceText": 7,
+      "Matching": 2
+    },
+    "missingLocalAssets": [],
+    "missingOnlineAssets": [],
+    "assetAudit": {
+      "total": 9,
+      "localOk": 9,
+      "localMissing": 0
+    },
+    "questionAuditErrors": []
+  },
+  {
+    "grade": 5,
+    "slug": "gs6sparkl3-cd3-t1",
+    "name": "GS6SparkL3-CD3-T1 (Published)",
+    "sourceUrl": "https://ic3review.iigvietnam.edu.vn/newdata/Ispring_SparkL3/GS6SparkL3-CD3-T1%20(Published)/index.html",
+    "expectedPassword": "68759345",
+    "actualPassword": null,
+    "passwordMatches": false,
+    "onlineIndexAccessible": true,
+    "onlineQuiz1Accessible": true,
+    "quizJsonMatchesOnline": true,
+    "totalQuestions": 23,
+    "questionTypes": {
+      "MultipleChoice": 10,
+      "Matching": 5,
+      "MultipleResponse": 1,
+      "MultipleChoiceText": 7
+    },
+    "missingLocalAssets": [],
+    "missingOnlineAssets": [],
+    "assetAudit": {
+      "total": 11,
+      "localOk": 11,
+      "localMissing": 0
+    },
+    "questionAuditErrors": []
+  },
+  {
+    "grade": 5,
+    "slug": "gs6sparkl3-cd4-t1",
+    "name": "GS6SparkL3-CD4-T1 (Published)",
+    "sourceUrl": "https://ic3review.iigvietnam.edu.vn/newdata/Ispring_SparkL3/GS6SparkL3-CD4-T1%20(Published)/index.html",
+    "expectedPassword": "68759346",
+    "actualPassword": null,
+    "passwordMatches": false,
+    "onlineIndexAccessible": true,
+    "onlineQuiz1Accessible": true,
+    "quizJsonMatchesOnline": true,
+    "totalQuestions": 18,
+    "questionTypes": {
+      "MultipleChoice": 10,
+      "Matching": 6,
+      "MultipleChoiceText": 2
+    },
+    "missingLocalAssets": [],
+    "missingOnlineAssets": [],
+    "assetAudit": {
+      "total": 9,
+      "localOk": 9,
+      "localMissing": 0
+    },
+    "questionAuditErrors": []
+  },
+  {
+    "grade": 5,
+    "slug": "gs6sparkl3-cd5-t1",
+    "name": "GS6SparkL3-CD5-T1 (Published)",
+    "sourceUrl": "https://ic3review.iigvietnam.edu.vn/newdata/Ispring_SparkL3/GS6SparkL3-CD5-T1%20(Published)/index.html",
+    "expectedPassword": "68759347",
+    "actualPassword": null,
+    "passwordMatches": false,
+    "onlineIndexAccessible": true,
+    "onlineQuiz1Accessible": true,
+    "quizJsonMatchesOnline": true,
+    "totalQuestions": 13,
+    "questionTypes": {
+      "MultipleChoice": 11,
+      "Matching": 1,
+      "MultipleChoiceText": 1
+    },
+    "missingLocalAssets": [],
+    "missingOnlineAssets": [],
+    "assetAudit": {
+      "total": 9,
+      "localOk": 9,
+      "localMissing": 0
+    },
+    "questionAuditErrors": []
+  },
+  {
+    "grade": 5,
+    "slug": "gs6sparkl3-cd5-t2",
+    "name": "GS6SparkL3-CD5-T2 (Published)",
+    "sourceUrl": "https://ic3review.iigvietnam.edu.vn/newdata/Ispring_SparkL3/GS6SparkL3-CD5-T2%20(Published)/index.html",
+    "expectedPassword": "68759348",
+    "actualPassword": null,
+    "passwordMatches": false,
+    "onlineIndexAccessible": true,
+    "onlineQuiz1Accessible": true,
+    "quizJsonMatchesOnline": true,
+    "totalQuestions": 11,
+    "questionTypes": {
+      "MultipleChoiceText": 7,
+      "MultipleChoice": 4
+    },
+    "missingLocalAssets": [],
+    "missingOnlineAssets": [],
+    "assetAudit": {
+      "total": 14,
+      "localOk": 14,
+      "localMissing": 0
+    },
+    "questionAuditErrors": []
+  },
+  {
+    "grade": 5,
+    "slug": "gs6sparkl3-cd6-t1",
+    "name": "GS6SparkL3-CD6-T1 (Published)",
+    "sourceUrl": "https://ic3review.iigvietnam.edu.vn/newdata/Ispring_SparkL3/GS6SparkL3-CD6-T1%20(Published)/index.html",
+    "expectedPassword": "68759349",
+    "actualPassword": null,
+    "passwordMatches": false,
+    "onlineIndexAccessible": true,
+    "onlineQuiz1Accessible": true,
+    "quizJsonMatchesOnline": true,
+    "totalQuestions": 9,
+    "questionTypes": {
+      "MultipleChoice": 3,
+      "MultipleChoiceText": 1,
+      "MultipleResponse": 2,
+      "Matching": 3
+    },
+    "missingLocalAssets": [],
+    "missingOnlineAssets": [],
+    "assetAudit": {
+      "total": 9,
+      "localOk": 9,
+      "localMissing": 0
+    },
+    "questionAuditErrors": []
+  },
+  {
+    "grade": 5,
+    "slug": "gs6sparkl3-cd7-t1",
+    "name": "GS6SparkL3-CD7-T1 (Published)",
+    "sourceUrl": "https://ic3review.iigvietnam.edu.vn/newdata/Ispring_SparkL3/GS6SparkL3-CD7-T1%20(Published)/index.html",
+    "expectedPassword": "68759350",
+    "actualPassword": null,
+    "passwordMatches": false,
+    "onlineIndexAccessible": true,
+    "onlineQuiz1Accessible": true,
+    "quizJsonMatchesOnline": true,
+    "totalQuestions": 16,
+    "questionTypes": {
+      "MultipleChoiceText": 5,
+      "MultipleChoice": 10,
+      "MultipleResponse": 1
+    },
+    "missingLocalAssets": [],
+    "missingOnlineAssets": [],
+    "assetAudit": {
+      "total": 9,
+      "localOk": 9,
+      "localMissing": 0
+    },
+    "questionAuditErrors": []
+  },
+  {
+    "grade": 5,
+    "slug": "gs6sparkl3-cd7-t2",
+    "name": "GS6SparkL3-CD7-T2 (Published)",
+    "sourceUrl": "https://ic3review.iigvietnam.edu.vn/newdata/Ispring_SparkL3/GS6SparkL3-CD7-T2%20(Published)/index.html",
+    "expectedPassword": "68759351",
+    "actualPassword": null,
+    "passwordMatches": false,
+    "onlineIndexAccessible": true,
+    "onlineQuiz1Accessible": true,
+    "quizJsonMatchesOnline": true,
+    "totalQuestions": 16,
+    "questionTypes": {
+      "MultipleChoiceText": 10,
+      "Sequence": 1,
+      "MultipleChoice": 5
+    },
+    "missingLocalAssets": [],
+    "missingOnlineAssets": [],
+    "assetAudit": {
+      "total": 9,
+      "localOk": 9,
+      "localMissing": 0
+    },
+    "questionAuditErrors": []
+  }
+]
