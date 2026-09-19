@@ -3506,7 +3506,7 @@
             <!-- ========================================================= -->
             <!-- TAB: 💎 GÓI BẢN QUYỀN & LỊCH SỬ THUÊ GÓI DÀNH CHO GIÁO VIÊN (TAB-TEACHER-PACKAGES) -->
             <!-- ========================================================= -->
-            <div id="tab-teacher-packages" class="admin-tab-pane" style="display:none;">
+            <div id="tab-teacher-packages" class="admin-tab-pane" style="display:none; padding-top:12px;">
                 <!-- Toolbar Header -->
                 <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:24px; flex-wrap:wrap; gap:14px;">
                     <div>
@@ -3627,7 +3627,7 @@
                                     @if($expiresAt->isPast())
                                         <span style="color: #f87171; font-weight: 800;">⚠️ Đã hết hạn</span> — vui lòng gia hạn gói!
                                     @else
-                                        <span>🟢 Còn hiệu lực: <b>{{ now()->diffInDays($expiresAt, false) }} ngày</b></span>
+                                        <span>🟢 Còn hiệu lực: <b>{{ (int) now()->diffInDays($expiresAt, false) }} ngày</b></span>
                                     @endif
                                 @else
                                     <span>🟢 Hiệu lực trọn đời</span>

@@ -152,6 +152,21 @@ class PackageOrder extends Model
     }
 
     /**
+     * Accessor: Nhãn phương thức thanh toán tiếng Việt
+     */
+    public function getPaymentMethodLabelAttribute(): string
+    {
+        return match (strtolower((string) $this->payment_method)) {
+            'payos' => 'PayOS (QR)',
+            'bank_transfer', 'bank' => 'Chuyển khoản',
+            'manual', 'admin' => 'Admin cấp',
+            'momo' => 'Ví MoMo',
+            'vnpay' => 'VNPay',
+            default => !empty($this->payment_method) ? strtoupper($this->payment_method) : 'Chuyển khoản',
+        };
+    }
+
+    /**
      * Accessor: Ngày tạo theo định dạng d/m/Y H:i
      */
     public function getCreatedVnAttribute(): string
