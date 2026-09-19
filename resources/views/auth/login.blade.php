@@ -17,8 +17,9 @@
 
         :root {
             --primary: #4f46e5;
-            --primary-light: #6366f1;
+            --primary-hover: #4338ca;
             --accent: #06b6d4;
+            --amber: #f59e0b;
             --text-main: #0f172a;
             --text-muted: #64748b;
         }
@@ -33,233 +34,267 @@
             align-items: center;
             justify-content: center;
             font-family: 'Plus Jakarta Sans', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-            background-color: #0b1329;
-            background-image: 
-                radial-gradient(at 0% 0%, rgba(59, 130, 246, 0.28) 0px, transparent 50%),
-                radial-gradient(at 100% 0%, rgba(14, 165, 233, 0.22) 0px, transparent 50%),
-                radial-gradient(at 100% 100%, rgba(139, 92, 246, 0.25) 0px, transparent 50%),
-                radial-gradient(at 0% 100%, rgba(16, 185, 129, 0.18) 0px, transparent 50%),
-                radial-gradient(at 50% 50%, rgba(99, 102, 241, 0.15) 0px, transparent 65%);
+            background-color: #060913;
             color: var(--text-main);
-            padding: 16px;
+            padding: 20px;
             position: relative;
         }
 
-        /* Ambient glowing circles */
-        .ambient-orb {
-            position: absolute;
-            border-radius: 50%;
-            filter: blur(80px);
+        /* ====== CINEMATIC VIDEO BACKGROUND ====== */
+        .video-bg-container {
+            position: fixed;
+            inset: 0;
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
             z-index: 0;
             pointer-events: none;
-            opacity: 0.55;
-            animation: floatOrb 12s ease-in-out infinite alternate;
-        }
-        .orb-1 {
-            width: 380px;
-            height: 380px;
-            background: linear-gradient(135deg, #38bdf8, #6366f1);
-            top: -50px;
-            left: -100px;
-        }
-        .orb-2 {
-            width: 420px;
-            height: 420px;
-            background: linear-gradient(135deg, #a855f7, #ec4899);
-            bottom: -60px;
-            right: -80px;
-            animation-duration: 16s;
-            animation-delay: -3s;
         }
 
-        @keyframes floatOrb {
-            0% { transform: translate(0, 0) scale(1); }
-            100% { transform: translate(30px, 20px) scale(1.06); }
+        .video-bg {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            min-width: 100%;
+            min-height: 100%;
+            width: auto;
+            height: auto;
+            transform: translate(-50%, -50%);
+            object-fit: cover;
+            filter: brightness(0.65) saturate(1.15) contrast(1.05);
         }
 
-        /* Main Container Card - Compact 1 Screen Fit */
-        .box {
+        .video-overlay {
+            position: absolute;
+            inset: 0;
+            background: 
+                radial-gradient(circle at 20% 20%, rgba(79, 70, 229, 0.25) 0%, transparent 60%),
+                radial-gradient(circle at 80% 80%, rgba(6, 182, 212, 0.2) 0%, transparent 60%),
+                linear-gradient(180deg, rgba(6, 9, 19, 0.45) 0%, rgba(6, 9, 19, 0.75) 100%);
+            backdrop-filter: blur(4px);
+            -webkit-backdrop-filter: blur(4px);
+        }
+
+        /* ====== MAIN CARD (PREMIUM GLASSMORPHISM) ====== */
+        .login-card {
             position: relative;
-            z-index: 1;
-            width: min(990px, 95vw);
+            z-index: 10;
+            width: min(940px, 95vw);
             max-height: calc(100vh - 32px);
             display: grid;
-            grid-template-columns: 1.05fr 0.95fr;
-            background: rgba(255, 255, 255, 0.98);
-            border: 1px solid rgba(255, 255, 255, 0.85);
-            border-radius: 26px;
+            grid-template-columns: 1fr 1.05fr;
+            background: rgba(255, 255, 255, 0.92);
+            border: 1.8px solid rgba(255, 255, 255, 0.8);
+            border-radius: 28px;
             overflow: hidden;
             box-shadow: 
-                0 20px 60px -10px rgba(15, 23, 42, 0.45),
-                0 0 0 1px rgba(255, 255, 255, 0.6) inset;
-            backdrop-filter: blur(20px);
-            transition: all 0.3s ease;
+                0 30px 80px -15px rgba(0, 0, 0, 0.6),
+                0 0 0 1px rgba(255, 255, 255, 0.5) inset;
+            backdrop-filter: blur(28px);
+            -webkit-backdrop-filter: blur(28px);
+            animation: cardAppear 0.5s cubic-bezier(0.16, 1, 0.3, 1) forwards;
         }
 
-        /* Left Hero Banner - Clear Vibrant Image Showcase */
-        .art {
+        @keyframes cardAppear {
+            from {
+                opacity: 0;
+                transform: translateY(20px) scale(0.98);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0) scale(1);
+            }
+        }
+
+        /* ====== LEFT COLUMN: BRAND & SHOWCASE ====== */
+        .card-brand {
             position: relative;
-            padding: 28px 28px;
+            padding: 36px 32px;
             color: #ffffff;
             background: 
-                linear-gradient(180deg, 
-                    rgba(15, 23, 42, 0.7) 0%, 
-                    rgba(15, 23, 42, 0.06) 24%, 
-                    rgba(15, 23, 42, 0.08) 55%, 
-                    rgba(15, 23, 42, 0.85) 100%),
-                url('/images/ic3-hero-vertical.jpg') center 25% / cover no-repeat;
+                linear-gradient(145deg, rgba(15, 23, 42, 0.88) 0%, rgba(30, 41, 59, 0.82) 100%);
             display: flex;
             flex-direction: column;
             justify-content: space-between;
             overflow: hidden;
+            border-right: 1px solid rgba(255, 255, 255, 0.15);
         }
 
-        .art-top {
+        .brand-glow {
+            position: absolute;
+            width: 280px;
+            height: 280px;
+            border-radius: 50%;
+            background: radial-gradient(circle, rgba(99, 102, 241, 0.35) 0%, transparent 70%);
+            top: -60px;
+            left: -60px;
+            pointer-events: none;
+            filter: blur(40px);
+        }
+
+        .brand-top {
             position: relative;
             z-index: 2;
         }
 
-        .art-badge {
+        .brand-badge {
             display: inline-flex;
             align-items: center;
             gap: 7px;
             padding: 6px 14px;
-            background: rgba(255, 255, 255, 0.22);
-            backdrop-filter: blur(14px);
-            -webkit-backdrop-filter: blur(14px);
-            border: 1px solid rgba(255, 255, 255, 0.4);
+            background: rgba(255, 255, 255, 0.14);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.25);
             border-radius: 999px;
-            font-size: 12px;
+            font-size: 11.5px;
             font-weight: 800;
+            color: #e2e8f0;
+            margin-bottom: 16px;
             letter-spacing: 0.3px;
-            color: #ffffff;
-            text-shadow: 0 1px 2px rgba(0, 0, 0, 0.4);
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
-            margin-bottom: 10px;
         }
 
-        .art-badge .dot {
+        .brand-badge .dot {
             width: 7px;
             height: 7px;
-            background: #4ade80;
+            background: #22c55e;
             border-radius: 50%;
-            box-shadow: 0 0 8px #4ade80;
+            box-shadow: 0 0 8px #22c55e;
         }
 
-        .art h1 {
-            font-size: 32px;
+        .brand-title {
+            font-size: 34px;
             font-weight: 900;
+            line-height: 1.1;
             letter-spacing: -0.5px;
             color: #ffffff;
-            text-shadow: 0 2px 10px rgba(0, 0, 0, 0.6);
-            margin-bottom: 4px;
-            line-height: 1.1;
+            margin-bottom: 8px;
         }
 
-        .art h1 span {
-            background: linear-gradient(135deg, #fef08a 0%, #facc15 60%, #fb923c 100%);
+        .brand-title span {
+            background: linear-gradient(135deg, #fef08a 0%, #facc15 50%, #f59e0b 100%);
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
-            text-shadow: none;
-            filter: drop-shadow(0 2px 6px rgba(0, 0, 0, 0.4));
+            display: inline-block;
         }
 
-        .art p.tagline {
+        .brand-tagline {
             font-size: 13.5px;
-            line-height: 1.45;
-            color: #f1f5f9;
-            text-shadow: 0 1px 5px rgba(0, 0, 0, 0.65);
+            line-height: 1.5;
+            color: #cbd5e1;
             font-weight: 500;
         }
 
-        /* Glass Feature Cards at bottom of banner */
-        .art-bottom {
+        /* Feature Pillars (Gọn gàng, tinh tế) */
+        .brand-features {
+            position: relative;
+            z-index: 2;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            margin: 24px 0;
+        }
+
+        .feat-pill {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 9px 14px;
+            background: rgba(255, 255, 255, 0.08);
+            border: 1px solid rgba(255, 255, 255, 0.14);
+            border-radius: 14px;
+            font-size: 12.5px;
+            font-weight: 600;
+            color: #f1f5f9;
+            transition: all 0.2s ease;
+        }
+
+        .feat-pill:hover {
+            background: rgba(255, 255, 255, 0.14);
+            transform: translateX(4px);
+            border-color: rgba(255, 255, 255, 0.28);
+        }
+
+        .feat-icon {
+            width: 28px;
+            height: 28px;
+            border-radius: 9px;
+            background: rgba(255, 255, 255, 0.12);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 14px;
+            flex-shrink: 0;
+        }
+
+        .brand-bottom {
             position: relative;
             z-index: 2;
         }
 
-        .art-features {
-            display: grid;
-            gap: 8px;
-            margin-top: 14px;
-        }
-
-        .art-feat-item {
-            display: flex;
+        .btn-pricing-link {
+            display: inline-flex;
             align-items: center;
-            gap: 10px;
-            background: rgba(15, 23, 42, 0.52);
-            backdrop-filter: blur(14px);
-            -webkit-backdrop-filter: blur(14px);
-            border: 1px solid rgba(255, 255, 255, 0.22);
-            padding: 8px 13px;
-            border-radius: 12px;
-            font-size: 12.5px;
-            font-weight: 600;
+            justify-content: space-between;
+            width: 100%;
+            padding: 10px 16px;
+            border-radius: 14px;
+            background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
             color: #ffffff;
-            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
-            transition: transform 0.15s ease, background 0.15s ease;
+            text-decoration: none;
+            font-size: 13px;
+            font-weight: 800;
+            box-shadow: 0 4px 16px rgba(245, 158, 11, 0.35);
+            border: 1.5px solid rgba(254, 240, 138, 0.6);
+            transition: all 0.2s ease;
         }
 
-        .art-feat-item:hover {
-            transform: translateX(3px);
-            background: rgba(15, 23, 42, 0.65);
+        .btn-pricing-link:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(245, 158, 11, 0.5);
+            background: linear-gradient(135deg, #fbbf24 0%, #d97706 100%);
         }
 
-        .art-feat-icon {
-            font-size: 15px;
-            display: grid;
-            place-items: center;
-            width: 26px;
-            height: 26px;
-            background: rgba(255, 255, 255, 0.15);
-            border-radius: 8px;
-            flex-shrink: 0;
-        }
-
-        /* Right Column Form */
-        .form-side {
-            padding: 28px 32px;
+        /* ====== RIGHT COLUMN: CLEAN & ELEGANT FORM ====== */
+        .card-form {
+            padding: 36px 36px;
             display: flex;
             flex-direction: column;
             justify-content: center;
             background: #ffffff;
         }
 
-        .form-header {
-            margin-bottom: 12px;
-        }
-
-        .form-header h2 {
-            font-size: 24px;
+        .form-title {
+            font-size: 26px;
             font-weight: 900;
             color: #0f172a;
-            letter-spacing: -0.4px;
+            letter-spacing: -0.5px;
+            margin-bottom: 4px;
             display: flex;
             align-items: center;
             gap: 8px;
-            margin-bottom: 3px;
         }
 
-        .form-header p {
+        .form-subtitle {
+            font-size: 13.5px;
             color: var(--text-muted);
-            font-size: 13px;
             font-weight: 500;
+            margin-bottom: 18px;
         }
 
-        /* Error box */
-        .error {
+        /* Error Banner */
+        .form-error {
             display: flex;
             align-items: center;
-            gap: 8px;
-            padding: 9px 13px;
+            gap: 9px;
+            padding: 10px 14px;
             background: #fef2f2;
-            color: #dc2626;
-            border: 1px solid #fecaca;
-            border-radius: 10px;
-            font-size: 12.5px;
-            font-weight: 600;
-            margin-bottom: 12px;
+            border: 1.5px solid #fecaca;
+            border-radius: 12px;
+            color: #b91c1c;
+            font-size: 13px;
+            font-weight: 700;
+            margin-bottom: 16px;
             animation: shake 0.4s ease-in-out;
         }
 
@@ -269,120 +304,92 @@
             40%, 80% { transform: translateX(4px); }
         }
 
-        /* Quick Account Switcher */
-        .quick-accounts {
-            background: #f8fafc;
-            border: 1.5px dashed #cbd5e1;
-            border-radius: 14px;
-            padding: 10px 12px;
-            margin-bottom: 14px;
-            transition: border-color 0.2s ease;
+        /* Quick Account Chips (Gọn gàng, sạch sẽ) */
+        .quick-section {
+            margin-bottom: 18px;
         }
 
-        .quick-accounts:hover {
-            border-color: #94a3b8;
-        }
-
-        .quick-title {
-            font-size: 11px;
-            font-weight: 800;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-            color: #475569;
-            margin-bottom: 8px;
+        .quick-header {
             display: flex;
             align-items: center;
             justify-content: space-between;
+            margin-bottom: 8px;
         }
 
-        .quick-pass-hint {
-            display: inline-flex;
-            align-items: center;
-            gap: 4px;
-            font-size: 10.5px;
-            font-weight: 700;
+        .quick-header span {
+            font-size: 11.5px;
+            font-weight: 800;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            color: #64748b;
+        }
+
+        .pass-hint {
+            font-size: 11px;
+            font-weight: 800;
             color: #059669;
             background: #ecfdf5;
-            padding: 2px 7px;
-            border-radius: 99px;
+            border: 1px solid #a7f3d0;
+            padding: 2px 8px;
+            border-radius: 999px;
         }
 
-        .quick-chips {
+        .quick-pills {
             display: flex;
             gap: 6px;
             flex-wrap: wrap;
         }
 
-        .quick-chip {
-            border: 1.5px solid #e2e8f0;
-            background: #ffffff;
-            padding: 5px 10px;
-            border-radius: 8px;
-            font-size: 11.5px;
-            font-weight: 700;
-            color: #334155;
-            cursor: pointer;
-            transition: all 0.15s ease;
+        .chip-btn {
             display: inline-flex;
             align-items: center;
             gap: 5px;
-            box-shadow: 0 1px 2px rgba(0, 0, 0, 0.04);
+            padding: 6px 11px;
+            border-radius: 10px;
+            font-size: 12px;
+            font-weight: 750;
+            border: 1.5px solid #e2e8f0;
+            background: #f8fafc;
+            color: #334155;
+            cursor: pointer;
+            transition: all 0.15s ease;
             font-family: inherit;
         }
 
-        .quick-chip:hover {
+        .chip-btn:hover {
             transform: translateY(-1px);
-            box-shadow: 0 3px 8px rgba(0, 0, 0, 0.08);
+            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.06);
         }
 
-        .chip-admin {
-            border-color: #fef08a;
-            background: #fffbeb;
-            color: #b45309;
-        }
-        .chip-admin:hover, .chip-admin.active {
-            border-color: #f59e0b;
-            background: #fef3c7;
-            color: #92400e;
+        .chip-btn.active {
+            border-color: var(--primary);
+            background: #eef2ff;
+            color: var(--primary);
         }
 
-        .chip-teacher {
-            border-color: #bbf7d0;
-            background: #f0fdf4;
-            color: #15803d;
-        }
-        .chip-teacher:hover, .chip-teacher.active {
-            border-color: #22c55e;
-            background: #dcfce7;
-            color: #166534;
-        }
+        .chip-admin { border-color: #fde68a; background: #fffbeb; color: #b45309; }
+        .chip-admin:hover, .chip-admin.active { border-color: #f59e0b; background: #fef3c7; }
 
-        .chip-student {
-            border-color: #bfdbfe;
-            background: #eff6ff;
-            color: #1d4ed8;
-        }
-        .chip-student:hover, .chip-student.active {
-            border-color: #3b82f6;
-            background: #dbeafe;
-            color: #1e40af;
-        }
+        .chip-teacher { border-color: #bbf7d0; background: #f0fdf4; color: #15803d; }
+        .chip-teacher:hover, .chip-teacher.active { border-color: #22c55e; background: #dcfce7; }
+
+        .chip-student { border-color: #bfdbfe; background: #eff6ff; color: #1d4ed8; }
+        .chip-student:hover, .chip-student.active { border-color: #3b82f6; background: #dbeafe; }
 
         /* Form Inputs */
         .form-group {
-            margin-bottom: 11px;
-            position: relative;
+            margin-bottom: 14px;
         }
 
-        .form-group label {
+        .form-label {
             display: block;
-            font-weight: 700;
-            font-size: 12.5px;
+            font-size: 13px;
+            font-weight: 750;
             color: #334155;
-            margin-bottom: 5px;
+            margin-bottom: 6px;
         }
 
-        .input-wrapper {
+        .input-box {
             position: relative;
             display: flex;
             align-items: center;
@@ -390,47 +397,45 @@
 
         .input-icon {
             position: absolute;
-            left: 12px;
+            left: 13px;
             color: #94a3b8;
-            font-size: 15px;
-            pointer-events: none;
             display: flex;
             align-items: center;
-            justify-content: center;
+            pointer-events: none;
         }
 
-        .form-input {
+        .input-control {
             width: 100%;
-            padding: 10px 14px 10px 38px;
-            border: 1.5px solid #e2e8f0;
+            padding: 11px 14px 11px 40px;
+            border: 1.6px solid #cbd5e1;
             border-radius: 12px;
-            font-size: 13.5px;
+            font-size: 14px;
             font-family: inherit;
             font-weight: 600;
             color: #0f172a;
-            outline: none;
             background: #ffffff;
+            outline: none;
             transition: all 0.2s ease;
         }
 
-        .form-input::placeholder {
+        .input-control::placeholder {
             color: #94a3b8;
             font-weight: 500;
         }
 
-        .form-input:focus {
+        .input-control:focus {
             border-color: var(--primary);
-            box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.12);
+            box-shadow: 0 0 0 3.5px rgba(79, 70, 229, 0.12);
         }
 
-        .password-toggle {
+        .btn-toggle-eye {
             position: absolute;
             right: 10px;
             background: none;
             border: none;
             color: #94a3b8;
             cursor: pointer;
-            padding: 4px;
+            padding: 5px;
             font-size: 16px;
             display: flex;
             align-items: center;
@@ -438,25 +443,24 @@
             transition: color 0.15s ease;
         }
 
-        .password-toggle:hover {
+        .btn-toggle-eye:hover {
             color: #475569;
         }
 
         /* Submit Button */
-        .btn-submit {
+        .btn-login-submit {
             width: 100%;
-            margin-top: 8px;
-            padding: 11px 18px;
+            margin-top: 6px;
+            padding: 12px 20px;
             border: none;
             border-radius: 12px;
-            background: linear-gradient(135deg, #4f46e5 0%, #3b82f6 50%, #06b6d4 100%);
-            background-size: 200% auto;
+            background: linear-gradient(135deg, #4f46e5 0%, #3b82f6 100%);
             color: #ffffff;
-            font-weight: 800;
-            font-size: 14px;
+            font-weight: 850;
+            font-size: 14.5px;
             letter-spacing: 0.3px;
             cursor: pointer;
-            box-shadow: 0 6px 16px -3px rgba(79, 70, 229, 0.4);
+            box-shadow: 0 6px 18px -2px rgba(79, 70, 229, 0.4);
             transition: all 0.2s ease;
             display: flex;
             align-items: center;
@@ -465,220 +469,204 @@
             font-family: inherit;
         }
 
-        .btn-submit:hover {
-            background-position: right center;
-            transform: translateY(-1px);
-            box-shadow: 0 8px 20px -3px rgba(79, 70, 229, 0.5);
+        .btn-login-submit:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 24px -2px rgba(79, 70, 229, 0.55);
+            background: linear-gradient(135deg, #4338ca 0%, #2563eb 100%);
         }
 
-        .btn-submit:active {
-            transform: translateY(0);
+        .btn-login-submit:active {
+            transform: translateY(1px);
         }
 
-        .form-footer {
-            margin-top: 12px;
+        /* Subtle Bottom Register Link */
+        .login-sublink {
+            margin-top: 14px;
+            text-align: center;
+            font-size: 12.5px;
+            color: #64748b;
+            font-weight: 600;
+        }
+
+        .login-sublink a {
+            color: var(--primary);
+            text-decoration: none;
+            font-weight: 800;
+            transition: color 0.15s ease;
+        }
+
+        .login-sublink a:hover {
+            color: var(--primary-hover);
+            text-decoration: underline;
+        }
+
+        .form-copyright {
+            margin-top: 16px;
             text-align: center;
             font-size: 11.5px;
             color: #94a3b8;
             font-weight: 500;
         }
 
-        /* Banner Đăng ký nhận tài khoản Giáo viên mới */
-        .teacher-register-card {
-            background: linear-gradient(135deg, #fffbeb 0%, #fef3c7 100%);
-            border: 1.5px solid #fde68a;
-            border-radius: 14px;
-            padding: 10px 14px;
-            margin-bottom: 12px;
-            box-shadow: 0 4px 12px rgba(245, 158, 11, 0.12);
-        }
-        .btn-upgrade-teacher-link {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            padding: 8px 12px;
-            background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
-            border: 1.5px solid #fef08a;
-            border-radius: 10px;
-            color: #ffffff !important;
-            font-size: 12px;
-            font-weight: 900;
-            text-decoration: none !important;
-            box-shadow: 0 3px 8px rgba(217, 119, 6, 0.3);
-            transition: transform 0.15s, box-shadow 0.15s;
-        }
-        .btn-upgrade-teacher-link:hover {
-            transform: translateY(-1px);
-            box-shadow: 0 5px 12px rgba(217, 119, 6, 0.45);
-            background: linear-gradient(135deg, #fbbf24 0%, #d97706 100%);
-        }
-
+        /* Responsive */
         @media (max-width: 860px) {
             html, body {
                 height: auto;
                 overflow-y: auto;
             }
-            .box {
+            .login-card {
                 grid-template-columns: 1fr;
-                border-radius: 20px;
+                border-radius: 22px;
                 max-height: none;
             }
-            .art {
-                min-height: 220px;
-                padding: 24px 20px;
+            .card-brand {
+                padding: 24px 22px;
             }
-            .art h1 {
-                font-size: 26px;
+            .brand-title {
+                font-size: 28px;
             }
-            .art-features {
+            .brand-features {
                 display: none;
             }
-            .form-side {
-                padding: 24px 20px;
+            .card-form {
+                padding: 24px 22px;
             }
         }
     </style>
 </head>
 <body>
 
-    <!-- Dynamic background orbs -->
-    <div class="ambient-orb orb-1"></div>
-    <div class="ambient-orb orb-2"></div>
+    <!-- Cinematic Video Background (bg-hero.mp4) -->
+    <div class="video-bg-container">
+        <video autoplay muted loop playsinline class="video-bg">
+            <source src="{{ asset('images/bg-hero.mp4') }}" type="video/mp4">
+        </video>
+        <div class="video-overlay"></div>
+    </div>
 
-    <main class="box">
-        <!-- Left Hero Art Section -->
-        <section class="art">
-            <div class="art-top">
-                <div class="art-badge">
+    <!-- Main Glassmorphism Login Card -->
+    <main class="login-card">
+        
+        <!-- Left Side: Brand & Showcase -->
+        <section class="card-brand">
+            <div class="brand-glow"></div>
+
+            <div class="brand-top">
+                <div class="brand-badge">
                     <span class="dot"></span>
                     <span>✨ IC3 GS6 & Spark Quest</span>
                 </div>
-                <h1>IC3 <span>QUEST</span></h1>
-                <p class="tagline">Nền tảng luyện thi & làm chủ kỹ năng số chuẩn quốc tế cho học sinh.</p>
-
-                <!-- Nút Xem các gói bản quyền bên trái -->
-                <a href="{{ route('pricing.index') }}" style="display:inline-flex; align-items:center; gap:8px; margin-top:14px; padding:9px 16px; border-radius:12px; background:linear-gradient(135deg, #f59e0b, #d97706); color:#fff; font-weight:900; font-size:12.5px; text-decoration:none; box-shadow:0 4px 14px rgba(245,158,11,0.45); border:1.5px solid #fef08a;">
-                    <span>💎</span> <span>Xem Các Gói & Đăng Ký Tài Khoản Mới</span> <b>→</b>
-                </a>
+                <h1 class="brand-title">IC3 <span>QUEST</span></h1>
+                <p class="brand-tagline">Nền tảng luyện thi & làm chủ kỹ năng số chuẩn quốc tế cho học sinh.</p>
             </div>
 
-            <div class="art-bottom">
-                <div class="art-features">
-                    <div class="art-feat-item">
-                        <span class="art-feat-icon">🎯</span>
-                        <span>Ngân hàng câu hỏi trắc nghiệm & tương tác 3D</span>
-                    </div>
-                    <div class="art-feat-item">
-                        <span class="art-feat-icon">🤖</span>
-                        <span>Trợ lý AI chấm điểm & phản hồi kết quả tức thì</span>
-                    </div>
-                    <div class="art-feat-item">
-                        <span class="art-feat-icon">🏆</span>
-                        <span>Bảng vàng thi đua, tích điểm đổi quà & studio đề</span>
-                    </div>
+            <div class="brand-features">
+                <div class="feat-pill">
+                    <span class="feat-icon">🎯</span>
+                    <span>Ngân hàng câu hỏi trắc nghiệm & tương tác 3D</span>
                 </div>
+                <div class="feat-pill">
+                    <span class="feat-icon">🤖</span>
+                    <span>Trợ lý AI chấm điểm & phản hồi kết quả tức thì</span>
+                </div>
+                <div class="feat-pill">
+                    <span class="feat-icon">🏆</span>
+                    <span>Bảng vàng thi đua, tích điểm đổi quà & studio đề</span>
+                </div>
+            </div>
+
+            <div class="brand-bottom">
+                <a href="{{ route('pricing.index') }}" class="btn-pricing-link">
+                    <span>💎 Xem Các Gói & Đăng Ký Tài Khoản</span>
+                    <span style="font-size: 15px;">→</span>
+                </a>
             </div>
         </section>
 
-        <!-- Right Login Form Section -->
-        <section class="form-side">
-            <div class="form-header">
-                <h2>Đăng nhập 👋</h2>
-                <p>Chọn tài khoản mẫu bên dưới hoặc nhập thông tin:</p>
+        <!-- Right Side: Clean Login Form -->
+        <section class="card-form">
+            <div class="form-header-box">
+                <h2 class="form-title">Đăng nhập 👋</h2>
+                <p class="form-subtitle">Chọn tài khoản mẫu hoặc nhập thông tin đăng nhập:</p>
             </div>
 
             @error('login')
-                <div class="error">
+                <div class="form-error">
                     <span>⚠️</span>
                     <span>{{ $message }}</span>
                 </div>
             @enderror
 
-            <!-- Quick Account Fill Chips -->
-            <div class="quick-accounts">
-                <div class="quick-title">
+            <!-- Quick Account Switcher (Thanh thoát & Hiện đại) -->
+            <div class="quick-section">
+                <div class="quick-header">
                     <span>Tài khoản mẫu nhanh</span>
-                    <span class="quick-pass-hint">🔑 Pass: 123456</span>
+                    <span class="pass-hint">🔑 Pass: 123456</span>
                 </div>
-                <div class="quick-chips">
-                    <button type="button" class="quick-chip chip-admin" onclick="quickFill('admin', '123456', this)">
-                        👑 <strong>Admin</strong>
+                <div class="quick-pills">
+                    <button type="button" class="chip-btn chip-admin" onclick="quickFill('admin', '123456', this)">
+                        👑 Admin
                     </button>
-                    <button type="button" class="quick-chip chip-teacher" onclick="quickFill('teacher', '123456', this)">
-                        👨‍🏫 <strong>GV Khối 3</strong>
+                    <button type="button" class="chip-btn chip-teacher" onclick="quickFill('teacher', '123456', this)">
+                        👨‍🏫 GV Khối 3
                     </button>
-                    <button type="button" class="quick-chip chip-student" onclick="quickFill('hs001', '123456', this)">
-                        🎓 <strong>Khối 3</strong> (hs001)
+                    <button type="button" class="chip-btn chip-student" onclick="quickFill('hs001', '123456', this)">
+                        🎓 Khối 3
                     </button>
-                    <button type="button" class="quick-chip chip-student" onclick="quickFill('hs002', '123456', this)">
-                        🎓 <strong>Khối 4</strong> (hs002)
+                    <button type="button" class="chip-btn chip-student" onclick="quickFill('hs002', '123456', this)">
+                        🎓 Khối 4
                     </button>
-                    <button type="button" class="quick-chip chip-student" onclick="quickFill('hs003', '123456', this)">
-                        🎓 <strong>Khối 5</strong> (hs003)
+                    <button type="button" class="chip-btn chip-student" onclick="quickFill('hs003', '123456', this)">
+                        🎓 Khối 5
                     </button>
                 </div>
             </div>
 
-            <!-- Banner Đăng Ký Nhận Tài Khoản Giáo Viên Mới Qua Gói Bản Quyền -->
-            <div class="teacher-register-card">
-                <div style="display:flex; align-items:center; justify-content:space-between; gap:10px; margin-bottom:5px;">
-                    <span style="font-size:11px; font-weight:900; color:#b45309; text-transform:uppercase; letter-spacing:0.5px;">
-                        ✨ CHƯA CÓ TÀI KHOẢN GIÁO VIÊN?
-                    </span>
-                    <span style="background:#fde68a; color:#92400e; font-size:10px; font-weight:900; padding:1px 6px; border-radius:99px;">
-                        CẤP TỰ ĐỘNG
-                    </span>
-                </div>
-                <div style="font-size:12px; color:#475569; line-height:1.4; margin-bottom:8px;">
-                    Đăng ký thuê gói để <b>nhận tài khoản Giáo viên</b> & cấp lớp luyện thi cho học sinh ngay:
-                </div>
-                <a href="{{ route('pricing.index') }}" class="btn-upgrade-teacher-link">
-                    <span>💎 Xem Các Gói & Đăng Ký Tài Khoản</span>
-                    <b>→</b>
-                </a>
-            </div>
-
-            <!-- Login Form -->
+            <!-- Main Login Form -->
             <form method="post" action="{{ route('login.store') }}" id="loginForm">
                 @csrf
 
                 <div class="form-group">
-                    <label for="loginInput">Tài khoản (Tên / Mã HS / Email)</label>
-                    <div class="input-wrapper">
+                    <label for="loginInput" class="form-label">Tài khoản (Tên / Mã HS / Email)</label>
+                    <div class="input-box">
                         <span class="input-icon">
-                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
                                 <path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"></path>
                                 <circle cx="12" cy="7" r="4"></circle>
                             </svg>
                         </span>
-                        <input id="loginInput" class="form-input" name="login" value="{{ old('login') }}" required autofocus placeholder="admin, teacher, hs001 hoặc email">
+                        <input id="loginInput" class="input-control" name="login" value="{{ old('login') }}" required autofocus placeholder="admin, teacher, hs001 hoặc email">
                     </div>
                 </div>
 
                 <div class="form-group">
-                    <label for="passwordInput">Mật khẩu</label>
-                    <div class="input-wrapper">
+                    <label for="passwordInput" class="form-label">Mật khẩu</label>
+                    <div class="input-box">
                         <span class="input-icon">
-                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                                <rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect>
+                            <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                                <rect x="3" y="11" width="18" height="11" rx="2.2" ry="2.2"></rect>
                                 <path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
                             </svg>
                         </span>
-                        <input id="passwordInput" class="form-input" name="password" type="password" required placeholder="Nhập mật khẩu (123456)">
-                        <button type="button" class="password-toggle" onclick="togglePassword()" title="Hiện/ẩn mật khẩu">
+                        <input id="passwordInput" class="input-control" name="password" type="password" required placeholder="Nhập mật khẩu (123456)">
+                        <button type="button" class="btn-toggle-eye" onclick="togglePassword()" title="Hiện/ẩn mật khẩu">
                             <span id="eyeIcon">👁️</span>
                         </button>
                     </div>
                 </div>
 
-                <button type="submit" class="btn-submit">
+                <button type="submit" class="btn-login-submit">
                     <span>ĐĂNG NHẬP NGAY</span>
-                    <span style="font-size: 15px;">🚀</span>
+                    <span>🚀</span>
                 </button>
             </form>
 
-            <div class="form-footer">
-                <span>Luyện thi IC3 GS6 & Quản trị MOS © 2026</span>
+            <div class="login-sublink">
+                Chưa có tài khoản Giáo viên? <a href="{{ route('pricing.index') }}">Đăng ký thuê gói để nhận tài khoản ngay →</a>
+            </div>
+
+            <div class="form-copyright">
+                Luyện thi IC3 GS6 & Quản trị MOS © 2026
             </div>
         </section>
     </main>
@@ -691,13 +679,11 @@
             loginInput.value = user;
             passInput.value = pass;
             
-            // Highlight active button
-            document.querySelectorAll('.quick-chip').forEach(chip => chip.classList.remove('active'));
+            document.querySelectorAll('.chip-btn').forEach(chip => chip.classList.remove('active'));
             if (element) {
                 element.classList.add('active');
             }
             
-            // Focus and subtle feedback
             loginInput.focus();
         }
 
