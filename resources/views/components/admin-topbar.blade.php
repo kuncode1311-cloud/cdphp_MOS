@@ -65,8 +65,8 @@
         @endif
 
         <!-- Avatar Người Dùng Tinh Gọn (Click mở Modal Profile / Đổi mật khẩu) -->
-        <button type="button" class="topbar-avatar-btn" onclick="typeof openMyProfileModal === 'function' ? openMyProfileModal() : (window.location.href='{{ route('admin.dashboard') }}#profile')" title="Tài khoản: {{ $user?->name ?? 'Admin' }} ({{ $isTeacher ? 'Giáo Viên' : 'Quản Trị Viên' }}) — Bấm để đổi mật khẩu / xem hồ sơ">
-            <div class="pill-avatar" style="background: {{ $isTeacher ? 'linear-gradient(135deg, #10b981, #06b6d4)' : 'linear-gradient(135deg, #ef4444, #f59e0b)' }};">
+        <button type="button" class="topbar-avatar-btn" onclick="typeof openTeacherProfileModal === 'function' ? openTeacherProfileModal() : (typeof openMyProfileModal === 'function' ? openMyProfileModal() : (window.location.href='{{ route('admin.dashboard') }}#profile'))" title="Tài khoản: {{ $user?->name ?? 'Admin' }} ({{ $isTeacher ? 'Giáo Viên' : 'Quản Trị Viên' }}) — Bấm để xem hồ sơ / đổi mật khẩu">
+            <div class="pill-avatar" style="background: {{ $isTeacher ? 'linear-gradient(135deg, #10b981, #06b6d4)' : 'linear-gradient(135deg, #ef4444, #f59e0b)' }}; cursor: pointer;">
                 {{ $isTeacher ? 'GV' : 'AD' }}
             </div>
             <span class="online-indicator" title="Tài khoản đang hoạt động trực tuyến"></span>

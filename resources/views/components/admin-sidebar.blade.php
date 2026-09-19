@@ -38,8 +38,8 @@
     </a>
 
     <!-- 2. Thẻ Thông Tin Admin / Profile -->
-    <div class="admin-badge-box" onclick="typeof openMyProfileModal === 'function' ? openMyProfileModal() : (window.location.href='{{ route('admin.dashboard') }}#profile')" title="Bấm để xem và sửa thông tin tài khoản">
-        <div class="avatar" style="background: {{ $isTeacher ? 'linear-gradient(135deg, #10b981, #06b6d4)' : 'linear-gradient(135deg, #4f46e5, #7c3aed)' }};">
+    <div class="admin-badge-box" onclick="typeof openTeacherProfileModal === 'function' ? openTeacherProfileModal() : (typeof openMyProfileModal === 'function' ? openMyProfileModal() : (window.location.href='{{ route('admin.dashboard') }}#profile'))" title="Bấm để xem hồ sơ chi tiết và thông tin tài khoản">
+        <div class="avatar" style="background: {{ $isTeacher ? 'linear-gradient(135deg, #10b981, #06b6d4)' : 'linear-gradient(135deg, #4f46e5, #7c3aed)' }}; cursor: pointer;">
             {{ $isTeacher ? 'GV' : 'AD' }}
         </div>
         <div class="admin-info" style="min-width: 0;">

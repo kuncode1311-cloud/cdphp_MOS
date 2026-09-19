@@ -2378,20 +2378,20 @@
                                 </span>
                             </div>
 
-                            <div class="search-wrap" style="flex: 1; max-width: 320px;">
+                            <div class="search-wrap" style="flex: 1; max-width: 460px; min-width: 280px;">
                                 <span class="search-icon">🔍</span>
-                                <input type="text" id="user-search-input" class="search-input" style="width: 100%; box-sizing: border-box;" placeholder="Tìm tên, mã HS, email học sinh..." onkeyup="filterUserSearch()">
+                                <input type="text" id="user-search-input" class="search-input" style="width: 100%; box-sizing: border-box; font-size: 13px;" placeholder="Tìm tên, mã HS, email học sinh..." onkeyup="filterUserSearch()">
                             </div>
                         </div>
 
                         <div class="excel-table-wrap">
                             <table id="users-data-table" class="modal-roster-table" style="width:100% !important; max-width:100% !important; table-layout:fixed; min-width: 760px;">
                                 <colgroup>
-                                    <col style="width: 5%;">
-                                    <col style="width: 30%;">
+                                    <col style="width: 4%;">
+                                    <col style="width: 36%;">
+                                    <col style="width: 13%;">
                                     <col style="width: 14%;">
-                                    <col style="width: 19%;">
-                                    <col style="width: 9%;">
+                                    <col style="width: 10%;">
                                     <col style="width: 23%;">
                                 </colgroup>
                                 <thead>
@@ -2413,9 +2413,23 @@
                                         <tr class="user-row-item {{ $isSuspended ? 'user-row-suspended' : '' }}" data-role="{{ $uRoleStr }}" data-user-id="{{ $u->id }}">
                                             <td style="color:#94a3b8; font-weight:700; text-align:center;">{{ $loop->iteration }}</td>
                                             <td>
-                                                <div style="display:flex; align-items:center; gap:8px; min-width:0;">
-                                                    <div class="avatar-box-wrap">
-                                                        <div style="width:32px; height:32px; border-radius:8px; display:grid; place-items:center; font-weight:900; font-size:12px; color:#fff; background: {{ $isSuspended ? '#94a3b8' : 'linear-gradient(135deg, #6366f1, #8b5cf6)' }}; flex-shrink:0;">
+                                                <div style="display:flex; align-items:center; gap:10px; min-width:0;">
+                                                    <div class="avatar-box-wrap" 
+                                                         style="cursor:pointer; transition:transform 0.15s ease;" 
+                                                         onmouseover="this.style.transform='scale(1.08)'" 
+                                                         onmouseout="this.style.transform='scale(1)'"
+                                                         onclick="openStudentProfileModal(this)"
+                                                         data-id="{{ $u->id }}"
+                                                         data-name="{{ $u->name }}"
+                                                         data-email="{{ $u->email }}"
+                                                         data-code="{{ $u->student_code ?? '' }}"
+                                                         data-status="{{ $u->status ?? 'active' }}"
+                                                         data-created="{{ $u->created_date_vn }}"
+                                                         data-attempts="{{ $u->attempts_count ?? $u->attempts()->count() }}"
+                                                         data-levels='@json($u->accessibleLevels->map(fn($l) => ["grade" => $l->grade, "name" => $l->name]))'
+                                                         data-teacher="{{ $u->teacher?->name ?? (auth()->user()->name ?? 'Giáo viên phụ trách') }}"
+                                                         title="Bấm để xem hồ sơ chi tiết của {{ $u->name }}">
+                                                        <div style="width:34px; height:34px; border-radius:10px; display:grid; place-items:center; font-weight:900; font-size:13px; color:#fff; background: {{ $isSuspended ? '#94a3b8' : 'linear-gradient(135deg, #6366f1, #8b5cf6)' }}; box-shadow:0 2px 6px rgba(99,102,241,0.25); flex-shrink:0;">
                                                             {{ mb_strtoupper(mb_substr($u->name, 0, 1)) }}
                                                         </div>
                                                         @if($isSuspended)
@@ -2424,31 +2438,36 @@
                                                             <span class="avatar-online-badge" title="Tài khoản đang hoạt động / Online"></span>
                                                         @endif
                                                     </div>
-                                                    <div style="min-width:0; overflow:hidden;">
-                                                        <b style="color:{{ $isSuspended ? '#64748b' : '#0f172a' }}; font-size:13px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; display:block;">
-                                                            {{ $u->name }}
-                                                            @if($isSuspended)
-                                                                <span style="font-size:10.5px; color:#ef4444; font-weight:750; margin-left:4px;">(Đã khóa)</span>
-                                                            @endif
-                                                        </b>
-                                                        <div style="font-size:11px; color:#64748b; margin-top:2px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">
-                                                            {{ $u->email }}
+                                                    <div style="min-width:0; flex:1;">
+                                                        <div style="display:flex; align-items:center; gap:6px; flex-wrap:wrap;">
+                                                            <b style="color:{{ $isSuspended ? '#64748b' : '#0f172a' }}; font-size:13.5px; cursor:pointer;" 
+                                                               onclick="openStudentProfileModal(this.closest('td').querySelector('.avatar-box-wrap'))" 
+                                                               title="Bấm xem hồ sơ {{ $u->name }}">
+                                                                {{ $u->name }}
+                                                            </b>
                                                             @if($u->student_code)
-                                                                · <span class="pill-badge pill-code" style="font-size:9.5px; padding:1px 4px;">{{ $u->student_code }}</span>
+                                                                <span class="pill-badge pill-code" style="font-size:10px; padding:1px 6px; font-weight:800; border-radius:5px;">{{ $u->student_code }}</span>
                                                             @endif
-                                                            · 📅 {{ $u->created_date_vn }}
+                                                            @if($isSuspended)
+                                                                <span style="font-size:10.5px; color:#ef4444; font-weight:750;">(Đã khóa)</span>
+                                                            @endif
+                                                        </div>
+                                                        <div style="font-size:11px; color:#64748b; margin-top:3px; display:flex; align-items:center; gap:6px; flex-wrap:wrap;">
+                                                            <span style="color:#475569;" title="{{ $u->email }}">{{ $u->email }}</span>
+                                                            <span style="color:#cbd5e1;">•</span>
+                                                            <span style="color:#64748b; white-space:nowrap; font-weight:600;">📅 {{ $u->created_date_vn }}</span>
                                                         </div>
                                                     </div>
                                                 </div>
                                             </td>
                                             <td style="text-align:center;" class="user-status-cell">
                                                 @if($isSuspended)
-                                                    <button type="button" class="pill-badge pill-fail" style="cursor:pointer; padding:3px 7px; font-size:10.5px; border-radius:7px; border:1.5px solid #fca5a5;" onclick="toggleStudentStatusAjax({{ $u->id }}, 'active', '{{ addslashes($u->name) }}')" title="Bấm để mở khóa kích hoạt lại tài khoản">
-                                                        🔒 Tạm khóa
+                                                    <button type="button" class="pill-badge pill-fail" style="cursor:pointer; padding:4px 10px; font-size:11px; font-weight:800; line-height:1.3; border-radius:8px; border:1.5px solid #fca5a5; white-space:nowrap; display:inline-flex; align-items:center; gap:5px;" onclick="toggleStudentStatusAjax({{ $u->id }}, 'active', '{{ addslashes($u->name) }}')" title="Bấm để mở khóa kích hoạt lại tài khoản">
+                                                        <span>🔒</span> Tạm khóa
                                                     </button>
                                                 @else
-                                                    <button type="button" class="pill-badge pill-pass" style="cursor:pointer; padding:3px 7px; font-size:10.5px; border-radius:7px; border:1.5px solid #86efac;" onclick="toggleStudentStatusAjax({{ $u->id }}, 'suspended', '{{ addslashes($u->name) }}')" title="Bấm để tạm khóa tài khoản này">
-                                                        <span class="status-dot-online"></span> Đang học
+                                                    <button type="button" class="pill-badge pill-pass" style="cursor:pointer; padding:4px 10px; font-size:11px; font-weight:800; line-height:1.3; border-radius:8px; border:1.5px solid #86efac; white-space:nowrap; display:inline-flex; align-items:center; gap:5px;" onclick="toggleStudentStatusAjax({{ $u->id }}, 'suspended', '{{ addslashes($u->name) }}')" title="Bấm để tạm khóa tài khoản này">
+                                                        <span class="status-dot-online" style="width:7px; height:7px; background:#10b981; border-radius:50%; display:inline-block; box-shadow:0 0 0 2px rgba(16,185,129,0.2);"></span> Đang học
                                                     </button>
                                                 @endif
                                             </td>
@@ -5680,6 +5699,185 @@
     </div>
 </div>
 
+<!-- ===========================================================================
+     🎓 MODAL XEM HỒ SƠ CHI TIẾT HỌC SINH (STUDENT PROFILE MODAL)
+     =========================================================================== -->
+<div id="student-profile-modal" class="modal-backdrop" style="display:none; z-index: 10500;">
+    <div class="modal-box" style="width: min(560px, 95vw); border-radius: 20px; overflow: hidden; box-shadow: 0 25px 60px -15px rgba(0, 0, 0, 0.35); border: 2.5px solid #ffffff;">
+        <!-- Header Banner Gamified -->
+        <div style="background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 50%, #2563eb 100%); padding: 24px; color: #ffffff; position: relative;">
+            <button type="button" class="modal-close-btn" onclick="closeStudentProfileModal()" style="position: absolute; right: 16px; top: 16px; color: #ffffff; background: rgba(255,255,255,0.2); border: none; border-radius: 50%; width: 32px; height: 32px; cursor: pointer; display: grid; place-items: center; font-size: 14px;">✕</button>
+            <div style="display: flex; align-items: center; gap: 16px;">
+                <div id="sp-avatar-wrap" style="position: relative;">
+                    <div id="sp-avatar" style="width: 60px; height: 60px; border-radius: 16px; background: #ffffff; color: #4f46e5; font-size: 26px; font-weight: 900; display: grid; place-items: center; box-shadow: 0 4px 14px rgba(0,0,0,0.2); border: 3px solid #ffffff;">
+                        Q
+                    </div>
+                    <span id="sp-status-dot" style="position: absolute; bottom: -2px; right: -2px; width: 14px; height: 14px; border-radius: 50%; background: #10b981; border: 2.5px solid #ffffff;"></span>
+                </div>
+                <div style="min-width: 0; flex: 1;">
+                    <div style="display: flex; align-items: center; gap: 8px; flex-wrap: wrap;">
+                        <h3 id="sp-name" style="margin: 0; font-size: 20px; font-weight: 900; color: #ffffff; text-shadow: 0 1px 3px rgba(0,0,0,0.2);">
+                            Quỳnh Anh
+                        </h3>
+                        <span id="sp-code-badge" class="pill-badge pill-code" style="font-size: 11px; padding: 2px 8px; font-weight: 800; background: rgba(255,255,255,0.25); color: #ffffff; border: 1px solid rgba(255,255,255,0.4);">
+                            HS013
+                        </span>
+                        <span id="sp-status-badge" style="font-size: 11px; padding: 2px 8px; border-radius: 999px; font-weight: 800; background: #dcfce7; color: #15803d;">
+                            🟢 Đang học
+                        </span>
+                    </div>
+                    <div id="sp-email" style="font-size: 12.5px; color: #e0e7ff; margin-top: 4px; font-weight: 600;">
+                        quynhanh.3a1@student.ic3.local
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Body: 4 Thẻ Pods Thông Số Năng Lượng -->
+        <div class="modal-body" style="padding: 20px 24px; background: #f8fafc;">
+            <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; margin-bottom: 18px;">
+                <div style="background: #ffffff; border: 1.5px solid #e2e8f0; border-radius: 12px; padding: 12px 14px;">
+                    <span style="font-size: 11px; font-weight: 800; color: #64748b; text-transform: uppercase; display: block;">🔑 KHỐI ĐƯỢC CẤP</span>
+                    <div id="sp-levels" style="margin-top: 6px; display: flex; flex-wrap: wrap; gap: 4px;">
+                        <span class="pill-badge pill-grade" style="font-size: 11px; padding: 2px 7px;">Khối 3</span>
+                    </div>
+                </div>
+
+                <div style="background: #ffffff; border: 1.5px solid #e2e8f0; border-radius: 12px; padding: 12px 14px;">
+                    <span style="font-size: 11px; font-weight: 800; color: #64748b; text-transform: uppercase; display: block;">📝 LƯỢT LUYỆN THI</span>
+                    <div id="sp-attempts" style="margin-top: 6px; font-size: 16px; font-weight: 900; color: #0f172a;">
+                        2 lượt thi
+                    </div>
+                </div>
+
+                <div style="background: #ffffff; border: 1.5px solid #e2e8f0; border-radius: 12px; padding: 12px 14px;">
+                    <span style="font-size: 11px; font-weight: 800; color: #64748b; text-transform: uppercase; display: block;">👩‍🏫 GIÁO VIÊN PHỤ TRÁCH</span>
+                    <div id="sp-teacher" style="margin-top: 6px; font-size: 13.5px; font-weight: 800; color: #0f172a;">
+                        Cô Mai Linh
+                    </div>
+                </div>
+
+                <div style="background: #ffffff; border: 1.5px solid #e2e8f0; border-radius: 12px; padding: 12px 14px;">
+                    <span style="font-size: 11px; font-weight: 800; color: #64748b; text-transform: uppercase; display: block;">📅 NGÀY TẠO TÀI KHOẢN</span>
+                    <div id="sp-created" style="margin-top: 6px; font-size: 13px; font-weight: 700; color: #475569;">
+                        07/09/2026
+                    </div>
+                </div>
+            </div>
+
+            <!-- Ghi chú nhanh -->
+            <div style="background: #eff6ff; border: 1px solid #bfdbfe; border-radius: 10px; padding: 10px 14px; font-size: 12px; color: #1e40af; display: flex; align-items: center; gap: 8px;">
+                <span>💡</span>
+                <span>Thầy/Cô có thể cấp thêm khối luyện thi hoặc chỉnh sửa thông tin/mật khẩu cho học sinh bất kỳ lúc nào.</span>
+            </div>
+        </div>
+
+        <!-- Footer Actions -->
+        <div class="modal-footer" style="padding: 14px 24px; background: #ffffff; border-top: 1.5px solid #e2e8f0; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px;">
+            <div style="display: flex; gap: 8px;">
+                <button type="button" id="sp-btn-edit" class="btn-primary" style="padding: 7px 14px; font-size: 12.5px; display: inline-flex; align-items: center; gap: 5px;">
+                    <span>✏️</span> Sửa thông tin
+                </button>
+                <button type="button" id="sp-btn-grant" class="btn-ghost" style="padding: 7px 14px; font-size: 12.5px; display: inline-flex; align-items: center; gap: 5px;">
+                    <span>🔑</span> Cấp khối
+                </button>
+            </div>
+            <button type="button" class="btn-ghost" onclick="closeStudentProfileModal()" style="padding: 7px 16px; font-size: 12.5px;">
+                Đóng
+            </button>
+        </div>
+    </div>
+</div>
+
+<!-- ===========================================================================
+     👩‍🏫 MODAL HỒ SƠ GIÁO VIÊN & TÀI KHOẢN CÁ NHÂN (TEACHER PROFILE MODAL)
+     =========================================================================== -->
+<div id="teacher-profile-modal" class="modal-backdrop" style="display:none; z-index: 10500;">
+    <div class="modal-box" style="width: min(600px, 95vw); border-radius: 20px; overflow: hidden; box-shadow: 0 25px 60px -15px rgba(0, 0, 0, 0.35); border: 3px solid #ffffff;">
+        <!-- Header Banner 3D -->
+        <div style="background: linear-gradient(135deg, #047857 0%, #065f46 50%, #0f172a 100%); padding: 24px 28px; color: #ffffff; position: relative;">
+            <button type="button" class="modal-close-btn" onclick="closeTeacherProfileModal()" style="position: absolute; right: 16px; top: 16px; color: #ffffff; background: rgba(255,255,255,0.2); border: none; border-radius: 50%; width: 32px; height: 32px; cursor: pointer; display: grid; place-items: center; font-size: 14px;">✕</button>
+            <div style="display: flex; align-items: center; gap: 16px;">
+                <div style="width: 64px; height: 64px; border-radius: 18px; background: linear-gradient(135deg, #10b981, #06b6d4); color: #ffffff; font-size: 26px; font-weight: 900; display: grid; place-items: center; box-shadow: 0 4px 16px rgba(0,0,0,0.3); border: 3px solid #ffffff; flex-shrink: 0;">
+                    {{ $isTeacher ? 'GV' : 'AD' }}
+                </div>
+                <div style="min-width: 0; flex: 1;">
+                    <div style="display: flex; align-items: center; gap: 8px; flex-wrap: wrap;">
+                        <h3 style="margin: 0; font-size: 20px; font-weight: 900; color: #ffffff; text-shadow: 0 1px 3px rgba(0,0,0,0.2);">
+                            {{ auth()->user()->name }}
+                        </h3>
+                        <span style="font-size: 11px; padding: 2px 8px; border-radius: 999px; font-weight: 800; background: #34d399; color: #064e3b;">
+                            {{ $isTeacher ? '👩‍🏫 Giáo Viên Phụ Trách' : '👑 Quản Trị Viên' }}
+                        </span>
+                    </div>
+                    <div style="font-size: 12.5px; color: #a7f3d0; margin-top: 4px; font-weight: 600;">
+                        {{ auth()->user()->email }}
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Body: Chi Tiết Gói & Quota Năng Lực -->
+        <div class="modal-body" style="padding: 22px 26px; background: #f8fafc;">
+            @if($isTeacher)
+                <!-- Thông tin gói bản quyền -->
+                <div style="background: #ffffff; border: 1.5px solid #cbd5e1; border-radius: 14px; padding: 16px; margin-bottom: 16px; box-shadow: 0 2px 8px rgba(0,0,0,0.04);">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
+                        <div style="display: flex; align-items: center; gap: 6px;">
+                            <span style="font-size: 16px;">👑</span>
+                            <b style="font-size: 14px; color: #0f172a;">{{ $activeTeacherOrder ? $activeTeacherOrder->package_name : 'Gói Bản Quyền Giảng Dạy Đặc Cách' }}</b>
+                        </div>
+                        <span style="font-size: 11px; font-weight: 800; color: #059669; background: #dcfce7; padding: 2px 8px; border-radius: 6px;">
+                            🟢 Đang hoạt động
+                        </span>
+                    </div>
+
+                    <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; text-align: center; margin-top: 12px;">
+                        <div style="background: #f1f5f9; padding: 10px 8px; border-radius: 10px;">
+                            <small style="font-size: 10.5px; color: #64748b; font-weight: 800; display: block;">SĨ SỐ QUOTA</small>
+                            <b style="font-size: 14px; color: #0284c7; display: block; margin-top: 2px;">{{ $usedStudents }} / {{ $maxStudents ?: '∞' }}</b>
+                        </div>
+                        <div style="background: #f1f5f9; padding: 10px 8px; border-radius: 10px;">
+                            <small style="font-size: 10.5px; color: #64748b; font-weight: 800; display: block;">KHỐI ĐƯỢC CẤP</small>
+                            <b style="font-size: 12.5px; color: #0f172a; display: block; margin-top: 2px;">
+                                @forelse($teacherLevels as $tl)
+                                    Khối {{ $tl->grade }}{{ !$loop->last ? ',' : '' }}
+                                @empty
+                                    Chưa cấp
+                                @endforelse
+                            </b>
+                        </div>
+                        <div style="background: #f1f5f9; padding: 10px 8px; border-radius: 10px;">
+                            <small style="font-size: 10.5px; color: #64748b; font-weight: 800; display: block;">HẠN DÙNG</small>
+                            <b style="font-size: 13px; color: #059669; display: block; margin-top: 2px;">{{ $expiresAt ? $expiresAt->format('d/m/Y') : 'Vĩnh viễn' }}</b>
+                        </div>
+                    </div>
+                </div>
+            @endif
+
+            <!-- Danh sách hành động nhanh -->
+            <div style="display: flex; flex-direction: column; gap: 8px;">
+                @if($isTeacher)
+                    <button type="button" class="btn-ghost" onclick="closeTeacherProfileModal(); switchAdminTab('tab-teacher-packages');" style="display: flex; justify-content: space-between; align-items: center; padding: 11px 16px; border-radius: 10px; border: 1.5px solid #cbd5e1; background: #ffffff; text-align: left; cursor: pointer;">
+                        <span style="font-weight: 800; color: #334155; font-size: 13px;">💎 Xem Gói Bản Quyền & Lịch Sử Thuê Gói</span>
+                        <span style="color: #64748b; font-size: 12px;">Chi tiết ➔</span>
+                    </button>
+                @endif
+                <button type="button" class="btn-ghost" onclick="closeTeacherProfileModal(); openEditUserModal(null, true);" style="display: flex; justify-content: space-between; align-items: center; padding: 11px 16px; border-radius: 10px; border: 1.5px solid #cbd5e1; background: #ffffff; text-align: left; cursor: pointer;">
+                    <span style="font-weight: 800; color: #334155; font-size: 13px;">✏️ Chỉnh Sửa Thông Tin & Đổi Mật Khẩu</span>
+                    <span style="color: #64748b; font-size: 12px;">Cập nhật ➔</span>
+                </button>
+            </div>
+        </div>
+
+        <div class="modal-footer" style="padding: 12px 24px; background: #ffffff; border-top: 1.5px solid #e2e8f0; display: flex; justify-content: flex-end;">
+            <button type="button" class="btn-primary" onclick="closeTeacherProfileModal()" style="padding: 7px 20px; font-size: 13px;">
+                Đóng
+            </button>
+        </div>
+    </div>
+</div>
+
 @if(! $isTeacher)
 <!-- ===========================================================================
      💎 MODAL THÊM MỚI GÓI DỊCH VỤ (CREATE PACKAGE MODAL)
@@ -7636,12 +7834,28 @@
         }
     }
 
-    function openEditUserModal(btn) {
+    function openEditUserModal(btn, isSelf = false, customData = null) {
         const modal = document.getElementById('edit-user-modal');
         const form = document.getElementById('edit-user-form');
         if (!modal || !form) return;
 
-        const d = btn.dataset;
+        let d = {};
+        if (isSelf) {
+            d = {
+                id: {{ auth()->id() }},
+                name: "{{ addslashes(auth()->user()->name) }}",
+                email: "{{ addslashes(auth()->user()->email) }}",
+                code: "",
+                role: "{{ is_object(auth()->user()->role) ? auth()->user()->role->value : auth()->user()->role }}",
+                status: "{{ auth()->user()->status ?? 'active' }}",
+                updateUrl: `/quan-tri/users/{{ auth()->id() }}`
+            };
+        } else if (customData) {
+            d = customData;
+        } else if (btn) {
+            d = btn.dataset;
+        }
+
         form.action = d.updateUrl || `/quan-tri/users/${d.id}`;
         document.getElementById('edit-user-name').value = d.name || '';
         document.getElementById('edit-user-email').value = d.email || '';
@@ -7661,7 +7875,7 @@
 
         let levelIds = [];
         try {
-            levelIds = JSON.parse(d.accessibleLevels || d.levels || '[]');
+            levelIds = typeof d.levels === 'string' ? JSON.parse(d.levels) : (Array.isArray(d.levels) ? d.levels : []);
         } catch (e) {
             levelIds = [];
         }
@@ -7670,39 +7884,131 @@
             cb.checked = levelIds.includes(parseInt(cb.value));
         });
 
-        if (activeTeacherId) {
-            modal.style.zIndex = '1100';
-        } else {
-            modal.style.zIndex = '1000';
-        }
+        modal.style.zIndex = isSelf ? '1200' : '1000';
         modal.style.display = 'grid';
     }
 
-    function openMyProfileModal() {
-        const modal = document.getElementById('edit-user-modal');
-        const form = document.getElementById('edit-user-form');
-        if (!modal || !form) return;
+    function openStudentProfileModal(el) {
+        if (!el) return;
+        const modal = document.getElementById('student-profile-modal');
+        if (!modal) return;
 
-        const authId = {{ auth()->id() }};
-        const authName = "{{ addslashes(auth()->user()->name) }}";
-        const authEmail = "{{ addslashes(auth()->user()->email) }}";
-        const authRole = "{{ is_object(auth()->user()->role) ? auth()->user()->role->value : auth()->user()->role }}";
-        const authStatus = "{{ auth()->user()->status ?? 'active' }}";
+        const id = el.dataset.id || '';
+        const name = el.dataset.name || '';
+        const email = el.dataset.email || '';
+        const code = el.dataset.code || '';
+        const status = el.dataset.status || 'active';
+        const created = el.dataset.created || '';
+        const attempts = el.dataset.attempts || '0';
+        const teacher = el.dataset.teacher || 'Giáo viên phụ trách';
+        let levels = [];
+        try { levels = JSON.parse(el.dataset.levels || '[]'); } catch (e) {}
+        let editBtnData = null;
+        try { editBtnData = JSON.parse(el.dataset.editBtn || '{}'); } catch (e) {}
 
-        form.action = `/quan-tri/users/${authId}`;
-        document.getElementById('edit-user-name').value = authName;
-        document.getElementById('edit-user-email').value = authEmail;
-        document.getElementById('edit-user-student-code').value = '';
-        document.getElementById('edit-user-role').value = authRole;
-        document.getElementById('edit-user-password').value = '';
-        if (document.getElementById('edit-user-status')) {
-            document.getElementById('edit-user-status').value = authStatus;
+        const firstLetter = name ? name.trim().charAt(0).toUpperCase() : 'H';
+        const isSuspended = (status === 'suspended');
+
+        const avtEl = document.getElementById('sp-avatar');
+        if (avtEl) {
+            avtEl.innerText = firstLetter;
+            avtEl.style.color = isSuspended ? '#64748b' : '#4f46e5';
         }
 
-        toggleEditStudentClassSelect(authRole);
+        const dotEl = document.getElementById('sp-status-dot');
+        if (dotEl) {
+            dotEl.style.background = isSuspended ? '#ef4444' : '#10b981';
+        }
 
-        modal.style.zIndex = '1200';
+        const nameEl = document.getElementById('sp-name');
+        if (nameEl) nameEl.innerText = name;
+
+        const emailEl = document.getElementById('sp-email');
+        if (emailEl) emailEl.innerText = email;
+
+        const codeBadge = document.getElementById('sp-code-badge');
+        if (codeBadge) {
+            if (code) {
+                codeBadge.style.display = 'inline-block';
+                codeBadge.innerText = code;
+            } else {
+                codeBadge.style.display = 'none';
+            }
+        }
+
+        const statusBadge = document.getElementById('sp-status-badge');
+        if (statusBadge) {
+            if (isSuspended) {
+                statusBadge.style.background = '#fee2e2';
+                statusBadge.style.color = '#b91c1c';
+                statusBadge.innerText = '🔒 Tạm khóa';
+            } else {
+                statusBadge.style.background = '#dcfce7';
+                statusBadge.style.color = '#15803d';
+                statusBadge.innerText = '🟢 Đang học';
+            }
+        }
+
+        const levelsEl = document.getElementById('sp-levels');
+        if (levelsEl) {
+            if (levels.length > 0) {
+                levelsEl.innerHTML = levels.map(l => `<span class="pill-badge pill-grade" style="font-size:11px; padding:2px 7px;">Khối ${l.grade || l}</span>`).join(' ');
+            } else {
+                levelsEl.innerHTML = '<span style="font-size:11px; color:#ef4444; font-weight:700;">Chưa mở khối nào</span>';
+            }
+        }
+
+        const attemptsEl = document.getElementById('sp-attempts');
+        if (attemptsEl) attemptsEl.innerText = attempts + ' lượt thi';
+
+        const teacherEl = document.getElementById('sp-teacher');
+        if (teacherEl) teacherEl.innerText = teacher;
+
+        const createdEl = document.getElementById('sp-created');
+        if (createdEl) createdEl.innerText = created || 'Mới tham gia';
+
+        const btnEdit = document.getElementById('sp-btn-edit');
+        if (btnEdit) {
+            btnEdit.onclick = function() {
+                closeStudentProfileModal();
+                const rowEditBtn = document.querySelector(`.user-row-item[data-user-id="${id}"] .btn-action-edit`);
+                if (rowEditBtn && typeof openEditUserModal === 'function') {
+                    openEditUserModal(rowEditBtn);
+                }
+            };
+        }
+
+        const btnGrant = document.getElementById('sp-btn-grant');
+        if (btnGrant) {
+            btnGrant.onclick = function() {
+                closeStudentProfileModal();
+                const rowGrantBtn = document.querySelector(`.user-row-item[data-user-id="${id}"] .btn-action-grant`);
+                if (rowGrantBtn) {
+                    rowGrantBtn.click();
+                }
+            };
+        }
+
         modal.style.display = 'grid';
+    }
+
+    function closeStudentProfileModal() {
+        const modal = document.getElementById('student-profile-modal');
+        if (modal) modal.style.display = 'none';
+    }
+
+    function openTeacherProfileModal() {
+        const modal = document.getElementById('teacher-profile-modal');
+        if (modal) modal.style.display = 'grid';
+    }
+
+    function closeTeacherProfileModal() {
+        const modal = document.getElementById('teacher-profile-modal');
+        if (modal) modal.style.display = 'none';
+    }
+
+    function openMyProfileModal() {
+        openTeacherProfileModal();
     }
 
     function closeEditUserModal() {
