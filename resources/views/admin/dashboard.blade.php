@@ -1631,7 +1631,7 @@
                         <a href="{{ route('pricing.index') }}" style="display: inline-flex; align-items: center; justify-content: center; gap: 7px; padding: 10px 18px; border-radius: 12px; background: linear-gradient(135deg, #f59e0b, #d97706); color: #fff; font-weight: 900; font-size: 13px; text-decoration: none; box-shadow: 0 4px 14px rgba(0,0,0,0.3); transition: transform 0.15s; white-space: nowrap;">
                             <span>✨</span> Nâng Cấp Gói
                         </a>
-                        <a href="{{ route('pricing.history') }}" style="display: inline-flex; align-items: center; justify-content: center; gap: 5px; padding: 5px 12px; border-radius: 10px; background: rgba(255,255,255,0.15); border: 1px solid rgba(255,255,255,0.3); color: #d1fae5; font-weight: 800; font-size: 11.5px; text-decoration: none; white-space: nowrap;">
+                        <a href="javascript:void(0)" onclick="switchAdminTab('tab-teacher-packages', this)" style="display: inline-flex; align-items: center; justify-content: center; gap: 5px; padding: 5px 12px; border-radius: 10px; background: rgba(255,255,255,0.15); border: 1px solid rgba(255,255,255,0.3); color: #d1fae5; font-weight: 800; font-size: 11.5px; text-decoration: none; white-space: nowrap; cursor: pointer;">
                             <span>📜</span> Đơn của tôi
                         </a>
                     </div>
@@ -3498,6 +3498,277 @@
                             <p style="font-size:12px; margin-top:4px;">Vui lòng thử đổi từ khóa tìm kiếm hoặc bấm tab "Tất cả".</p>
                         </div>
                     </div>
+                </div>
+            </div>
+            @endif
+
+            @if($isTeacher)
+            <!-- ========================================================= -->
+            <!-- TAB: 💎 GÓI BẢN QUYỀN & LỊCH SỬ THUÊ GÓI DÀNH CHO GIÁO VIÊN (TAB-TEACHER-PACKAGES) -->
+            <!-- ========================================================= -->
+            <div id="tab-teacher-packages" class="admin-tab-pane" style="display:none;">
+                <!-- Toolbar Header -->
+                <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:24px; flex-wrap:wrap; gap:14px;">
+                    <div>
+                        <h2 style="font-size:18.5px; font-weight:900; color:#0f172a; display:flex; align-items:center; gap:8px;">
+                            <span>💎</span> Quản Lý Bản Quyền & Lịch Sử Thuê Gói
+                        </h2>
+                        <p style="font-size:13px; color:var(--text-muted); margin-top:3px;">
+                            Kiểm tra thời hạn bản quyền, phân bổ sĩ số học sinh và theo dõi trạng thái các đơn hàng đã đặt
+                        </p>
+                    </div>
+                    <div style="display:flex; align-items:center; gap:10px; flex-wrap:wrap;">
+                        <a href="{{ route('pricing.index') }}" class="btn-primary" style="display:inline-flex; align-items:center; gap:7px; background:linear-gradient(135deg, #f59e0b, #d97706); box-shadow:0 4px 14px rgba(217,119,6,0.35); text-decoration:none;">
+                            <span>✨</span> Nâng Cấp Gói Mới ➔
+                        </a>
+                        <button type="button" class="btn-ghost" onclick="alert('Thầy/Cô vui lòng liên hệ Ban Quản Trị qua Hotline/Zalo: 0988.xxx.xxx hoặc gửi yêu cầu để được hỗ trợ cấp thêm Quota / Khối lớp miễn phí!')" title="Liên hệ Quản trị viên để được cấp thêm hạn mức">
+                            <span>💬</span> Yêu Cầu Cấp Thêm
+                        </button>
+                    </div>
+                </div>
+
+                <!-- 🌟 CARD 1: THÔNG TIN GÓI BẢN QUYỀN ĐANG KÍCH HOẠT (3D GAMIFIED CARD) -->
+                <div style="background: linear-gradient(135deg, #047857 0%, #065f46 50%, #0f172a 100%); border-radius: 20px; border: 3.5px solid #ffffff; box-shadow: 0 16px 36px rgba(0,0,0,0.18), inset 0 -6px 0 rgba(0,0,0,0.15); padding: 24px 28px; color: #ffffff; margin-bottom: 28px; position: relative; overflow: hidden;">
+                    <!-- Nền trang trí mờ -->
+                    <div style="position:absolute; right:-20px; bottom:-30px; font-size:160px; opacity:0.06; pointer-events:none; user-select:none;">💎</div>
+                    <div style="position:absolute; right:120px; top:-40px; font-size:110px; opacity:0.04; pointer-events:none; user-select:none;">👑</div>
+
+                    <div style="display: flex; justify-content: space-between; align-items: flex-start; flex-wrap: wrap; gap: 16px; margin-bottom: 22px;">
+                        <div>
+                            <div style="display: flex; align-items: center; gap: 10px; flex-wrap: wrap; margin-bottom: 8px;">
+                                <span style="background: #34d399; color: #064e3b; font-weight: 900; font-size: 11px; padding: 3px 10px; border-radius: 999px; text-transform: uppercase; letter-spacing: 0.5px; display: inline-flex; align-items: center; gap: 5px;">
+                                    <span style="width: 7px; height: 7px; background: #059669; border-radius: 50%; display: inline-block;"></span>
+                                    GÓI ĐANG HOẠT ĐỘNG
+                                </span>
+                                @if($activeTeacherOrder)
+                                    <span style="background: rgba(255,255,255,0.18); border: 1px solid rgba(255,255,255,0.3); color: #ecfdf5; font-size: 11px; font-weight: 800; padding: 3px 10px; border-radius: 999px;">
+                                        Đơn hàng: #{{ $activeTeacherOrder->code }}
+                                    </span>
+                                @endif
+                                <span style="background: rgba(255,255,255,0.12); color: #a7f3d0; font-size: 11px; font-weight: 700; padding: 3px 8px; border-radius: 6px;">
+                                    {{ $activeTeacherOrder ? '💳 Đăng ký trực tuyến (' . $activeTeacherOrder->payment_method_label . ')' : '🛡️ Cấp đặc cách bởi Ban Quản Trị' }}
+                                </span>
+                            </div>
+
+                            <h3 style="font-size: 24px; font-weight: 900; color: #ffffff; display: flex; align-items: center; gap: 10px; text-shadow: 0 2px 4px rgba(0,0,0,0.2);">
+                                <span>👑</span> {{ $activeTeacherOrder ? $activeTeacherOrder->package_name : 'Gói Bản Quyền Giảng Dạy Đặc Cách' }}
+                            </h3>
+                            <p style="font-size: 13px; color: #a7f3d0; margin-top: 4px;">
+                                @if($activeTeacherOrder && $activeTeacherOrder->package)
+                                    {{ $activeTeacherOrder->package->description ?? 'Bản quyền giáo viên chuyên nghiệp hỗ trợ giảng dạy & luyện thi IC3 GS6' }}
+                                @else
+                                    Tài khoản được Ban Quản Trị kích hoạt đặc cách với đầy đủ quyền quản lý lớp học và ngân hàng đề thi.
+                                @endif
+                            </p>
+                        </div>
+
+                        <!-- Action Buttons trong Card -->
+                        <div style="display: flex; gap: 10px; align-items: center;">
+                            <a href="{{ route('pricing.index') }}" style="display: inline-flex; align-items: center; gap: 6px; padding: 10px 18px; border-radius: 12px; background: linear-gradient(135deg, #f59e0b, #d97706); color: #fff; font-weight: 900; font-size: 12.5px; text-decoration: none; box-shadow: 0 4px 12px rgba(0,0,0,0.25); transition: transform 0.15s;">
+                                <span>✨</span> Nâng Cấp Gói
+                            </a>
+                            <a href="{{ route('programs') }}" style="display: inline-flex; align-items: center; gap: 6px; padding: 10px 16px; border-radius: 12px; background: rgba(255,255,255,0.15); border: 1px solid rgba(255,255,255,0.3); color: #fff; font-weight: 800; font-size: 12.5px; text-decoration: none;">
+                                <span>🎮</span> Cổng Luyện Thi
+                            </a>
+                        </div>
+                    </div>
+
+                    <!-- 3 PODS NĂNG LƯỢNG QUOTA & PHÂN QUYỀN (ENERGY PODS) -->
+                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 16px;">
+                        <!-- Pod 1: Sĩ số học sinh -->
+                        <div style="background: rgba(0,0,0,0.22); border: 1px solid rgba(255,255,255,0.18); border-radius: 14px; padding: 16px;">
+                            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+                                <span style="font-size: 11.5px; font-weight: 800; color: #a7f3d0; text-transform: uppercase;">👥 SĨ SỐ HỌC SINH</span>
+                                <span style="font-size: 13.5px; font-weight: 900; color: #34d399;">
+                                    {{ $usedStudents }} / {{ $maxStudents ?: '∞' }}
+                                </span>
+                            </div>
+                            <div style="height: 8px; background: rgba(255,255,255,0.2); border-radius: 99px; overflow: hidden; margin-bottom: 8px;">
+                                @php
+                                    $quotaPct = $maxStudents > 0 ? min(100, round(($usedStudents / $maxStudents) * 100)) : 100;
+                                @endphp
+                                <div style="height: 100%; width: {{ $quotaPct }}%; background: #34d399; border-radius: 99px; transition: width 0.4s ease;"></div>
+                            </div>
+                            <div style="display: flex; justify-content: space-between; font-size: 11px; color: #d1fae5;">
+                                <span>Đã dùng: <b>{{ $quotaPct }}%</b></span>
+                                <span>Còn trống: <b>{{ $remainingSlots > 10000 ? 'Không giới hạn' : $remainingSlots . ' suất' }}</b></span>
+                            </div>
+                        </div>
+
+                        <!-- Pod 2: Khối lớp giảng dạy -->
+                        <div style="background: rgba(0,0,0,0.22); border: 1px solid rgba(255,255,255,0.18); border-radius: 14px; padding: 16px;">
+                            <div style="font-size: 11.5px; font-weight: 800; color: #a7f3d0; text-transform: uppercase; margin-bottom: 8px;">
+                                🔑 KHỐI ĐƯỢC PHÂN QUYỀN
+                            </div>
+                            <div style="display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 6px;">
+                                @forelse($teacherLevels as $tl)
+                                    <span style="background: rgba(255,255,255,0.25); border: 1px solid rgba(255,255,255,0.35); color: #ffffff; padding: 2px 8px; border-radius: 6px; font-weight: 900; font-size: 12px;">
+                                        Khối {{ $tl->grade }} ({{ $tl->name }})
+                                    </span>
+                                @empty
+                                    <span style="color: #fecaca; font-size: 12px; font-weight: 700;">(Chưa phân khối lớp nào)</span>
+                                @endforelse
+                            </div>
+                            <div style="font-size: 11px; color: #a7f3d0;">
+                                Toàn quyền tạo học sinh, chấm bài & xem báo cáo
+                            </div>
+                        </div>
+
+                        <!-- Pod 3: Thời hạn sử dụng -->
+                        <div style="background: rgba(0,0,0,0.22); border: 1px solid rgba(255,255,255,0.18); border-radius: 14px; padding: 16px;">
+                            <div style="font-size: 11.5px; font-weight: 800; color: #a7f3d0; text-transform: uppercase; margin-bottom: 8px;">
+                                📅 THỜI HẠN BẢN QUYỀN
+                            </div>
+                            <div style="font-size: 16px; font-weight: 900; color: #ffffff; margin-bottom: 6px;">
+                                {{ $expiresAt ? $expiresAt->format('d/m/Y') : 'Vĩnh viễn / Không giới hạn' }}
+                            </div>
+                            <div style="font-size: 11px; color: #a7f3d0;">
+                                @if($expiresAt)
+                                    @if($expiresAt->isPast())
+                                        <span style="color: #f87171; font-weight: 800;">⚠️ Đã hết hạn</span> — vui lòng gia hạn gói!
+                                    @else
+                                        <span>🟢 Còn hiệu lực: <b>{{ now()->diffInDays($expiresAt, false) }} ngày</b></span>
+                                    @endif
+                                @else
+                                    <span>🟢 Hiệu lực trọn đời</span>
+                                @endif
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Ghi chú thông minh -->
+                    <div style="margin-top: 18px; padding-top: 14px; border-top: 1px solid rgba(255,255,255,0.15); display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 10px; font-size: 12px; color: #d1fae5;">
+                        <div style="display: flex; align-items: center; gap: 6px;">
+                            <span>💡</span>
+                            <span>Hệ thống hỗ trợ cả <b>đơn thuê trực tuyến</b> lẫn <b>cấp quyền đặc cách từ Admin</b>. Mọi cập nhật hạn mức sẽ tự động đồng bộ ngay lập tức.</span>
+                        </div>
+                        <span style="color: #6ee7b7; font-weight: 800;">
+                            Tài khoản: {{ auth()->user()->name }} ({{ auth()->user()->email }})
+                        </span>
+                    </div>
+                </div>
+
+                <!-- 📜 CARD 2: BẢNG LỊCH SỬ ĐƠN HÀNG THUÊ GÓI (LƯỚI EXCEL ĐẬM NÉT) -->
+                <div class="card" style="border-radius: 16px; border: 2px solid #94a3b8; box-shadow: 0 4px 16px rgba(0,0,0,0.06); padding: 22px; background: #ffffff;">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 18px; flex-wrap: wrap; gap: 12px;">
+                        <div>
+                            <h3 style="font-size: 16px; font-weight: 900; color: #0f172a; display: flex; align-items: center; gap: 8px;">
+                                <span>📜</span> Lịch Sử Đơn Thuê Gói Của Thầy/Cô
+                            </h3>
+                            <p style="font-size: 12.5px; color: #64748b; margin-top: 2px;">
+                                Danh sách toàn bộ các giao dịch đăng ký gói bản quyền trực tuyến và trạng thái thanh toán
+                            </p>
+                        </div>
+                        <div style="display: flex; align-items: center; gap: 10px;">
+                            <span style="font-size: 12.5px; font-weight: 800; color: #3b82f6; background: #eff6ff; padding: 4px 10px; border-radius: 8px; border: 1px solid #bfdbfe;">
+                                Tổng cộng: {{ $packageOrders->count() }} đơn hàng
+                            </span>
+                        </div>
+                    </div>
+
+                    @if($packageOrders->isEmpty())
+                        <div style="text-align: center; padding: 48px 20px; background: #f8fafc; border: 2px dashed #cbd5e1; border-radius: 14px;">
+                            <div style="font-size: 42px; margin-bottom: 10px;">🛡️</div>
+                            <h4 style="font-size: 15px; font-weight: 800; color: #334155; margin-bottom: 6px;">
+                                Thầy/Cô đang sử dụng gói bản quyền do Ban Quản Trị cấp trực tiếp
+                            </h4>
+                            <p style="font-size: 13px; color: #64748b; max-width: 520px; margin: 0 auto 16px;">
+                                Chưa có đơn hàng phát sinh trên cổng thanh toán trực tuyến. Thầy/Cô vẫn được sử dụng đầy đủ các tính năng giảng dạy theo hạn mức hiện tại.
+                            </p>
+                            <a href="{{ route('pricing.index') }}" class="btn-primary" style="display: inline-flex; align-items: center; gap: 6px; text-decoration: none; padding: 8px 18px;">
+                                <span>✨</span> Khám Phá Các Gói Bản Quyền IC3 GS6
+                            </a>
+                        </div>
+                    @else
+                        <!-- Lưới Table Excel Đậm Nét, Căn Giữa Tiêu Đề & Các Ô Cần Thiết -->
+                        <div class="excel-table-wrap" style="overflow-x: auto; border: 2px solid #94a3b8; border-radius: 12px; box-shadow: 0 2px 8px rgba(0,0,0,0.05);">
+                            <table class="modal-roster-table" style="width: 100%; border-collapse: collapse; text-align: left; font-size: 13px;">
+                                <thead>
+                                    <tr style="background: linear-gradient(180deg, #f1f5f9, #e2e8f0); border-bottom: 2.5px solid #64748b;">
+                                        <th style="padding: 11px 12px; font-size: 12px; font-weight: 900; color: #1e293b; text-align: center; width: 45px; border-right: 1.5px solid #cbd5e1;">#</th>
+                                        <th style="padding: 11px 14px; font-size: 12px; font-weight: 900; color: #1e293b; text-align: center; border-right: 1.5px solid #cbd5e1;">MÃ ĐƠN</th>
+                                        <th style="padding: 11px 16px; font-size: 12px; font-weight: 900; color: #1e293b; text-align: left; border-right: 1.5px solid #cbd5e1;">TÊN GÓI BẢN QUYỀN</th>
+                                        <th style="padding: 11px 14px; font-size: 12px; font-weight: 900; color: #1e293b; text-align: center; border-right: 1.5px solid #cbd5e1;">SỐ TIỀN</th>
+                                        <th style="padding: 11px 12px; font-size: 12px; font-weight: 900; color: #1e293b; text-align: center; border-right: 1.5px solid #cbd5e1;">THỜI HẠN</th>
+                                        <th style="padding: 11px 12px; font-size: 12px; font-weight: 900; color: #1e293b; text-align: center; border-right: 1.5px solid #cbd5e1;">SĨ SỐ CẤP</th>
+                                        <th style="padding: 11px 12px; font-size: 12px; font-weight: 900; color: #1e293b; text-align: center; border-right: 1.5px solid #cbd5e1;">THANH TOÁN</th>
+                                        <th style="padding: 11px 14px; font-size: 12px; font-weight: 900; color: #1e293b; text-align: center; border-right: 1.5px solid #cbd5e1;">TRẠNG THÁI</th>
+                                        <th style="padding: 11px 14px; font-size: 12px; font-weight: 900; color: #1e293b; text-align: center; border-right: 1.5px solid #cbd5e1;">NGÀY TẠO</th>
+                                        <th style="padding: 11px 12px; font-size: 12px; font-weight: 900; color: #1e293b; text-align: center;">THAO TÁC</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @foreach($packageOrders as $index => $o)
+                                        <tr style="border-bottom: 1.5px solid #cbd5e1; background: {{ $loop->even ? '#f8fafc' : '#ffffff' }}; transition: background 0.15s;">
+                                            <td style="padding: 12px 10px; text-align: center; font-weight: 800; color: #64748b; border-right: 1.5px solid #cbd5e1;">
+                                                {{ $index + 1 }}
+                                            </td>
+                                            <td style="padding: 12px 14px; text-align: center; border-right: 1.5px solid #cbd5e1;">
+                                                <span style="font-family: 'SF Mono', Consolas, monospace; font-weight: 800; font-size: 12px; color: #0f172a; background: #e2e8f0; padding: 3px 8px; border-radius: 6px; border: 1px solid #cbd5e1;">
+                                                    #{{ $o->code }}
+                                                </span>
+                                            </td>
+                                            <td style="padding: 12px 16px; border-right: 1.5px solid #cbd5e1;">
+                                                <div style="font-weight: 800; color: #0f172a; font-size: 13.5px;">
+                                                    {{ $o->package_name }}
+                                                </div>
+                                                <div style="font-size: 11.5px; color: #64748b; margin-top: 2px;">
+                                                    {{ $o->package?->levels_list_text ?? 'Áp dụng toàn bộ khối' }}
+                                                </div>
+                                            </td>
+                                            <td style="padding: 12px 14px; text-align: center; border-right: 1.5px solid #cbd5e1;">
+                                                <span style="font-weight: 900; color: #0284c7; font-size: 13.5px;">
+                                                    {{ $o->formatted_price }}
+                                                </span>
+                                            </td>
+                                            <td style="padding: 12px 12px; text-align: center; font-weight: 700; color: #334155; border-right: 1.5px solid #cbd5e1;">
+                                                {{ $o->duration_days }} ngày
+                                            </td>
+                                            <td style="padding: 12px 12px; text-align: center; font-weight: 700; color: #334155; border-right: 1.5px solid #cbd5e1;">
+                                                {{ $o->max_students > 0 ? $o->max_students . ' HS' : 'Không giới hạn' }}
+                                            </td>
+                                            <td style="padding: 12px 12px; text-align: center; border-right: 1.5px solid #cbd5e1;">
+                                                <span style="font-size: 11.5px; font-weight: 800; color: #475569; background: #f1f5f9; padding: 2px 7px; border-radius: 5px; border: 1px solid #cbd5e1;">
+                                                    {{ $o->payment_method_label }}
+                                                </span>
+                                            </td>
+                                            <td style="padding: 12px 14px; text-align: center; border-right: 1.5px solid #cbd5e1;">
+                                                @if($o->isPending())
+                                                    <span style="display: inline-flex; align-items: center; gap: 4px; padding: 3px 10px; border-radius: 999px; font-size: 11.5px; font-weight: 800; background: #fef3c7; color: #b45309; border: 1px solid #fde68a;">
+                                                        ⏳ Chờ duyệt
+                                                    </span>
+                                                @elseif($o->isActive())
+                                                    <span style="display: inline-flex; align-items: center; gap: 4px; padding: 3px 10px; border-radius: 999px; font-size: 11.5px; font-weight: 800; background: #dcfce7; color: #15803d; border: 1px solid #bbf7d0;">
+                                                        🟢 Đã kích hoạt
+                                                    </span>
+                                                @else
+                                                    <span style="display: inline-flex; align-items: center; gap: 4px; padding: 3px 10px; border-radius: 999px; font-size: 11.5px; font-weight: 800; background: #fee2e2; color: #b91c1c; border: 1px solid #fecaca;">
+                                                        🔴 Từ chối
+                                                    </span>
+                                                @endif
+                                            </td>
+                                            <td style="padding: 12px 14px; text-align: center; font-size: 12px; color: #64748b; font-weight: 600; border-right: 1.5px solid #cbd5e1;">
+                                                {{ $o->created_at->format('d/m/Y H:i') }}
+                                            </td>
+                                            <td style="padding: 12px 12px; text-align: center;">
+                                                @if($o->isPending())
+                                                    <a href="{{ route('pricing.order.checkout', $o) }}" class="btn-excel" style="padding: 4px 10px; font-size: 11.5px; text-decoration: none; display: inline-flex; align-items: center; gap: 4px;" title="Xem mã QR để thanh toán">
+                                                        <span>📱</span> Mã QR
+                                                    </a>
+                                                @elseif($o->isActive())
+                                                    <span style="color: #059669; font-weight: 800; font-size: 11.5px; display: inline-flex; align-items: center; gap: 3px;">
+                                                        <span>✓</span> Đang dùng
+                                                    </span>
+                                                @else
+                                                    <span style="color: #94a3b8; font-size: 11.5px;">—</span>
+                                                @endif
+                                            </td>
+                                        </tr>
+                                    @endforeach
+                                </tbody>
+                            </table>
+                        </div>
+                    @endif
                 </div>
             </div>
             @endif
@@ -5680,6 +5951,10 @@
         'tab-classes': {
             title: 'Quản Trị Giáo Viên & Danh Sách Học Sinh',
             breadcrumb: '👥 Giáo viên & Học sinh'
+        },
+        'tab-teacher-packages': {
+            title: 'Quản Lý Bản Quyền & Lịch Sử Thuê Gói',
+            breadcrumb: '💎 Gói Bản Quyền'
         }
     };
     window.tabMeta = tabMeta;
@@ -7801,6 +8076,8 @@
                 tabToOpen = 'tab-packages';
             } else if (hash === '#don-hang' || hash === '#orders' || hash === '#tab-orders') {
                 tabToOpen = 'tab-orders';
+            } else if (hash === '#lich-su-thue-goi' || hash === '#tab-teacher-packages' || hash === '#don-thue-goi' || hash === '#teacher-packages') {
+                tabToOpen = 'tab-teacher-packages';
             } else if (hash === '#chat' || hash === '#tin-nhan' || hash === '#tab-chat' || hash === '#tab_chat' || hash === '#messenger') {
                 tabToOpen = 'tab-chat';
             }

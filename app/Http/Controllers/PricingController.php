@@ -559,9 +559,13 @@ class PricingController extends Controller
     /**
      * Xem lịch sử đơn thuê gói của tôi
      */
-    public function history(): View
+    public function history(): \Illuminate\View\View|\Illuminate\Http\RedirectResponse
     {
         $user = auth()->user();
+        if ($user && $user->canAccessAdmin()) {
+            return redirect()->to(route('admin.dashboard') . '#tab-teacher-packages');
+        }
+
         $orders = $user->packageOrders()
             ->with('package.levels')
             ->latest('id')

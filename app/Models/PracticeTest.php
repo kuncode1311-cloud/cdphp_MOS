@@ -70,4 +70,25 @@ class PracticeTest extends Model
     {
         return $this->hasMany(Question::class)->orderBy('position');
     }
+
+    /**
+     * Tùy biến truy vấn Route Model Binding để hỗ trợ cả dấu gạch dưới _, dấu cách, viết hoa/thường
+     */
+    public function resolveRouteBindingQuery($query, $value, $field = null)
+    {
+        $field = $field ?? $this->getRouteKeyName();
+
+        if ($field === 'slug') {
+            $cleaned = strtolower(trim((string) $value));
+            $normalized = str_replace(['_', ' ', '.'], '-', $cleaned);
+
+            return $query->where(function ($q) use ($value, $cleaned, $normalized) {
+                $q->where('slug', $value)
+                  ->orWhere('slug', $cleaned)
+                  ->orWhere('slug', $normalized);
+            });
+        }
+
+        return parent::resolveRouteBindingQuery($query, $value, $field);
+    }
 }

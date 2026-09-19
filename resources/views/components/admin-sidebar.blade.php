@@ -269,9 +269,15 @@
                 <a href="{{ route('pricing.index') }}" class="nav-sub-item" title="Bảng giá & Thuê gói bản quyền IC3 GS6">
                     <span class="sub-icon">✨</span> <span class="nav-text">Nâng Cấp Gói Giảng Dạy</span>
                 </a>
-                <a href="{{ route('pricing.history') }}" class="nav-sub-item" title="Xem lịch sử các đơn hàng đã đặt">
-                    <span class="sub-icon">📜</span> <span class="nav-text">Lịch Sử Thuê Gói</span>
-                </a>
+                @if($isDashboard)
+                    <a href="javascript:void(0)" class="nav-sub-item {{ $activeTab === 'tab-teacher-packages' ? 'on' : '' }}" data-tab="tab-teacher-packages" onclick="switchAdminTab('tab-teacher-packages', this)" title="Xem gói bản quyền hiện tại và lịch sử đơn hàng">
+                        <span class="sub-icon">📜</span> <span class="nav-text">Lịch Sử Thuê Gói</span>
+                    </a>
+                @else
+                    <a href="{{ route('admin.dashboard') }}#tab-teacher-packages" class="nav-sub-item" title="Xem gói bản quyền hiện tại và lịch sử đơn hàng">
+                        <span class="sub-icon">📜</span> <span class="nav-text">Lịch Sử Thuê Gói</span>
+                    </a>
+                @endif
             </div>
         </div>
         @endif

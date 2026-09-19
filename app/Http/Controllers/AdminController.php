@@ -229,15 +229,21 @@ class AdminController extends Controller
 
             $pendingSupportCount = \App\Models\SupportMessage::where('status', 'pending')->count();
         } else {
-            $packages = collect();
-            $packageOrders = collect();
-            $totalOrdersCount = 0;
-            $pendingOrdersCount = 0;
-            $activeOrdersCount = 0;
-            $totalRevenue = 0;
+            // 💎 Dành cho Giáo viên: Truy xuất đơn thuê gói & thông tin bản quyền của chính giáo viên
+            $packageOrders = PackageOrder::where('user_id', $user->id)
+                ->with(['package.levels'])
+                ->latest('id')
+                ->get();
+            $totalOrdersCount = $packageOrders->count();
+            $pendingOrdersCount = $packageOrders->where('status', PackageOrder::STATUS_PENDING)->count();
+            $activeOrdersCount = $packageOrders->where('status', PackageOrder::STATUS_ACTIVE)->count();
+            $totalRevenue = (int) $packageOrders->where('status', PackageOrder::STATUS_ACTIVE)->sum('price');
+            $packages = Package::where('is_active', true)->orderBy('sort_order')->get();
             $supportMessages = collect();
             $pendingSupportCount = 0;
         }
+
+        $activeTeacherOrder = $isTeacher ? $packageOrders->where('status', PackageOrder::STATUS_ACTIVE)->first() : null;
 
         return view('admin.dashboard', compact(
             'classes',
@@ -276,7 +282,8 @@ class AdminController extends Controller
             'activeOrdersCount',
             'totalRevenue',
             'supportMessages',
-            'pendingSupportCount'
+            'pendingSupportCount',
+            'activeTeacherOrder'
         ));
     }
 
