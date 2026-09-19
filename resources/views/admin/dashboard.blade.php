@@ -3398,30 +3398,35 @@
             <div id="tab-chat" class="admin-tab-pane" style="display:none; height: 100%;">
                 <style>
                     /* ==========================================================================
-                       🎨 TRUNG TÂM LIVE CHAT MESSENGER QUẢN TRỊ (CHUẨN TỶ LỆ KHÔNG CẮT XÉN)
+                       🎨 TRUNG TÂM LIVE CHAT MESSENGER QUẢN TRỊ (GAMIFIED 3D UI, ĐA SẮC MÀU, CANH CHUẨN)
                        ========================================================================== */
+                    body.tab-chat-active .content {
+                        max-width: 100% !important;
+                        padding: 12px 24px 28px !important;
+                    }
+
                     .ms-desktop-wrap {
                         display: grid;
-                        grid-template-columns: 310px 1fr 280px;
-                        height: calc(100vh - 165px);
-                        max-height: calc(100vh - 165px);
+                        grid-template-columns: 335px minmax(400px, 1fr) 295px;
+                        height: calc(100vh - 150px);
+                        max-height: calc(100vh - 150px);
                         min-height: 520px;
                         background: #ffffff;
-                        border-radius: 16px;
-                        border: 2px solid #e2e8f0;
-                        box-shadow: 0 10px 30px -5px rgba(0, 0, 0, 0.07), 0 0 0 1px rgba(0,0,0,0.02);
+                        border-radius: 18px;
+                        border: 2.5px solid #cbd5e1;
+                        box-shadow: 0 16px 36px rgba(15, 23, 42, 0.10), inset 0 -2px 0 rgba(0, 0, 0, 0.04);
                         overflow: hidden;
                         font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
                         transition: grid-template-columns 0.25s cubic-bezier(0.16, 1, 0.3, 1);
                     }
                     .ms-desktop-wrap.drawer-collapsed {
-                        grid-template-columns: 310px 1fr 0px;
+                        grid-template-columns: 335px 1fr 0px;
                     }
 
                     /* ===== CỘT 1: DANH SÁCH HỘI THOẠI ===== */
                     .ms-sidebar {
-                        background: #ffffff;
-                        border-right: 1.5px solid #e2e8f0;
+                        background: #f8fafc;
+                        border-right: 2px solid #e2e8f0;
                         display: flex;
                         flex-direction: column;
                         height: 100%;
@@ -3430,9 +3435,9 @@
                         overflow: hidden;
                     }
                     .ms-sidebar-header {
-                        padding: 14px 14px 10px;
-                        background: #ffffff;
-                        border-bottom: 1px solid #f1f5f9;
+                        padding: 14px 14px 12px;
+                        background: linear-gradient(180deg, #ffffff 0%, #f8fafc 100%);
+                        border-bottom: 2px solid #e2e8f0;
                         flex-shrink: 0;
                     }
                     .ms-head-title-row {
@@ -3443,45 +3448,47 @@
                     }
                     .ms-head-title-row h2 {
                         font-size: 15px;
-                        font-weight: 800;
+                        font-weight: 850;
                         color: #0f172a;
                         margin: 0;
                         display: flex;
                         align-items: center;
                         gap: 7px;
-                        letter-spacing: -0.2px;
+                        letter-spacing: -0.3px;
                     }
                     .ms-head-icons { display: flex; gap: 6px; }
                     .ms-circle-btn {
-                        width: 30px;
-                        height: 30px;
+                        width: 32px;
+                        height: 32px;
                         border-radius: 50%;
-                        background: #f8fafc;
-                        border: 1px solid #e2e8f0;
+                        background: #ffffff;
+                        border: 1.5px solid #cbd5e1;
                         display: grid;
                         place-items: center;
                         cursor: pointer;
                         color: #475569;
                         font-size: 13px;
+                        box-shadow: 0 1px 3px rgba(0,0,0,0.05);
                         transition: all 0.15s;
                     }
-                    .ms-circle-btn:hover { background: #e2e8f0; color: #0284c7; transform: scale(1.05); }
+                    .ms-circle-btn:hover { background: #f1f5f9; color: #0284c7; border-color: #94a3b8; transform: scale(1.06); }
 
                     .ms-search-pill {
-                        background: #f8fafc;
-                        border: 1.5px solid #e2e8f0;
-                        border-radius: 10px;
+                        background: #ffffff;
+                        border: 2px solid #e2e8f0;
+                        border-radius: 12px;
                         padding: 7px 12px 7px 32px;
                         position: relative;
                         display: flex;
                         align-items: center;
-                        margin-bottom: 9px;
-                        transition: border-color 0.2s, background 0.2s;
+                        margin-bottom: 10px;
+                        box-shadow: 0 1px 3px rgba(0,0,0,0.03);
+                        transition: all 0.2s;
                     }
                     .ms-search-pill:focus-within {
                         border-color: #0284c7;
                         background: #ffffff;
-                        box-shadow: 0 0 0 3px rgba(2, 132, 199, 0.1);
+                        box-shadow: 0 0 0 3px rgba(2, 132, 199, 0.12);
                     }
                     .ms-search-pill input {
                         background: transparent;
@@ -3496,78 +3503,193 @@
                     .ms-search-pill input::placeholder { color: #94a3b8; font-weight: 500; }
                     .ms-search-pill span.icon { position: absolute; left: 10px; color: #94a3b8; font-size: 12px; }
 
-                    .ms-filter-tabs { display: flex; gap: 5px; }
+                    .ms-filter-tabs { display: flex; gap: 6px; }
                     .ms-filter-chip {
                         flex: 1;
-                        padding: 5px 6px;
-                        border-radius: 8px;
+                        padding: 6px 6px;
+                        border-radius: 9px;
                         font-size: 11px;
-                        font-weight: 750;
-                        border: 1.5px solid transparent;
-                        background: #f8fafc;
+                        font-weight: 800;
+                        border: 1.5px solid #e2e8f0;
+                        background: #ffffff;
                         color: #64748b;
                         cursor: pointer;
                         text-align: center;
                         white-space: nowrap;
-                        transition: all 0.15s;
+                        box-shadow: 0 1px 2px rgba(0,0,0,0.03);
+                        transition: all 0.15s ease;
                     }
-                    .ms-filter-chip.active { background: #e0f2fe; color: #0284c7; border-color: #bae6fd; }
-                    .ms-filter-chip:hover:not(.active) { background: #f1f5f9; color: #1e293b; }
+                    .ms-filter-chip:hover:not(.active) { background: #f1f5f9; color: #1e293b; border-color: #cbd5e1; }
+                    .ms-filter-chip#chip-filter-all.active {
+                        background: #2563eb; color: #ffffff; border-color: #2563eb;
+                        box-shadow: 0 3px 10px rgba(37, 99, 235, 0.3);
+                    }
+                    .ms-filter-chip#chip-filter-pending {
+                        background: #fff7ed; border-color: #fed7aa; color: #c2410c;
+                    }
+                    .ms-filter-chip#chip-filter-pending.active {
+                        background: linear-gradient(135deg, #ea580c, #f97316);
+                        color: #ffffff; border-color: #ea580c;
+                        box-shadow: 0 3px 10px rgba(234, 88, 12, 0.35);
+                    }
+                    .ms-filter-chip#chip-filter-replied {
+                        background: #ecfdf5; border-color: #a7f3d0; color: #059669;
+                    }
+                    .ms-filter-chip#chip-filter-replied.active {
+                        background: #10b981; color: #ffffff; border-color: #10b981;
+                        box-shadow: 0 3px 10px rgba(16, 185, 129, 0.3);
+                    }
 
                     .ms-conv-scroll {
                         flex: 1 1 0;
                         min-height: 0;
                         overflow-y: auto;
-                        padding: 6px;
+                        padding: 8px 8px;
                         display: flex;
                         flex-direction: column;
-                        gap: 3px;
-                        background: #ffffff;
+                        gap: 5px;
+                        background: #f8fafc;
                     }
                     .ms-conv-scroll::-webkit-scrollbar { width: 4px; }
                     .ms-conv-scroll::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 4px; }
 
+                    /* Thẻ Hội Thoại: Canh Chuẩn 3 Cột Thẳng Tắp */
                     .ms-conv-item {
                         display: flex;
                         align-items: center;
                         gap: 10px;
                         padding: 10px 10px;
-                        border-radius: 10px;
+                        border-radius: 12px;
                         cursor: pointer;
-                        transition: all 0.15s ease;
+                        transition: all 0.18s cubic-bezier(0.16, 1, 0.3, 1);
                         position: relative;
-                        border-left: 3.5px solid transparent;
+                        background: #ffffff;
+                        border: 1.5px solid #eef2f6;
+                        border-left: 4.5px solid transparent;
+                        box-shadow: 0 1px 3px rgba(0,0,0,0.03);
                     }
-                    .ms-conv-item:hover { background: #f8fafc; }
-                    .ms-conv-item.active { background: #f0f9ff; border-left-color: #0284c7; }
-                    .ms-item-avatar-wrap { position: relative; width: 42px; height: 42px; flex-shrink: 0; }
+                    .ms-conv-item:hover {
+                        background: #f8fafc;
+                        border-color: #cbd5e1;
+                        transform: translateX(2px);
+                    }
+
+                    /* 🔥 THẺ CHƯA REP: NỀN MÀU NỔI BẬT & VIỀN CAM HỔ PHÁCH RỰC RỠ */
+                    .ms-conv-item.is-unread {
+                        background: #fff8eb !important;
+                        border-color: #fed7aa !important;
+                        border-left: 4.5px solid #f97316 !important;
+                        box-shadow: 0 3px 10px rgba(249, 115, 22, 0.10) !important;
+                    }
+                    .ms-conv-item.is-unread:hover {
+                        background: #ffedd5 !important;
+                        border-color: #fdba74 !important;
+                    }
+                    .ms-conv-item.is-unread .ms-item-name {
+                        color: #9a3412 !important;
+                        font-weight: 850 !important;
+                    }
+                    .ms-conv-item.is-unread .ms-item-snippet {
+                        color: #c2410c !important;
+                        font-weight: 700 !important;
+                    }
+
+                    /* 🌟 THẺ ĐANG ĐƯỢC CHỌN (ACTIVE) */
+                    .ms-conv-item.active {
+                        background: #eff6ff !important;
+                        border-color: #93c5fd !important;
+                        border-left: 4.5px solid #2563eb !important;
+                        box-shadow: 0 4px 14px rgba(37, 99, 235, 0.16) !important;
+                    }
+                    .ms-conv-item.active .ms-item-name {
+                        color: #1e40af !important;
+                        font-weight: 850 !important;
+                    }
+
+                    /* 1. Khối Avatar bên trái */
+                    .ms-item-avatar-wrap {
+                        position: relative;
+                        width: 42px;
+                        height: 42px;
+                        flex-shrink: 0;
+                    }
                     .ms-item-avatar {
-                        width: 42px; height: 42px;
+                        width: 42px;
+                        height: 42px;
                         border-radius: 50%;
-                        display: grid; place-items: center;
-                        font-size: 14px; font-weight: 850; color: #ffffff;
+                        display: grid;
+                        place-items: center;
+                        font-size: 14px;
+                        font-weight: 850;
+                        color: #ffffff;
                         box-shadow: 0 2px 8px rgba(0,0,0,0.12);
                     }
                     .ms-online-badge {
-                        position: absolute; bottom: 0px; right: 0px;
-                        width: 11px; height: 11px; border-radius: 50%;
-                        background: #10b981; border: 2px solid #ffffff;
+                        position: absolute;
+                        bottom: 0px;
+                        right: 0px;
+                        width: 11px;
+                        height: 11px;
+                        border-radius: 50%;
+                        background: #10b981;
+                        border: 2px solid #ffffff;
                     }
-                    .ms-item-info { flex: 1; min-width: 0; }
-                    .ms-item-top {
-                        display: flex; align-items: center; justify-content: space-between;
-                        gap: 4px; margin-bottom: 2px;
+
+                    /* 2. Khối Giữa: Tên & Snippet */
+                    .ms-item-center {
+                        flex: 1 1 0;
+                        min-width: 0;
+                        display: flex;
+                        flex-direction: column;
+                        justify-content: center;
+                        gap: 3px;
                     }
                     .ms-item-name {
-                        font-size: 13px; font-weight: 750; color: #0f172a;
-                        white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+                        font-size: 13px;
+                        font-weight: 800;
+                        color: #0f172a;
+                        white-space: nowrap;
+                        overflow: hidden;
+                        text-overflow: ellipsis;
+                        line-height: 1.25;
+                    }
+                    .ms-item-snippet {
+                        font-size: 11.5px;
+                        color: #64748b;
+                        white-space: nowrap;
+                        overflow: hidden;
+                        text-overflow: ellipsis;
+                        line-height: 1.2;
+                    }
+                    .snippet-you { color: #0284c7; }
+                    .snippet-guest { color: #475569; }
+
+                    /* 3. Khối Meta Phải (CỐ ĐỊNH CHIỀU RỘNG, CANH THẲNG HÀNG 100% THEO CHIỀU DỌC) */
+                    .ms-item-meta-right {
+                        width: 70px;
+                        flex-shrink: 0;
+                        display: flex;
+                        flex-direction: column;
+                        align-items: flex-end;
+                        justify-content: space-between;
+                        gap: 4px;
+                        height: 38px;
+                    }
+                    .ms-role-cell {
+                        display: flex;
+                        justify-content: flex-end;
+                        width: 100%;
                     }
                     .ms-user-tag {
-                        font-size: 9.5px; font-weight: 800; padding: 1px 6px;
-                        border-radius: 4px; white-space: nowrap; flex-shrink: 0;
+                        font-size: 9.5px;
+                        font-weight: 800;
+                        padding: 1.5px 6px;
+                        border-radius: 5px;
+                        white-space: nowrap;
+                        display: inline-block;
                     }
                     .ms-user-tag.tag-guest {
-                        background: #f3e8ff; color: #7c3aed; border: 1px solid #e9d5ff;
+                        background: #f3e8ff; color: #7c3aed; border: 1px solid #d8b4fe;
                     }
                     .ms-user-tag.tag-teacher {
                         background: #ecfdf5; color: #059669; border: 1px solid #a7f3d0;
@@ -3576,18 +3698,61 @@
                         background: #e0f2fe; color: #0284c7; border: 1px solid #bae6fd;
                     }
 
-                    .ms-item-snippet {
-                        font-size: 11.5px; color: #64748b;
-                        white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
-                        display: flex; align-items: center; gap: 4px;
+                    .ms-status-cell {
+                        display: flex;
+                        justify-content: flex-end;
+                        align-items: center;
+                        width: 100%;
                     }
-                    .ms-conv-item.is-unread .ms-item-name { font-weight: 850; color: #0f172a; }
-                    .ms-conv-item.is-unread .ms-item-snippet { color: #0f172a; font-weight: 700; }
-                    .ms-unread-dot {
-                        width: 8px; height: 8px; border-radius: 50%;
-                        background: #ef4444; flex-shrink: 0; margin-left: 4px;
-                        box-shadow: 0 0 0 2px #fee2e2;
+
+                    /* 🔴 NÚT ĐỎ NHẤP NHÁY PHÁT SÁNG (PULSING GLOW ANIMATION) CHO TIN CHƯA REP */
+                    .ms-pending-pulse-badge {
+                        display: inline-flex;
+                        align-items: center;
+                        gap: 4px;
+                        background: #fef2f2;
+                        color: #dc2626;
+                        border: 1px solid #fca5a5;
+                        padding: 1px 6px;
+                        border-radius: 999px;
+                        font-size: 9.5px;
+                        font-weight: 850;
+                        position: relative;
+                        box-shadow: 0 1px 4px rgba(239, 68, 68, 0.2);
+                        white-space: nowrap;
                     }
+                    .ms-pending-pulse-badge .pulse-core {
+                        width: 6px;
+                        height: 6px;
+                        border-radius: 50%;
+                        background: #ef4444;
+                        position: relative;
+                        z-index: 2;
+                    }
+                    .ms-pending-pulse-badge .pulse-ring {
+                        position: absolute;
+                        left: 6px;
+                        top: 50%;
+                        width: 6px;
+                        height: 6px;
+                        border-radius: 50%;
+                        background: rgba(239, 68, 68, 0.7);
+                        animation: msPulseRing 1.5s cubic-bezier(0.24, 0, 0.38, 1) infinite;
+                        z-index: 1;
+                    }
+                    @keyframes msPulseRing {
+                        0% { transform: translateY(-50%) scale(1); opacity: 0.9; }
+                        70% { transform: translateY(-50%) scale(3); opacity: 0; }
+                        100% { transform: translateY(-50%) scale(3.4); opacity: 0; }
+                    }
+                    .ms-pending-pulse-badge.is-hidden { display: none !important; }
+                    .ms-replied-tag {
+                        font-size: 10px;
+                        color: #94a3b8;
+                        font-weight: 700;
+                        white-space: nowrap;
+                    }
+                    .ms-replied-tag.is-hidden { display: none !important; }
 
                     /* ===== CỘT 2: KHUNG CHAT CHÍNH ===== */
                     .ms-chat-main {
@@ -3595,28 +3760,30 @@
                         flex-direction: column;
                         height: 100%;
                         max-height: 100%;
-                        background: #f8fafc;
+                        background: #f1f5f9;
                         min-width: 0;
                         overflow: hidden;
-                        border-right: 1.5px solid #e2e8f0;
+                        border-right: 2px solid #e2e8f0;
                     }
                     .ms-chat-header {
                         height: 60px;
                         padding: 0 18px;
                         background: #ffffff;
-                        border-bottom: 1.5px solid #e2e8f0;
+                        border-bottom: 2px solid #e2e8f0;
                         display: flex;
                         align-items: center;
                         justify-content: space-between;
                         flex-shrink: 0;
                         z-index: 2;
+                        box-shadow: 0 1px 4px rgba(0,0,0,0.03);
                     }
                     .ms-header-user { display: flex; align-items: center; gap: 11px; min-width: 0; }
                     .ms-header-avatar {
-                        width: 38px; height: 38px; border-radius: 50%;
+                        width: 40px; height: 40px; border-radius: 50%;
                         display: grid; place-items: center;
                         font-size: 14px; font-weight: 850; color: #fff; flex-shrink: 0;
-                        box-shadow: 0 2px 8px rgba(0,0,0,0.12);
+                        border: 2px solid #ffffff;
+                        box-shadow: 0 3px 10px rgba(0,0,0,0.14);
                     }
                     .ms-header-user-info { display: flex; flex-direction: column; gap: 1px; min-width: 0; }
                     .ms-header-name-row { display: flex; align-items: center; gap: 6px; }
@@ -3629,122 +3796,138 @@
                         font-size: 11.5px; color: #64748b; font-weight: 600;
                         display: flex; align-items: center; gap: 6px;
                     }
-                    .ms-header-tools { display: flex; align-items: center; gap: 7px; flex-shrink: 0; }
+                    .ms-header-tools { display: flex; align-items: center; gap: 8px; flex-shrink: 0; }
                     .ms-tool-btn {
-                        width: 34px; height: 34px; border-radius: 8px;
-                        background: #f1f5f9; color: #475569;
-                        border: 1px solid #e2e8f0; display: grid; place-items: center;
-                        font-size: 14px; cursor: pointer; text-decoration: none;
+                        padding: 6px 12px; border-radius: 9px;
+                        background: #ffffff; color: #475569;
+                        border: 1.5px solid #cbd5e1; display: inline-flex; align-items: center; gap: 5px;
+                        font-size: 12.5px; font-weight: 800; cursor: pointer; text-decoration: none;
+                        box-shadow: 0 1px 3px rgba(0,0,0,0.04);
                         transition: all 0.15s ease;
                     }
-                    .ms-tool-btn:hover { background: #e2e8f0; color: #0f172a; transform: translateY(-1px); }
-                    .ms-tool-btn.btn-call { background: #f3e8ff; color: #7c3aed; border-color: #d8b4fe; }
-                    .ms-tool-btn.btn-call:hover { background: #e9d5ff; }
-                    .ms-tool-btn.btn-zalo { background: #e0f2fe; color: #0068ff; border-color: #bae6fd; font-weight: 800; font-size: 12px; }
-                    .ms-tool-btn.btn-zalo:hover { background: #bae6fd; }
-                    .ms-tool-btn.btn-info.active { background: #e0f2fe; color: #0284c7; border-color: #bae6fd; }
+                    .ms-tool-btn:hover { transform: translateY(-1px); }
+                    .ms-tool-btn.btn-call {
+                        background: linear-gradient(135deg, #7c3aed, #8b5cf6);
+                        color: #ffffff; border-color: #7c3aed;
+                        box-shadow: 0 3px 10px rgba(124, 58, 237, 0.35);
+                    }
+                    .ms-tool-btn.btn-zalo {
+                        background: linear-gradient(135deg, #0084ff, #0066ff);
+                        color: #ffffff; border-color: #0084ff;
+                        box-shadow: 0 3px 10px rgba(0, 104, 255, 0.35);
+                    }
+                    .ms-tool-btn.btn-info {
+                        padding: 6px 9px;
+                    }
+                    .ms-tool-btn.btn-info.active {
+                        background: #eff6ff; color: #0284c7; border-color: #93c5fd;
+                    }
 
-                    /* Chat Stream */
+                    /* Chat Stream có Texture 3D nhẹ nhàng chuẩn Telegram/Messenger */
                     .ms-stream-body {
                         flex: 1 1 0;
                         min-height: 0;
                         overflow-y: auto;
-                        padding: 16px 20px;
-                        background: #f1f5f9;
+                        padding: 18px 24px;
+                        background-color: #f1f5f9;
+                        background-image: radial-gradient(#cbd5e1 1.2px, transparent 1.2px);
+                        background-size: 22px 22px;
                         display: flex;
                         flex-direction: column;
-                        gap: 10px;
+                        gap: 12px;
                     }
                     .ms-stream-body::-webkit-scrollbar { width: 5px; }
                     .ms-stream-body::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 4px; }
 
-                    .ms-date-divider { text-align: center; margin: 6px 0; }
+                    .ms-date-divider { text-align: center; margin: 4px 0; }
                     .ms-date-divider span {
-                        font-size: 11px; color: #64748b; font-weight: 700;
-                        background: rgba(0,0,0,0.06); padding: 3px 12px;
-                        border-radius: 12px;
+                        font-size: 11px; color: #475569; font-weight: 750;
+                        background: #ffffff; padding: 4px 14px;
+                        border-radius: 999px; border: 1.5px solid #e2e8f0;
+                        box-shadow: 0 1px 4px rgba(0,0,0,0.04);
                     }
 
                     .ms-message-row {
-                        display: flex; align-items: flex-end; gap: 8px;
-                        max-width: 80%;
+                        display: flex; align-items: flex-end; gap: 9px;
+                        max-width: 78%;
                     }
                     .ms-message-row.incoming { align-self: flex-start; }
                     .ms-message-row.outgoing { align-self: flex-end; flex-direction: row-reverse; }
                     .ms-mini-avatar {
-                        width: 28px; height: 28px; border-radius: 50%;
+                        width: 30px; height: 30px; border-radius: 50%;
                         display: grid; place-items: center;
-                        font-size: 10.5px; font-weight: 850; color: #ffffff;
+                        font-size: 11px; font-weight: 850; color: #ffffff;
                         margin-bottom: 2px; flex-shrink: 0;
-                        box-shadow: 0 1px 4px rgba(0,0,0,0.15);
+                        border: 2px solid #ffffff;
+                        box-shadow: 0 2px 6px rgba(0,0,0,0.15);
                     }
                     .ms-bubble-text {
-                        padding: 10px 14px; font-size: 13.5px;
-                        line-height: 1.45; border-radius: 14px; word-break: break-word;
+                        padding: 11px 15px; font-size: 13.5px;
+                        line-height: 1.48; word-break: break-word;
                     }
                     .ms-message-row.incoming .ms-bubble-text {
                         background: #ffffff;
                         color: #0f172a;
-                        border-bottom-left-radius: 3px;
-                        border: 1.5px solid #e2e8f0;
-                        box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+                        border-radius: 16px 16px 16px 4px;
+                        border: 2px solid #e2e8f0;
+                        box-shadow: 0 4px 14px rgba(0,0,0,0.06);
                     }
                     .ms-message-row.outgoing .ms-bubble-text {
                         background: linear-gradient(135deg, #0284c7 0%, #2563eb 100%);
                         color: #ffffff;
-                        border-bottom-right-radius: 3px;
+                        border-radius: 16px 16px 4px 16px;
                         border: none;
-                        box-shadow: 0 4px 14px rgba(2, 132, 199, 0.3);
+                        box-shadow: 0 6px 20px rgba(37, 99, 235, 0.32);
                         font-weight: 500;
                     }
                     .ms-bubble-meta {
-                        font-size: 10.5px; color: #94a3b8; font-weight: 600;
-                        margin-top: 3px; padding: 0 4px;
+                        font-size: 10.5px; color: #64748b; font-weight: 600;
+                        margin-top: 4px; padding: 0 4px;
                     }
                     .ms-message-row.outgoing .ms-bubble-meta {
-                        text-align: right; color: #0284c7; font-weight: 700;
+                        text-align: right; color: #0284c7; font-weight: 750;
                     }
 
                     /* Quick Emoji Bar */
                     .ms-quick-emoji-bar {
-                        display: flex; gap: 10px; padding: 6px 16px;
+                        display: flex; gap: 10px; padding: 6px 18px;
                         align-items: center; background: #ffffff;
-                        border-top: 1px solid #f1f5f9;
+                        border-top: 1.5px solid #e2e8f0;
                         flex-shrink: 0;
                     }
                     .ms-quick-emoji-bar .emoji-label {
-                        font-size: 10.5px; font-weight: 800; color: #94a3b8;
+                        font-size: 10.5px; font-weight: 850; color: #64748b;
                         text-transform: uppercase; letter-spacing: 0.5px;
                     }
                     .ms-emoji-item {
-                        font-size: 16px; cursor: pointer;
+                        font-size: 17px; cursor: pointer;
                         transition: transform 0.15s ease; line-height: 1;
                     }
-                    .ms-emoji-item:hover { transform: scale(1.3); }
+                    .ms-emoji-item:hover { transform: scale(1.35); }
 
                     /* Bottom Composer: CỐ ĐỊNH, KHÔNG BỊ TRÀN */
                     .ms-bottom-composer {
-                        padding: 10px 16px;
-                        border-top: 1.5px solid #e2e8f0;
-                        display: flex; align-items: center; gap: 8px;
+                        padding: 10px 18px;
+                        border-top: 2px solid #e2e8f0;
+                        display: flex; align-items: center; gap: 9px;
                         background: #ffffff;
                         flex-shrink: 0;
-                        box-shadow: 0 -2px 10px rgba(0,0,0,0.03);
+                        box-shadow: 0 -3px 12px rgba(0,0,0,0.03);
                     }
                     .ms-composer-icon-btn {
-                        width: 34px; height: 34px;
-                        border-radius: 8px; border: 1px solid #e2e8f0;
+                        width: 36px; height: 36px;
+                        border-radius: 10px; border: 1.5px solid #cbd5e1;
                         background: #f8fafc; color: #475569;
-                        font-size: 15px; cursor: pointer;
+                        font-size: 16px; cursor: pointer;
                         display: grid; place-items: center;
                         transition: all 0.15s;
                         flex-shrink: 0;
                     }
-                    .ms-composer-icon-btn:hover { background: #e2e8f0; color: #0f172a; }
+                    .ms-composer-icon-btn:hover { background: #e2e8f0; color: #0f172a; border-color: #94a3b8; }
 
                     .ms-input-pill-wrap {
                         flex: 1; background: #f8fafc;
-                        border: 1.5px solid #e2e8f0;
+                        border: 2px solid #cbd5e1;
                         border-radius: 24px; padding: 7px 14px;
                         display: flex; align-items: center; gap: 8px;
                         transition: all 0.2s;
@@ -3756,36 +3939,36 @@
                     }
                     .ms-input-pill-wrap input {
                         background: transparent; border: none; outline: none;
-                        font-size: 13.5px; color: #0f172a; width: 100%;
-                        font-family: inherit; font-weight: 500;
+                        font-size: 13px; color: #0f172a; width: 100%;
+                        font-family: inherit; font-weight: 600;
                     }
-                    .ms-input-pill-wrap input::placeholder { color: #94a3b8; }
+                    .ms-input-pill-wrap input::placeholder { color: #94a3b8; font-weight: 500; }
                     .ms-emoji-btn {
                         border: none; background: transparent;
-                        font-size: 16px; cursor: pointer; padding: 0;
+                        font-size: 17px; cursor: pointer; padding: 0;
                         display: grid; place-items: center;
                         transition: transform 0.15s;
                     }
-                    .ms-emoji-btn:hover { transform: scale(1.2); }
+                    .ms-emoji-btn:hover { transform: scale(1.25); }
                     .ms-send-btn {
-                        width: 36px; height: 36px; border-radius: 50%;
+                        width: 38px; height: 38px; border-radius: 50%;
                         border: none;
                         background: linear-gradient(135deg, #0284c7 0%, #2563eb 100%);
                         color: #ffffff; font-size: 15px;
                         cursor: pointer; display: grid; place-items: center;
-                        box-shadow: 0 4px 12px rgba(2, 132, 199, 0.35);
+                        box-shadow: 0 4px 14px rgba(37, 99, 235, 0.38);
                         transition: all 0.15s;
                         flex-shrink: 0;
                     }
-                    .ms-send-btn:hover { transform: scale(1.06); box-shadow: 0 6px 16px rgba(2, 132, 199, 0.45); }
-                    .ms-send-btn:active { transform: translateY(1px); }
+                    .ms-send-btn:hover { transform: scale(1.08); box-shadow: 0 6px 18px rgba(37, 99, 235, 0.48); }
+                    .ms-send-btn:active { transform: translateY(2px); }
 
                     /* ===== CỘT 3: THÔNG TIN & THAO TÁC (DRAWER) ===== */
                     .ms-info-drawer {
-                        background: #ffffff;
+                        background: #f8fafc;
                         overflow-y: auto;
-                        padding: 14px 14px;
-                        display: flex; flex-direction: column; gap: 12px;
+                        padding: 12px;
+                        display: flex; flex-direction: column; gap: 10px;
                         min-width: 0;
                         height: 100%;
                         max-height: 100%;
@@ -3793,23 +3976,41 @@
                     .ms-info-drawer::-webkit-scrollbar { width: 4px; }
                     .ms-info-drawer::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 4px; }
 
+                    /* Card Khối Từng Section Có Border Đẹp & Tương Phản Xịn */
+                    .drawer-section-card {
+                        background: #ffffff;
+                        border: 2px solid #e2e8f0;
+                        border-radius: 14px;
+                        padding: 11px;
+                        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.03);
+                        display: flex;
+                        flex-direction: column;
+                        gap: 8px;
+                        transition: border-color 0.15s;
+                    }
+                    .drawer-section-card:hover { border-color: #cbd5e1; }
+
                     .drawer-profile-card {
-                        text-align: center; padding-bottom: 12px;
-                        border-bottom: 1.5px solid #f1f5f9;
+                        text-align: center; padding: 14px 10px;
+                        background: linear-gradient(180deg, #f8fafc 0%, #ffffff 100%);
+                        border: 2px solid #e2e8f0;
+                        border-radius: 14px;
+                        box-shadow: 0 2px 8px rgba(0,0,0,0.03);
                     }
                     .drawer-avatar {
-                        width: 50px; height: 50px; border-radius: 50%;
+                        width: 52px; height: 52px; border-radius: 50%;
                         margin: 0 auto 8px; display: grid; place-items: center;
-                        font-size: 17px; font-weight: 850; color: #fff;
-                        box-shadow: 0 4px 12px rgba(0,0,0,0.14);
+                        font-size: 18px; font-weight: 850; color: #fff;
+                        border: 3px solid #ffffff;
+                        box-shadow: 0 6px 16px rgba(0,0,0,0.14);
                     }
                     .drawer-name {
                         font-size: 14.5px; font-weight: 850; color: #0f172a;
                         margin: 0 0 4px;
                     }
                     .drawer-role-badge {
-                        display: inline-block; padding: 3px 10px;
-                        border-radius: 999px; font-size: 11px; font-weight: 800;
+                        display: inline-block; padding: 3px 12px;
+                        border-radius: 999px; font-size: 11px; font-weight: 850;
                     }
                     .drawer-role-badge.badge-guest {
                         background: #f3e8ff; color: #7c3aed; border: 1.5px solid #d8b4fe;
@@ -3821,89 +4022,108 @@
                         background: #eff6ff; color: #1d4ed8; border: 1.5px solid #93c5fd;
                     }
 
-                    /* Guest Smart Action Box */
+                    /* Smart Action Box Đa Sắc Màu Nổi Bật */
                     .drawer-guest-box {
-                        background: #faf5ff; border: 1.5px dashed #c084fc;
-                        border-radius: 10px; padding: 10px; text-align: left;
+                        background: linear-gradient(135deg, #faf5ff 0%, #f3e8ff 100%);
+                        border: 2px dashed #c084fc;
+                        border-radius: 14px; padding: 11px; text-align: left;
+                        box-shadow: 0 3px 12px rgba(192, 132, 252, 0.12);
                     }
                     .drawer-guest-box .title {
                         font-size: 11px; font-weight: 850; color: #7c3aed;
-                        display: flex; align-items: center; gap: 5px; margin-bottom: 3px;
+                        display: flex; align-items: center; gap: 5px; margin-bottom: 4px;
                     }
                     .drawer-guest-box .desc {
-                        font-size: 11px; color: #64748b; line-height: 1.4; margin: 0 0 8px 0;
+                        font-size: 11px; color: #64748b; line-height: 1.4; margin: 0 0 8px 0; font-weight: 500;
                     }
                     .btn-create-teacher-from-guest {
-                        width: 100%; padding: 7px 10px;
-                        background: linear-gradient(135deg, #7c3aed, #a855f7);
-                        color: #ffffff; border: none; border-radius: 8px;
-                        font-size: 11.5px; font-weight: 800; cursor: pointer;
+                        width: 100%; padding: 8px 10px;
+                        background: linear-gradient(135deg, #7c3aed, #9333ea);
+                        color: #ffffff; border: none; border-radius: 9px;
+                        font-size: 11.5px; font-weight: 850; cursor: pointer;
                         display: flex; align-items: center; justify-content: center; gap: 6px;
-                        box-shadow: 0 3px 10px rgba(124, 58, 237, 0.3);
+                        box-shadow: 0 3px 10px rgba(124, 58, 237, 0.35);
                         transition: all 0.15s;
                     }
                     .btn-create-teacher-from-guest:hover {
                         transform: translateY(-1px);
-                        box-shadow: 0 5px 14px rgba(124, 58, 237, 0.4);
+                        box-shadow: 0 5px 14px rgba(124, 58, 237, 0.45);
                     }
 
                     .drawer-section-title {
-                        font-size: 10.5px; font-weight: 850; color: #94a3b8;
+                        font-size: 10.5px; font-weight: 850; color: #475569;
                         text-transform: uppercase; letter-spacing: 0.5px;
-                        margin-bottom: 6px; display: flex; align-items: center; gap: 4px;
+                        display: flex; align-items: center; gap: 6px;
                     }
+                    .sec-icon {
+                        width: 20px; height: 20px; border-radius: 5px;
+                        display: inline-grid; place-items: center; font-size: 11px;
+                    }
+                    .sec-icon-purple { background: #f3e8ff; }
+                    .sec-icon-blue   { background: #e0f2fe; }
+                    .sec-icon-amber  { background: #fef3c7; }
+                    .sec-icon-green  { background: #dcfce7; }
 
                     .drawer-action-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; }
                     .drawer-btn {
-                        padding: 8px 8px; border-radius: 8px;
-                        font-size: 11.5px; font-weight: 800; border: none;
+                        padding: 8px 8px; border-radius: 9px;
+                        font-size: 11.5px; font-weight: 850; border: none;
                         display: inline-flex; align-items: center;
                         justify-content: center; gap: 5px;
                         cursor: pointer; text-decoration: none;
                         transition: all 0.15s;
                     }
-                    .drawer-btn:hover { opacity: 0.92; transform: translateY(-1px); }
+                    .drawer-btn:hover { opacity: 0.95; transform: translateY(-1px); }
                     .drawer-btn-tel {
-                        background: #7c3aed; color: #fff;
-                        box-shadow: 0 3px 8px rgba(124, 58, 237, 0.3);
+                        background: linear-gradient(135deg, #7c3aed, #8b5cf6); color: #fff;
+                        box-shadow: 0 3px 8px rgba(124, 58, 237, 0.35);
                     }
                     .drawer-btn-zalo {
-                        background: #0068ff; color: #fff;
-                        box-shadow: 0 3px 8px rgba(0, 104, 255, 0.3);
+                        background: linear-gradient(135deg, #0084ff, #0066ff); color: #fff;
+                        box-shadow: 0 3px 8px rgba(0, 104, 255, 0.35);
                     }
 
                     .drawer-info-list { display: flex; flex-direction: column; gap: 5px; font-size: 11.5px; }
                     .drawer-info-row {
                         display: flex; justify-content: space-between;
-                        align-items: center; padding: 5px 8px;
-                        background: #f8fafc; border-radius: 8px;
-                        border: 1px solid #f1f5f9;
+                        align-items: center; padding: 6px 9px;
+                        background: #f8fafc; border-radius: 9px;
+                        border: 1.5px solid #eef2f6;
                     }
-                    .drawer-info-row .label { color: #64748b; font-weight: 700; display: flex; align-items: center; gap: 4px; }
+                    .drawer-info-row .label { color: #64748b; font-weight: 750; display: flex; align-items: center; gap: 4px; }
                     .drawer-info-row .val { color: #0f172a; font-weight: 800; text-align: right; font-size: 11.5px; }
 
                     .drawer-status-chips { display: flex; gap: 5px; }
                     .drawer-status-chip {
-                        flex: 1; padding: 6px 4px; border-radius: 8px;
+                        flex: 1; padding: 6px 4px; border-radius: 9px;
                         font-size: 11px; font-weight: 800;
-                        cursor: pointer; border: 1.5px solid transparent;
-                        transition: all 0.15s; background: #f1f5f9; color: #64748b;
+                        cursor: pointer; border: 1.5px solid #e2e8f0;
+                        transition: all 0.15s; background: #f8fafc; color: #64748b;
                         text-align: center; white-space: nowrap;
                     }
-                    .drawer-status-chip.active-pending { background: #fef2f2; color: #dc2626; border-color: #fca5a5; }
-                    .drawer-status-chip.active-replied { background: #ecfdf5; color: #059669; border-color: #86efac; }
-                    .drawer-status-chip.active-closed { background: #f8fafc; color: #475569; border-color: #cbd5e1; }
+                    .drawer-status-chip:hover { border-color: #cbd5e1; }
+                    .drawer-status-chip.active-pending {
+                        background: #fef2f2; color: #dc2626; border-color: #fca5a5;
+                        box-shadow: 0 2px 8px rgba(220, 38, 38, 0.15);
+                    }
+                    .drawer-status-chip.active-replied {
+                        background: #ecfdf5; color: #059669; border-color: #86efac;
+                        box-shadow: 0 2px 8px rgba(5, 150, 105, 0.15);
+                    }
+                    .drawer-status-chip.active-closed {
+                        background: #f1f5f9; color: #475569; border-color: #cbd5e1;
+                    }
 
                     .drawer-canned-list { display: flex; flex-direction: column; gap: 5px; }
                     .drawer-canned-item {
-                        padding: 7px 9px; border-radius: 8px;
-                        background: #f8fafc; border: 1px solid #e2e8f0;
-                        font-size: 11px; color: #334155; line-height: 1.35;
+                        padding: 8px 10px; border-radius: 9px;
+                        background: #ffffff; border: 1.5px solid #e2e8f0;
+                        font-size: 11.5px; color: #334155; line-height: 1.35; font-weight: 600;
                         cursor: pointer; transition: all 0.15s;
                     }
                     .drawer-canned-item:hover {
-                        background: #e0f2fe; border-color: #bae6fd;
-                        color: #0284c7;
+                        background: #eff6ff; border-color: #93c5fd;
+                        color: #1d4ed8; transform: translateX(2px);
                     }
                 </style>
 
@@ -3972,6 +4192,7 @@
                                      data-time="{{ $msg->created_at ? $msg->created_at->format('H:i d/m/Y') : '' }}"
                                      onclick="selectChatConversation(this)">
 
+                                    <!-- 1. Cột Avatar -->
                                     <div class="ms-item-avatar-wrap">
                                         <div class="ms-item-avatar" style="background: {{ $gradient }};">
                                             {{ $initials }}
@@ -3979,9 +4200,21 @@
                                         <span class="ms-online-badge"></span>
                                     </div>
 
-                                    <div class="ms-item-info">
-                                        <div class="ms-item-top">
-                                            <span class="ms-item-name">{{ $msg->name }}</span>
+                                    <!-- 2. Cột Thông Tin Giữa (Tên & Tin nhắn) -->
+                                    <div class="ms-item-center">
+                                        <div class="ms-item-name" title="{{ $msg->name }}">{{ $msg->name }}</div>
+                                        <div class="ms-item-snippet" id="snippet-{{ $msg->id }}">
+                                            @if($msg->admin_reply)
+                                                <span class="snippet-you"><b>Bạn:</b> {{ mb_strimwidth($msg->admin_reply, 0, 18, '...') }}</span>
+                                            @else
+                                                <span class="snippet-guest">{{ mb_strimwidth($cleanMessage, 0, 20, '...') }}</span>
+                                            @endif
+                                        </div>
+                                    </div>
+
+                                    <!-- 3. Cột Meta Cố Định Phải (Role Badge thẳng tắp + Chấm đỏ nhấp nháy phát sáng) -->
+                                    <div class="ms-item-meta-right">
+                                        <div class="ms-role-cell">
                                             @if($userType === 'teacher')
                                                 <span class="ms-user-tag tag-teacher">👨‍🏫 GV</span>
                                             @elseif($userType === 'student')
@@ -3990,19 +4223,17 @@
                                                 <span class="ms-user-tag tag-guest">🌐 Khách</span>
                                             @endif
                                         </div>
-                                        <div class="ms-item-snippet" id="snippet-{{ $msg->id }}">
-                                            @if($msg->admin_reply)
-                                                <span><b>Bạn:</b> {{ mb_strimwidth($msg->admin_reply, 0, 18, '...') }}</span>
-                                            @else
-                                                <span>{{ mb_strimwidth($cleanMessage, 0, 20, '...') }}</span>
-                                            @endif
-                                            <span>· {{ $timeDiff }}</span>
+                                        <div class="ms-status-cell">
+                                            <span class="ms-pending-pulse-badge {{ $isPending ? '' : 'is-hidden' }}" id="unread-dot-{{ $msg->id }}" title="Chưa phản hồi">
+                                                <span class="pulse-ring"></span>
+                                                <span class="pulse-core"></span>
+                                                <span>Chờ</span>
+                                            </span>
+                                            <span class="ms-replied-tag {{ $isPending ? 'is-hidden' : '' }}" id="replied-tag-{{ $msg->id }}">
+                                                {{ $timeDiff }}
+                                            </span>
                                         </div>
                                     </div>
-
-                                    @if($isPending)
-                                        <span class="ms-unread-dot" id="unread-dot-{{ $msg->id }}" title="Chưa phản hồi"></span>
-                                    @endif
                                 </div>
                             @empty
                                 <div style="text-align:center; padding:40px 16px; color:#94a3b8; font-size:13px;">
@@ -4151,8 +4382,11 @@
                         </div>
 
                         <!-- Quick Contact -->
-                        <div>
-                            <div class="drawer-section-title">📞 Liên hệ nhanh</div>
+                        <div class="drawer-section-card">
+                            <div class="drawer-section-title">
+                                <span class="sec-icon sec-icon-purple">📞</span>
+                                <span>Liên hệ nhanh</span>
+                            </div>
                             <div class="drawer-action-grid">
                                 <a id="drawer-btn-tel" href="tel:{{ $activeMsg->phone }}" class="drawer-btn drawer-btn-tel">
                                     📞 Gọi Ngay
@@ -4164,8 +4398,11 @@
                         </div>
 
                         <!-- Contact Info -->
-                        <div>
-                            <div class="drawer-section-title">📋 Thông tin liên hệ</div>
+                        <div class="drawer-section-card">
+                            <div class="drawer-section-title">
+                                <span class="sec-icon sec-icon-blue">📋</span>
+                                <span>Thông tin liên hệ</span>
+                            </div>
                             <div class="drawer-info-list">
                                 <div class="drawer-info-row">
                                     <span class="label">📱 SĐT</span>
@@ -4183,8 +4420,11 @@
                         </div>
 
                         <!-- Status Chips -->
-                        <div>
-                            <div class="drawer-section-title">🏷️ Trạng thái xử lý</div>
+                        <div class="drawer-section-card">
+                            <div class="drawer-section-title">
+                                <span class="sec-icon sec-icon-amber">🏷️</span>
+                                <span>Trạng thái xử lý</span>
+                            </div>
                             <div class="drawer-status-chips">
                                 <button type="button" class="drawer-status-chip {{ $activeMsg->status === 'pending' ? 'active-pending' : '' }}" id="chip-status-pending" onclick="updateCurrentChatStatus('pending')">
                                     🔴 Chờ
@@ -4199,8 +4439,11 @@
                         </div>
 
                         <!-- Canned Replies -->
-                        <div>
-                            <div class="drawer-section-title">⚡ Trả lời mẫu nhanh</div>
+                        <div class="drawer-section-card">
+                            <div class="drawer-section-title">
+                                <span class="sec-icon sec-icon-green">⚡</span>
+                                <span>Trả lời mẫu nhanh</span>
+                            </div>
                             <div class="drawer-canned-list">
                                 <div class="drawer-canned-item" onclick="insertCannedReply('Dạ em chào Thầy/Cô! Em là chuyên viên hỗ trợ IC3 Quest. Em xin gửi thông tin chi tiết gói luyện thi nhé ạ!')">
                                     💬 Chào hỏi & Hỗ trợ
@@ -5659,13 +5902,20 @@
             activeCard.setAttribute('data-admin-reply', text);
             activeCard.setAttribute('data-status', 'replied');
             activeCard.classList.remove('is-unread');
+            activeCard.classList.add('is-replied');
 
             const unreadDot = document.getElementById('unread-dot-' + currentChatMsgId);
-            if (unreadDot) unreadDot.style.display = 'none';
+            if (unreadDot) unreadDot.classList.add('is-hidden');
+
+            const repliedTag = document.getElementById('replied-tag-' + currentChatMsgId);
+            if (repliedTag) {
+                repliedTag.classList.remove('is-hidden');
+                repliedTag.innerText = 'Vừa xong';
+            }
 
             const snippet = document.getElementById('snippet-' + currentChatMsgId);
             if (snippet) {
-                snippet.innerHTML = `<span><b>Bạn:</b> ${text.substring(0, 22)}...</span> <span>·</span> <span>Vừa xong</span>`;
+                snippet.innerHTML = `<span class="snippet-you"><b>Bạn:</b> ${escapeSupportHtml(text.substring(0, 18))}...</span>`;
             }
         }
 
@@ -5688,6 +5938,9 @@
         .then(res => res.json())
         .then(data => {
             showAdminToast('✓ Đã lưu và gửi phản hồi thành công!', 'success');
+            if (typeof pollAdminChat === 'function') {
+                pollAdminChat();
+            }
         })
         .catch(err => {
             console.log('Error saving reply:', err);
@@ -5744,10 +5997,18 @@
         const activeCard = document.querySelector(`.ms-conv-item[data-id="${currentChatMsgId}"]`);
         if (activeCard) {
             activeCard.setAttribute('data-status', newStatus);
+            const unreadDot = document.getElementById('unread-dot-' + currentChatMsgId);
+            const repliedTag = document.getElementById('replied-tag-' + currentChatMsgId);
             if (newStatus === 'replied' || newStatus === 'closed') {
                 activeCard.classList.remove('is-unread');
-                const unreadDot = document.getElementById('unread-dot-' + currentChatMsgId);
-                if (unreadDot) unreadDot.style.display = 'none';
+                activeCard.classList.add('is-replied');
+                if (unreadDot) unreadDot.classList.add('is-hidden');
+                if (repliedTag) repliedTag.classList.remove('is-hidden');
+            } else if (newStatus === 'pending') {
+                activeCard.classList.add('is-unread');
+                activeCard.classList.remove('is-replied');
+                if (unreadDot) unreadDot.classList.remove('is-hidden');
+                if (repliedTag) repliedTag.classList.add('is-hidden');
             }
         }
 
@@ -5763,6 +6024,9 @@
         .then(res => res.json())
         .then(data => {
             showAdminToast('✓ Đã cập nhật trạng thái tin nhắn!', 'success');
+            if (typeof pollAdminChat === 'function') {
+                pollAdminChat();
+            }
         })
         .catch(err => console.log(err));
     }
@@ -5857,62 +6121,85 @@
                     updateGlobalSidebarBadges(data);
                 }
 
+                // Cập nhật các bộ đếm số lượng tin chờ
+                if (typeof data.pending_count !== 'undefined') {
+                    const chipPending = document.getElementById('chip-filter-pending');
+                    if (chipPending) chipPending.innerText = `Chờ (${data.pending_count})`;
+                }
+                if (typeof data.total_count !== 'undefined') {
+                    const chipAll = document.getElementById('chip-filter-all');
+                    if (chipAll) chipAll.innerText = `Tất cả (${data.total_count})`;
+                }
+
                 // Nếu có tin nhắn mới
                 if (data.new_messages && data.new_messages.length > 0) {
                     playAdminChime();
                     showAdminToast(`🔔 Có ${data.new_messages.length} tin nhắn tư vấn mới!`, 'info');
 
+                    const list = document.getElementById('chat-conversation-list');
                     data.new_messages.forEach(msg => {
                         if (msg.id > lastPolledMsgId) lastPolledMsgId = msg.id;
 
                         let existingCard = document.querySelector(`.ms-conv-item[data-id="${msg.id}"]`);
-                        if (!existingCard) {
-                            const list = document.getElementById('chat-conversation-list');
-                            if (list) {
-                                const initials = (msg.name || 'KH').substring(0, 2).toUpperCase();
-                                const uType = msg.user_type || 'guest';
-                                const uLabel = msg.user_type_label || '🌐 Khách Vãng Lai';
-                                const tagBadge = uType === 'teacher' 
-                                    ? '<span class="ms-user-tag tag-teacher">👨‍🏫 GV</span>' 
-                                    : (uType === 'student' ? '<span class="ms-user-tag tag-student">🎓 HS</span>' : '<span class="ms-user-tag tag-guest">🌐 Khách</span>');
-                                let safeMsg = (msg.message || '').trim();
-                                if (!safeMsg || safeMsg === 'undefined') safeMsg = 'Khách gửi yêu cầu tư vấn';
-                                const snippetText = safeMsg.length > 20 ? safeMsg.substring(0, 20) + '...' : safeMsg;
+                        if (!existingCard && list) {
+                            const initials = (msg.name || 'KH').substring(0, 2).toUpperCase();
+                            const uType = msg.user_type || 'guest';
+                            const uLabel = msg.user_type_label || '🌐 Khách Vãng Lai';
+                            const tagBadge = uType === 'teacher' 
+                                ? '<span class="ms-user-tag tag-teacher">👨‍🏫 GV</span>' 
+                                : (uType === 'student' ? '<span class="ms-user-tag tag-student">🎓 HS</span>' : '<span class="ms-user-tag tag-guest">🌐 Khách</span>');
+                            let safeMsg = (msg.message || '').trim();
+                            if (!safeMsg || safeMsg === 'undefined') safeMsg = 'Khách gửi yêu cầu tư vấn';
+                            const snippetText = safeMsg.length > 20 ? safeMsg.substring(0, 20) + '...' : safeMsg;
 
-                                const cardHtml = `
-                                    <div class="ms-conv-item is-unread"
-                                         data-id="${msg.id}"
-                                         data-name="${msg.name}"
-                                         data-phone="${msg.phone || ''}"
-                                         data-email="${msg.email || ''}"
-                                         data-message="${safeMsg}"
-                                         data-admin-reply=""
-                                         data-replied-at=""
-                                         data-status="${msg.status}"
-                                         data-initials="${initials}"
-                                         data-gradient="linear-gradient(135deg, #0084ff, #00c6ff)"
-                                         data-user-type="${uType}"
-                                         data-user-type-label="${uLabel}"
-                                         data-time="${msg.created_at || 'Vừa xong'}"
-                                         onclick="selectChatConversation(this)">
-                                        <div class="ms-item-avatar-wrap">
-                                            <div class="ms-item-avatar" style="background: linear-gradient(135deg, #0084ff, #00c6ff);">${initials}</div>
-                                            <span class="ms-online-badge"></span>
-                                        </div>
-                                        <div class="ms-item-info">
-                                            <div class="ms-item-top">
-                                                <span class="ms-item-name">${msg.name}</span>
-                                                ${tagBadge}
-                                            </div>
-                                            <div class="ms-item-snippet" id="snippet-${msg.id}">
-                                                <span>${snippetText}</span>
-                                                <span>· Vừa xong</span>
-                                            </div>
-                                        </div>
-                                        <span class="ms-unread-dot" id="unread-dot-${msg.id}" title="Chưa phản hồi"></span>
+                            const cardHtml = `
+                                <div class="ms-conv-item is-unread"
+                                     data-id="${msg.id}"
+                                     data-name="${escapeSupportHtml(msg.name)}"
+                                     data-phone="${escapeSupportHtml(msg.phone || '')}"
+                                     data-email="${escapeSupportHtml(msg.email || '')}"
+                                     data-message="${escapeSupportHtml(safeMsg)}"
+                                     data-admin-reply=""
+                                     data-replied-at=""
+                                     data-status="${msg.status}"
+                                     data-initials="${initials}"
+                                     data-gradient="linear-gradient(135deg, #0084ff, #00c6ff)"
+                                     data-user-type="${uType}"
+                                     data-user-type-label="${escapeSupportHtml(uLabel)}"
+                                     data-time="${msg.created_at || 'Vừa xong'}"
+                                     onclick="selectChatConversation(this)">
+                                    <div class="ms-item-avatar-wrap">
+                                        <div class="ms-item-avatar" style="background: linear-gradient(135deg, #0084ff, #00c6ff);">${initials}</div>
+                                        <span class="ms-online-badge"></span>
                                     </div>
-                                `;
-                                list.insertAdjacentHTML('afterbegin', cardHtml);
+                                    <div class="ms-item-center">
+                                        <div class="ms-item-name" title="${escapeSupportHtml(msg.name)}">${escapeSupportHtml(msg.name)}</div>
+                                        <div class="ms-item-snippet" id="snippet-${msg.id}">
+                                            <span class="snippet-guest">${escapeSupportHtml(snippetText)}</span>
+                                        </div>
+                                    </div>
+                                    <div class="ms-item-meta-right">
+                                        <div class="ms-role-cell">
+                                            ${tagBadge}
+                                        </div>
+                                        <div class="ms-status-cell">
+                                            <span class="ms-pending-pulse-badge" id="unread-dot-${msg.id}" title="Chưa phản hồi">
+                                                <span class="pulse-ring"></span>
+                                                <span class="pulse-core"></span>
+                                                <span>Chờ</span>
+                                            </span>
+                                            <span class="ms-replied-tag is-hidden" id="replied-tag-${msg.id}">
+                                                Vừa xong
+                                            </span>
+                                        </div>
+                                    </div>
+                                </div>
+                            `;
+                            list.insertAdjacentHTML('afterbegin', cardHtml);
+
+                            if (!currentChatMsgId) {
+                                const newEl = list.firstElementChild;
+                                if (newEl) selectChatConversation(newEl);
                             }
                         }
                     });
@@ -5930,6 +6217,26 @@
                         }
                         if (activeCard.getAttribute('data-status') !== data.active_message.status) {
                             activeCard.setAttribute('data-status', data.active_message.status);
+                        }
+                        if (data.active_message.admin_reply && activeCard.getAttribute('data-admin-reply') !== data.active_message.admin_reply) {
+                            activeCard.setAttribute('data-admin-reply', data.active_message.admin_reply);
+                            activeCard.classList.remove('is-unread');
+                            activeCard.classList.add('is-replied');
+                            document.getElementById('unread-dot-' + currentChatMsgId)?.classList.add('is-hidden');
+                            const repTag = document.getElementById('replied-tag-' + currentChatMsgId);
+                            if (repTag) {
+                                repTag.classList.remove('is-hidden');
+                                repTag.innerText = 'Vừa xong';
+                            }
+
+                            const replyContainer = document.getElementById('chat-admin-reply-container');
+                            const replyText = document.getElementById('chat-admin-reply-text');
+                            const replyMeta = document.getElementById('chat-admin-reply-meta');
+                            if (replyContainer && replyText) {
+                                replyText.innerText = data.active_message.admin_reply;
+                                if (replyMeta) replyMeta.innerText = '✓✓ Đã phản hồi ' + (data.active_message.replied_at || '');
+                                replyContainer.style.display = 'flex';
+                            }
                         }
                     }
                 }
@@ -6191,126 +6498,11 @@
     }
 
     // =========================================================================
-    // ⚡ REAL-TIME POLLING ENGINE (ĐỒNG BỘ TIN NHẮN TỰ ĐỘNG MỖI 2.5 GIÂY)
+    // ⚡ REAL-TIME POLLING ENGINE (ĐỒNG BỘ TIN NHẮN TỰ ĐỘNG)
     // =========================================================================
-    let highestSupportMsgId = 0;
-    document.querySelectorAll('.ms-conv-item').forEach(card => {
-        const id = parseInt(card.getAttribute('data-id') || '0', 10);
-        if (id > highestSupportMsgId) highestSupportMsgId = id;
-    });
-
-    let isPollingSupport = false;
-    async function pollRealtimeSupportChat() {
-        if (isPollingSupport) return;
-        isPollingSupport = true;
-
-        try {
-            const url = `/quan-tri/tin-nhan/realtime-poll?last_id=${highestSupportMsgId}&active_id=${currentChatMsgId || 0}`;
-            const res = await fetch(url, { headers: { 'X-Requested-With': 'XMLHttpRequest' } });
-            if (!res.ok) { isPollingSupport = false; return; }
-            const data = await res.json();
-
-            if (data.ok) {
-                // 1. Khi có tin nhắn tư vấn mới gửi từ website
-                if (data.new_messages && data.new_messages.length > 0) {
-                    playNotificationChime();
-                    showAdminToast(`🔔 Có ${data.new_messages.length} tin nhắn tư vấn mới từ giáo viên!`, 'info');
-
-                    const listContainer = document.getElementById('chat-conversation-list');
-                    const gradients = [
-                        'linear-gradient(135deg, #0084ff, #00c6ff)',
-                        'linear-gradient(135deg, #f59e0b, #ef4444)',
-                        'linear-gradient(135deg, #10b981, #059669)',
-                        'linear-gradient(135deg, #8b5cf6, #ec4899)'
-                    ];
-
-                    data.new_messages.forEach((msg, idx) => {
-                        if (msg.id > highestSupportMsgId) highestSupportMsgId = msg.id;
-
-                        let existingItem = document.querySelector(`.ms-conv-item[data-id="${msg.id}"]`);
-                        if (!existingItem && listContainer) {
-                            const grad = gradients[idx % gradients.length];
-                            const initials = (msg.name || 'GV').substring(0, 2).toUpperCase();
-
-                            const itemDiv = document.createElement('div');
-                            itemDiv.className = 'ms-conv-item is-unread';
-                            itemDiv.setAttribute('data-id', msg.id);
-                            itemDiv.setAttribute('data-name', msg.name);
-                            itemDiv.setAttribute('data-phone', msg.phone || '');
-                            itemDiv.setAttribute('data-email', msg.email || '');
-                            itemDiv.setAttribute('data-message', msg.message);
-                            itemDiv.setAttribute('data-admin-reply', msg.admin_reply || '');
-                            itemDiv.setAttribute('data-replied-at', msg.replied_at || '');
-                            itemDiv.setAttribute('data-status', msg.status || 'pending');
-                            itemDiv.setAttribute('data-initials', initials);
-                            itemDiv.setAttribute('data-gradient', grad);
-                            itemDiv.setAttribute('data-time', msg.created_at || 'Vừa xong');
-                            itemDiv.onclick = function() { selectChatConversation(this); };
-
-                            itemDiv.innerHTML = `
-                                <div class="ms-item-avatar-wrap">
-                                    <div class="ms-item-avatar" style="background: ${grad};">${initials}</div>
-                                    <span class="ms-online-badge"></span>
-                                </div>
-                                <div class="ms-item-info">
-                                    <div class="ms-item-name">${escapeSupportHtml(msg.name)} <span style="background:#ef4444; color:#ffffff; font-size:9.5px; font-weight:900; padding:1px 5px; border-radius:4px; margin-left:4px;">MỚI</span></div>
-                                    <div class="ms-item-snippet" id="snippet-${msg.id}">
-                                        <span>${escapeSupportHtml(msg.message.substring(0, 26))}...</span>
-                                        <span>·</span>
-                                        <span>${msg.time_diff}</span>
-                                    </div>
-                                </div>
-                                <span class="ms-unread-dot" id="unread-dot-${msg.id}" title="Chưa phản hồi"></span>
-                            `;
-
-                            listContainer.prepend(itemDiv);
-
-                            if (!currentChatMsgId) {
-                                selectChatConversation(itemDiv);
-                            }
-                        }
-                    });
-                }
-
-                // 2. Cập nhật các bộ đếm số lượng tin chờ
-                if (typeof data.pending_count !== 'undefined') {
-                    const chipPending = document.getElementById('chip-filter-pending');
-                    if (chipPending) chipPending.innerText = `Chờ trả lời 🔴 (${data.pending_count})`;
-
-                    const chipAll = document.getElementById('chip-filter-all');
-                    if (chipAll && typeof data.total_count !== 'undefined') chipAll.innerText = `Tất cả (${data.total_count})`;
-
-                    const navBadge = document.querySelector('#nav-group-support-chat span[title*="tin nhắn"]');
-                    if (navBadge) {
-                        if (data.pending_count > 0) {
-                            navBadge.style.display = 'inline-block';
-                            navBadge.innerText = data.pending_count;
-                        } else {
-                            navBadge.style.display = 'none';
-                        }
-                    }
-                }
-
-                // 3. Nếu cuộc trò chuyện hiện tại có cập nhật câu trả lời từ Admin khác hoặc bot
-                if (data.active_message && currentChatMsgId == data.active_message.id) {
-                    if (data.active_message.admin_reply) {
-                        const replyContainer = document.getElementById('chat-admin-reply-container');
-                        const replyText = document.getElementById('chat-admin-reply-text');
-                        const replyMeta = document.getElementById('chat-admin-reply-meta');
-                        if (replyContainer && replyText) {
-                            replyText.innerText = data.active_message.admin_reply;
-                            if (replyMeta && data.active_message.replied_at) {
-                                replyMeta.innerText = '✓✓ Đã phản hồi ' + data.active_message.replied_at;
-                            }
-                            replyContainer.style.display = 'flex';
-                        }
-                    }
-                }
-            }
-        } catch (err) {
-            console.log('Poll error:', err);
-        } finally {
-            isPollingSupport = false;
+    function pollRealtimeSupportChat() {
+        if (typeof pollAdminChat === 'function') {
+            pollAdminChat();
         }
     }
 
@@ -6332,6 +6524,9 @@
         } else if (tabId === 'tab-classes') {
             actualPaneId = 'tab-users';
         }
+
+        // ⚡ Mở rộng 100% chiều rộng màn hình khi mở Tab Chat Messenger
+        document.body.classList.toggle('tab-chat-active', actualPaneId === 'tab-chat');
 
         document.querySelectorAll('.admin-tab-pane').forEach(p => p.style.display = 'none');
         document.querySelectorAll('.main-tab-btn').forEach(b => b.classList.remove('active'));

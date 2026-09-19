@@ -974,7 +974,6 @@
             </div>
             <div class="zalo-header-actions">
                 <a href="tel:0987654321" class="zalo-btn-action" title="Gọi Hotline">📞 Gọi</a>
-                <button type="button" class="zalo-btn-action" onclick="clearChatHistory()" title="Xóa lịch sử trò chuyện để làm sạch">🗑️ Xóa</button>
                 <button type="button" class="zalo-btn-action" onclick="toggleLiveChat()" style="width:28px; padding:0;" title="Đóng">✕</button>
             </div>
         </div>
