@@ -328,9 +328,19 @@ class PricingController extends Controller
                 ->first();
         }
 
+        $incomingMessage = trim((string) ($data['message'] ?? ''));
+        if ($incomingMessage === 'undefined' || empty($incomingMessage)) {
+            $incomingMessage = 'Khách gửi yêu cầu tư vấn gói luyện thi IC3.';
+        }
+
         if ($supportMsg) {
-            // Nối thêm tin nhắn vào cuộc hội thoại hiện có
-            $supportMsg->message .= "\n" . $data['message'];
+            // Nối thêm tin nhắn vào cuộc hội thoại hiện có (lọc bỏ undefined nếu có)
+            $existingMsg = trim((string) $supportMsg->message);
+            if ($existingMsg === 'undefined' || empty($existingMsg)) {
+                $supportMsg->message = $incomingMessage;
+            } else {
+                $supportMsg->message = $existingMsg . "\n" . $incomingMessage;
+            }
             $supportMsg->status = 'pending';
             $supportMsg->updated_at = now();
             $supportMsg->save();
@@ -339,7 +349,7 @@ class PricingController extends Controller
                 'name' => $data['name'],
                 'phone' => $data['phone'] ?? null,
                 'email' => $data['email'] ?? null,
-                'message' => $data['message'],
+                'message' => $incomingMessage,
                 'ip_address' => $data['ip_address'],
                 'status' => 'pending',
             ]);

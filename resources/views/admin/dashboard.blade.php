@@ -3817,6 +3817,9 @@
                     .drawer-role-badge.badge-teacher {
                         background: #ecfdf5; color: #059669; border: 1.5px solid #a7f3d0;
                     }
+                    .drawer-role-badge.badge-student {
+                        background: #eff6ff; color: #1d4ed8; border: 1.5px solid #93c5fd;
+                    }
 
                     /* Guest Smart Action Box */
                     .drawer-guest-box {
@@ -5347,6 +5350,8 @@
         const gradient = card.getAttribute('data-gradient') || 'linear-gradient(135deg, #0084ff, #00c6ff)';
         const ip = card.getAttribute('data-ip') || '127.0.0.1';
         const time = card.getAttribute('data-time') || '';
+        const userType = card.getAttribute('data-user-type') || 'guest';
+        const userTypeLabel = card.getAttribute('data-user-type-label') || '🌐 Khách Vãng Lai';
 
         // 1. Cập nhật Header giữa
         const nameEl = document.getElementById('chat-detail-name');
@@ -5355,26 +5360,36 @@
         const phoneEl = document.getElementById('chat-detail-phone');
         if (phoneEl) phoneEl.innerHTML = '📞 ' + (phone || 'Chưa có SĐT');
 
+        const tagEl = document.getElementById('chat-detail-user-tag');
+        if (tagEl) {
+            tagEl.innerText = userTypeLabel;
+            tagEl.className = 'ms-user-tag ' + (userType === 'teacher' ? 'tag-teacher' : (userType === 'student' ? 'tag-student' : 'tag-guest'));
+        }
+
         const avatarHeader = document.getElementById('chat-detail-avatar');
         if (avatarHeader) {
             avatarHeader.style.background = gradient;
             avatarHeader.innerText = initials;
         }
 
-        // 2. Cập nhật Messages Body
+        // 2. Cập nhật Messages Body (Xử lý sạch không hiển thị chữ undefined)
         const timeStampEl = document.getElementById('chat-detail-time-stamp');
         if (timeStampEl) timeStampEl.innerHTML = `<span>${time || 'Hôm nay'}</span>`;
 
         const bubblesWrap = document.getElementById('chat-incoming-bubbles-wrap');
         if (bubblesWrap) {
-            const rawLines = (message || '').split('\n').map(l => l.trim()).filter(l => l.length > 0);
-            const lines = rawLines.length > 0 ? rawLines : [message || ''];
+            let safeMsg = (message || '').trim();
+            if (!safeMsg || safeMsg === 'undefined') {
+                safeMsg = 'Dạ em chào Admin, em cần hỗ trợ tư vấn về tài khoản và gói luyện thi ạ!';
+            }
+            const rawLines = safeMsg.split('\n').map(l => l.trim()).filter(l => l.length > 0 && l !== 'undefined');
+            const lines = rawLines.length > 0 ? rawLines : [safeMsg];
             let html = '';
             lines.forEach((line, idx) => {
                 const isLast = idx === lines.length - 1;
                 html += `
                     <div class="ms-message-row incoming">
-                        ${isLast ? `<div class="ms-mini-avatar" style="background: ${gradient};">${initials}</div>` : `<div style="width:26px; height:26px; flex-shrink:0;"></div>`}
+                        ${isLast ? `<div class="ms-mini-avatar" style="background: ${gradient};">${initials}</div>` : `<div style="width:28px; height:28px; flex-shrink:0;"></div>`}
                         <div>
                             <div class="ms-bubble-text">${line}</div>
                             ${isLast ? `<div class="ms-bubble-meta">📩 Khách gửi · Live Chat</div>` : ''}
@@ -5417,6 +5432,12 @@
         const drawerName = document.getElementById('drawer-name');
         if (drawerName) drawerName.innerText = name;
 
+        const drawerRoleBadge = document.getElementById('drawer-role-badge');
+        if (drawerRoleBadge) {
+            drawerRoleBadge.innerText = userTypeLabel;
+            drawerRoleBadge.className = 'drawer-role-badge ' + (userType === 'teacher' ? 'badge-teacher' : (userType === 'student' ? 'badge-student' : 'badge-guest'));
+        }
+
         const drawerPhone = document.getElementById('drawer-phone');
         if (drawerPhone) drawerPhone.innerText = phone || 'Chưa cập nhật';
 
@@ -5435,6 +5456,63 @@
         const drawerZaloBtn = document.getElementById('drawer-btn-zalo');
         if (drawerZaloBtn) drawerZaloBtn.href = 'https://zalo.me/' + cleanPhone;
 
+        // Cập nhật Smart Action Box theo phân loại người gửi
+        const smartBox = document.getElementById('drawer-smart-action-box');
+        const smartTitle = document.getElementById('smart-box-title');
+        const smartDesc = document.getElementById('smart-box-desc');
+        const quickCreateBtn = document.getElementById('btn-quick-create-teacher');
+
+        if (smartBox) {
+            if (userType === 'guest') {
+                smartBox.style.background = '#faf5ff';
+                smartBox.style.borderColor = '#c084fc';
+                if (smartTitle) {
+                    smartTitle.innerText = '🌐 KHÁCH VÃNG LAI (CHƯA CÓ TÀI KHOẢN)';
+                    smartTitle.style.color = '#7c3aed';
+                }
+                if (smartDesc) smartDesc.innerText = 'Khách gửi tin từ website ngoài. Bạn có thể tư vấn gói và bấm nút dưới để tạo nhanh tài khoản Giáo viên.';
+                if (quickCreateBtn) {
+                    quickCreateBtn.style.display = 'flex';
+                    quickCreateBtn.innerHTML = '<span>⚡</span> Tạo Tài Khoản Giáo Viên';
+                    quickCreateBtn.onclick = openCreateTeacherFromCurrentChat;
+                }
+            } else if (userType === 'teacher') {
+                smartBox.style.background = '#f0fdf4';
+                smartBox.style.borderColor = '#86efac';
+                if (smartTitle) {
+                    smartTitle.innerText = '👨‍🏫 GIÁO VIÊN HỆ THỐNG';
+                    smartTitle.style.color = '#15803d';
+                }
+                if (smartDesc) smartDesc.innerText = 'Thầy/Cô đã có tài khoản trên hệ thống MOS IC3. Bấm để chuyển nhanh sang Quản lý lớp & Học sinh.';
+                if (quickCreateBtn) {
+                    quickCreateBtn.style.display = 'flex';
+                    quickCreateBtn.innerHTML = '<span>👥</span> Xem Quản Trị Giáo Viên';
+                    quickCreateBtn.onclick = () => {
+                        if (typeof switchAdminTab === 'function') {
+                            switchAdminTab('tab-users', document.querySelector('[data-tab="tab-users"]'));
+                        }
+                    };
+                }
+            } else {
+                smartBox.style.background = '#eff6ff';
+                smartBox.style.borderColor = '#93c5fd';
+                if (smartTitle) {
+                    smartTitle.innerText = '🎓 HỌC SINH HỆ THỐNG';
+                    smartTitle.style.color = '#1d4ed8';
+                }
+                if (smartDesc) smartDesc.innerText = 'Em học sinh đã có tài khoản trên MOS IC3. Bấm để tra cứu kết quả thi luyện của học sinh.';
+                if (quickCreateBtn) {
+                    quickCreateBtn.style.display = 'flex';
+                    quickCreateBtn.innerHTML = '<span>📊</span> Tra Cứu Điểm Luyện Thi';
+                    quickCreateBtn.onclick = () => {
+                        if (typeof filterResultsByStudent === 'function') {
+                            filterResultsByStudent(name);
+                        }
+                    };
+                }
+            }
+        }
+
         // Cập nhật trạng thái Drawer Chips
         document.querySelectorAll('.drawer-status-chip').forEach(c => {
             c.classList.remove('active-pending', 'active-replied', 'active-closed');
@@ -5447,6 +5525,45 @@
         // Tự động cuộn xuống cuối đoạn chat
         const stream = document.getElementById('chat-conversation-body');
         if (stream) stream.scrollTop = stream.scrollHeight;
+    }
+
+    // ⚡ TỰ ĐỘNG MỞ MODAL TẠO TÀI KHOẢN GIÁO VIÊN TỪ THÔNG TIN KHÁCH VÃNG LAI
+    function openCreateTeacherFromCurrentChat() {
+        const activeCard = document.querySelector(`.ms-conv-item[data-id="${currentChatMsgId}"]`) || document.querySelector('.ms-conv-item.active');
+        const name = activeCard ? activeCard.getAttribute('data-name') : (document.getElementById('drawer-name')?.innerText || '');
+        const phone = activeCard ? activeCard.getAttribute('data-phone') : (document.getElementById('drawer-phone')?.innerText || '');
+        const email = activeCard ? activeCard.getAttribute('data-email') : (document.getElementById('drawer-email')?.innerText || '');
+
+        openCreateUserModal();
+
+        const form = document.getElementById('create-user-form');
+        if (form) {
+            const nameInput = form.querySelector('input[name="name"]');
+            if (nameInput) nameInput.value = name;
+
+            const roleSelect = document.getElementById('select-user-role');
+            if (roleSelect) {
+                roleSelect.value = 'teacher';
+                toggleStudentClassSelect('teacher');
+            }
+
+            const emailInput = form.querySelector('input[name="email"]');
+            if (emailInput) {
+                const cleanPhone = (phone || '').replace(/[^0-9]/g, '');
+                if (email && email !== 'N/A' && email.includes('@')) {
+                    emailInput.value = email;
+                } else if (cleanPhone) {
+                    emailInput.value = `gv_${cleanPhone}@mosic3.edu.vn`;
+                } else {
+                    emailInput.value = '';
+                }
+            }
+
+            const passwordInput = form.querySelector('input[name="password"]');
+            if (passwordInput) passwordInput.value = '123456';
+        }
+
+        showAdminToast('💡 Đã điền sẵn thông tin khách vãng lai, vui lòng kiểm tra và bấm lưu!', 'info');
     }
 
     function showAdminToast(msg, type = 'success') {
@@ -5753,18 +5870,29 @@
                             const list = document.getElementById('chat-conversation-list');
                             if (list) {
                                 const initials = (msg.name || 'KH').substring(0, 2).toUpperCase();
+                                const uType = msg.user_type || 'guest';
+                                const uLabel = msg.user_type_label || '🌐 Khách Vãng Lai';
+                                const tagBadge = uType === 'teacher' 
+                                    ? '<span class="ms-user-tag tag-teacher">👨‍🏫 GV</span>' 
+                                    : (uType === 'student' ? '<span class="ms-user-tag tag-student">🎓 HS</span>' : '<span class="ms-user-tag tag-guest">🌐 Khách</span>');
+                                let safeMsg = (msg.message || '').trim();
+                                if (!safeMsg || safeMsg === 'undefined') safeMsg = 'Khách gửi yêu cầu tư vấn';
+                                const snippetText = safeMsg.length > 20 ? safeMsg.substring(0, 20) + '...' : safeMsg;
+
                                 const cardHtml = `
                                     <div class="ms-conv-item is-unread"
                                          data-id="${msg.id}"
                                          data-name="${msg.name}"
                                          data-phone="${msg.phone || ''}"
                                          data-email="${msg.email || ''}"
-                                         data-message="${msg.message}"
+                                         data-message="${safeMsg}"
                                          data-admin-reply=""
                                          data-replied-at=""
                                          data-status="${msg.status}"
                                          data-initials="${initials}"
                                          data-gradient="linear-gradient(135deg, #0084ff, #00c6ff)"
+                                         data-user-type="${uType}"
+                                         data-user-type-label="${uLabel}"
                                          data-time="${msg.created_at || 'Vừa xong'}"
                                          onclick="selectChatConversation(this)">
                                         <div class="ms-item-avatar-wrap">
@@ -5772,9 +5900,12 @@
                                             <span class="ms-online-badge"></span>
                                         </div>
                                         <div class="ms-item-info">
-                                            <div class="ms-item-name">${msg.name}</div>
+                                            <div class="ms-item-top">
+                                                <span class="ms-item-name">${msg.name}</span>
+                                                ${tagBadge}
+                                            </div>
                                             <div class="ms-item-snippet" id="snippet-${msg.id}">
-                                                <span>${(msg.message || '').substring(0, 28)}...</span>
+                                                <span>${snippetText}</span>
                                                 <span>· Vừa xong</span>
                                             </div>
                                         </div>

@@ -1115,13 +1115,17 @@
             `;
 
             history.forEach(item => {
+                const rawText = String(item.text || '').trim();
+                if (!rawText || rawText === 'undefined') return;
+                const safeText = rawText.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+
                 const bubble = document.createElement('div');
                 if (item.sender === 'user') {
                     bubble.className = 'zalo-bubble zalo-bubble-right';
                     bubble.innerHTML = `
-                        <div>${item.text.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;")}</div>
+                        <div>${safeText}</div>
                         <div class="bubble-time">
-                            <span>${item.time}</span>
+                            <span>${item.time || ''}</span>
                             <span>✓✓ Đã gửi</span>
                         </div>
                     `;
@@ -1131,8 +1135,8 @@
                         <div style="font-weight:800; font-size:12px; color:#0068ff; margin-bottom:3px;">
                             👨‍💼 Ban Quản Trị (Admin)
                         </div>
-                        <div style="white-space:pre-line;">${item.text.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;")}</div>
-                        <div class="bubble-time">${item.time}</div>
+                        <div style="white-space:pre-line;">${safeText}</div>
+                        <div class="bubble-time">${item.time || ''}</div>
                     `;
                 }
                 body.appendChild(bubble);
