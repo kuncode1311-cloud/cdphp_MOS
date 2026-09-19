@@ -32,5 +32,10 @@ class AppServiceProvider extends ServiceProvider
 
         // Tạo hoặc xóa câu hỏi qua model sẽ gọi observer để đếm lại số câu của bộ đề.
         Question::observe(QuestionObserver::class);
+
+        // Ép giao thức HTTPS cho toàn bộ link/form khi chạy trên môi trường production (Railway)
+        if (config('app.env') === 'production' || request()->header('x-forwarded-proto') === 'https') {
+            \Illuminate\Support\Facades\URL::forceScheme('https');
+        }
     }
 }
