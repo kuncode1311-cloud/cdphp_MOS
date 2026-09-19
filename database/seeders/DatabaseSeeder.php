@@ -126,9 +126,13 @@ class DatabaseSeeder extends Seeder
         // Khởi tạo danh mục các Gói dịch vụ & Bản quyền phần mềm IC3
         $this->call(PackageSeeder::class);
 
+        // Khởi tạo dữ liệu 509 câu hỏi IC3
+        $this->call(QuestionDataSeeder::class);
+
         // Tự động nạp dữ liệu thi đua, điểm số & đổi thưởng minigame (bỏ qua khi chạy PHPUnit test)
         if (! app()->runningUnitTests()) {
             $this->call(DemoDataSeeder::class);
         }
+
     }
 }

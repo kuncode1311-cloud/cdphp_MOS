@@ -281,7 +281,7 @@ class LearningController extends Controller
      * - Nạp danh sách câu hỏi đang phát hành từ CSDL.
      * - Chuyển câu hỏi thành DTO nội bộ an toàn cho giao diện làm bài.
      */
-    public function launch(PracticeTest $practiceTest): View
+    public function launch(PracticeTest $practiceTest): View|\Illuminate\Http\RedirectResponse
     {
         $isAdmin = auth()->user()?->isAdmin();
         $adminAnswerKeys = [];
@@ -292,7 +292,22 @@ class LearningController extends Controller
             $practiceTest->load(['topic.level', 'questions' => fn ($query) => $query->where('is_published', true)->with(['options', 'assets'])]);
             abort_unless(auth()->user()->canAccessLevel($practiceTest->topic->level_id), 403, 'Bạn chưa được cấp quyền truy cập bài luyện của Khối học này.');
         }
+
+        // Tự động kích hoạt nạp bộ câu hỏi nếu cơ sở dữ liệu trên máy chủ mới chưa có dữ liệu
+        if ($practiceTest->questions->isEmpty()) {
+            if (\App\Models\Question::count() === 0 && file_exists(database_path('data/ic3_questions_seed.json'))) {
+                \Illuminate\Support\Facades\Artisan::call('migrate', ['--force' => true]);
+                $practiceTest->refresh();
+                if ($isAdmin) {
+                    $practiceTest->load(['topic.level', 'questions.options', 'questions.assets']);
+                } else {
+                    $practiceTest->load(['topic.level', 'questions' => fn ($query) => $query->where('is_published', true)->with(['options', 'assets'])]);
+                }
+            }
+        }
+
         abort_if($practiceTest->questions->isEmpty(), 404, 'Bộ đề chưa có câu hỏi trong cơ sở dữ liệu.');
+
 
         $questionsCollection = $practiceTest->questions;
         if ($practiceTest->shuffle_questions) {
