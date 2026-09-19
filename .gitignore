@@ -25,3 +25,32 @@ _ide_helper.php
 Homestead.json
 Homestead.yaml
 Thumbs.db
+
+# Tài liệu báo cáo & Nghiên cứu nội bộ (Bảo mật)
+*.docx
+*.pdf
+/BAO_CAO_*
+/Bao_cao_*
+/DocxReportGenerator.php
+/make_*_report.php
+/report_images/
+/docs/
+/tailieu/
+
+# Quy tắc & Kỹ năng AI Agent (Chỉ dùng nội bộ trên máy)
+/.agents/
+/AGENTS.md
+/GEMINI.md
+
+# Scripts tạm & Công cụ nội bộ
+/scratch/
+/scripts/
+/capture_screenshots.js
+/create_erd_image.js
+/CHAY_BOT_TELEGRAM.bat
+
+# Dữ liệu backup & Báo cáo audit cục bộ
+/storage/legacy_backup/
+/storage/backups/
+/storage/*.json
+
