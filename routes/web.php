@@ -57,6 +57,32 @@ Route::middleware('auth')->group(function () {
     Route::get('/bai-luyen/{practiceTest:slug}/lam-bai', [LearningController::class, 'launch'])->name('tests.launch');
     Route::post('/bai-luyen/{practiceTest:slug}/ket-qua', [AttemptController::class, 'store'])->name('attempts.store');
 
+    // 🛡️ BỘ LỌC ĐỊNH TUYẾN THÔNG MINH: Tự động sửa lỗi & chuyển hướng nếu URL bị gõ khoảng trắng (%20), dấu gạch dưới (_)
+    Route::get('/{prefix}/{slug}/{action?}', function (string $prefix, string $slug, ?string $action = null) {
+        $cleanPrefix = str_replace(['_', ' ', '%20'], '-', strtolower(urldecode(trim($prefix))));
+        if (! in_array($cleanPrefix, ['bai-luyen', 'bailuyen'], true)) {
+            abort(404);
+        }
+
+        $cleanSlug = str_replace(['_', ' ', '%20', '.'], '-', strtolower(urldecode(trim($slug))));
+        $cleanAction = $action ? str_replace(['_', ' ', '%20'], '-', strtolower(urldecode(trim($action)))) : null;
+
+        if ($cleanAction === 'lam-bai' || $cleanAction === 'lambai') {
+            return redirect()->route('tests.launch', ['practiceTest' => $cleanSlug]);
+        }
+
+        return redirect()->route('tests.show', ['practiceTest' => $cleanSlug]);
+    })->where('prefix', '[^/]*bai[^/]*luyen[^/]*');
+
+    Route::get('/{prefix}/{slug}', function (string $prefix, string $slug) {
+        $cleanPrefix = str_replace(['_', ' ', '%20'], '-', strtolower(urldecode(trim($prefix))));
+        if ($cleanPrefix !== 'chuong-trinh' && $cleanPrefix !== 'chuongtrinh') {
+            abort(404);
+        }
+        $cleanSlug = str_replace(['_', ' ', '%20', '.'], '-', strtolower(urldecode(trim($slug))));
+        return redirect()->route('levels.show', ['level' => $cleanSlug]);
+    })->where('prefix', '[^/]*chuong[^/]*trinh[^/]*');
+
     // Mua & Đăng ký gói bản quyền
     Route::post('/bang-gia/thue-goi/{package:slug}', [PricingController::class, 'order'])->name('pricing.order');
     Route::post('/bang-gia/thanh-toan-payos/{order:code}', [PricingController::class, 'createPayosLink'])->name('pricing.order.payos');
