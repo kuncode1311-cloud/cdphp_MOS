@@ -68,15 +68,15 @@
             height: auto;
             transform: translate(-50%, -50%);
             object-fit: cover;
-            filter: brightness(0.85) contrast(1.1);
+            filter: brightness(1.12) contrast(1.05) saturate(1.12);
         }
 
         .video-overlay {
             position: absolute;
             inset: 0;
             background: 
-                radial-gradient(ellipse at center, rgba(10, 5, 20, 0.35) 0%, rgba(5, 2, 10, 0.75) 100%),
-                linear-gradient(180deg, rgba(5, 2, 10, 0.2) 0%, rgba(5, 2, 10, 0.65) 100%);
+                radial-gradient(ellipse at center, rgba(10, 5, 20, 0.12) 0%, rgba(5, 2, 10, 0.42) 100%),
+                linear-gradient(180deg, rgba(5, 2, 10, 0.05) 0%, rgba(5, 2, 10, 0.38) 100%);
         }
 
         /* ====== ULTRA-PREMIUM SINGLE GLASS CARD ====== */

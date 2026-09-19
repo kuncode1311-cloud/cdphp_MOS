@@ -347,6 +347,15 @@ class AdminController extends Controller
             ->latest('id')
             ->get()
             ->map(function ($m) {
+                $userType = 'guest';
+                $userTypeLabel = '🌐 Khách Vãng Lai';
+                if (! empty($m->email)) {
+                    $u = User::where('email', $m->email)->first();
+                    if ($u) {
+                        $userType = $u->role === 'teacher' ? 'teacher' : ($u->role === 'student' ? 'student' : 'user');
+                        $userTypeLabel = $u->role === 'teacher' ? '👨‍🏫 Giáo Viên' : ($u->role === 'student' ? '🎓 Học Sinh' : '👤 Thành Viên');
+                    }
+                }
                 return [
                     'id' => $m->id,
                     'name' => $m->name,
@@ -355,6 +364,8 @@ class AdminController extends Controller
                     'message' => $m->message,
                     'admin_reply' => $m->admin_reply,
                     'status' => $m->status,
+                    'user_type' => $userType,
+                    'user_type_label' => $userTypeLabel,
                     'replied_at' => $m->replied_at ? \Illuminate\Support\Carbon::parse($m->replied_at)->format('H:i d/m/Y') : null,
                     'created_at' => $m->created_at ? $m->created_at->format('H:i d/m/Y') : null,
                     'time_diff' => $m->created_at ? $m->created_at->diffForHumans(null, true) : 'Vừa xong',

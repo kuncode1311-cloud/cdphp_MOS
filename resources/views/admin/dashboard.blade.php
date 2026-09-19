@@ -3395,40 +3395,45 @@
             <!-- ========================================================= -->
             <!-- TAB 5: 💬 TRUNG TÂM LIVE CHAT MESSENGER (CHUẨN MESSENGER WEB THẬT) -->
             <!-- ========================================================= -->
-            <div id="tab-chat" class="admin-tab-pane" style="display:none;">
+            <div id="tab-chat" class="admin-tab-pane" style="display:none; height: 100%;">
                 <style>
-                    /* ============================
-                       🎨 CHAT MESSENGER - ZALO DESKTOP THEME
-                       ============================ */
+                    /* ==========================================================================
+                       🎨 TRUNG TÂM LIVE CHAT MESSENGER QUẢN TRỊ (CHUẨN TỶ LỆ KHÔNG CẮT XÉN)
+                       ========================================================================== */
                     .ms-desktop-wrap {
                         display: grid;
-                        grid-template-columns: 290px 1fr 260px;
-                        height: calc(100vh - 130px);
-                        min-height: 560px;
+                        grid-template-columns: 310px 1fr 280px;
+                        height: calc(100vh - 165px);
+                        max-height: calc(100vh - 165px);
+                        min-height: 520px;
                         background: #ffffff;
-                        border-radius: 12px;
-                        border: 1px solid #e2e8f0;
-                        box-shadow: 0 4px 20px rgba(0,0,0,0.06);
+                        border-radius: 16px;
+                        border: 2px solid #e2e8f0;
+                        box-shadow: 0 10px 30px -5px rgba(0, 0, 0, 0.07), 0 0 0 1px rgba(0,0,0,0.02);
                         overflow: hidden;
-                        font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
-                        transition: grid-template-columns 0.25s cubic-bezier(0.16,1,0.3,1);
+                        font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+                        transition: grid-template-columns 0.25s cubic-bezier(0.16, 1, 0.3, 1);
                     }
                     .ms-desktop-wrap.drawer-collapsed {
-                        grid-template-columns: 290px 1fr 0px;
+                        grid-template-columns: 310px 1fr 0px;
                     }
 
-                    /* ===== CỘT 1: DANH SÁCH CUỘC HỘI THOẠI (ZALO SIDEBAR) ===== */
+                    /* ===== CỘT 1: DANH SÁCH HỘI THOẠI ===== */
                     .ms-sidebar {
                         background: #ffffff;
-                        border-right: 1px solid #e5e7eb;
+                        border-right: 1.5px solid #e2e8f0;
                         display: flex;
                         flex-direction: column;
+                        height: 100%;
+                        max-height: 100%;
                         min-width: 0;
+                        overflow: hidden;
                     }
                     .ms-sidebar-header {
-                        padding: 12px 12px 10px;
+                        padding: 14px 14px 10px;
                         background: #ffffff;
                         border-bottom: 1px solid #f1f5f9;
+                        flex-shrink: 0;
                     }
                     .ms-head-title-row {
                         display: flex;
@@ -3443,34 +3448,40 @@
                         margin: 0;
                         display: flex;
                         align-items: center;
-                        gap: 6px;
+                        gap: 7px;
                         letter-spacing: -0.2px;
                     }
                     .ms-head-icons { display: flex; gap: 6px; }
                     .ms-circle-btn {
-                        width: 28px;
-                        height: 28px;
+                        width: 30px;
+                        height: 30px;
                         border-radius: 50%;
-                        background: #f1f5f9;
+                        background: #f8fafc;
                         border: 1px solid #e2e8f0;
                         display: grid;
                         place-items: center;
                         cursor: pointer;
                         color: #475569;
                         font-size: 13px;
-                        transition: background 0.15s, transform 0.1s;
+                        transition: all 0.15s;
                     }
-                    .ms-circle-btn:hover { background: #e2e8f0; color: #0f172a; }
+                    .ms-circle-btn:hover { background: #e2e8f0; color: #0284c7; transform: scale(1.05); }
 
                     .ms-search-pill {
-                        background: #f1f5f9;
-                        border: 1px solid #e2e8f0;
-                        border-radius: 8px;
-                        padding: 6px 10px 6px 30px;
+                        background: #f8fafc;
+                        border: 1.5px solid #e2e8f0;
+                        border-radius: 10px;
+                        padding: 7px 12px 7px 32px;
                         position: relative;
                         display: flex;
                         align-items: center;
-                        margin-bottom: 8px;
+                        margin-bottom: 9px;
+                        transition: border-color 0.2s, background 0.2s;
+                    }
+                    .ms-search-pill:focus-within {
+                        border-color: #0284c7;
+                        background: #ffffff;
+                        box-shadow: 0 0 0 3px rgba(2, 132, 199, 0.1);
                     }
                     .ms-search-pill input {
                         background: transparent;
@@ -3480,18 +3491,19 @@
                         color: #0f172a;
                         width: 100%;
                         font-family: inherit;
+                        font-weight: 600;
                     }
-                    .ms-search-pill input::placeholder { color: #94a3b8; }
-                    .ms-search-pill span.icon { position: absolute; left: 8px; color: #94a3b8; font-size: 12px; }
+                    .ms-search-pill input::placeholder { color: #94a3b8; font-weight: 500; }
+                    .ms-search-pill span.icon { position: absolute; left: 10px; color: #94a3b8; font-size: 12px; }
 
-                    .ms-filter-tabs { display: flex; gap: 4px; }
+                    .ms-filter-tabs { display: flex; gap: 5px; }
                     .ms-filter-chip {
                         flex: 1;
-                        padding: 4px 6px;
-                        border-radius: 6px;
+                        padding: 5px 6px;
+                        border-radius: 8px;
                         font-size: 11px;
-                        font-weight: 700;
-                        border: 1px solid transparent;
+                        font-weight: 750;
+                        border: 1.5px solid transparent;
                         background: #f8fafc;
                         color: #64748b;
                         cursor: pointer;
@@ -3499,16 +3511,17 @@
                         white-space: nowrap;
                         transition: all 0.15s;
                     }
-                    .ms-filter-chip.active { background: #e5efff; color: #0068ff; border-color: #bfdbfe; }
+                    .ms-filter-chip.active { background: #e0f2fe; color: #0284c7; border-color: #bae6fd; }
                     .ms-filter-chip:hover:not(.active) { background: #f1f5f9; color: #1e293b; }
 
                     .ms-conv-scroll {
-                        flex: 1;
+                        flex: 1 1 0;
+                        min-height: 0;
                         overflow-y: auto;
-                        padding: 4px 4px;
+                        padding: 6px;
                         display: flex;
                         flex-direction: column;
-                        gap: 2px;
+                        gap: 3px;
                         background: #ffffff;
                     }
                     .ms-conv-scroll::-webkit-scrollbar { width: 4px; }
@@ -3518,325 +3531,390 @@
                         display: flex;
                         align-items: center;
                         gap: 10px;
-                        padding: 9px 10px;
-                        border-radius: 8px;
+                        padding: 10px 10px;
+                        border-radius: 10px;
                         cursor: pointer;
-                        transition: background 0.15s;
+                        transition: all 0.15s ease;
                         position: relative;
-                        border-left: 3px solid transparent;
+                        border-left: 3.5px solid transparent;
                     }
                     .ms-conv-item:hover { background: #f8fafc; }
-                    .ms-conv-item.active { background: #e5efff; border-left-color: #0068ff; }
+                    .ms-conv-item.active { background: #f0f9ff; border-left-color: #0284c7; }
                     .ms-item-avatar-wrap { position: relative; width: 42px; height: 42px; flex-shrink: 0; }
                     .ms-item-avatar {
                         width: 42px; height: 42px;
                         border-radius: 50%;
                         display: grid; place-items: center;
-                        font-size: 14px; font-weight: 800; color: #ffffff;
+                        font-size: 14px; font-weight: 850; color: #ffffff;
+                        box-shadow: 0 2px 8px rgba(0,0,0,0.12);
                     }
                     .ms-online-badge {
-                        position: absolute; bottom: 1px; right: 1px;
-                        width: 10px; height: 10px; border-radius: 50%;
+                        position: absolute; bottom: 0px; right: 0px;
+                        width: 11px; height: 11px; border-radius: 50%;
                         background: #10b981; border: 2px solid #ffffff;
                     }
                     .ms-item-info { flex: 1; min-width: 0; }
-                    .ms-item-name {
-                        font-size: 13px; font-weight: 700; color: #0f172a;
-                        margin-bottom: 2px; white-space: nowrap;
-                        overflow: hidden; text-overflow: ellipsis;
+                    .ms-item-top {
+                        display: flex; align-items: center; justify-content: space-between;
+                        gap: 4px; margin-bottom: 2px;
                     }
+                    .ms-item-name {
+                        font-size: 13px; font-weight: 750; color: #0f172a;
+                        white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+                    }
+                    .ms-user-tag {
+                        font-size: 9.5px; font-weight: 800; padding: 1px 6px;
+                        border-radius: 4px; white-space: nowrap; flex-shrink: 0;
+                    }
+                    .ms-user-tag.tag-guest {
+                        background: #f3e8ff; color: #7c3aed; border: 1px solid #e9d5ff;
+                    }
+                    .ms-user-tag.tag-teacher {
+                        background: #ecfdf5; color: #059669; border: 1px solid #a7f3d0;
+                    }
+                    .ms-user-tag.tag-student {
+                        background: #e0f2fe; color: #0284c7; border: 1px solid #bae6fd;
+                    }
+
                     .ms-item-snippet {
                         font-size: 11.5px; color: #64748b;
                         white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
-                        display: flex; align-items: center; gap: 3px;
+                        display: flex; align-items: center; gap: 4px;
                     }
-                    .ms-conv-item.is-unread .ms-item-name { font-weight: 800; color: #0f172a; }
-                    .ms-conv-item.is-unread .ms-item-snippet { color: #0f172a; font-weight: 600; }
+                    .ms-conv-item.is-unread .ms-item-name { font-weight: 850; color: #0f172a; }
+                    .ms-conv-item.is-unread .ms-item-snippet { color: #0f172a; font-weight: 700; }
                     .ms-unread-dot {
                         width: 8px; height: 8px; border-radius: 50%;
                         background: #ef4444; flex-shrink: 0; margin-left: 4px;
+                        box-shadow: 0 0 0 2px #fee2e2;
                     }
 
-                    /* ===== CỘT 2: KHUNG CHAT CHÍNH (ZALO STREAM) ===== */
+                    /* ===== CỘT 2: KHUNG CHAT CHÍNH ===== */
                     .ms-chat-main {
-                        display: flex; flex-direction: column;
-                        background: #f4f5f7; min-width: 0;
-                        border-right: 1px solid #e5e7eb;
+                        display: flex;
+                        flex-direction: column;
+                        height: 100%;
+                        max-height: 100%;
+                        background: #f8fafc;
+                        min-width: 0;
+                        overflow: hidden;
+                        border-right: 1.5px solid #e2e8f0;
                     }
                     .ms-chat-header {
-                        height: 56px; padding: 0 16px;
+                        height: 60px;
+                        padding: 0 18px;
                         background: #ffffff;
-                        border-bottom: 1px solid #e5e7eb;
-                        display: flex; align-items: center;
+                        border-bottom: 1.5px solid #e2e8f0;
+                        display: flex;
+                        align-items: center;
                         justify-content: space-between;
                         flex-shrink: 0;
+                        z-index: 2;
                     }
-                    .ms-header-user { display: flex; align-items: center; gap: 10px; min-width: 0; }
+                    .ms-header-user { display: flex; align-items: center; gap: 11px; min-width: 0; }
                     .ms-header-avatar {
-                        width: 36px; height: 36px; border-radius: 50%;
+                        width: 38px; height: 38px; border-radius: 50%;
                         display: grid; place-items: center;
-                        font-size: 13px; font-weight: 800; color: #fff; flex-shrink: 0;
+                        font-size: 14px; font-weight: 850; color: #fff; flex-shrink: 0;
+                        box-shadow: 0 2px 8px rgba(0,0,0,0.12);
                     }
+                    .ms-header-user-info { display: flex; flex-direction: column; gap: 1px; min-width: 0; }
+                    .ms-header-name-row { display: flex; align-items: center; gap: 6px; }
                     .ms-header-user-info h3 {
-                        font-size: 14px; font-weight: 800; color: #0f172a;
+                        font-size: 14.5px; font-weight: 850; color: #0f172a;
                         margin: 0; line-height: 1.2;
                         white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
                     }
                     .ms-header-user-info small {
-                        font-size: 11px; color: #64748b;
-                        display: flex; align-items: center; gap: 4px;
+                        font-size: 11.5px; color: #64748b; font-weight: 600;
+                        display: flex; align-items: center; gap: 6px;
                     }
-                    .ms-header-tools { display: flex; align-items: center; gap: 6px; flex-shrink: 0; }
+                    .ms-header-tools { display: flex; align-items: center; gap: 7px; flex-shrink: 0; }
                     .ms-tool-btn {
-                        width: 32px; height: 32px; border-radius: 6px;
+                        width: 34px; height: 34px; border-radius: 8px;
                         background: #f1f5f9; color: #475569;
-                        border: none; display: grid; place-items: center;
-                        font-size: 14px; cursor: pointer;
-                        text-decoration: none;
-                        transition: background 0.15s, color 0.15s;
+                        border: 1px solid #e2e8f0; display: grid; place-items: center;
+                        font-size: 14px; cursor: pointer; text-decoration: none;
+                        transition: all 0.15s ease;
                     }
-                    .ms-tool-btn:hover { background: #e2e8f0; color: #0f172a; }
-                    .ms-tool-btn.btn-call { background: #f3e8ff; color: #7c3aed; }
+                    .ms-tool-btn:hover { background: #e2e8f0; color: #0f172a; transform: translateY(-1px); }
+                    .ms-tool-btn.btn-call { background: #f3e8ff; color: #7c3aed; border-color: #d8b4fe; }
                     .ms-tool-btn.btn-call:hover { background: #e9d5ff; }
-                    .ms-tool-btn.btn-zalo { background: #e0f2fe; color: #0068ff; }
+                    .ms-tool-btn.btn-zalo { background: #e0f2fe; color: #0068ff; border-color: #bae6fd; font-weight: 800; font-size: 12px; }
                     .ms-tool-btn.btn-zalo:hover { background: #bae6fd; }
-                    .ms-tool-btn.btn-info.active { background: #e5efff; color: #0068ff; }
+                    .ms-tool-btn.btn-info.active { background: #e0f2fe; color: #0284c7; border-color: #bae6fd; }
 
+                    /* Chat Stream */
                     .ms-stream-body {
-                        flex: 1; overflow-y: auto;
-                        padding: 14px 18px;
-                        background: #f4f5f7;
-                        display: flex; flex-direction: column; gap: 8px;
+                        flex: 1 1 0;
+                        min-height: 0;
+                        overflow-y: auto;
+                        padding: 16px 20px;
+                        background: #f1f5f9;
+                        display: flex;
+                        flex-direction: column;
+                        gap: 10px;
                     }
-                    .ms-stream-body::-webkit-scrollbar { width: 4px; }
+                    .ms-stream-body::-webkit-scrollbar { width: 5px; }
                     .ms-stream-body::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 4px; }
 
-                    .ms-date-divider { text-align: center; margin: 4px 0; }
+                    .ms-date-divider { text-align: center; margin: 6px 0; }
                     .ms-date-divider span {
-                        font-size: 11px; color: #64748b; font-weight: 600;
-                        background: rgba(0,0,0,0.05); padding: 2px 10px;
-                        border-radius: 10px;
+                        font-size: 11px; color: #64748b; font-weight: 700;
+                        background: rgba(0,0,0,0.06); padding: 3px 12px;
+                        border-radius: 12px;
                     }
 
                     .ms-message-row {
-                        display: flex; align-items: flex-end; gap: 6px;
-                        max-width: 78%;
+                        display: flex; align-items: flex-end; gap: 8px;
+                        max-width: 80%;
                     }
                     .ms-message-row.incoming { align-self: flex-start; }
                     .ms-message-row.outgoing { align-self: flex-end; flex-direction: row-reverse; }
                     .ms-mini-avatar {
-                        width: 26px; height: 26px; border-radius: 50%;
+                        width: 28px; height: 28px; border-radius: 50%;
                         display: grid; place-items: center;
-                        font-size: 10px; font-weight: 800; color: #ffffff;
+                        font-size: 10.5px; font-weight: 850; color: #ffffff;
                         margin-bottom: 2px; flex-shrink: 0;
+                        box-shadow: 0 1px 4px rgba(0,0,0,0.15);
                     }
                     .ms-bubble-text {
-                        padding: 8px 12px; font-size: 13.5px;
-                        line-height: 1.4; border-radius: 12px; word-break: break-word;
+                        padding: 10px 14px; font-size: 13.5px;
+                        line-height: 1.45; border-radius: 14px; word-break: break-word;
                     }
                     .ms-message-row.incoming .ms-bubble-text {
                         background: #ffffff;
                         color: #0f172a;
-                        border-bottom-left-radius: 2px;
-                        border: 1px solid #e2e8f0;
-                        box-shadow: 0 1px 2px rgba(0,0,0,0.04);
+                        border-bottom-left-radius: 3px;
+                        border: 1.5px solid #e2e8f0;
+                        box-shadow: 0 2px 8px rgba(0,0,0,0.04);
                     }
                     .ms-message-row.outgoing .ms-bubble-text {
-                        background: #e5efff;
-                        color: #002d72;
-                        border-bottom-right-radius: 2px;
-                        border: 1px solid #bfdbfe;
-                        box-shadow: 0 1px 2px rgba(0,0,0,0.04);
+                        background: linear-gradient(135deg, #0284c7 0%, #2563eb 100%);
+                        color: #ffffff;
+                        border-bottom-right-radius: 3px;
+                        border: none;
+                        box-shadow: 0 4px 14px rgba(2, 132, 199, 0.3);
+                        font-weight: 500;
                     }
                     .ms-bubble-meta {
-                        font-size: 10.5px; color: #94a3b8;
-                        margin-top: 2px; padding: 0 2px;
+                        font-size: 10.5px; color: #94a3b8; font-weight: 600;
+                        margin-top: 3px; padding: 0 4px;
                     }
                     .ms-message-row.outgoing .ms-bubble-meta {
-                        text-align: right; color: #0068ff; font-weight: 600;
-                    }
-                    .ms-bubble-img {
-                        max-width: 220px; max-height: 180px;
-                        border-radius: 8px; object-fit: cover;
-                        border: 1px solid #e2e8f0; margin-top: 4px;
-                        cursor: pointer;
+                        text-align: right; color: #0284c7; font-weight: 700;
                     }
 
-                    /* Emoji bar */
+                    /* Quick Emoji Bar */
                     .ms-quick-emoji-bar {
-                        display: flex; gap: 8px; padding: 4px 14px 2px;
+                        display: flex; gap: 10px; padding: 6px 16px;
                         align-items: center; background: #ffffff;
                         border-top: 1px solid #f1f5f9;
                         flex-shrink: 0;
                     }
                     .ms-quick-emoji-bar .emoji-label {
-                        font-size: 10px; font-weight: 700; color: #94a3b8;
-                        text-transform: uppercase; letter-spacing: 0.4px;
+                        font-size: 10.5px; font-weight: 800; color: #94a3b8;
+                        text-transform: uppercase; letter-spacing: 0.5px;
                     }
                     .ms-emoji-item {
-                        font-size: 15px; cursor: pointer;
-                        transition: transform 0.15s; line-height: 1;
+                        font-size: 16px; cursor: pointer;
+                        transition: transform 0.15s ease; line-height: 1;
                     }
-                    .ms-emoji-item:hover { transform: scale(1.25); }
+                    .ms-emoji-item:hover { transform: scale(1.3); }
 
-                    /* Composer */
+                    /* Bottom Composer: CỐ ĐỊNH, KHÔNG BỊ TRÀN */
                     .ms-bottom-composer {
-                        padding: 8px 12px;
-                        border-top: 1px solid #e2e8f0;
+                        padding: 10px 16px;
+                        border-top: 1.5px solid #e2e8f0;
                         display: flex; align-items: center; gap: 8px;
                         background: #ffffff;
                         flex-shrink: 0;
+                        box-shadow: 0 -2px 10px rgba(0,0,0,0.03);
                     }
                     .ms-composer-icon-btn {
-                        width: 32px; height: 32px;
-                        border-radius: 6px; border: none;
-                        background: #f1f5f9; color: #475569;
+                        width: 34px; height: 34px;
+                        border-radius: 8px; border: 1px solid #e2e8f0;
+                        background: #f8fafc; color: #475569;
                         font-size: 15px; cursor: pointer;
                         display: grid; place-items: center;
-                        transition: background 0.15s;
+                        transition: all 0.15s;
                         flex-shrink: 0;
                     }
                     .ms-composer-icon-btn:hover { background: #e2e8f0; color: #0f172a; }
 
                     .ms-input-pill-wrap {
-                        flex: 1; background: #f1f5f9;
-                        border: 1px solid #e2e8f0;
-                        border-radius: 20px; padding: 6px 12px;
-                        display: flex; align-items: center; gap: 6px;
+                        flex: 1; background: #f8fafc;
+                        border: 1.5px solid #e2e8f0;
+                        border-radius: 24px; padding: 7px 14px;
+                        display: flex; align-items: center; gap: 8px;
+                        transition: all 0.2s;
                     }
                     .ms-input-pill-wrap:focus-within {
-                        border-color: #0068ff;
+                        border-color: #0284c7;
                         background: #ffffff;
+                        box-shadow: 0 0 0 3px rgba(2, 132, 199, 0.12);
                     }
                     .ms-input-pill-wrap input {
                         background: transparent; border: none; outline: none;
                         font-size: 13.5px; color: #0f172a; width: 100%;
-                        font-family: inherit;
+                        font-family: inherit; font-weight: 500;
                     }
                     .ms-input-pill-wrap input::placeholder { color: #94a3b8; }
                     .ms-emoji-btn {
                         border: none; background: transparent;
-                        font-size: 15px; cursor: pointer; padding: 0;
+                        font-size: 16px; cursor: pointer; padding: 0;
                         display: grid; place-items: center;
                         transition: transform 0.15s;
                     }
                     .ms-emoji-btn:hover { transform: scale(1.2); }
                     .ms-send-btn {
-                        width: 32px; height: 32px; border-radius: 50%;
+                        width: 36px; height: 36px; border-radius: 50%;
                         border: none;
-                        background: #0068ff;
-                        color: #ffffff; font-size: 14px;
+                        background: linear-gradient(135deg, #0284c7 0%, #2563eb 100%);
+                        color: #ffffff; font-size: 15px;
                         cursor: pointer; display: grid; place-items: center;
-                        box-shadow: 0 2px 6px rgba(0,104,255,0.3);
-                        transition: transform 0.15s, background 0.15s;
+                        box-shadow: 0 4px 12px rgba(2, 132, 199, 0.35);
+                        transition: all 0.15s;
                         flex-shrink: 0;
                     }
-                    .ms-send-btn:hover { background: #0052cc; transform: scale(1.05); }
+                    .ms-send-btn:hover { transform: scale(1.06); box-shadow: 0 6px 16px rgba(2, 132, 199, 0.45); }
+                    .ms-send-btn:active { transform: translateY(1px); }
 
-                    /* ===== CỘT 3: THÔNG TIN & THAO TÁC (GỌN GÀNG, KHÔNG TRÀN) ===== */
+                    /* ===== CỘT 3: THÔNG TIN & THAO TÁC (DRAWER) ===== */
                     .ms-info-drawer {
                         background: #ffffff;
-                        border-left: 1px solid #e5e7eb;
-                        overflow-y: auto; padding: 12px 12px;
-                        display: flex; flex-direction: column; gap: 10px;
+                        overflow-y: auto;
+                        padding: 14px 14px;
+                        display: flex; flex-direction: column; gap: 12px;
                         min-width: 0;
+                        height: 100%;
+                        max-height: 100%;
                     }
-                    .ms-info-drawer::-webkit-scrollbar { width: 3px; }
-                    .ms-info-drawer::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 3px; }
+                    .ms-info-drawer::-webkit-scrollbar { width: 4px; }
+                    .ms-info-drawer::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 4px; }
 
                     .drawer-profile-card {
-                        text-align: center; padding-bottom: 8px;
-                        border-bottom: 1px solid #f1f5f9;
+                        text-align: center; padding-bottom: 12px;
+                        border-bottom: 1.5px solid #f1f5f9;
                     }
                     .drawer-avatar {
-                        width: 46px; height: 46px; border-radius: 50%;
-                        margin: 0 auto 6px; display: grid; place-items: center;
-                        font-size: 16px; font-weight: 800; color: #fff;
+                        width: 50px; height: 50px; border-radius: 50%;
+                        margin: 0 auto 8px; display: grid; place-items: center;
+                        font-size: 17px; font-weight: 850; color: #fff;
+                        box-shadow: 0 4px 12px rgba(0,0,0,0.14);
                     }
                     .drawer-name {
-                        font-size: 13.5px; font-weight: 800; color: #0f172a;
-                        margin: 0 0 2px;
+                        font-size: 14.5px; font-weight: 850; color: #0f172a;
+                        margin: 0 0 4px;
                     }
                     .drawer-role-badge {
-                        display: inline-block; padding: 2px 8px;
-                        border-radius: 999px; font-size: 10.5px; font-weight: 700;
-                        background: #e5efff; color: #0068ff;
+                        display: inline-block; padding: 3px 10px;
+                        border-radius: 999px; font-size: 11px; font-weight: 800;
+                    }
+                    .drawer-role-badge.badge-guest {
+                        background: #f3e8ff; color: #7c3aed; border: 1.5px solid #d8b4fe;
+                    }
+                    .drawer-role-badge.badge-teacher {
+                        background: #ecfdf5; color: #059669; border: 1.5px solid #a7f3d0;
                     }
 
-                    /* Section title */
+                    /* Guest Smart Action Box */
+                    .drawer-guest-box {
+                        background: #faf5ff; border: 1.5px dashed #c084fc;
+                        border-radius: 10px; padding: 10px; text-align: left;
+                    }
+                    .drawer-guest-box .title {
+                        font-size: 11px; font-weight: 850; color: #7c3aed;
+                        display: flex; align-items: center; gap: 5px; margin-bottom: 3px;
+                    }
+                    .drawer-guest-box .desc {
+                        font-size: 11px; color: #64748b; line-height: 1.4; margin: 0 0 8px 0;
+                    }
+                    .btn-create-teacher-from-guest {
+                        width: 100%; padding: 7px 10px;
+                        background: linear-gradient(135deg, #7c3aed, #a855f7);
+                        color: #ffffff; border: none; border-radius: 8px;
+                        font-size: 11.5px; font-weight: 800; cursor: pointer;
+                        display: flex; align-items: center; justify-content: center; gap: 6px;
+                        box-shadow: 0 3px 10px rgba(124, 58, 237, 0.3);
+                        transition: all 0.15s;
+                    }
+                    .btn-create-teacher-from-guest:hover {
+                        transform: translateY(-1px);
+                        box-shadow: 0 5px 14px rgba(124, 58, 237, 0.4);
+                    }
+
                     .drawer-section-title {
-                        font-size: 10px; font-weight: 800; color: #94a3b8;
-                        text-transform: uppercase; letter-spacing: 0.4px;
-                        margin-bottom: 5px; display: flex; align-items: center; gap: 4px;
+                        font-size: 10.5px; font-weight: 850; color: #94a3b8;
+                        text-transform: uppercase; letter-spacing: 0.5px;
+                        margin-bottom: 6px; display: flex; align-items: center; gap: 4px;
                     }
 
-                    /* Action buttons */
                     .drawer-action-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; }
                     .drawer-btn {
-                        padding: 7px 8px; border-radius: 8px;
-                        font-size: 11.5px; font-weight: 700; border: none;
+                        padding: 8px 8px; border-radius: 8px;
+                        font-size: 11.5px; font-weight: 800; border: none;
                         display: inline-flex; align-items: center;
-                        justify-content: center; gap: 4px;
+                        justify-content: center; gap: 5px;
                         cursor: pointer; text-decoration: none;
-                        transition: opacity 0.15s;
+                        transition: all 0.15s;
                     }
-                    .drawer-btn:hover { opacity: 0.9; }
+                    .drawer-btn:hover { opacity: 0.92; transform: translateY(-1px); }
                     .drawer-btn-tel {
                         background: #7c3aed; color: #fff;
+                        box-shadow: 0 3px 8px rgba(124, 58, 237, 0.3);
                     }
                     .drawer-btn-zalo {
                         background: #0068ff; color: #fff;
+                        box-shadow: 0 3px 8px rgba(0, 104, 255, 0.3);
                     }
 
-                    /* Info list */
-                    .drawer-info-list { display: flex; flex-direction: column; gap: 4px; font-size: 11.5px; }
+                    .drawer-info-list { display: flex; flex-direction: column; gap: 5px; font-size: 11.5px; }
                     .drawer-info-row {
                         display: flex; justify-content: space-between;
-                        align-items: center; padding: 4px 6px;
-                        background: #f8fafc; border-radius: 6px;
+                        align-items: center; padding: 5px 8px;
+                        background: #f8fafc; border-radius: 8px;
                         border: 1px solid #f1f5f9;
                     }
-                    .drawer-info-row .label { color: #64748b; font-weight: 600; display: flex; align-items: center; gap: 4px; }
-                    .drawer-info-row .val { color: #0f172a; font-weight: 700; text-align: right; font-size: 11.5px; }
+                    .drawer-info-row .label { color: #64748b; font-weight: 700; display: flex; align-items: center; gap: 4px; }
+                    .drawer-info-row .val { color: #0f172a; font-weight: 800; text-align: right; font-size: 11.5px; }
 
-                    /* Status chips */
-                    .drawer-status-chips { display: flex; gap: 4px; }
+                    .drawer-status-chips { display: flex; gap: 5px; }
                     .drawer-status-chip {
-                        flex: 1; padding: 4px 4px; border-radius: 6px;
-                        font-size: 10.5px; font-weight: 700;
-                        cursor: pointer; border: 1px solid transparent;
+                        flex: 1; padding: 6px 4px; border-radius: 8px;
+                        font-size: 11px; font-weight: 800;
+                        cursor: pointer; border: 1.5px solid transparent;
                         transition: all 0.15s; background: #f1f5f9; color: #64748b;
                         text-align: center; white-space: nowrap;
                     }
                     .drawer-status-chip.active-pending { background: #fef2f2; color: #dc2626; border-color: #fca5a5; }
-                    .drawer-status-chip.active-replied { background: #f0fdf4; color: #16a34a; border-color: #86efac; }
+                    .drawer-status-chip.active-replied { background: #ecfdf5; color: #059669; border-color: #86efac; }
                     .drawer-status-chip.active-closed { background: #f8fafc; color: #475569; border-color: #cbd5e1; }
 
-                    /* Canned replies */
-                    .drawer-canned-list { display: flex; flex-direction: column; gap: 4px; }
+                    .drawer-canned-list { display: flex; flex-direction: column; gap: 5px; }
                     .drawer-canned-item {
-                        padding: 6px 8px; border-radius: 6px;
+                        padding: 7px 9px; border-radius: 8px;
                         background: #f8fafc; border: 1px solid #e2e8f0;
-                        font-size: 11px; color: #334155; line-height: 1.3;
+                        font-size: 11px; color: #334155; line-height: 1.35;
                         cursor: pointer; transition: all 0.15s;
                     }
                     .drawer-canned-item:hover {
-                        background: #e5efff; border-color: #bfdbfe;
-                        color: #0068ff;
+                        background: #e0f2fe; border-color: #bae6fd;
+                        color: #0284c7;
                     }
                 </style>
 
                 <!-- Hidden file input for photo upload -->
                 <input type="file" id="ms-photo-upload" accept="image/*" style="display:none;" onchange="handlePhotoUpload(this)">
 
-                <!-- Chat Workspace: 3 columns -->
+                <!-- Chat Workspace: 3 Cột Chuẩn Không Bị Cắt Xén -->
                 <div class="ms-desktop-wrap" id="ms-main-wrapper">
 
                     <!-- ===== CỘT 1: DANH SÁCH HỘI THOẠI ===== -->
                     <div class="ms-sidebar">
                         <div class="ms-sidebar-header">
                             <div class="ms-head-title-row">
-                                <h2>💬 Hội Thoại</h2>
+                                <h2>💬 Hộp Tin Nhắn</h2>
                                 <div class="ms-head-icons">
                                     <button type="button" class="ms-circle-btn" onclick="openBotTeleModal()" title="Cài đặt thông báo Telegram">⚙️</button>
                                 </div>
@@ -3844,7 +3922,7 @@
 
                             <div class="ms-search-pill">
                                 <span class="icon">🔍</span>
-                                <input type="text" id="chat-search-input" oninput="filterChatConversations(this.value)" placeholder="Tìm kiếm...">
+                                <input type="text" id="chat-search-input" oninput="filterChatConversations(this.value)" placeholder="Tìm theo tên hoặc SĐT...">
                             </div>
 
                             <div class="ms-filter-tabs">
@@ -3857,11 +3935,11 @@
                         <div class="ms-conv-scroll" id="chat-conversation-list">
                             @php
                                 $gradients = [
-                                    'linear-gradient(135deg,#0084ff,#00c6ff)',
+                                    'linear-gradient(135deg,#0284c7,#0369a1)',
+                                    'linear-gradient(135deg,#7c3aed,#a855f7)',
+                                    'linear-gradient(135deg,#059669,#10b981)',
                                     'linear-gradient(135deg,#f59e0b,#ef4444)',
-                                    'linear-gradient(135deg,#10b981,#059669)',
-                                    'linear-gradient(135deg,#8b5cf6,#ec4899)',
-                                    'linear-gradient(135deg,#3b82f6,#1d4ed8)',
+                                    'linear-gradient(135deg,#2563eb,#1d4ed8)',
                                 ];
                             @endphp
 
@@ -3871,18 +3949,23 @@
                                     $gradient = $gradients[$index % count($gradients)];
                                     $initials = mb_strtoupper(mb_substr($msg->name, 0, 2, 'UTF-8'), 'UTF-8');
                                     $timeDiff = $msg->created_at ? $msg->created_at->diffForHumans(null, true) : 'Mới';
+                                    $userType = $msg->user_type ?? 'guest';
+                                    $userTypeLabel = $msg->user_type_label ?? '🌐 Khách Vãng Lai';
+                                    $cleanMessage = ($msg->message === 'undefined' || empty(trim($msg->message))) ? 'Khách gửi yêu cầu tư vấn' : $msg->message;
                                 @endphp
                                 <div class="ms-conv-item {{ $index === 0 ? 'active' : '' }} {{ $isPending ? 'is-unread' : '' }}"
                                      data-id="{{ $msg->id }}"
                                      data-name="{{ $msg->name }}"
                                      data-phone="{{ $msg->phone }}"
                                      data-email="{{ $msg->email }}"
-                                     data-message="{{ $msg->message }}"
+                                     data-message="{{ $cleanMessage }}"
                                      data-admin-reply="{{ $msg->admin_reply }}"
                                      data-replied-at="{{ $msg->replied_at ? \Illuminate\Support\Carbon::parse($msg->replied_at)->format('H:i d/m/Y') : '' }}"
                                      data-status="{{ $msg->status }}"
                                      data-initials="{{ $initials }}"
                                      data-gradient="{{ $gradient }}"
+                                     data-user-type="{{ $userType }}"
+                                     data-user-type-label="{{ $userTypeLabel }}"
                                      data-time="{{ $msg->created_at ? $msg->created_at->format('H:i d/m/Y') : '' }}"
                                      onclick="selectChatConversation(this)">
 
@@ -3894,12 +3977,21 @@
                                     </div>
 
                                     <div class="ms-item-info">
-                                        <div class="ms-item-name">{{ $msg->name }}</div>
+                                        <div class="ms-item-top">
+                                            <span class="ms-item-name">{{ $msg->name }}</span>
+                                            @if($userType === 'teacher')
+                                                <span class="ms-user-tag tag-teacher">👨‍🏫 GV</span>
+                                            @elseif($userType === 'student')
+                                                <span class="ms-user-tag tag-student">🎓 HS</span>
+                                            @else
+                                                <span class="ms-user-tag tag-guest">🌐 Khách</span>
+                                            @endif
+                                        </div>
                                         <div class="ms-item-snippet" id="snippet-{{ $msg->id }}">
                                             @if($msg->admin_reply)
-                                                <span><b>Bạn:</b> {{ mb_strimwidth($msg->admin_reply, 0, 20, '...') }}</span>
+                                                <span><b>Bạn:</b> {{ mb_strimwidth($msg->admin_reply, 0, 18, '...') }}</span>
                                             @else
-                                                <span>{{ mb_strimwidth($msg->message, 0, 24, '...') }}</span>
+                                                <span>{{ mb_strimwidth($cleanMessage, 0, 20, '...') }}</span>
                                             @endif
                                             <span>· {{ $timeDiff }}</span>
                                         </div>
@@ -3924,9 +4016,14 @@
                                 $activeMsg = $supportMessages->first();
                                 $activeGradient = $gradients[0];
                                 $activeInitials = mb_strtoupper(mb_substr($activeMsg->name, 0, 2, 'UTF-8'), 'UTF-8');
-                                $rawLines = explode("\n", $activeMsg->message);
-                                $activeLines = array_values(array_filter(array_map('trim', $rawLines)));
-                                if (empty($activeLines)) $activeLines = [$activeMsg->message];
+                                $activeUserType = $activeMsg->user_type ?? 'guest';
+                                $activeUserTypeLabel = $activeMsg->user_type_label ?? '🌐 Khách Vãng Lai';
+                                $msgText = ($activeMsg->message === 'undefined' || empty(trim($activeMsg->message))) ? 'Dạ em chào Admin, em cần hỗ trợ tư vấn về tài khoản và gói luyện thi ạ!' : $activeMsg->message;
+                                $rawLines = explode("\n", (string) $msgText);
+                                $activeLines = array_values(array_filter(array_map('trim', $rawLines), function($l) {
+                                    return $l !== '' && $l !== 'undefined';
+                                }));
+                                if (empty($activeLines)) $activeLines = [$msgText];
                             @endphp
 
                             <!-- Header -->
@@ -3934,9 +4031,14 @@
                                 <div class="ms-header-user">
                                     <div id="chat-detail-avatar" class="ms-header-avatar" style="background: {{ $activeGradient }};">{{ $activeInitials }}</div>
                                     <div class="ms-header-user-info">
-                                        <h3 id="chat-detail-name">{{ $activeMsg->name }}</h3>
+                                        <div class="ms-header-name-row">
+                                            <h3 id="chat-detail-name">{{ $activeMsg->name }}</h3>
+                                            <span id="chat-detail-user-tag" class="ms-user-tag {{ $activeUserType === 'teacher' ? 'tag-teacher' : ($activeUserType === 'student' ? 'tag-student' : 'tag-guest') }}">
+                                                {{ $activeUserTypeLabel }}
+                                            </span>
+                                        </div>
                                         <small>
-                                            <span style="color:#10b981; font-weight:700;">● Online</span>
+                                            <span style="color:#10b981; font-weight:800;">● Online</span>
                                             <span>·</span>
                                             <span id="chat-detail-phone">📞 {{ $activeMsg->phone ?: 'Chưa có SĐT' }}</span>
                                         </small>
@@ -3945,12 +4047,12 @@
 
                                 <div class="ms-header-tools">
                                     <a id="btn-call-phone" href="tel:{{ $activeMsg->phone }}" class="ms-tool-btn btn-call" title="Gọi điện thoại">📞</a>
-                                    <a id="btn-zalo" href="https://zalo.me/{{ preg_replace('/[^0-9]/', '', $activeMsg->phone) }}" target="_blank" class="ms-tool-btn btn-zalo" title="Nhắn Zalo">💬</a>
+                                    <a id="btn-zalo" href="https://zalo.me/{{ preg_replace('/[^0-9]/', '', $activeMsg->phone) }}" target="_blank" class="ms-tool-btn btn-zalo" title="Nhắn Zalo">Zalo</a>
                                     <button type="button" class="ms-tool-btn btn-info active" id="btn-toggle-drawer" onclick="toggleChatDrawer()" title="Thông tin người gửi">ℹ️</button>
                                 </div>
                             </div>
 
-                            <!-- Messages Body -->
+                            <!-- Messages Body: Cuộn Mượt Mà & Không Bao Giờ Tràn -->
                             <div class="ms-stream-body" id="chat-conversation-body">
                                 <div class="ms-date-divider" id="chat-detail-time-stamp">
                                     <span>{{ $activeMsg->created_at ? $activeMsg->created_at->format('H:i, d/m/Y') : 'Hôm nay' }}</span>
@@ -3963,7 +4065,7 @@
                                             @if($lIdx === count($activeLines) - 1)
                                                 <div id="chat-bubble-avatar" class="ms-mini-avatar" style="background: {{ $activeGradient }};">{{ $activeInitials }}</div>
                                             @else
-                                                <div style="width: 26px; height: 26px; flex-shrink: 0;"></div>
+                                                <div style="width: 28px; height: 28px; flex-shrink: 0;"></div>
                                             @endif
                                             <div>
                                                 <div class="ms-bubble-text">{{ $line }}</div>
@@ -3996,19 +4098,19 @@
                                 <span class="ms-emoji-item" onclick="insertEmojiToComposer('💡')" title="Gợi ý">💡</span>
                             </div>
 
-                            <!-- Composer -->
+                            <!-- Composer: GHIM ĐÁY 100% TRONG TẦM MẮT -->
                             <div class="ms-bottom-composer">
                                 <button type="button" class="ms-composer-icon-btn upload-btn" onclick="document.getElementById('ms-photo-upload').click()" title="Gửi ảnh">🖼️</button>
 
                                 <div class="ms-input-pill-wrap">
                                     <input type="text" id="ms-admin-reply-input"
-                                           placeholder="Nhập tin nhắn phản hồi..."
+                                           placeholder="Nhập tin nhắn phản hồi tới khách (nhấn Enter để gửi)..."
                                            oninput="toggleSendOrThumbsUp(this.value)"
                                            onkeydown="if(event.key==='Enter') handleAdminSendReply()">
                                     <button type="button" class="ms-emoji-btn" onclick="insertEmojiToComposer('😊')" title="Emoji">😊</button>
                                 </div>
 
-                                <button type="button" id="ms-send-action-btn" class="ms-send-btn" onclick="handleSendActionClick()" title="Gửi">
+                                <button type="button" id="ms-send-action-btn" class="ms-send-btn" onclick="handleSendActionClick()" title="Gửi tin nhắn">
                                     ➤
                                 </button>
                             </div>
@@ -4017,13 +4119,13 @@
                                 <div>
                                     <div style="font-size:48px; margin-bottom:12px;">💬</div>
                                     <h3 style="font-size:16px; color:#0f172a; font-weight:800;">Chưa Có Tin Nhắn</h3>
-                                    <p style="font-size:12.5px; color:#64748b; max-width:280px; margin:0 auto;">Khi khách hoặc giáo viên gửi câu hỏi từ widget website, tin nhắn sẽ hiển thị tức thì tại đây.</p>
+                                    <p style="font-size:12.5px; color:#64748b; max-width:280px; margin:0 auto;">Khi khách hoặc giáo viên gửi câu hỏi từ website, tin nhắn sẽ hiển thị tức thì tại đây.</p>
                                 </div>
                             </div>
                         @endif
                     </div>
 
-                    <!-- ===== CỘT 3: THÔNG TIN & THAO TÁC ===== -->
+                    <!-- ===== CỘT 3: THÔNG TIN & THAO TÁC (DRAWER) ===== -->
                     @if($supportMessages->isNotEmpty())
                     <div class="ms-info-drawer" id="ms-info-drawer">
 
@@ -4031,7 +4133,18 @@
                         <div class="drawer-profile-card">
                             <div class="drawer-avatar" id="drawer-avatar" style="background: {{ $activeGradient }};">{{ $activeInitials }}</div>
                             <h4 class="drawer-name" id="drawer-name">{{ $activeMsg->name }}</h4>
-                            <span class="drawer-role-badge">👩‍🏫 Khách / Giáo Viên</span>
+                            <span class="drawer-role-badge {{ $activeUserType === 'teacher' ? 'badge-teacher' : 'badge-guest' }}" id="drawer-role-badge">
+                                {{ $activeUserTypeLabel }}
+                            </span>
+                        </div>
+
+                        <!-- Smart Identifier Action Box (Gợi ý thao tác theo đối tượng) -->
+                        <div id="drawer-smart-action-box" class="drawer-guest-box">
+                            <div class="title" id="smart-box-title">🌐 KHÁCH VÃNG LAI (CHƯA CÓ TÀI KHOẢN)</div>
+                            <p class="desc" id="smart-box-desc">Khách gửi tin từ trang ngoài. Bạn có thể tư vấn gói và bấm nút dưới để tạo nhanh tài khoản Giáo viên.</p>
+                            <button type="button" id="btn-quick-create-teacher" class="btn-create-teacher-from-guest" onclick="openCreateTeacherFromCurrentChat()">
+                                <span>⚡</span> Tạo Tài Khoản Giáo Viên
+                            </button>
                         </div>
 
                         <!-- Quick Contact -->
@@ -4068,7 +4181,7 @@
 
                         <!-- Status Chips -->
                         <div>
-                            <div class="drawer-section-title">🏷️ Trạng thái</div>
+                            <div class="drawer-section-title">🏷️ Trạng thái xử lý</div>
                             <div class="drawer-status-chips">
                                 <button type="button" class="drawer-status-chip {{ $activeMsg->status === 'pending' ? 'active-pending' : '' }}" id="chip-status-pending" onclick="updateCurrentChatStatus('pending')">
                                     🔴 Chờ
@@ -4084,23 +4197,23 @@
 
                         <!-- Canned Replies -->
                         <div>
-                            <div class="drawer-section-title">⚡ Trả lời nhanh</div>
+                            <div class="drawer-section-title">⚡ Trả lời mẫu nhanh</div>
                             <div class="drawer-canned-list">
-                                <div class="drawer-canned-item" onclick="insertCannedReply('Dạ em chào Thầy/Cô! Em là chuyên viên hỗ trợ IC3 Quest. Em xin gửi thông tin chi tiết nhé ạ!')">
+                                <div class="drawer-canned-item" onclick="insertCannedReply('Dạ em chào Thầy/Cô! Em là chuyên viên hỗ trợ IC3 Quest. Em xin gửi thông tin chi tiết gói luyện thi nhé ạ!')">
                                     💬 Chào hỏi & Hỗ trợ
                                 </div>
                                 <div class="drawer-canned-item" onclick="insertCannedReply('Dạ hệ thống có Gói Tiêu Chuẩn (100 HS, 990.000đ/90 ngày) và Gói Trường Học đầy đủ cả 3 khối 3, 4, 5 ạ.')">
                                     📦 Báo giá gói bản quyền
                                 </div>
-                                <div class="drawer-canned-item" onclick="insertCannedReply('Dạ em đã kết bạn qua Zalo rồi ạ. Thầy/Cô kiểm tra tin nhắn chờ để nhận báo giá nhé!')">
+                                <div class="drawer-canned-item" onclick="insertCannedReply('Dạ em đã gửi lời mời kết bạn qua Zalo rồi ạ. Thầy/Cô kiểm tra tin nhắn chờ giúp em nhé!')">
                                     📱 Đã kết bạn Zalo
                                 </div>
                             </div>
                         </div>
 
                         <!-- Delete Conversation Button -->
-                        <div style="margin-top: 4px; padding-top: 8px; border-top: 1px dashed #e2e8f0;">
-                            <button type="button" onclick="deleteCurrentChatConversation()" style="width:100%; padding:7px 10px; background:#fef2f2; border:1px solid #fecaca; color:#b91c1c; border-radius:8px; font-size:11.5px; font-weight:700; cursor:pointer; display:flex; align-items:center; justify-content:center; gap:6px; transition:all 0.15s;" onmouseover="this.style.background='#fee2e2'" onmouseout="this.style.background='#fef2f2'">
+                        <div style="margin-top: 4px; padding-top: 8px; border-top: 1.5px dashed #e2e8f0;">
+                            <button type="button" onclick="deleteCurrentChatConversation()" style="width:100%; padding:8px 10px; background:#fef2f2; border:1px solid #fecaca; color:#b91c1c; border-radius:8px; font-size:11.5px; font-weight:800; cursor:pointer; display:flex; align-items:center; justify-content:center; gap:6px; transition:all 0.15s;" onmouseover="this.style.background='#fee2e2'" onmouseout="this.style.background='#fef2f2'">
                                 <span>🗑️ Xóa Cuộc Trò Chuyện</span>
                             </button>
                         </div>
@@ -4109,7 +4222,6 @@
                     @endif
 
                 </div>
-            </div>
             </div>
             @endif
 
