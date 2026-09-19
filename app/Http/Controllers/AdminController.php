@@ -178,6 +178,55 @@ class AdminController extends Controller
             $totalRevenue = (int) PackageOrder::where('status', PackageOrder::STATUS_ACTIVE)->sum('price');
 
             $supportMessages = \App\Models\SupportMessage::latest('id')->limit(50)->get();
+
+            // 🧠 Cơ chế Nhận diện Thông minh: Khách vãng lai hay Giáo viên / Học sinh hệ thống
+            foreach ($supportMessages as $msg) {
+                $matchedUser = null;
+                if (! empty($msg->email)) {
+                    $matchedUser = User::where('email', $msg->email)->first();
+                }
+                if (! $matchedUser && ! empty($msg->phone)) {
+                    $cleanPhone = preg_replace('/[^0-9]/', '', $msg->phone);
+                    if (strlen($cleanPhone) >= 9) {
+                        $matchedUser = User::where('email', 'LIKE', "%{$cleanPhone}%")
+                            ->orWhere('name', 'LIKE', "%{$msg->name}%")
+                            ->first();
+                        if (! $matchedUser) {
+                            $order = PackageOrder::where('notes', 'LIKE', "%{$cleanPhone}%")->first();
+                            if ($order && $order->user) {
+                                $matchedUser = $order->user;
+                            }
+                        }
+                    }
+                }
+
+                if ($matchedUser) {
+                    $msg->is_guest = false;
+                    if ($matchedUser->role === 'teacher') {
+                        $msg->user_type = 'teacher';
+                        $msg->user_type_label = '👨‍🏫 Giáo Viên';
+                        $msg->user_role_badge = 'badge-teacher';
+                    } elseif ($matchedUser->role === 'student') {
+                        $msg->user_type = 'student';
+                        $msg->user_type_label = '🎓 Học Sinh';
+                        $msg->user_role_badge = 'badge-student';
+                    } else {
+                        $msg->user_type = 'user';
+                        $msg->user_type_label = '👤 Thành Viên';
+                        $msg->user_role_badge = 'badge-user';
+                    }
+                    $msg->matched_user_name = $matchedUser->name;
+                    $msg->matched_user_id = $matchedUser->id;
+                } else {
+                    $msg->is_guest = true;
+                    $msg->user_type = 'guest';
+                    $msg->user_type_label = '🌐 Khách Vãng Lai';
+                    $msg->user_role_badge = 'badge-guest';
+                    $msg->matched_user_name = null;
+                    $msg->matched_user_id = null;
+                }
+            }
+
             $pendingSupportCount = \App\Models\SupportMessage::where('status', 'pending')->count();
         } else {
             $packages = collect();
@@ -268,6 +317,25 @@ class AdminController extends Controller
     }
 
     /**
+     * Xóa đoạn chat / cuộc hội thoại hỗ trợ
+     */
+    public function deleteSupportMessage(\App\Models\SupportMessage $supportMessage): \Illuminate\Http\JsonResponse|\Illuminate\Http\RedirectResponse
+    {
+        $supportMessage->delete();
+
+        if (request()->wantsJson() || request()->ajax()) {
+            return response()->json([
+                'success' => true,
+                'message' => 'Đã xóa đoạn chat thành công!',
+                'pending_count' => \App\Models\SupportMessage::where('status', 'pending')->count(),
+                'total_count' => \App\Models\SupportMessage::count(),
+            ]);
+        }
+
+        return back()->with('ok', 'Đã xóa đoạn chat thành công.');
+    }
+
+    /**
      * Endpoint Polling Real-time cho Giao diện Messenger Quản trị
      */
     public function pollSupportMessages(\Illuminate\Http\Request $request): \Illuminate\Http\JsonResponse
@@ -308,6 +376,7 @@ class AdminController extends Controller
         }
 
         $pendingCount = \App\Models\SupportMessage::where('status', 'pending')->count();
+        $pendingOrdersCount = \App\Models\PackageOrder::where('status', 'pending')->count();
         $totalCount = \App\Models\SupportMessage::count();
 
         return response()->json([
@@ -315,6 +384,7 @@ class AdminController extends Controller
             'new_messages' => $newMessages,
             'active_message' => $activeMessage,
             'pending_count' => $pendingCount,
+            'pending_orders_count' => $pendingOrdersCount,
             'total_count' => $totalCount,
         ]);
     }

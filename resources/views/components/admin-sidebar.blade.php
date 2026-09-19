@@ -61,9 +61,11 @@
                     <span class="group-icon">📊</span>
                     <span class="group-title">BÁO CÁO & THEO DÕI</span>
                 </div>
-                <svg class="chevron-svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-                    <polyline points="9 18 15 12 9 6"></polyline>
-                </svg>
+                <div class="group-right-wrap">
+                    <svg class="chevron-svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                        <polyline points="9 18 15 12 9 6"></polyline>
+                    </svg>
+                </div>
             </button>
             <div class="nav-submenu">
                 @if($isDashboard)
@@ -85,9 +87,11 @@
                     <span class="group-icon">👥</span>
                     <span class="group-title">QUẢN TRỊ TÀI KHOẢN</span>
                 </div>
-                <svg class="chevron-svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-                    <polyline points="9 18 15 12 9 6"></polyline>
-                </svg>
+                <div class="group-right-wrap">
+                    <svg class="chevron-svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                        <polyline points="9 18 15 12 9 6"></polyline>
+                    </svg>
+                </div>
             </button>
             <div class="nav-submenu">
                 @if($isTeacher)
@@ -127,9 +131,11 @@
                     <span class="group-icon">📚</span>
                     <span class="group-title">CHUYÊN MÔN ĐỀ THI</span>
                 </div>
-                <svg class="chevron-svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-                    <polyline points="9 18 15 12 9 6"></polyline>
-                </svg>
+                <div class="group-right-wrap">
+                    <svg class="chevron-svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                        <polyline points="9 18 15 12 9 6"></polyline>
+                    </svg>
+                </div>
             </button>
             <div class="nav-submenu">
                 @if(! $isTeacher)
@@ -161,9 +167,11 @@
                     <span class="group-icon">🎮</span>
                     <span class="group-title">KHU TRÒ CHƠI & THƯỞNG</span>
                 </div>
-                <svg class="chevron-svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-                    <polyline points="9 18 15 12 9 6"></polyline>
-                </svg>
+                <div class="group-right-wrap">
+                    <svg class="chevron-svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                        <polyline points="9 18 15 12 9 6"></polyline>
+                    </svg>
+                </div>
             </button>
             <div class="nav-submenu">
                 <a href="{{ route('admin.games.settings') }}" class="nav-sub-item {{ $currentRoute === 'admin.games.settings' ? 'on' : '' }}" title="Cài đặt quy đổi Sao & Giờ chơi mini-game">
@@ -184,17 +192,18 @@
                     <span class="group-icon">💎</span>
                     <span class="group-title">GÓI & BẢN QUYỀN</span>
                 </div>
-                <svg class="chevron-svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-                    <polyline points="9 18 15 12 9 6"></polyline>
-                </svg>
+                <div class="group-right-wrap">
+                    <span class="group-counter red" id="group-badge-orders" style="{{ $pendingOrdersCount > 0 ? '' : 'display:none;' }}">{{ $pendingOrdersCount }}</span>
+                    <svg class="chevron-svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                        <polyline points="9 18 15 12 9 6"></polyline>
+                    </svg>
+                </div>
             </button>
             <div class="nav-submenu">
                 @if($isDashboard)
                     <a href="javascript:void(0)" class="nav-sub-item {{ $activeTab === 'tab-orders' ? 'on' : '' }}" data-tab="tab-orders" onclick="switchAdminTab('tab-orders', this)" title="Đối chiếu thanh toán và phê duyệt đơn thuê gói">
                         <span class="sub-icon">📋</span> <span class="nav-text">Quản Lý Đơn Hàng</span>
-                        @if($pendingOrdersCount > 0)
-                            <span class="badge-counter red" title="Có {{ $pendingOrdersCount }} đơn hàng đang chờ duyệt">{{ $pendingOrdersCount }} chờ</span>
-                        @endif
+                        <span class="badge-counter red" id="sub-badge-orders" style="{{ $pendingOrdersCount > 0 ? '' : 'display:none;' }}" title="Có {{ $pendingOrdersCount }} đơn hàng đang chờ duyệt">{{ $pendingOrdersCount }} chờ</span>
                     </a>
                     <a href="javascript:void(0)" class="nav-sub-item {{ $activeTab === 'tab-packages' ? 'on' : '' }}" data-tab="tab-packages" onclick="switchAdminTab('tab-packages', this)" title="Cấu hình danh mục gói dịch vụ bản quyền">
                         <span class="sub-icon">📦</span> <span class="nav-text">Danh Mục Gói Dịch Vụ</span>
@@ -202,9 +211,7 @@
                 @else
                     <a href="{{ route('admin.dashboard') }}#tab-orders" class="nav-sub-item" title="Đối chiếu thanh toán và phê duyệt đơn thuê gói">
                         <span class="sub-icon">📋</span> <span class="nav-text">Quản Lý Đơn Hàng</span>
-                        @if($pendingOrdersCount > 0)
-                            <span class="badge-counter red" title="Có {{ $pendingOrdersCount }} đơn hàng đang chờ duyệt">{{ $pendingOrdersCount }} chờ</span>
-                        @endif
+                        <span class="badge-counter red" id="sub-badge-orders" style="{{ $pendingOrdersCount > 0 ? '' : 'display:none;' }}" title="Có {{ $pendingOrdersCount }} đơn hàng đang chờ duyệt">{{ $pendingOrdersCount }} chờ</span>
                     </a>
                     <a href="{{ route('admin.dashboard') }}#tab-packages" class="nav-sub-item" title="Cấu hình danh mục gói dịch vụ bản quyền">
                         <span class="sub-icon">📦</span> <span class="nav-text">Danh Mục Gói Dịch Vụ</span>
@@ -223,24 +230,23 @@
                     <span class="group-icon">💬</span>
                     <span class="group-title">TƯ VẤN & LIVE CHAT</span>
                 </div>
-                <svg class="chevron-svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-                    <polyline points="9 18 15 12 9 6"></polyline>
-                </svg>
+                <div class="group-right-wrap">
+                    <span class="group-counter amber" id="group-badge-chat" style="{{ $pendingSupportCount > 0 ? '' : 'display:none;' }}">{{ $pendingSupportCount }}</span>
+                    <svg class="chevron-svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                        <polyline points="9 18 15 12 9 6"></polyline>
+                    </svg>
+                </div>
             </button>
             <div class="nav-submenu">
                 @if($isDashboard)
                     <a href="javascript:void(0)" class="nav-sub-item {{ $activeTab === 'tab-chat' ? 'on' : '' }}" data-tab="tab-chat" onclick="switchAdminTab('tab-chat', this)" title="Trung tâm Chat Messenger & Hỗ trợ Giáo viên">
                         <span class="sub-icon">⚡</span> <span class="nav-text">Tin Nhắn Messenger</span>
-                        @if($pendingSupportCount > 0)
-                            <span class="badge-counter blue" title="Có {{ $pendingSupportCount }} tin nhắn mới">{{ $pendingSupportCount }}</span>
-                        @endif
+                        <span class="badge-counter amber" id="sub-badge-chat" style="{{ $pendingSupportCount > 0 ? '' : 'display:none;' }}" title="Có {{ $pendingSupportCount }} tin nhắn mới">{{ $pendingSupportCount }}</span>
                     </a>
                 @else
                     <a href="{{ route('admin.dashboard') }}#tab-chat" class="nav-sub-item" title="Trung tâm Chat Messenger & Hỗ trợ Giáo viên">
                         <span class="sub-icon">⚡</span> <span class="nav-text">Tin Nhắn Messenger</span>
-                        @if($pendingSupportCount > 0)
-                            <span class="badge-counter blue" title="Có {{ $pendingSupportCount }} tin nhắn mới">{{ $pendingSupportCount }}</span>
-                        @endif
+                        <span class="badge-counter amber" id="sub-badge-chat" style="{{ $pendingSupportCount > 0 ? '' : 'display:none;' }}" title="Có {{ $pendingSupportCount }} tin nhắn mới">{{ $pendingSupportCount }}</span>
                     </a>
                 @endif
             </div>
@@ -253,9 +259,11 @@
                     <span class="group-icon">💎</span>
                     <span class="group-title">GÓI BẢN QUYỀN</span>
                 </div>
-                <svg class="chevron-svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-                    <polyline points="9 18 15 12 9 6"></polyline>
-                </svg>
+                <div class="group-right-wrap">
+                    <svg class="chevron-svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                        <polyline points="9 18 15 12 9 6"></polyline>
+                    </svg>
+                </div>
             </button>
             <div class="nav-submenu">
                 <a href="{{ route('pricing.index') }}" class="nav-sub-item" title="Bảng giá & Thuê gói bản quyền IC3 GS6">
@@ -389,7 +397,7 @@
         margin-top: 1px;
     }
 
-    /* 3. Accordion Nav - Modern Flat Tree Style */
+    /* 3. Accordion Nav - Visual Hierarchy & High Contrast */
     .sidebar-accordion {
         flex: 1;
         overflow-y: auto;
@@ -398,7 +406,7 @@
         margin-bottom: 10px;
         display: flex;
         flex-direction: column;
-        gap: 3px;
+        gap: 4px;
     }
     .sidebar-accordion::-webkit-scrollbar {
         width: 4px;
@@ -409,51 +417,73 @@
     }
 
     .nav-group {
-        border-radius: 8px;
-        transition: background-color 0.15s ease;
+        border-radius: 9px;
+        margin-bottom: 3px;
+        transition: all 0.2s ease;
     }
 
-    /* Tiêu đề nhóm: Chữ TRẮNG TUYẾT #ffffff sắc nét, KHÔNG đóng hộp button */
+    /* TIÊU ĐỀ NHÓM: DẠNG HEADER SECTION RÕ NÉT, TÁCH BIỆT TRANG CON */
     .nav-group-header {
         width: 100%;
         display: flex;
         align-items: center;
         justify-content: space-between;
-        padding: 8px 9px;
-        background: transparent !important;
-        border: none !important;
-        border-radius: 7px;
-        color: #ffffff !important;
-        font-size: 11.5px;
-        font-weight: 850;
-        letter-spacing: 0.5px;
+        padding: 7.5px 9px;
+        background: rgba(15, 23, 42, 0.25) !important;
+        border: 1px solid rgba(255, 255, 255, 0.1) !important;
+        border-radius: 8px;
+        color: #bae6fd !important;
+        font-size: 11px;
+        font-weight: 800;
+        letter-spacing: 0.6px;
         cursor: pointer;
-        transition: background-color 0.15s ease;
+        transition: all 0.15s ease;
         text-align: left;
     }
     .nav-group-header .group-title {
-        color: #ffffff !important;
-        font-weight: 850;
+        color: inherit !important;
+        font-weight: 800;
+        font-size: 11px;
     }
     .nav-group-header:hover {
-        background: rgba(255, 255, 255, 0.12) !important;
+        background: rgba(15, 23, 42, 0.4) !important;
         color: #ffffff !important;
+        border-color: rgba(255, 255, 255, 0.25) !important;
     }
     .nav-group.open .nav-group-header {
-        background: rgba(255, 255, 255, 0.16) !important;
+        background: rgba(15, 23, 42, 0.5) !important;
         color: #ffffff !important;
+        border-left: 3.5px solid #38bdf8 !important;
+        border-color: rgba(56, 189, 248, 0.4) !important;
     }
     .group-title-wrap {
         display: flex;
         align-items: center;
         gap: 7px;
+        min-width: 0;
+    }
+    .group-right-wrap {
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        flex-shrink: 0;
     }
     .group-icon {
-        font-size: 14px;
+        font-size: 13px;
+        width: 22px;
+        height: 22px;
+        display: inline-grid;
+        place-items: center;
+        background: rgba(255, 255, 255, 0.12);
+        border-radius: 6px;
+        flex-shrink: 0;
+    }
+    .nav-group.open .group-icon {
+        background: rgba(56, 189, 248, 0.3);
     }
     .chevron-svg {
         transition: transform 0.2s cubic-bezier(0.4, 0, 0.2, 1);
-        color: #bae6fd;
+        color: #7dd3fc;
         flex-shrink: 0;
     }
     .nav-group.open .chevron-svg {
@@ -461,14 +491,39 @@
         color: #ffffff;
     }
 
-    /* Submenu items: Danh sách nhánh cây */
+    /* BADGE ĐẾM SỐ TRÊN HEADER NHÓM */
+    .group-counter {
+        font-size: 10px;
+        font-weight: 900;
+        padding: 1px 6px;
+        border-radius: 999px;
+        line-height: 1.3;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        box-shadow: 0 2px 6px rgba(0, 0, 0, 0.25);
+    }
+    .group-counter.red {
+        background: #ef4444;
+        color: #ffffff;
+        border: 1px solid #fca5a5;
+        box-shadow: 0 2px 8px rgba(239, 68, 68, 0.5);
+    }
+    .group-counter.amber {
+        background: #f59e0b;
+        color: #ffffff;
+        border: 1px solid #fde68a;
+        box-shadow: 0 2px 8px rgba(245, 158, 11, 0.5);
+    }
+
+    /* SUBMENU ITEMS: DANH SÁCH NHÁNH CÂY THỤT LỀ, CÓ VIỀN RIÊNG */
     .nav-submenu {
         display: none;
         flex-direction: column;
-        gap: 2px;
-        padding: 3px 0 5px 10px;
-        margin-left: 14px;
-        border-left: 2px solid rgba(255, 255, 255, 0.3);
+        gap: 3px;
+        padding: 4px 0 5px 12px;
+        margin-left: 12px;
+        border-left: 2px dashed rgba(56, 189, 248, 0.4);
     }
     .nav-group.open .nav-submenu {
         display: flex;
@@ -478,36 +533,37 @@
         align-items: center;
         gap: 8px;
         padding: 7px 10px;
-        border-radius: 7px;
-        color: #f0f9ff !important;
-        font-size: 13px;
-        font-weight: 700;
+        border-radius: 8px;
+        background: rgba(255, 255, 255, 0.08);
+        border: 1px solid rgba(255, 255, 255, 0.12);
+        color: #f8fafc !important;
+        font-size: 12.5px;
+        font-weight: 600;
         text-decoration: none;
-        transition: background-color 0.12s ease;
+        transition: all 0.15s ease;
         position: relative;
-        transform: none !important;
     }
     .nav-sub-item .nav-text {
-        color: #f0f9ff !important;
-        font-weight: 700;
+        color: #f8fafc !important;
+        font-weight: 600;
     }
-    /* RÊ CHUỘT: CHỈ ĐỔI NỀN MỜ ÊM ÁI - KHÔNG DỊCH CHUYỂN */
+    /* RÊ CHUỘT: TĂNG ĐỘ SÁNG MỜ ÊM ÁI */
     .nav-sub-item:hover {
-        background: rgba(255, 255, 255, 0.2) !important;
+        background: rgba(255, 255, 255, 0.22) !important;
+        border-color: rgba(255, 255, 255, 0.35) !important;
         color: #ffffff !important;
-        transform: none !important;
     }
     .nav-sub-item:hover .nav-text {
         color: #ffffff !important;
     }
-    /* KHI MỤC ĐƯỢC CHỌN: TÔ NỀN TRẮNG CHỮ XANH ĐẬM RỰC RỠ, TƯƠNG PHẢN TUYỆT ĐỐI */
+    /* KHI MỤC ĐƯỢC CHỌN (ACTIVE / ON): NỔI KHỐI 3D TRẮNG CHỮ XANH ĐẬM TƯƠNG PHẢN TUYỆT ĐỐI */
     .nav-sub-item.on, .nav-sub-item.active {
         background: #ffffff !important;
         color: #0284c7 !important;
         font-weight: 900 !important;
-        border-radius: 7px;
-        box-shadow: 0 4px 14px rgba(0, 0, 0, 0.25);
-        transform: none !important;
+        border-radius: 8px;
+        border-color: #ffffff !important;
+        box-shadow: 0 4px 14px rgba(0, 0, 0, 0.25), inset 0 -2px 0 rgba(2, 132, 199, 0.2);
     }
     .nav-sub-item.on .nav-text, .nav-sub-item.active .nav-text {
         color: #0284c7 !important;
@@ -517,26 +573,36 @@
         color: #0284c7 !important;
     }
     .nav-sub-item .sub-icon {
-        font-size: 14px;
+        font-size: 13.5px;
         flex-shrink: 0;
     }
 
-    /* Badge Counter */
+    /* BADGE TRONG TRANG CON */
     .badge-counter {
         font-size: 10px;
-        font-weight: 850;
-        padding: 1.5px 6px;
+        font-weight: 900;
+        padding: 2px 7px;
         border-radius: 999px;
         margin-left: auto;
         flex-shrink: 0;
+        letter-spacing: 0.2px;
     }
     .badge-counter.red {
         background: #ef4444;
         color: #ffffff;
+        border: 1px solid #fca5a5;
+        box-shadow: 0 2px 6px rgba(239, 68, 68, 0.4);
+    }
+    .badge-counter.amber {
+        background: #f59e0b;
+        color: #ffffff;
+        border: 1px solid #fde68a;
+        box-shadow: 0 2px 6px rgba(245, 158, 11, 0.4);
     }
     .badge-counter.blue {
-        background: rgba(255, 255, 255, 0.3);
+        background: #0284c7;
         color: #ffffff;
+        border: 1px solid #7dd3fc;
     }
 
     /* 4. Chân Sidebar: Tinh gọn & Phẳng */
@@ -561,11 +627,9 @@
         text-decoration: none;
         border: 1px solid #34d399;
         transition: background-color 0.15s ease;
-        transform: none !important;
     }
     .btn-sidebar-student-switch:hover {
         background: #047857;
-        transform: none !important;
     }
     .btn-sidebar-logout {
         width: 100%;
@@ -582,12 +646,10 @@
         font-weight: 800;
         cursor: pointer;
         transition: background-color 0.15s ease;
-        transform: none !important;
     }
     .btn-sidebar-logout:hover {
         background: #ef4444;
         border-color: #ef4444;
-        transform: none !important;
     }
 
     /* 🔄 COLLAPSED SIDEBAR */
@@ -598,6 +660,7 @@
     .shell.sidebar-collapsed .brand-text,
     .shell.sidebar-collapsed .admin-info,
     .shell.sidebar-collapsed .group-title,
+    .shell.sidebar-collapsed .group-right-wrap,
     .shell.sidebar-collapsed .chevron-svg,
     .shell.sidebar-collapsed .nav-text,
     .shell.sidebar-collapsed .badge-counter,
@@ -626,13 +689,11 @@
     .shell.sidebar-collapsed .nav-sub-item {
         justify-content: center;
         padding: 8px 0;
-        transform: none !important;
     }
     .shell.sidebar-collapsed .btn-sidebar-student-switch,
     .shell.sidebar-collapsed .btn-sidebar-logout {
         padding: 8px 0;
         justify-content: center;
-        transform: none !important;
     }
 </style>
 
@@ -642,5 +703,63 @@
         if (group) {
             group.classList.toggle('open');
         }
+    }
+
+    // ⚡ REAL-TIME SIDEBAR BADGE COUNTERS (Cập nhật số đơn & tin nhắn tức thì qua Fetch)
+    function updateGlobalSidebarBadges(data) {
+        if (!data) return;
+        const orders = parseInt(data.pending_orders_count) || 0;
+        const msgs = parseInt(data.pending_count) || 0;
+
+        // 1. Badge Đơn Hàng Mới
+        const grpOrders = document.getElementById('group-badge-orders');
+        if (grpOrders) {
+            grpOrders.textContent = orders;
+            grpOrders.style.display = orders > 0 ? 'inline-flex' : 'none';
+        }
+        const subOrders = document.getElementById('sub-badge-orders');
+        if (subOrders) {
+            subOrders.textContent = orders + ' chờ';
+            subOrders.style.display = orders > 0 ? 'inline-block' : 'none';
+        }
+
+        // 2. Badge Tin Nhắn Chờ Tư Vấn
+        const grpChat = document.getElementById('group-badge-chat');
+        if (grpChat) {
+            grpChat.textContent = msgs;
+            grpChat.style.display = msgs > 0 ? 'inline-flex' : 'none';
+        }
+        const subChat = document.getElementById('sub-badge-chat');
+        if (subChat) {
+            subChat.textContent = msgs;
+            subChat.style.display = msgs > 0 ? 'inline-block' : 'none';
+        }
+
+        // 3. Topbar Chat Button
+        const topbarChat = document.getElementById('topbar-chat-count');
+        if (topbarChat) {
+            topbarChat.textContent = msgs;
+            topbarChat.style.display = msgs > 0 ? 'inline-flex' : 'none';
+        }
+
+        // 4. Chat Tab Filter Chip (nếu đang ở trang quản trị)
+        const chipPending = document.getElementById('chip-filter-pending');
+        if (chipPending) {
+            chipPending.textContent = 'Chờ (' + msgs + ')';
+        }
+    }
+
+    // Polling định kỳ mỗi 3.5s để đồng bộ số lượng tức thì
+    if (!window._adminBadgePollTimer) {
+        window._adminBadgePollTimer = setInterval(function() {
+            fetch('/quan-tri/tin-nhan/realtime-poll?last_id=0&active_id=0')
+                .then(res => res.json())
+                .then(data => {
+                    if (data && data.ok) {
+                        updateGlobalSidebarBadges(data);
+                    }
+                })
+                .catch(() => {});
+        }, 3500);
     }
 </script>

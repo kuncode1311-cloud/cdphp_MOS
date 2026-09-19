@@ -312,14 +312,38 @@ class PricingController extends Controller
 
         $data['ip_address'] = $request->ip();
 
-        $supportMsg = SupportMessage::create([
-            'name' => $data['name'],
-            'phone' => $data['phone'] ?? null,
-            'email' => $data['email'] ?? null,
-            'message' => $data['message'],
-            'ip_address' => $data['ip_address'],
-            'status' => 'pending',
-        ]);
+        // 🔄 Cơ chế nhận diện phiên chat: Nếu cùng phiên (parent_id) hoặc cùng SĐT chưa đóng trong 24h, gộp vào cùng cuộc hội thoại
+        $parentId = (int) $request->input('parent_id', 0);
+        $supportMsg = null;
+
+        if ($parentId > 0) {
+            $supportMsg = SupportMessage::find($parentId);
+        }
+
+        if (! $supportMsg && ! empty($data['phone'])) {
+            $supportMsg = SupportMessage::where('phone', $data['phone'])
+                ->where('status', '!=', 'closed')
+                ->where('created_at', '>=', now()->subHours(24))
+                ->latest('id')
+                ->first();
+        }
+
+        if ($supportMsg) {
+            // Nối thêm tin nhắn vào cuộc hội thoại hiện có
+            $supportMsg->message .= "\n" . $data['message'];
+            $supportMsg->status = 'pending';
+            $supportMsg->updated_at = now();
+            $supportMsg->save();
+        } else {
+            $supportMsg = SupportMessage::create([
+                'name' => $data['name'],
+                'phone' => $data['phone'] ?? null,
+                'email' => $data['email'] ?? null,
+                'message' => $data['message'],
+                'ip_address' => $data['ip_address'],
+                'status' => 'pending',
+            ]);
+        }
 
         $telegramService->sendSupportMessageNotification(
             $data['name'],
@@ -332,7 +356,7 @@ class PricingController extends Controller
             'ok' => true,
             'message_id' => $supportMsg->id,
             'time' => $supportMsg->created_at ? $supportMsg->created_at->format('H:i') : date('H:i'),
-            'message' => 'Cảm ơn Thầy/Cô! Tin nhắn đã được gửi tức thì tới Ban Quản Trị qua Telegram Bot @trikun_cdphp_bot. Chúng tôi sẽ phản hồi ngay tại đây!',
+            'message' => 'Cảm ơn bạn! Ban Quản Trị đã nhận được tin nhắn và sẽ phản hồi ngay tại đây.',
         ]);
     }
 

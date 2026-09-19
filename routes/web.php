@@ -140,6 +140,7 @@ Route::prefix('quan-tri')->name('admin.')->middleware(['auth', 'admin'])->group(
     // Quản lý tin nhắn tư vấn Live Chat từ website & Telegram Bot
     Route::get('/tin-nhan/realtime-poll', [AdminController::class, 'pollSupportMessages'])->name('support.poll');
     Route::patch('/tin-nhan/{supportMessage}/trang-thai', [AdminController::class, 'updateSupportMessageStatus'])->name('support.status');
+    Route::delete('/tin-nhan/{supportMessage}', [AdminController::class, 'deleteSupportMessage'])->name('support.delete');
     Route::post('/cai-dat-telegram', [AdminController::class, 'saveTelegramConfig'])->name('telegram.save');
     Route::post('/gui-thu-telegram', [AdminController::class, 'testTelegramNotification'])->name('telegram.test');
     Route::post('/telegram/lay-chat-id', [AdminController::class, 'getTelegramChatId'])->name('telegram.get_chat_id');

@@ -3398,37 +3398,37 @@
             <div id="tab-chat" class="admin-tab-pane" style="display:none;">
                 <style>
                     /* ============================
-                       🎨 CHAT MESSENGER - COMPACT CLEAN UI
+                       🎨 CHAT MESSENGER - ZALO DESKTOP THEME
                        ============================ */
                     .ms-desktop-wrap {
                         display: grid;
-                        grid-template-columns: 300px 1fr 280px;
-                        height: calc(100vh - 120px);
-                        min-height: 600px;
-                        background: #f8faff;
-                        border-radius: 16px;
-                        border: 2px solid #e0e7ff;
-                        box-shadow: 0 8px 32px rgba(99,102,241,0.10);
+                        grid-template-columns: 290px 1fr 260px;
+                        height: calc(100vh - 130px);
+                        min-height: 560px;
+                        background: #ffffff;
+                        border-radius: 12px;
+                        border: 1px solid #e2e8f0;
+                        box-shadow: 0 4px 20px rgba(0,0,0,0.06);
                         overflow: hidden;
-                        font-family: 'Segoe UI', -apple-system, BlinkMacSystemFont, sans-serif;
+                        font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
                         transition: grid-template-columns 0.25s cubic-bezier(0.16,1,0.3,1);
                     }
                     .ms-desktop-wrap.drawer-collapsed {
-                        grid-template-columns: 300px 1fr 0px;
+                        grid-template-columns: 290px 1fr 0px;
                     }
 
-                    /* ===== CỘT 1: DANH SÁCH CUỘC HỘI THOẠI ===== */
+                    /* ===== CỘT 1: DANH SÁCH CUỘC HỘI THOẠI (ZALO SIDEBAR) ===== */
                     .ms-sidebar {
-                        background: linear-gradient(180deg,#1e40af 0%,#2563eb 100%);
-                        border-right: 2px solid #3b82f6;
+                        background: #ffffff;
+                        border-right: 1px solid #e5e7eb;
                         display: flex;
                         flex-direction: column;
                         min-width: 0;
                     }
                     .ms-sidebar-header {
-                        padding: 14px 14px 10px;
-                        background: rgba(255,255,255,0.07);
-                        border-bottom: 1px solid rgba(255,255,255,0.12);
+                        padding: 12px 12px 10px;
+                        background: #ffffff;
+                        border-bottom: 1px solid #f1f5f9;
                     }
                     .ms-head-title-row {
                         display: flex;
@@ -3437,9 +3437,9 @@
                         margin-bottom: 10px;
                     }
                     .ms-head-title-row h2 {
-                        font-size: 16px;
+                        font-size: 15px;
                         font-weight: 800;
-                        color: #ffffff;
+                        color: #0f172a;
                         margin: 0;
                         display: flex;
                         align-items: center;
@@ -3448,25 +3448,25 @@
                     }
                     .ms-head-icons { display: flex; gap: 6px; }
                     .ms-circle-btn {
-                        width: 32px;
-                        height: 32px;
+                        width: 28px;
+                        height: 28px;
                         border-radius: 50%;
-                        background: rgba(255,255,255,0.15);
-                        border: 1px solid rgba(255,255,255,0.25);
+                        background: #f1f5f9;
+                        border: 1px solid #e2e8f0;
                         display: grid;
                         place-items: center;
                         cursor: pointer;
-                        color: #ffffff;
-                        font-size: 14px;
+                        color: #475569;
+                        font-size: 13px;
                         transition: background 0.15s, transform 0.1s;
                     }
-                    .ms-circle-btn:hover { background: rgba(255,255,255,0.28); transform: scale(1.08); }
+                    .ms-circle-btn:hover { background: #e2e8f0; color: #0f172a; }
 
                     .ms-search-pill {
-                        background: rgba(255,255,255,0.12);
-                        border: 1px solid rgba(255,255,255,0.2);
-                        border-radius: 999px;
-                        padding: 7px 12px 7px 32px;
+                        background: #f1f5f9;
+                        border: 1px solid #e2e8f0;
+                        border-radius: 8px;
+                        padding: 6px 10px 6px 30px;
                         position: relative;
                         display: flex;
                         align-items: center;
@@ -3476,364 +3476,353 @@
                         background: transparent;
                         border: none;
                         outline: none;
-                        font-size: 13px;
-                        color: #ffffff;
+                        font-size: 12.5px;
+                        color: #0f172a;
                         width: 100%;
                         font-family: inherit;
                     }
-                    .ms-search-pill input::placeholder { color: rgba(255,255,255,0.55); }
-                    .ms-search-pill span.icon { position: absolute; left: 10px; color: rgba(255,255,255,0.65); font-size: 13px; }
+                    .ms-search-pill input::placeholder { color: #94a3b8; }
+                    .ms-search-pill span.icon { position: absolute; left: 8px; color: #94a3b8; font-size: 12px; }
 
-                    .ms-filter-tabs { display: flex; gap: 5px; flex-wrap: wrap; }
+                    .ms-filter-tabs { display: flex; gap: 4px; }
                     .ms-filter-chip {
-                        padding: 4px 10px;
-                        border-radius: 999px;
+                        flex: 1;
+                        padding: 4px 6px;
+                        border-radius: 6px;
                         font-size: 11px;
                         font-weight: 700;
-                        border: 1px solid rgba(255,255,255,0.2);
-                        background: rgba(255,255,255,0.10);
-                        color: rgba(255,255,255,0.75);
+                        border: 1px solid transparent;
+                        background: #f8fafc;
+                        color: #64748b;
                         cursor: pointer;
+                        text-align: center;
+                        white-space: nowrap;
                         transition: all 0.15s;
                     }
-                    .ms-filter-chip.active { background: #ffffff; color: #2563eb; border-color: #ffffff; }
-                    .ms-filter-chip:hover:not(.active) { background: rgba(255,255,255,0.2); color: #fff; }
+                    .ms-filter-chip.active { background: #e5efff; color: #0068ff; border-color: #bfdbfe; }
+                    .ms-filter-chip:hover:not(.active) { background: #f1f5f9; color: #1e293b; }
 
                     .ms-conv-scroll {
                         flex: 1;
                         overflow-y: auto;
-                        padding: 6px 8px;
+                        padding: 4px 4px;
                         display: flex;
                         flex-direction: column;
                         gap: 2px;
+                        background: #ffffff;
                     }
                     .ms-conv-scroll::-webkit-scrollbar { width: 4px; }
-                    .ms-conv-scroll::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.2); border-radius: 4px; }
+                    .ms-conv-scroll::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 4px; }
 
                     .ms-conv-item {
                         display: flex;
                         align-items: center;
                         gap: 10px;
                         padding: 9px 10px;
-                        border-radius: 12px;
+                        border-radius: 8px;
                         cursor: pointer;
                         transition: background 0.15s;
                         position: relative;
-                        border: 1px solid transparent;
+                        border-left: 3px solid transparent;
                     }
-                    .ms-conv-item:hover { background: rgba(255,255,255,0.12); }
-                    .ms-conv-item.active { background: rgba(255,255,255,0.18); border-color: rgba(255,255,255,0.25); }
-                    .ms-item-avatar-wrap { position: relative; width: 44px; height: 44px; flex-shrink: 0; }
+                    .ms-conv-item:hover { background: #f8fafc; }
+                    .ms-conv-item.active { background: #e5efff; border-left-color: #0068ff; }
+                    .ms-item-avatar-wrap { position: relative; width: 42px; height: 42px; flex-shrink: 0; }
                     .ms-item-avatar {
-                        width: 44px; height: 44px;
+                        width: 42px; height: 42px;
                         border-radius: 50%;
                         display: grid; place-items: center;
-                        font-size: 15px; font-weight: 900; color: #ffffff;
-                        box-shadow: 0 2px 8px rgba(0,0,0,0.18);
-                        border: 2px solid rgba(255,255,255,0.3);
+                        font-size: 14px; font-weight: 800; color: #ffffff;
                     }
                     .ms-online-badge {
                         position: absolute; bottom: 1px; right: 1px;
-                        width: 11px; height: 11px; border-radius: 50%;
-                        background: #34d399; border: 2px solid #2563eb;
+                        width: 10px; height: 10px; border-radius: 50%;
+                        background: #10b981; border: 2px solid #ffffff;
                     }
                     .ms-item-info { flex: 1; min-width: 0; }
                     .ms-item-name {
-                        font-size: 13.5px; font-weight: 700; color: #ffffff;
+                        font-size: 13px; font-weight: 700; color: #0f172a;
                         margin-bottom: 2px; white-space: nowrap;
                         overflow: hidden; text-overflow: ellipsis;
                     }
                     .ms-item-snippet {
-                        font-size: 12px; color: rgba(255,255,255,0.65);
+                        font-size: 11.5px; color: #64748b;
                         white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
                         display: flex; align-items: center; gap: 3px;
                     }
-                    .ms-conv-item.is-unread .ms-item-name { color: #fde68a; }
-                    .ms-conv-item.is-unread .ms-item-snippet { color: rgba(255,255,255,0.85); font-weight: 700; }
+                    .ms-conv-item.is-unread .ms-item-name { font-weight: 800; color: #0f172a; }
+                    .ms-conv-item.is-unread .ms-item-snippet { color: #0f172a; font-weight: 600; }
                     .ms-unread-dot {
                         width: 8px; height: 8px; border-radius: 50%;
-                        background: #fbbf24; flex-shrink: 0; margin-left: 4px;
+                        background: #ef4444; flex-shrink: 0; margin-left: 4px;
                     }
 
-                    /* ===== CỘT 2: KHUNG CHAT CHÍNH ===== */
+                    /* ===== CỘT 2: KHUNG CHAT CHÍNH (ZALO STREAM) ===== */
                     .ms-chat-main {
                         display: flex; flex-direction: column;
-                        background: #ffffff; min-width: 0;
-                        border-right: 2px solid #e0e7ff;
+                        background: #f4f5f7; min-width: 0;
+                        border-right: 1px solid #e5e7eb;
                     }
                     .ms-chat-header {
-                        height: 60px; padding: 0 16px;
-                        background: linear-gradient(90deg,#f0f4ff 0%,#e8f0ff 100%);
-                        border-bottom: 2px solid #dbeafe;
+                        height: 56px; padding: 0 16px;
+                        background: #ffffff;
+                        border-bottom: 1px solid #e5e7eb;
                         display: flex; align-items: center;
                         justify-content: space-between;
+                        flex-shrink: 0;
                     }
                     .ms-header-user { display: flex; align-items: center; gap: 10px; min-width: 0; }
                     .ms-header-avatar {
-                        width: 38px; height: 38px; border-radius: 50%;
+                        width: 36px; height: 36px; border-radius: 50%;
                         display: grid; place-items: center;
-                        font-size: 14px; font-weight: 900; color: #fff; flex-shrink: 0;
-                        box-shadow: 0 2px 8px rgba(37,99,235,0.25);
+                        font-size: 13px; font-weight: 800; color: #fff; flex-shrink: 0;
                     }
                     .ms-header-user-info h3 {
-                        font-size: 15px; font-weight: 800; color: #1e3a8a;
+                        font-size: 14px; font-weight: 800; color: #0f172a;
                         margin: 0; line-height: 1.2;
                         white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
                     }
                     .ms-header-user-info small {
-                        font-size: 11.5px; color: #6b7280;
-                        display: flex; align-items: center; gap: 5px;
+                        font-size: 11px; color: #64748b;
+                        display: flex; align-items: center; gap: 4px;
                     }
                     .ms-header-tools { display: flex; align-items: center; gap: 6px; flex-shrink: 0; }
                     .ms-tool-btn {
-                        width: 34px; height: 34px; border-radius: 50%;
-                        background: #dbeafe; color: #2563eb;
+                        width: 32px; height: 32px; border-radius: 6px;
+                        background: #f1f5f9; color: #475569;
                         border: none; display: grid; place-items: center;
-                        font-size: 15px; cursor: pointer;
+                        font-size: 14px; cursor: pointer;
                         text-decoration: none;
-                        transition: background 0.15s, transform 0.1s;
+                        transition: background 0.15s, color 0.15s;
                     }
-                    .ms-tool-btn:hover { background: #bfdbfe; transform: scale(1.08); }
+                    .ms-tool-btn:hover { background: #e2e8f0; color: #0f172a; }
                     .ms-tool-btn.btn-call { background: #f3e8ff; color: #7c3aed; }
-                    .ms-tool-btn.btn-zalo { background: #e0f2fe; color: #0284c7; }
-                    .ms-tool-btn.btn-info.active { background: #dbeafe; color: #2563eb; }
+                    .ms-tool-btn.btn-call:hover { background: #e9d5ff; }
+                    .ms-tool-btn.btn-zalo { background: #e0f2fe; color: #0068ff; }
+                    .ms-tool-btn.btn-zalo:hover { background: #bae6fd; }
+                    .ms-tool-btn.btn-info.active { background: #e5efff; color: #0068ff; }
 
                     .ms-stream-body {
                         flex: 1; overflow-y: auto;
-                        padding: 16px 20px;
-                        background: linear-gradient(180deg,#f8faff 0%,#ffffff 100%);
-                        display: flex; flex-direction: column; gap: 12px;
+                        padding: 14px 18px;
+                        background: #f4f5f7;
+                        display: flex; flex-direction: column; gap: 8px;
                     }
-                    .ms-stream-body::-webkit-scrollbar { width: 5px; }
-                    .ms-stream-body::-webkit-scrollbar-thumb { background: #dbeafe; border-radius: 5px; }
+                    .ms-stream-body::-webkit-scrollbar { width: 4px; }
+                    .ms-stream-body::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 4px; }
 
                     .ms-date-divider { text-align: center; margin: 4px 0; }
                     .ms-date-divider span {
-                        font-size: 11.5px; color: #6b7280; font-weight: 600;
-                        background: #f0f4ff; padding: 3px 12px;
-                        border-radius: 999px; border: 1px solid #e0e7ff;
+                        font-size: 11px; color: #64748b; font-weight: 600;
+                        background: rgba(0,0,0,0.05); padding: 2px 10px;
+                        border-radius: 10px;
                     }
 
                     .ms-message-row {
-                        display: flex; align-items: flex-end; gap: 7px;
-                        max-width: 80%;
+                        display: flex; align-items: flex-end; gap: 6px;
+                        max-width: 78%;
                     }
                     .ms-message-row.incoming { align-self: flex-start; }
                     .ms-message-row.outgoing { align-self: flex-end; flex-direction: row-reverse; }
                     .ms-mini-avatar {
-                        width: 28px; height: 28px; border-radius: 50%;
+                        width: 26px; height: 26px; border-radius: 50%;
                         display: grid; place-items: center;
-                        font-size: 10px; font-weight: 900; color: #ffffff;
+                        font-size: 10px; font-weight: 800; color: #ffffff;
                         margin-bottom: 2px; flex-shrink: 0;
                     }
                     .ms-bubble-text {
-                        padding: 9px 14px; font-size: 14px;
-                        line-height: 1.45; border-radius: 16px; word-break: break-word;
+                        padding: 8px 12px; font-size: 13.5px;
+                        line-height: 1.4; border-radius: 12px; word-break: break-word;
                     }
                     .ms-message-row.incoming .ms-bubble-text {
-                        background: #f0f4ff;
-                        color: #1e293b;
-                        border-bottom-left-radius: 4px;
-                        border: 1px solid #e0e7ff;
+                        background: #ffffff;
+                        color: #0f172a;
+                        border-bottom-left-radius: 2px;
+                        border: 1px solid #e2e8f0;
+                        box-shadow: 0 1px 2px rgba(0,0,0,0.04);
                     }
                     .ms-message-row.outgoing .ms-bubble-text {
-                        background: linear-gradient(135deg,#2563eb,#1d4ed8);
-                        color: #ffffff;
-                        border-bottom-right-radius: 4px;
-                        box-shadow: 0 2px 8px rgba(37,99,235,0.3);
+                        background: #e5efff;
+                        color: #002d72;
+                        border-bottom-right-radius: 2px;
+                        border: 1px solid #bfdbfe;
+                        box-shadow: 0 1px 2px rgba(0,0,0,0.04);
                     }
                     .ms-bubble-meta {
-                        font-size: 10.5px; color: #9ca3af;
-                        margin-top: 2px; padding: 0 4px;
+                        font-size: 10.5px; color: #94a3b8;
+                        margin-top: 2px; padding: 0 2px;
                     }
                     .ms-message-row.outgoing .ms-bubble-meta {
-                        text-align: right; color: #60a5fa; font-weight: 600;
+                        text-align: right; color: #0068ff; font-weight: 600;
                     }
                     .ms-bubble-img {
                         max-width: 220px; max-height: 180px;
-                        border-radius: 12px; object-fit: cover;
-                        border: 2px solid #e0e7ff; margin-top: 4px;
+                        border-radius: 8px; object-fit: cover;
+                        border: 1px solid #e2e8f0; margin-top: 4px;
                         cursor: pointer;
-                    }
-
-                    .ms-sync-badge {
-                        background: #f0fdf4; border: 1px solid #bbf7d0;
-                        color: #166534; border-radius: 10px;
-                        padding: 6px 12px; font-size: 12px;
-                        display: flex; align-items: center; gap: 6px;
-                        margin: 2px 0; align-self: center;
                     }
 
                     /* Emoji bar */
                     .ms-quick-emoji-bar {
-                        display: flex; gap: 8px; padding: 5px 14px 2px;
-                        align-items: center; background: #f8faff;
-                        border-top: 1px solid #e0e7ff;
+                        display: flex; gap: 8px; padding: 4px 14px 2px;
+                        align-items: center; background: #ffffff;
+                        border-top: 1px solid #f1f5f9;
+                        flex-shrink: 0;
                     }
                     .ms-quick-emoji-bar .emoji-label {
-                        font-size: 10.5px; font-weight: 700; color: #9ca3af;
+                        font-size: 10px; font-weight: 700; color: #94a3b8;
                         text-transform: uppercase; letter-spacing: 0.4px;
                     }
                     .ms-emoji-item {
-                        font-size: 16px; cursor: pointer;
-                        transition: transform 0.15s;
-                        line-height: 1;
+                        font-size: 15px; cursor: pointer;
+                        transition: transform 0.15s; line-height: 1;
                     }
                     .ms-emoji-item:hover { transform: scale(1.25); }
 
                     /* Composer */
                     .ms-bottom-composer {
                         padding: 8px 12px;
-                        border-top: 2px solid #e0e7ff;
+                        border-top: 1px solid #e2e8f0;
                         display: flex; align-items: center; gap: 8px;
                         background: #ffffff;
+                        flex-shrink: 0;
                     }
                     .ms-composer-icon-btn {
                         width: 32px; height: 32px;
-                        border-radius: 50%; border: none;
-                        background: #eff6ff; color: #3b82f6;
+                        border-radius: 6px; border: none;
+                        background: #f1f5f9; color: #475569;
                         font-size: 15px; cursor: pointer;
                         display: grid; place-items: center;
-                        transition: background 0.15s, transform 0.1s;
+                        transition: background 0.15s;
                         flex-shrink: 0;
                     }
-                    .ms-composer-icon-btn:hover { background: #dbeafe; transform: scale(1.1); }
-                    .ms-composer-icon-btn.upload-btn { background: #fef3c7; color: #d97706; }
-                    .ms-composer-icon-btn.upload-btn:hover { background: #fde68a; }
+                    .ms-composer-icon-btn:hover { background: #e2e8f0; color: #0f172a; }
 
                     .ms-input-pill-wrap {
-                        flex: 1; background: #f0f4ff;
-                        border: 1.5px solid #dbeafe;
-                        border-radius: 999px; padding: 7px 14px;
+                        flex: 1; background: #f1f5f9;
+                        border: 1px solid #e2e8f0;
+                        border-radius: 20px; padding: 6px 12px;
                         display: flex; align-items: center; gap: 6px;
                     }
                     .ms-input-pill-wrap:focus-within {
-                        border-color: #3b82f6;
+                        border-color: #0068ff;
                         background: #ffffff;
                     }
                     .ms-input-pill-wrap input {
                         background: transparent; border: none; outline: none;
-                        font-size: 14px; color: #1e293b; width: 100%;
+                        font-size: 13.5px; color: #0f172a; width: 100%;
                         font-family: inherit;
                     }
                     .ms-input-pill-wrap input::placeholder { color: #94a3b8; }
                     .ms-emoji-btn {
                         border: none; background: transparent;
-                        font-size: 16px; cursor: pointer; padding: 0;
+                        font-size: 15px; cursor: pointer; padding: 0;
                         display: grid; place-items: center;
                         transition: transform 0.15s;
                     }
                     .ms-emoji-btn:hover { transform: scale(1.2); }
                     .ms-send-btn {
-                        width: 36px; height: 36px; border-radius: 50%;
+                        width: 32px; height: 32px; border-radius: 50%;
                         border: none;
-                        background: linear-gradient(135deg,#2563eb,#1d4ed8);
-                        color: #ffffff; font-size: 16px;
+                        background: #0068ff;
+                        color: #ffffff; font-size: 14px;
                         cursor: pointer; display: grid; place-items: center;
-                        box-shadow: 0 2px 8px rgba(37,99,235,0.35);
-                        transition: transform 0.15s, box-shadow 0.15s;
+                        box-shadow: 0 2px 6px rgba(0,104,255,0.3);
+                        transition: transform 0.15s, background 0.15s;
                         flex-shrink: 0;
                     }
-                    .ms-send-btn:hover { transform: scale(1.1); box-shadow: 0 4px 14px rgba(37,99,235,0.45); }
+                    .ms-send-btn:hover { background: #0052cc; transform: scale(1.05); }
 
-                    /* ===== CỘT 3: THÔNG TIN & THAO TÁC ===== */
+                    /* ===== CỘT 3: THÔNG TIN & THAO TÁC (GỌN GÀNG, KHÔNG TRÀN) ===== */
                     .ms-info-drawer {
-                        background: linear-gradient(180deg,#fafbff 0%,#f0f4ff 100%);
-                        border-left: 2px solid #e0e7ff;
-                        overflow-y: auto; padding: 14px 12px;
-                        display: flex; flex-direction: column; gap: 14px;
+                        background: #ffffff;
+                        border-left: 1px solid #e5e7eb;
+                        overflow-y: auto; padding: 12px 12px;
+                        display: flex; flex-direction: column; gap: 10px;
                         min-width: 0;
                     }
-                    .ms-info-drawer::-webkit-scrollbar { width: 4px; }
-                    .ms-info-drawer::-webkit-scrollbar-thumb { background: #dbeafe; border-radius: 4px; }
+                    .ms-info-drawer::-webkit-scrollbar { width: 3px; }
+                    .ms-info-drawer::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 3px; }
 
                     .drawer-profile-card {
-                        text-align: center; padding-bottom: 12px;
-                        border-bottom: 2px solid #dbeafe;
+                        text-align: center; padding-bottom: 8px;
+                        border-bottom: 1px solid #f1f5f9;
                     }
                     .drawer-avatar {
-                        width: 62px; height: 62px; border-radius: 50%;
-                        margin: 0 auto 8px; display: grid; place-items: center;
-                        font-size: 22px; font-weight: 900; color: #fff;
-                        box-shadow: 0 4px 16px rgba(37,99,235,0.25);
-                        border: 3px solid #ffffff;
+                        width: 46px; height: 46px; border-radius: 50%;
+                        margin: 0 auto 6px; display: grid; place-items: center;
+                        font-size: 16px; font-weight: 800; color: #fff;
                     }
                     .drawer-name {
-                        font-size: 15px; font-weight: 800; color: #1e3a8a;
-                        margin: 0 0 4px;
+                        font-size: 13.5px; font-weight: 800; color: #0f172a;
+                        margin: 0 0 2px;
                     }
                     .drawer-role-badge {
-                        display: inline-block; padding: 3px 10px;
-                        border-radius: 999px; font-size: 11px; font-weight: 700;
-                        background: #dbeafe; color: #1d4ed8;
+                        display: inline-block; padding: 2px 8px;
+                        border-radius: 999px; font-size: 10.5px; font-weight: 700;
+                        background: #e5efff; color: #0068ff;
                     }
 
                     /* Section title */
                     .drawer-section-title {
-                        font-size: 10.5px; font-weight: 800; color: #6b7280;
-                        text-transform: uppercase; letter-spacing: 0.5px;
-                        margin-bottom: 8px; display: flex; align-items: center; gap: 5px;
+                        font-size: 10px; font-weight: 800; color: #94a3b8;
+                        text-transform: uppercase; letter-spacing: 0.4px;
+                        margin-bottom: 5px; display: flex; align-items: center; gap: 4px;
                     }
 
                     /* Action buttons */
                     .drawer-action-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; }
                     .drawer-btn {
-                        padding: 8px 10px; border-radius: 10px;
-                        font-size: 12px; font-weight: 700; border: none;
+                        padding: 7px 8px; border-radius: 8px;
+                        font-size: 11.5px; font-weight: 700; border: none;
                         display: inline-flex; align-items: center;
-                        justify-content: center; gap: 5px;
+                        justify-content: center; gap: 4px;
                         cursor: pointer; text-decoration: none;
-                        transition: transform 0.15s, box-shadow 0.15s;
+                        transition: opacity 0.15s;
                     }
-                    .drawer-btn:hover { transform: translateY(-1px); }
+                    .drawer-btn:hover { opacity: 0.9; }
                     .drawer-btn-tel {
-                        background: linear-gradient(135deg,#7c3aed,#6d28d9);
-                        color: #fff; box-shadow: 0 2px 8px rgba(124,58,237,0.25);
+                        background: #7c3aed; color: #fff;
                     }
                     .drawer-btn-zalo {
-                        background: linear-gradient(135deg,#0284c7,#0369a1);
-                        color: #fff; box-shadow: 0 2px 8px rgba(2,132,199,0.25);
-                    }
-                    .drawer-btn-tele {
-                        grid-column: 1/-1;
-                        background: #dbeafe; color: #1d4ed8;
-                        border: 1.5px solid #bfdbfe;
+                        background: #0068ff; color: #fff;
                     }
 
                     /* Info list */
-                    .drawer-info-list { display: flex; flex-direction: column; gap: 6px; font-size: 12.5px; }
+                    .drawer-info-list { display: flex; flex-direction: column; gap: 4px; font-size: 11.5px; }
                     .drawer-info-row {
                         display: flex; justify-content: space-between;
-                        align-items: center; padding: 5px 8px;
-                        background: #ffffff; border-radius: 8px;
-                        border: 1px solid #e0e7ff;
+                        align-items: center; padding: 4px 6px;
+                        background: #f8fafc; border-radius: 6px;
+                        border: 1px solid #f1f5f9;
                     }
-                    .drawer-info-row .label { color: #6b7280; font-weight: 600; display: flex; align-items: center; gap: 4px; }
-                    .drawer-info-row .val { color: #1e3a8a; font-weight: 700; text-align: right; font-size: 12px; }
+                    .drawer-info-row .label { color: #64748b; font-weight: 600; display: flex; align-items: center; gap: 4px; }
+                    .drawer-info-row .val { color: #0f172a; font-weight: 700; text-align: right; font-size: 11.5px; }
 
                     /* Status chips */
-                    .drawer-status-chips { display: flex; gap: 5px; flex-wrap: wrap; }
+                    .drawer-status-chips { display: flex; gap: 4px; }
                     .drawer-status-chip {
-                        padding: 5px 10px; border-radius: 8px;
-                        font-size: 11px; font-weight: 800;
-                        cursor: pointer; border: 1.5px solid transparent;
-                        transition: all 0.15s; background: #f0f4ff; color: #6b7280;
+                        flex: 1; padding: 4px 4px; border-radius: 6px;
+                        font-size: 10.5px; font-weight: 700;
+                        cursor: pointer; border: 1px solid transparent;
+                        transition: all 0.15s; background: #f1f5f9; color: #64748b;
+                        text-align: center; white-space: nowrap;
                     }
                     .drawer-status-chip.active-pending { background: #fef2f2; color: #dc2626; border-color: #fca5a5; }
                     .drawer-status-chip.active-replied { background: #f0fdf4; color: #16a34a; border-color: #86efac; }
                     .drawer-status-chip.active-closed { background: #f8fafc; color: #475569; border-color: #cbd5e1; }
 
                     /* Canned replies */
-                    .drawer-canned-list { display: flex; flex-direction: column; gap: 5px; }
+                    .drawer-canned-list { display: flex; flex-direction: column; gap: 4px; }
                     .drawer-canned-item {
-                        padding: 7px 9px; border-radius: 8px;
-                        background: #ffffff; border: 1.5px solid #e0e7ff;
-                        font-size: 11.5px; color: #374151; line-height: 1.35;
+                        padding: 6px 8px; border-radius: 6px;
+                        background: #f8fafc; border: 1px solid #e2e8f0;
+                        font-size: 11px; color: #334155; line-height: 1.3;
                         cursor: pointer; transition: all 0.15s;
                     }
                     .drawer-canned-item:hover {
-                        background: #eff6ff; border-color: #93c5fd;
-                        color: #1d4ed8; transform: translateX(2px);
+                        background: #e5efff; border-color: #bfdbfe;
+                        color: #0068ff;
                     }
                 </style>
 
@@ -3849,7 +3838,7 @@
                             <div class="ms-head-title-row">
                                 <h2>💬 Hội Thoại</h2>
                                 <div class="ms-head-icons">
-                                    <button type="button" class="ms-circle-btn" onclick="openBotTeleModal()" title="Cài đặt Telegram">⚙️</button>
+                                    <button type="button" class="ms-circle-btn" onclick="openBotTeleModal()" title="Cài đặt thông báo Telegram">⚙️</button>
                                 </div>
                             </div>
 
@@ -3860,8 +3849,8 @@
 
                             <div class="ms-filter-tabs">
                                 <button type="button" class="ms-filter-chip active" id="chip-filter-all" onclick="filterByStatus('all', this)">Tất cả ({{ $supportMessages->count() }})</button>
-                                <button type="button" class="ms-filter-chip" id="chip-filter-pending" onclick="filterByStatus('pending', this)">🔴 Chờ ({{ $supportMessages->where('status', 'pending')->count() }})</button>
-                                <button type="button" class="ms-filter-chip" id="chip-filter-replied" onclick="filterByStatus('replied', this)">🟢 Xong</button>
+                                <button type="button" class="ms-filter-chip" id="chip-filter-pending" onclick="filterByStatus('pending', this)">Chờ ({{ $supportMessages->where('status', 'pending')->count() }})</button>
+                                <button type="button" class="ms-filter-chip" id="chip-filter-replied" onclick="filterByStatus('replied', this)">Xong</button>
                             </div>
                         </div>
 
@@ -3908,9 +3897,9 @@
                                         <div class="ms-item-name">{{ $msg->name }}</div>
                                         <div class="ms-item-snippet" id="snippet-{{ $msg->id }}">
                                             @if($msg->admin_reply)
-                                                <span><b>Bạn:</b> {{ mb_strimwidth($msg->admin_reply, 0, 22, '...') }}</span>
+                                                <span><b>Bạn:</b> {{ mb_strimwidth($msg->admin_reply, 0, 20, '...') }}</span>
                                             @else
-                                                <span>{{ mb_strimwidth($msg->message, 0, 28, '...') }}</span>
+                                                <span>{{ mb_strimwidth($msg->message, 0, 24, '...') }}</span>
                                             @endif
                                             <span>· {{ $timeDiff }}</span>
                                         </div>
@@ -3921,7 +3910,7 @@
                                     @endif
                                 </div>
                             @empty
-                                <div style="text-align:center; padding:40px 16px; color:rgba(255,255,255,0.55); font-size:13px;">
+                                <div style="text-align:center; padding:40px 16px; color:#94a3b8; font-size:13px;">
                                     Chưa có cuộc trò chuyện nào.
                                 </div>
                             @endforelse
@@ -3935,6 +3924,9 @@
                                 $activeMsg = $supportMessages->first();
                                 $activeGradient = $gradients[0];
                                 $activeInitials = mb_strtoupper(mb_substr($activeMsg->name, 0, 2, 'UTF-8'), 'UTF-8');
+                                $rawLines = explode("\n", $activeMsg->message);
+                                $activeLines = array_values(array_filter(array_map('trim', $rawLines)));
+                                if (empty($activeLines)) $activeLines = [$activeMsg->message];
                             @endphp
 
                             <!-- Header -->
@@ -3944,7 +3936,7 @@
                                     <div class="ms-header-user-info">
                                         <h3 id="chat-detail-name">{{ $activeMsg->name }}</h3>
                                         <small>
-                                            <span style="color:#16a34a; font-weight:700;">● Online</span>
+                                            <span style="color:#10b981; font-weight:700;">● Online</span>
                                             <span>·</span>
                                             <span id="chat-detail-phone">📞 {{ $activeMsg->phone ?: 'Chưa có SĐT' }}</span>
                                         </small>
@@ -3954,7 +3946,7 @@
                                 <div class="ms-header-tools">
                                     <a id="btn-call-phone" href="tel:{{ $activeMsg->phone }}" class="ms-tool-btn btn-call" title="Gọi điện thoại">📞</a>
                                     <a id="btn-zalo" href="https://zalo.me/{{ preg_replace('/[^0-9]/', '', $activeMsg->phone) }}" target="_blank" class="ms-tool-btn btn-zalo" title="Nhắn Zalo">💬</a>
-                                    <button type="button" class="ms-tool-btn btn-info active" id="btn-toggle-drawer" onclick="toggleChatDrawer()" title="Thông tin chi tiết">ℹ️</button>
+                                    <button type="button" class="ms-tool-btn btn-info active" id="btn-toggle-drawer" onclick="toggleChatDrawer()" title="Thông tin người gửi">ℹ️</button>
                                 </div>
                             </div>
 
@@ -3964,19 +3956,26 @@
                                     <span>{{ $activeMsg->created_at ? $activeMsg->created_at->format('H:i, d/m/Y') : 'Hôm nay' }}</span>
                                 </div>
 
-                                <div class="ms-message-row incoming">
-                                    <div id="chat-bubble-avatar" class="ms-mini-avatar" style="background: {{ $activeGradient }};">{{ $activeInitials }}</div>
-                                    <div>
-                                        <div class="ms-bubble-text" id="chat-detail-message">{{ $activeMsg->message }}</div>
-                                        <div class="ms-bubble-meta">📩 Từ Widget Live Chat</div>
-                                    </div>
+                                <!-- Dynamic Incoming Message Bubbles Container -->
+                                <div id="chat-incoming-bubbles-wrap" style="display:flex; flex-direction:column; gap:6px;">
+                                    @foreach($activeLines as $lIdx => $line)
+                                        <div class="ms-message-row incoming">
+                                            @if($lIdx === count($activeLines) - 1)
+                                                <div id="chat-bubble-avatar" class="ms-mini-avatar" style="background: {{ $activeGradient }};">{{ $activeInitials }}</div>
+                                            @else
+                                                <div style="width: 26px; height: 26px; flex-shrink: 0;"></div>
+                                            @endif
+                                            <div>
+                                                <div class="ms-bubble-text">{{ $line }}</div>
+                                                @if($lIdx === count($activeLines) - 1)
+                                                    <div class="ms-bubble-meta">📩 Khách gửi · Live Chat</div>
+                                                @endif
+                                            </div>
+                                        </div>
+                                    @endforeach
                                 </div>
 
-                                <div class="ms-sync-badge">
-                                    <span>⚡</span>
-                                    <span>Đã gửi thông báo đến Telegram Bot: <b>@trikun_cdphp_bot</b></span>
-                                </div>
-
+                                <!-- Outgoing Admin Reply -->
                                 <div id="chat-admin-reply-container" style="{{ $activeMsg->admin_reply ? 'display:flex;' : 'display:none;' }}" class="ms-message-row outgoing">
                                     <div>
                                         <div class="ms-bubble-text" id="chat-admin-reply-text">{{ $activeMsg->admin_reply }}</div>
@@ -4003,7 +4002,7 @@
 
                                 <div class="ms-input-pill-wrap">
                                     <input type="text" id="ms-admin-reply-input"
-                                           placeholder="Nhập tin nhắn..."
+                                           placeholder="Nhập tin nhắn phản hồi..."
                                            oninput="toggleSendOrThumbsUp(this.value)"
                                            onkeydown="if(event.key==='Enter') handleAdminSendReply()">
                                     <button type="button" class="ms-emoji-btn" onclick="insertEmojiToComposer('😊')" title="Emoji">😊</button>
@@ -4016,9 +4015,9 @@
                         @else
                             <div style="flex:1; display:grid; place-items:center; text-align:center; padding:40px; color:#6b7280;">
                                 <div>
-                                    <div style="font-size:52px; margin-bottom:12px;">💬</div>
-                                    <h3 style="font-size:17px; color:#1e3a8a; font-weight:800;">Chưa Có Tin Nhắn</h3>
-                                    <p style="font-size:13px; color:#6b7280; max-width:280px; margin:0 auto;">Khi giáo viên gửi câu hỏi từ widget website, tin nhắn sẽ hiển thị tức thì tại đây.</p>
+                                    <div style="font-size:48px; margin-bottom:12px;">💬</div>
+                                    <h3 style="font-size:16px; color:#0f172a; font-weight:800;">Chưa Có Tin Nhắn</h3>
+                                    <p style="font-size:12.5px; color:#64748b; max-width:280px; margin:0 auto;">Khi khách hoặc giáo viên gửi câu hỏi từ widget website, tin nhắn sẽ hiển thị tức thì tại đây.</p>
                                 </div>
                             </div>
                         @endif
@@ -4032,7 +4031,7 @@
                         <div class="drawer-profile-card">
                             <div class="drawer-avatar" id="drawer-avatar" style="background: {{ $activeGradient }};">{{ $activeInitials }}</div>
                             <h4 class="drawer-name" id="drawer-name">{{ $activeMsg->name }}</h4>
-                            <span class="drawer-role-badge">👩‍🏫 Giáo Viên</span>
+                            <span class="drawer-role-badge">👩‍🏫 Khách / Giáo Viên</span>
                         </div>
 
                         <!-- Quick Contact -->
@@ -4045,15 +4044,12 @@
                                 <a id="drawer-btn-zalo" href="https://zalo.me/{{ preg_replace('/[^0-9]/', '', $activeMsg->phone) }}" target="_blank" class="drawer-btn drawer-btn-zalo">
                                     💬 Mở Zalo
                                 </a>
-                                <a href="https://t.me/trikun_cdphp_bot" target="_blank" class="drawer-btn drawer-btn-tele">
-                                    🤖 Mở Telegram Bot
-                                </a>
                             </div>
                         </div>
 
                         <!-- Contact Info -->
                         <div>
-                            <div class="drawer-section-title">📋 Thông tin người gửi</div>
+                            <div class="drawer-section-title">📋 Thông tin liên hệ</div>
                             <div class="drawer-info-list">
                                 <div class="drawer-info-row">
                                     <span class="label">📱 SĐT</span>
@@ -4067,46 +4063,46 @@
                                     <span class="label">🕐 Gửi lúc</span>
                                     <span class="val" id="drawer-time">{{ $activeMsg->created_at ? $activeMsg->created_at->format('H:i d/m') : '' }}</span>
                                 </div>
-                                <div class="drawer-info-row">
-                                    <span class="label">🌐 Kênh</span>
-                                    <span class="val" id="drawer-source" style="color:#2563eb;">Live Chat</span>
-                                </div>
                             </div>
                         </div>
 
                         <!-- Status Chips -->
                         <div>
-                            <div class="drawer-section-title">🏷️ Trạng thái xử lý</div>
+                            <div class="drawer-section-title">🏷️ Trạng thái</div>
                             <div class="drawer-status-chips">
                                 <button type="button" class="drawer-status-chip {{ $activeMsg->status === 'pending' ? 'active-pending' : '' }}" id="chip-status-pending" onclick="updateCurrentChatStatus('pending')">
-                                    🔴 Chờ tư vấn
+                                    🔴 Chờ
                                 </button>
                                 <button type="button" class="drawer-status-chip {{ $activeMsg->status === 'replied' ? 'active-replied' : '' }}" id="chip-status-replied" onclick="updateCurrentChatStatus('replied')">
-                                    🟢 Đã phản hồi
+                                    🟢 Xong
                                 </button>
                                 <button type="button" class="drawer-status-chip {{ $activeMsg->status === 'closed' ? 'active-closed' : '' }}" id="chip-status-closed" onclick="updateCurrentChatStatus('closed')">
-                                    ⚪ Đóng tin
+                                    ⚪ Đóng
                                 </button>
                             </div>
                         </div>
 
                         <!-- Canned Replies -->
                         <div>
-                            <div class="drawer-section-title">⚡ Trả lời nhanh (1 chạm)</div>
+                            <div class="drawer-section-title">⚡ Trả lời nhanh</div>
                             <div class="drawer-canned-list">
-                                <div class="drawer-canned-item" onclick="insertCannedReply('Dạ em chào Thầy/Cô! Em là chuyên viên hỗ trợ IC3 Quest. Em xin gửi thông tin chi tiết gói bản quyền nhé ạ!')">
-                                    💬 Chào hỏi & Xác nhận yêu cầu
+                                <div class="drawer-canned-item" onclick="insertCannedReply('Dạ em chào Thầy/Cô! Em là chuyên viên hỗ trợ IC3 Quest. Em xin gửi thông tin chi tiết nhé ạ!')">
+                                    💬 Chào hỏi & Hỗ trợ
                                 </div>
-                                <div class="drawer-canned-item" onclick="insertCannedReply('Dạ hệ thống có Gói Tiêu Chuẩn (100 HS, 990.000đ/90 ngày) và Gói Trường Học (không giới hạn HS) đầy đủ cả 3 khối 3, 4, 5 ạ.')">
-                                    📦 Tư vấn gói bản quyền
+                                <div class="drawer-canned-item" onclick="insertCannedReply('Dạ hệ thống có Gói Tiêu Chuẩn (100 HS, 990.000đ/90 ngày) và Gói Trường Học đầy đủ cả 3 khối 3, 4, 5 ạ.')">
+                                    📦 Báo giá gói bản quyền
                                 </div>
-                                <div class="drawer-canned-item" onclick="insertCannedReply('Dạ em đã kết bạn qua Zalo rồi ạ. Thầy/Cô kiểm tra tin nhắn chờ để nhận hợp đồng & xuất hóa đơn nhé!')">
-                                    📱 Đã kết bạn Zalo & gửi báo giá
-                                </div>
-                                <div class="drawer-canned-item" onclick="insertCannedReply('Tài khoản bản quyền của Thầy/Cô đã kích hoạt thành công trên hệ thống rồi ạ. Chúc Thầy/Cô giảng dạy hiệu quả!')">
-                                    ✅ Kích hoạt tài khoản thành công
+                                <div class="drawer-canned-item" onclick="insertCannedReply('Dạ em đã kết bạn qua Zalo rồi ạ. Thầy/Cô kiểm tra tin nhắn chờ để nhận báo giá nhé!')">
+                                    📱 Đã kết bạn Zalo
                                 </div>
                             </div>
+                        </div>
+
+                        <!-- Delete Conversation Button -->
+                        <div style="margin-top: 4px; padding-top: 8px; border-top: 1px dashed #e2e8f0;">
+                            <button type="button" onclick="deleteCurrentChatConversation()" style="width:100%; padding:7px 10px; background:#fef2f2; border:1px solid #fecaca; color:#b91c1c; border-radius:8px; font-size:11.5px; font-weight:700; cursor:pointer; display:flex; align-items:center; justify-content:center; gap:6px; transition:all 0.15s;" onmouseover="this.style.background='#fee2e2'" onmouseout="this.style.background='#fef2f2'">
+                                <span>🗑️ Xóa Cuộc Trò Chuyện</span>
+                            </button>
                         </div>
 
                     </div>
@@ -5257,13 +5253,24 @@
         const timeStampEl = document.getElementById('chat-detail-time-stamp');
         if (timeStampEl) timeStampEl.innerHTML = `<span>${time || 'Hôm nay'}</span>`;
 
-        const msgEl = document.getElementById('chat-detail-message');
-        if (msgEl) msgEl.innerText = message;
-
-        const bubbleAvatar = document.getElementById('chat-bubble-avatar');
-        if (bubbleAvatar) {
-            bubbleAvatar.style.background = gradient;
-            bubbleAvatar.innerText = initials;
+        const bubblesWrap = document.getElementById('chat-incoming-bubbles-wrap');
+        if (bubblesWrap) {
+            const rawLines = (message || '').split('\n').map(l => l.trim()).filter(l => l.length > 0);
+            const lines = rawLines.length > 0 ? rawLines : [message || ''];
+            let html = '';
+            lines.forEach((line, idx) => {
+                const isLast = idx === lines.length - 1;
+                html += `
+                    <div class="ms-message-row incoming">
+                        ${isLast ? `<div class="ms-mini-avatar" style="background: ${gradient};">${initials}</div>` : `<div style="width:26px; height:26px; flex-shrink:0;"></div>`}
+                        <div>
+                            <div class="ms-bubble-text">${line}</div>
+                            ${isLast ? `<div class="ms-bubble-meta">📩 Khách gửi · Live Chat</div>` : ''}
+                        </div>
+                    </div>
+                `;
+            });
+            bubblesWrap.innerHTML = html;
         }
 
         // Outgoing Admin Reply row
@@ -5573,6 +5580,139 @@
     function focusChatComposer() {
         const input = document.getElementById('ms-admin-reply-input');
         if (input) input.focus();
+    }
+
+    // 🗑️ Xóa cuộc trò chuyện hiện tại
+    function deleteCurrentChatConversation() {
+        if (!currentChatMsgId) return;
+        if (!confirm('Bạn có chắc chắn muốn xóa cuộc trò chuyện này không? Thao tác không thể hoàn tác.')) return;
+
+        const csrfToken = document.querySelector('meta[name="csrf-token"]')?.content || document.querySelector('input[name="_token"]')?.value || '';
+        fetch(`/quan-tri/tin-nhan/${currentChatMsgId}`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/x-www-form-urlencoded',
+                'X-Requested-With': 'XMLHttpRequest'
+            },
+            body: `_token=${encodeURIComponent(csrfToken)}&_method=DELETE`
+        })
+        .then(res => res.json())
+        .then(data => {
+            showAdminToast('✓ ' + (data.message || 'Đã xóa cuộc trò chuyện!'), 'success');
+            const card = document.querySelector(`.ms-conv-item[data-id="${currentChatMsgId}"]`);
+            if (card) card.remove();
+
+            const nextCard = document.querySelector('.ms-conv-item');
+            if (nextCard) {
+                selectChatConversation(nextCard);
+            } else {
+                location.reload();
+            }
+        })
+        .catch(err => {
+            alert('Có lỗi xảy ra khi xóa cuộc trò chuyện!');
+        });
+    }
+
+    // ⚡ REAL-TIME POLLING CHO ADMIN CHAT MESSENGER
+    let adminChatPollingTimer = null;
+    let lastPolledMsgId = parseInt('{{ $supportMessages->isNotEmpty() ? $supportMessages->max("id") : 0 }}') || 0;
+
+    function pollAdminChat() {
+        fetch(`/quan-tri/tin-nhan/realtime-poll?last_id=${lastPolledMsgId}&active_id=${currentChatMsgId || 0}`)
+            .then(res => res.json())
+            .then(data => {
+                if (!data.ok) return;
+
+                if (typeof updateGlobalSidebarBadges === 'function') {
+                    updateGlobalSidebarBadges(data);
+                }
+
+                // Nếu có tin nhắn mới
+                if (data.new_messages && data.new_messages.length > 0) {
+                    playAdminChime();
+                    showAdminToast(`🔔 Có ${data.new_messages.length} tin nhắn tư vấn mới!`, 'info');
+
+                    data.new_messages.forEach(msg => {
+                        if (msg.id > lastPolledMsgId) lastPolledMsgId = msg.id;
+
+                        let existingCard = document.querySelector(`.ms-conv-item[data-id="${msg.id}"]`);
+                        if (!existingCard) {
+                            const list = document.getElementById('chat-conversation-list');
+                            if (list) {
+                                const initials = (msg.name || 'KH').substring(0, 2).toUpperCase();
+                                const cardHtml = `
+                                    <div class="ms-conv-item is-unread"
+                                         data-id="${msg.id}"
+                                         data-name="${msg.name}"
+                                         data-phone="${msg.phone || ''}"
+                                         data-email="${msg.email || ''}"
+                                         data-message="${msg.message}"
+                                         data-admin-reply=""
+                                         data-replied-at=""
+                                         data-status="${msg.status}"
+                                         data-initials="${initials}"
+                                         data-gradient="linear-gradient(135deg, #0084ff, #00c6ff)"
+                                         data-time="${msg.created_at || 'Vừa xong'}"
+                                         onclick="selectChatConversation(this)">
+                                        <div class="ms-item-avatar-wrap">
+                                            <div class="ms-item-avatar" style="background: linear-gradient(135deg, #0084ff, #00c6ff);">${initials}</div>
+                                            <span class="ms-online-badge"></span>
+                                        </div>
+                                        <div class="ms-item-info">
+                                            <div class="ms-item-name">${msg.name}</div>
+                                            <div class="ms-item-snippet" id="snippet-${msg.id}">
+                                                <span>${(msg.message || '').substring(0, 28)}...</span>
+                                                <span>· Vừa xong</span>
+                                            </div>
+                                        </div>
+                                        <span class="ms-unread-dot" id="unread-dot-${msg.id}" title="Chưa phản hồi"></span>
+                                    </div>
+                                `;
+                                list.insertAdjacentHTML('afterbegin', cardHtml);
+                            }
+                        }
+                    });
+                }
+
+                // Nếu cuộc trò chuyện đang mở có tin nhắn mới hoặc có cập nhật nội dung
+                if (data.active_message && data.active_message.id == currentChatMsgId) {
+                    const activeCard = document.querySelector(`.ms-conv-item[data-id="${currentChatMsgId}"]`);
+                    if (activeCard) {
+                        const oldMsg = activeCard.getAttribute('data-message') || '';
+                        if (oldMsg !== data.active_message.message) {
+                            activeCard.setAttribute('data-message', data.active_message.message);
+                            selectChatConversation(activeCard);
+                            playAdminChime();
+                        }
+                        if (activeCard.getAttribute('data-status') !== data.active_message.status) {
+                            activeCard.setAttribute('data-status', data.active_message.status);
+                        }
+                    }
+                }
+            })
+            .catch(err => {});
+    }
+
+    function playAdminChime() {
+        try {
+            const ctx = new (window.AudioContext || window.webkitAudioContext)();
+            const osc = ctx.createOscillator();
+            const gain = ctx.createGain();
+            osc.type = 'sine';
+            osc.frequency.setValueAtTime(587.33, ctx.currentTime);
+            osc.frequency.setValueAtTime(880, ctx.currentTime + 0.1);
+            gain.gain.setValueAtTime(0.2, ctx.currentTime);
+            gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.4);
+            osc.connect(gain);
+            gain.connect(ctx.destination);
+            osc.start(ctx.currentTime);
+            osc.stop(ctx.currentTime + 0.4);
+        } catch(e) {}
+    }
+
+    if (!adminChatPollingTimer) {
+        adminChatPollingTimer = setInterval(pollAdminChat, 3000);
     }
 
     // =========================================================================
