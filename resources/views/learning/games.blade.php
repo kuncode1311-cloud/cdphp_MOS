@@ -47,7 +47,8 @@
     </div>
 
     <!-- Thẻ Game Nổi Bật -->
-    <a class="featured-game arcade-hero" id="game-main-link" href="{{ $gameTimeSeconds > 0 ? asset('games/bao-ve-em-be.html') : 'javascript:void(0)' }}" onclick="{{ $gameTimeSeconds > 0 ? '' : 'handleNoTimeClick(event)' }}" style="margin-top: 20px; text-decoration: none;">
+    <a class="featured-game arcade-hero notranslate" translate="no" id="game-main-link" href="{{ $gameTimeSeconds > 0 ? asset('games/bao-ve-em-be.html') : 'javascript:void(0)' }}" onclick="{{ $gameTimeSeconds > 0 ? '' : 'handleNoTimeClick(event)' }}" style="margin-top: 20px; text-decoration: none;">
+
         <div class="game-media-col">
             <img src="{{ asset('images/ic3-quest-hero.png') }}" alt="Hiệp sĩ Song Kiếm">
             <div class="game-badge-pulse">

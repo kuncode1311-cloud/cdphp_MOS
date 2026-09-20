@@ -1,28 +1,35 @@
 <?php
 
-namespace Database\Seeders;
-
 use App\Models\Level;
 use App\Models\Package;
-use Illuminate\Database\Seeder;
+use App\Models\PackageOrder;
+use App\Models\User;
+use Illuminate\Database\Migrations\Migration;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Schema;
 
-class PackageSeeder extends Seeder
+return new class extends Migration
 {
     /**
-     * Khởi tạo các Gói dịch vụ mẫu ban đầu cho hệ thống IC3 Quest.
+     * Tự động nạp và cập nhật danh mục Gói dịch vụ bản quyền cùng đơn hàng cho Giáo viên trên Server (Railway/Production)
      */
-    public function run(): void
+    public function up(): void
     {
+        if (app()->runningUnitTests()) {
+            return;
+        }
+
+        // 1. Lấy thông tin các Khối lớp hiện có
         $level3 = Level::where('grade', 3)->first();
         $level4 = Level::where('grade', 4)->first();
         $level5 = Level::where('grade', 5)->first();
 
-        // 1. Gói Khởi Đầu (Starter)
-        $pkg1 = Package::updateOrCreate(
-            ['slug' => 'goi-khoi-dau-starter'],
+        // 2. Định nghĩa danh mục các Gói bản quyền giảng dạy IC3 GS6
+        $packagesData = [
             [
+                'slug' => 'goi-khoi-dau-starter',
                 'name' => 'Gói Khởi Đầu (Starter)',
-                'badge' => 'Trải nghiệm',
+                'badge' => 'Trải nghiệm 🚀',
                 'description' => 'Phù hợp cho giáo viên chủ nhiệm trải nghiệm ôn luyện cho một lớp học trong 1 tháng.',
                 'price' => 390000,
                 'original_price' => 590000,
@@ -37,16 +44,10 @@ class PackageSeeder extends Seeder
                 ],
                 'is_active' => true,
                 'sort_order' => 1,
-            ]
-        );
-        if ($level3) {
-            $pkg1->levels()->sync([$level3->id]);
-        }
-
-        // 2. Gói Lớp Học Tiêu Chuẩn (Standard - Phổ biến nhất)
-        $pkg2 = Package::updateOrCreate(
-            ['slug' => 'goi-tieu-chuan-standard'],
+                'levels' => array_filter([$level3?->id]),
+            ],
             [
+                'slug' => 'goi-tieu-chuan-standard',
                 'name' => 'Gói Tiêu Chuẩn (Standard)',
                 'badge' => 'Phổ biến nhất ⭐',
                 'description' => 'Giải pháp tối ưu cho giáo viên giảng dạy nhiều lớp trong một học kỳ hoàn chỉnh.',
@@ -65,17 +66,10 @@ class PackageSeeder extends Seeder
                 ],
                 'is_active' => true,
                 'sort_order' => 2,
-            ]
-        );
-        $levelsPkg2 = array_filter([$level3?->id, $level4?->id]);
-        if (! empty($levelsPkg2)) {
-            $pkg2->levels()->sync($levelsPkg2);
-        }
-
-        // 3. Gói Trường Học Toàn Diện (Pro School - Siêu tiết kiệm)
-        $pkg3 = Package::updateOrCreate(
-            ['slug' => 'goi-truong-hoc-toan-dien'],
+                'levels' => array_filter([$level3?->id, $level4?->id]),
+            ],
             [
+                'slug' => 'goi-truong-hoc-toan-dien',
                 'name' => 'Gói Trường Học Toàn Diện (Pro School)',
                 'badge' => 'Siêu tiết kiệm 🔥',
                 'description' => 'Gói cao cấp dành cho trường học, trung tâm tin học và giáo viên phụ trách toàn trường cả năm học.',
@@ -94,17 +88,10 @@ class PackageSeeder extends Seeder
                 ],
                 'is_active' => true,
                 'sort_order' => 3,
-            ]
-        );
-        $levelsPkg3 = array_filter([$level3?->id, $level4?->id, $level5?->id]);
-        if (! empty($levelsPkg3)) {
-            $pkg3->levels()->sync($levelsPkg3);
-        }
-
-        // 4. Gói Bản Quyền Toàn Năng VIP (Enterprise VIP)
-        $pkg4 = Package::updateOrCreate(
-            ['slug' => 'goi-toan-nang-vip-enterprise'],
+                'levels' => array_filter([$level3?->id, $level4?->id, $level5?->id]),
+            ],
             [
+                'slug' => 'goi-toan-nang-vip-enterprise',
                 'name' => 'Gói Bản Quyền Toàn Năng VIP (Enterprise)',
                 'badge' => 'VIP Toàn Năng 💎',
                 'description' => 'Giải pháp đặc quyền dài hạn 2 năm cho hệ thống giáo dục, trường liên cấp và đối tác chiến lược.',
@@ -122,11 +109,85 @@ class PackageSeeder extends Seeder
                 ],
                 'is_active' => true,
                 'sort_order' => 4,
-            ]
-        );
-        $levelsPkg4 = array_filter([$level3?->id, $level4?->id, $level5?->id]);
-        if (! empty($levelsPkg4)) {
-            $pkg4->levels()->sync($levelsPkg4);
+                'levels' => array_filter([$level3?->id, $level4?->id, $level5?->id]),
+            ],
+        ];
+
+        // 3. Cập nhật hoặc thêm mới từng gói vào CSDL
+        foreach ($packagesData as $pData) {
+            $levels = $pData['levels'] ?? [];
+            unset($pData['levels']);
+
+            $pkg = Package::updateOrCreate(
+                ['slug' => $pData['slug']],
+                $pData
+            );
+
+            if (! empty($levels)) {
+                $pkg->levels()->sync($levels);
+            }
+        }
+
+        // 4. Đồng bộ Đơn thuê gói bản quyền đang hoạt động cho các Giáo viên
+        $standardPkg = Package::where('slug', 'goi-tieu-chuan-standard')->first();
+        if ($standardPkg) {
+            $teachers = [
+                'teacher@ic3.test' => [
+                    'code' => 'MOS-202609-ML3A1',
+                    'grade' => 3,
+                ],
+                'teacher4@ic3.test' => [
+                    'code' => 'MOS-202609-TT4A1',
+                    'grade' => 4,
+                ],
+                'teacher5@ic3.test' => [
+                    'code' => 'MOS-202609-LH5A1',
+                    'grade' => 5,
+                ],
+            ];
+
+            foreach ($teachers as $email => $info) {
+                $teacher = User::where('email', $email)->first();
+                if ($teacher) {
+                    // Cập nhật User
+                    $teacher->update([
+                        'max_students' => 100,
+                        'expires_at' => '2027-08-31 23:59:59',
+                        'status' => 'active',
+                    ]);
+
+                    // Gán khối giảng dạy nếu chưa có
+                    $lvl = Level::where('grade', $info['grade'])->first();
+                    if ($lvl && ! $teacher->teacherLevels()->where('level_id', $lvl->id)->exists()) {
+                        $teacher->teacherLevels()->syncWithoutDetaching([$lvl->id]);
+                    }
+
+                    // Tạo hoặc kích hoạt đơn hàng
+                    PackageOrder::updateOrCreate(
+                        ['code' => $info['code']],
+                        [
+                            'user_id' => $teacher->id,
+                            'package_id' => $standardPkg->id,
+                            'package_name' => $standardPkg->name,
+                            'price' => $standardPkg->price,
+                            'duration_days' => 365,
+                            'max_students' => 100,
+                            'status' => PackageOrder::STATUS_ACTIVE,
+                            'payment_method' => 'payos',
+                            'activated_at' => now(),
+                            'notes' => 'Kích hoạt bản quyền giáo viên tự động trên hệ thống máy chủ.',
+                        ]
+                    );
+                }
+            }
         }
     }
-}
+
+    /**
+     * Reverse the migrations.
+     */
+    public function down(): void
+    {
+        // Giữ an toàn dữ liệu
+    }
+};
