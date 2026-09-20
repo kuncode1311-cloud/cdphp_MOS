@@ -26,15 +26,12 @@ Homestead.json
 Homestead.yaml
 Thumbs.db
 
-# Tài liệu báo cáo & Nghiên cứu nội bộ (Bảo mật)
+# Tài liệu báo cáo & Nghiên cứu nội bộ (Bảo mật file binary)
 *.docx
 *.pdf
-/BAO_CAO_*
-/Bao_cao_*
 /DocxReportGenerator.php
 /make_*_report.php
 /report_images/
-/docs/
 /tailieu/
 
 # Quy tắc & Kỹ năng AI Agent (Chỉ dùng nội bộ trên máy)
