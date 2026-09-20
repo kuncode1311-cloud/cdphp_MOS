@@ -5,16 +5,18 @@
 @section('content')
 <div class="adventure-world-wrapper">
     <div class="achievements-page-wrap">
-        
-        <!-- Header Capsule chuẩn phong cách IC3 Digital Adventure -->
-        <div class="mission-chooser-container">
-            <div class="choose-mission-capsule">
-                <span class="capsule-trophy-icon">🏆</span>
-                <span>BẢNG VÀNG THÀNH TÍCH & ĐUA TOP HIỆP SĨ</span>
-            </div>
-            <p class="mission-subtitle">
-                Chăm chỉ làm bài luyện thi IC3 để tích lũy <b>Sao thưởng</b>, thắp sáng <b>Huy hiệu</b> và đổi lấy <b>Vé Chơi Game VIP</b>!
-            </p>
+        @php
+            $getKidAvatar = function($id) {
+                $num = (($id ?? 1) % 8) + 1;
+                return asset("images/leaderboard/avatars/kid-{$num}.png");
+            };
+        @endphp
+
+        <!-- ===================================================================
+             👑 BẢNG VÀNG ĐẤU TRƯỜNG KỲ ẢO 3D (IC3 DIGITAL ADVENTURE LEADERBOARD)
+             =================================================================== -->
+        <div id="leaderboard-ajax-wrapper" class="leaderboard-ajax-section-wrapper" style="position: relative; min-height: 500px; margin-bottom: 24px;">
+            @include('learning.partials.leaderboard-content')
         </div>
 
         <!-- ===================================================================
@@ -33,7 +35,7 @@
                         <span id="header-reward-stars">{{ number_format($rewardStars) }}</span>
                         <span class="pod-unit">Sao</span>
                     </div>
-                    <small class="pod-hint">Dùng đổi vé chơi game tại Cửa Hàng</small>
+                    <small class="pod-hint">Dùng đổi vé chơi game tại Cửa Hàng bên dưới</small>
                 </div>
             </div>
 
@@ -68,7 +70,7 @@
                     <span class="pod-icon-emoji">🎯</span>
                 </div>
                 <div class="pod-content">
-                    <span class="pod-label">BÀI ĐẠT CHUẨN IC3 (≥ 700Đ)</span>
+                    <span class="pod-label">BÀI ĐẠT CHUẨN IC3 (≥ {{ $minPassScore ?? 700 }}Đ)</span>
                     <div class="pod-value value-green">
                         {{ $weeklyPassed }} <span class="pod-unit">/ {{ $totalWeekly }} bài</span>
                     </div>
@@ -145,121 +147,6 @@
         </div>
 
         <!-- ===================================================================
-             👑 BẢNG XẾP HẠNG HIỆP SĨ NHÍ — ĐUA TOP TOÀN KHỐI TUẦN NÀY
-             =================================================================== -->
-        <div class="game-container-card leaderboard-card-section" id="leaderboard-card-section">
-            <div class="section-top-header">
-                <div class="section-title-wrap">
-                    <div class="section-icon-badge badge-blue-crown">
-                        <span>👑</span>
-                    </div>
-                    <div>
-                        <h3 class="section-title">BẢNG VÀNG THI ĐUA — ĐUA TOP TUẦN NÀY</h3>
-                        <p class="section-subtitle">
-                            Bảng xếp hạng cập nhật điểm thi đua theo từng khối lớp
-                            @if(($resetPeriod ?? 'weekly') === 'monthly')
-                                (Chu kỳ Tháng — Reset vào 00:00 Ngày 01 hàng tháng)
-                            @elseif(($resetPeriod ?? 'weekly') === 'manual')
-                                (Chu kỳ thi đua mở bởi Ban Quản Trị)
-                            @else
-                                (Chu kỳ Tuần — Reset tự động vào 00:00 Thứ Hai hàng tuần)
-                            @endif
-                        </p>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Khung bao bọc nội dung Bảng vàng thi đua hỗ trợ AJAX Realtime -->
-            <div id="leaderboard-ajax-wrapper" style="position: relative; min-height: 280px;">
-                @include('learning.partials.leaderboard-content')
-            </div>
-        </div>
-
-        <!-- ===================================================================
-             🎖️ BỘ SƯU TẬP 6 HUY HIỆU HIỆP SĨ TUẦN NÀY (TROPHY CASE)
-             =================================================================== -->
-        <div class="game-container-card trophy-card-section">
-            <div class="section-top-header">
-                <div class="section-title-wrap">
-                    <div class="section-icon-badge badge-gold-medal">
-                        <span>🎖️</span>
-                    </div>
-                    <div>
-                        <h3 class="section-title">BỘ SƯU TẬP HUY HIỆU HIỆP SĨ TUẦN NÀY</h3>
-                        <p class="section-subtitle">Chinh phục thử thách tuần để mở khóa Huân chương danh dự và nhận thêm Sao thưởng!</p>
-                    </div>
-                </div>
-            </div>
-
-            <!-- 💡 Hướng dẫn & Ý nghĩa của Huy hiệu (Badge Guide Capsule) -->
-            <div class="badge-guide-capsule">
-                <div class="guide-icon-orb">💡</div>
-                <div class="guide-text-box">
-                    <b class="guide-title">Huy Hiệu Danh Dự Là Gì & Thưởng Như Thế Nào?</b>
-                    <p class="guide-desc">
-                        Mỗi tuần, hệ thống trao tặng <b>6 Huân chương thử thách</b> cho các hiệp sĩ nhí. 
-                        Mỗi khi mở khóa thành công 1 Huy hiệu, bé sẽ được <b>thưởng nóng từ +150 ⭐ đến +250 ⭐ Sao vào Ví</b> (dùng đổi vé chơi game thỏa thích), 
-                        đồng thời Huân chương sẽ được gắn sáng lấp lánh trên Hồ sơ cá nhân của bé! Bấm vào từng Huy hiệu để xem chi tiết nhé!
-                    </p>
-                </div>
-            </div>
-
-            <!-- Lưới 6 Thẻ Huy Hiệu 3D Kim Loại Đẳng Cấp -->
-            <div class="trophy-badges-grid">
-                @foreach($badges as $b)
-                    <div class="trophy-badge-card {{ $b['unlocked'] ? 'badge-card-unlocked' : 'badge-card-locked' }}"
-                         onclick="openBadgeModal('{{ $b['id'] }}')">
-                        
-                        <!-- Dải ruy-băng / Tag phân loại huy hiệu -->
-                        <div class="badge-type-pill {{ $b['unlocked'] ? 'type-pill-unlocked' : 'type-pill-locked' }}">
-                            {{ $b['badge_type'] }}
-                        </div>
-
-                        <!-- Vòng tròn Huân Chương 3D -->
-                        <div class="badge-orb-3d {{ $b['unlocked'] ? 'orb-3d-unlocked' : 'orb-3d-locked' }}">
-                            <span class="badge-emoji">{{ $b['icon'] }}</span>
-                            @if(!$b['unlocked'])
-                                <span class="badge-lock-tag" title="Chưa mở khóa">🔒</span>
-                            @else
-                                <span class="badge-check-tag" title="Đã đạt huân chương">✓</span>
-                            @endif
-                        </div>
-
-                        <!-- Tên & Thể lệ -->
-                        <b class="badge-item-title">{{ $b['badge_name'] }}</b>
-                        <small class="badge-item-rule">{{ $b['rule'] }}</small>
-
-                        <!-- Hộp thưởng Sao -->
-                        <div class="badge-reward-pill {{ $b['unlocked'] ? 'reward-pill-received' : 'reward-pill-pending' }}">
-                            @if($b['unlocked'])
-                                <span>✨ Đã nhận +{{ $b['reward_stars'] }} ⭐</span>
-                            @else
-                                <span>🎁 Thưởng +{{ $b['reward_stars'] }} ⭐</span>
-                            @endif
-                        </div>
-
-                        <!-- Thanh tiến độ mini -->
-                        <div class="badge-progress-box">
-                            <div class="badge-progress-track">
-                                <div class="badge-progress-fill {{ $b['unlocked'] ? 'fill-complete' : 'fill-pending' }}" style="width: {{ $b['percent'] }}%;"></div>
-                            </div>
-                            <span class="badge-progress-label">{{ $b['progress_text'] }}</span>
-                        </div>
-
-                        <!-- Nút bấm hành động / xem chi tiết -->
-                        <button type="button" class="btn-badge-trigger {{ $b['unlocked'] ? 'btn-trigger-unlocked' : 'btn-trigger-locked' }}">
-                            @if($b['unlocked'])
-                                <span>✨</span> Xem Huân Chương
-                            @else
-                                <span>🔍</span> Thể Lệ & Chinh Phục
-                            @endif
-                        </button>
-                    </div>
-                @endforeach
-            </div>
-        </div>
-
-        <!-- ===================================================================
              💡 BÍ KÍP CÀY SAO & LỐI TẮT LUYỆN TẬP
              =================================================================== -->
         <div class="adventure-cta-banner">
@@ -280,52 +167,73 @@
     </div>
 </div>
 
-<!-- ===================================================================
-     MODAL POPUP 3D CHI TIẾT HUY HIỆU DANH DỰ
-     =================================================================== -->
-<div id="badge-detail-modal" class="badge-modal-overlay" style="display: none;" onclick="if(event.target === this) closeBadgeModal()">
-    <div class="badge-modal-box">
-        <button type="button" class="modal-close-btn" onclick="closeBadgeModal()">✕</button>
 
-        <div class="modal-hero-orb" id="modal-badge-orb">
-            <span id="modal-badge-icon">🏆</span>
-        </div>
-
-        <div class="modal-header-info">
-            <span class="modal-badge-type" id="modal-badge-type">HOÀNG GIA</span>
-            <h3 class="modal-badge-title" id="modal-badge-title">Chiến Binh IC3</h3>
-            <p class="modal-badge-meaning" id="modal-badge-meaning">Vinh danh tinh thần học tập chuẩn quốc tế IC3.</p>
-        </div>
-
-        <div class="modal-stats-card">
-            <div class="modal-stat-row">
-                <span class="stat-row-label">🎯 Thể lệ thử thách:</span>
-                <b class="stat-row-val" id="modal-badge-rule">Đạt mốc chuẩn ≥ 700 điểm tuần này</b>
+    <!-- Modal Xem Tất Cả Bảng Vàng (Toàn Bộ Hiệp Sĩ Trong Khối) -->
+    <div class="modal fade" id="modalAllLeaderboard" tabindex="-1" aria-labelledby="modalAllLeaderboardLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered modal-lg modal-dialog-scrollable">
+            <div class="modal-content modal-leaderboard-theme">
+                <div class="modal-header border-0">
+                    <div class="d-flex align-items-center gap-2">
+                        <span style="font-size: 24px;">🏆</span>
+                        <h5 class="modal-title font-fredoka fw-bold text-white mb-0" id="modalAllLeaderboardLabel">
+                            BẢNG VÀNG THI ĐUA — {{ (string)$selectedGrade === 'all' ? 'TOÀN TRƯỜNG' : 'KHỐI ' . $selectedGrade }}
+                        </h5>
+                    </div>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Đóng"></button>
+                </div>
+                <div class="modal-body p-0">
+                    <div class="table-responsive">
+                        <table class="table table-dark table-hover align-middle mb-0 text-center" style="font-size: 13.5px;">
+                            <thead style="background: rgba(15, 23, 42, 0.8); color: #7dd3fc; text-transform: uppercase; font-size: 11.5px;">
+                                <tr>
+                                    <th style="width: 70px;">Hạng</th>
+                                    <th class="text-start" style="padding-left: 20px;">Hiệp sĩ</th>
+                                    <th>Lớp</th>
+                                    <th>Số bài làm</th>
+                                    <th>Điểm thi đua</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach($leaderboard as $item)
+                                    <tr class="{{ $item['is_me'] ? 'table-warning fw-bold text-dark' : '' }}">
+                                        <td>
+                                            @if($item['rank'] == 1)
+                                                <span class="badge bg-warning text-dark px-2 py-1 fs-6">🥇 #1</span>
+                                            @elseif($item['rank'] == 2)
+                                                <span class="badge bg-secondary text-white px-2 py-1 fs-6">🥈 #2</span>
+                                            @elseif($item['rank'] == 3)
+                                                <span class="badge bg-danger text-white px-2 py-1 fs-6">🥉 #3</span>
+                                            @else
+                                                <span class="text-muted fw-bold">#{{ $item['rank'] }}</span>
+                                            @endif
+                                        </td>
+                                        <td class="text-start" style="padding-left: 20px;">
+                                            <div class="d-flex align-items-center gap-2">
+                                                <img src="{{ $getKidAvatar($item['id']) }}" alt="{{ $item['name'] }}" style="width: 32px; height: 32px; border-radius: 50%; border: 1.5px solid #fff;">
+                                                <span>{{ $item['name'] }}</span>
+                                                @if($item['is_me'])
+                                                    <span class="badge bg-primary ms-1" style="font-size: 10px;">BẠN</span>
+                                                @endif
+                                            </div>
+                                        </td>
+                                        <td>{{ $item['classroom_name'] }}</td>
+                                        <td>{{ $item['tests_count'] }} bài</td>
+                                        <td class="text-warning fw-bold fs-6">
+                                            🪙 {{ number_format($item['weekly_score']) }} đ
+                                        </td>
+                                    </tr>
+                                @endforeach
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+                <div class="modal-footer border-0 justify-content-between" style="background: rgba(15, 23, 42, 0.9);">
+                    <small class="text-info">💡 Hoàn thành bài thi đạt chuẩn (≥ {{ $minPassScore ?? 700 }}đ) để cộng điểm vào Bảng Vàng</small>
+                    <button type="button" class="btn btn-secondary btn-sm px-4" data-bs-dismiss="modal">Đóng</button>
+                </div>
             </div>
-
-            <div class="modal-stat-row">
-                <span class="stat-row-label">⭐ Phần thưởng mở khóa:</span>
-                <b class="stat-row-val val-reward" id="modal-badge-reward">+200 Sao thưởng vào ví</b>
-            </div>
-
-            <div class="modal-stat-row" style="border-bottom: none; padding-bottom: 0;">
-                <span class="stat-row-label">📊 Tiến độ của bé:</span>
-                <b class="stat-row-val" id="modal-badge-progress">1 / 1 bài (Đã hoàn thành)</b>
-            </div>
-
-            <div class="modal-progress-track">
-                <div class="modal-progress-fill" id="modal-progress-fill" style="width: 100%;"></div>
-            </div>
-        </div>
-
-        <div class="modal-action-footer">
-            <a href="{{ route('programs') }}" id="modal-action-btn" class="btn-modal-action">
-                <span>🚀</span> Chinh Phục Ngay
-            </a>
-            <button type="button" class="btn-modal-close" onclick="closeBadgeModal()">Đóng</button>
         </div>
     </div>
-</div>
 
 <style>
     /* =========================================================================
@@ -333,7 +241,7 @@
        ========================================================================= */
     .adventure-world-wrapper {
         min-height: calc(100vh - 86px);
-        padding: 26px 18px 80px;
+        padding: 14px 14px 60px;
         background: url('/images/adventure-world-bg.jpg') center/cover no-repeat fixed;
         display: flex;
         flex-direction: column;
@@ -353,7 +261,7 @@
     }
 
     .achievements-page-wrap {
-        width: min(1140px, 100%);
+        width: min(1200px, 100%);
         margin: 0 auto;
     }
 
@@ -386,74 +294,108 @@
         text-shadow: 0 2px 4px rgba(0, 0, 0, 0.6);
     }
 
-    /* 3D Stat Pods Grid */
+    /* ===================================================================
+       3D STAT PODS GRID — ĐA SẮC MÀU RỰC RỠ PHONG CÁCH GAME
+       =================================================================== */
     .stat-pods-grid {
         display: grid;
         grid-template-columns: repeat(auto-fit, minmax(290px, 1fr));
-        gap: 16px;
-        margin-bottom: 24px;
+        gap: 18px;
+        margin-bottom: 26px;
     }
     .stat-pod {
-        background: rgba(255, 255, 255, 0.96);
-        backdrop-filter: blur(14px);
-        -webkit-backdrop-filter: blur(14px);
-        border: 3.5px solid #ffffff;
-        border-radius: 22px;
-        padding: 16px 20px;
+        border-radius: 24px;
+        padding: 18px 22px;
         display: flex;
         align-items: center;
         gap: 16px;
-        box-shadow: 0 10px 24px rgba(10, 30, 60, 0.14), inset 0 -3px 0 rgba(0,0,0,0.06);
-        transition: transform 0.2s ease, box-shadow 0.2s ease;
+        transition: all 0.22s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        position: relative;
+        overflow: hidden;
     }
     .stat-pod:hover {
-        transform: translateY(-3px);
-        box-shadow: 0 14px 28px rgba(10, 30, 60, 0.2);
+        transform: translateY(-5px) scale(1.015);
     }
 
+    /* Pod 1: Ví Sao Thưởng (Hổ Phách Vàng Kim Rực Rỡ) */
+    .stat-pod-stars {
+        background: linear-gradient(135deg, #fffbeb 0%, #fef3c7 40%, #fde68a 100%);
+        border: 3.5px solid #fcd34d;
+        box-shadow: 0 12px 28px rgba(245, 158, 11, 0.22), inset 0 -4px 0 rgba(217, 119, 6, 0.18);
+    }
+    .stat-pod-stars:hover {
+        box-shadow: 0 16px 36px rgba(245, 158, 11, 0.32), inset 0 -4px 0 rgba(217, 119, 6, 0.18);
+    }
+    .stat-pod-stars .pod-label { color: #92400e; }
+    .stat-pod-stars .pod-value { color: #78350f; }
+    .stat-pod-stars .pod-unit { color: #b45309; }
+    .stat-pod-stars .pod-hint { color: #92400e; font-weight: 700; }
+
+    /* Pod 2: Thời Gian Chơi Game (Lam Biển Neon Sky Blue) */
+    .stat-pod-game {
+        background: linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 40%, #bae6fd 100%);
+        border: 3.5px solid #7dd3fc;
+        box-shadow: 0 12px 28px rgba(2, 132, 199, 0.22), inset 0 -4px 0 rgba(3, 105, 161, 0.18);
+    }
+    .stat-pod-game:hover {
+        box-shadow: 0 16px 36px rgba(2, 132, 199, 0.32), inset 0 -4px 0 rgba(3, 105, 161, 0.18);
+    }
+    .stat-pod-game .pod-label { color: #0369a1; }
+    .stat-pod-game .pod-value { color: #0284c7; }
+    .stat-pod-game .pod-hint { color: #0284c7; font-weight: 700; }
+
+    /* Pod 3: Bài Đạt Chuẩn IC3 (Lục Bảo Tươi Sáng Emerald) */
+    .stat-pod-passed {
+        background: linear-gradient(135deg, #ecfdf5 0%, #d1fae5 40%, #a7f3d0 100%);
+        border: 3.5px solid #6ee7b7;
+        box-shadow: 0 12px 28px rgba(16, 185, 129, 0.22), inset 0 -4px 0 rgba(5, 150, 105, 0.18);
+    }
+    .stat-pod-passed:hover {
+        box-shadow: 0 16px 36px rgba(16, 185, 129, 0.32), inset 0 -4px 0 rgba(5, 150, 105, 0.18);
+    }
+    .stat-pod-passed .pod-label { color: #065f46; }
+    .stat-pod-passed .pod-value { color: #047857; }
+    .stat-pod-passed .pod-unit { color: #065f46; }
+    .stat-pod-passed .mini-bar-track { background: rgba(5, 150, 105, 0.22); }
+    .stat-pod-passed .mini-bar-label { color: #065f46; font-weight: 800; }
+
     .pod-icon-orb {
-        width: 58px;
-        height: 58px;
-        border-radius: 18px;
+        width: 60px;
+        height: 60px;
+        border-radius: 20px;
         display: grid;
         place-items: center;
-        font-size: 28px;
+        font-size: 30px;
         flex-shrink: 0;
-        border: 2.5px solid #ffffff;
-        box-shadow: 0 6px 14px rgba(0,0,0,0.12), inset 0 -3px 0 rgba(0,0,0,0.15);
+        border: 3px solid #ffffff;
+        box-shadow: 0 8px 18px rgba(0,0,0,0.14), inset 0 -3px 0 rgba(0,0,0,0.15);
     }
-    .orb-gold-sparkle { background: linear-gradient(135deg, #f59e0b, #d97706); }
+    .orb-gold-sparkle { background: linear-gradient(135deg, #fbbf24, #d97706); }
     .orb-blue-game { background: linear-gradient(135deg, #38bdf8, #0284c7); }
-    .orb-green-target { background: linear-gradient(135deg, #10b981, #059669); }
+    .orb-green-target { background: linear-gradient(135deg, #34d399, #059669); }
 
     .pod-content { display: flex; flex-direction: column; flex: 1; }
     .pod-label {
         font-size: 11px;
         font-weight: 850;
-        color: #64748b;
-        letter-spacing: 0.5px;
+        letter-spacing: 0.6px;
         text-transform: uppercase;
     }
     .pod-value {
         font-family: 'Fredoka', cursive, sans-serif;
-        font-size: 27px;
+        font-size: 28px;
         font-weight: 700;
         line-height: 1.15;
-        margin: 2px 0;
+        margin: 3px 0;
     }
-    .value-gold { color: #b45309; }
-    .value-blue { color: #0369a1; }
-    .value-green { color: #065f46; }
     .pod-unit {
-        font-size: 14.5px;
+        font-size: 15px;
         font-weight: 700;
-        color: #64748b;
         margin-left: 2px;
     }
     .pod-hint {
         font-size: 11.5px;
-        color: #64748b;
-        font-weight: 650;
+        line-height: 1.35;
     }
 
     .pod-row-split {
@@ -464,23 +406,23 @@
     }
     .btn-3d-play-quick {
         background: linear-gradient(180deg, #0284c7 0%, #0369a1 100%);
-        border: 2px solid #7dd3fc;
+        border: 2.5px solid #ffffff;
         color: #ffffff;
-        padding: 7px 14px;
-        border-radius: 12px;
-        font-size: 11.5px;
-        font-weight: 850;
+        padding: 8px 16px;
+        border-radius: 14px;
+        font-size: 12px;
+        font-weight: 900;
         text-decoration: none;
         display: inline-flex;
         align-items: center;
-        gap: 5px;
-        box-shadow: 0 3px 0 #024e75, 0 5px 10px rgba(2, 132, 199, 0.25);
+        gap: 6px;
+        box-shadow: 0 4px 0 #024e75, 0 6px 14px rgba(2, 132, 199, 0.3);
         transition: transform 0.15s, box-shadow 0.15s;
         white-space: nowrap;
     }
     .btn-3d-play-quick:hover {
         transform: translateY(-2px);
-        box-shadow: 0 5px 0 #024e75, 0 8px 14px rgba(2, 132, 199, 0.35);
+        box-shadow: 0 6px 0 #024e75, 0 10px 18px rgba(2, 132, 199, 0.4);
     }
     .btn-3d-play-quick:active {
         transform: translateY(2px);
@@ -491,38 +433,66 @@
         display: flex;
         align-items: center;
         gap: 8px;
-        margin-top: 3px;
+        margin-top: 4px;
     }
     .mini-bar-track {
         flex: 1;
-        height: 6px;
-        background: #e2e8f0;
+        height: 7px;
         border-radius: 999px;
         overflow: hidden;
     }
     .mini-bar-fill {
         height: 100%;
-        background: linear-gradient(90deg, #10b981, #059669);
+        background: linear-gradient(90deg, #10b981, #047857);
         border-radius: 999px;
         transition: width 0.3s ease;
-    }
-    .mini-bar-label {
-        font-size: 11px;
-        color: #047857;
-        font-weight: 700;
-        white-space: nowrap;
     }
 
     /* Container Card chung */
     .game-container-card {
-        background: rgba(255, 255, 255, 0.96);
+        background: rgba(255, 255, 255, 0.98);
         backdrop-filter: blur(14px);
         -webkit-backdrop-filter: blur(14px);
         border: 4px solid #ffffff;
-        border-radius: 26px;
-        padding: 24px 26px;
-        box-shadow: 0 14px 34px rgba(10, 30, 60, 0.15), 0 3px 10px rgba(0, 0, 0, 0.05);
-        margin-bottom: 24px;
+        border-radius: 28px;
+        padding: 26px 28px;
+        box-shadow: 0 16px 40px rgba(10, 30, 60, 0.15), 0 3px 10px rgba(0, 0, 0, 0.05);
+        margin-bottom: 26px;
+    }
+
+    /* Thẻ Bảng Vàng Thi Đua mang phong cách Sân Vận Động Arcade Đấu Trường */
+    .leaderboard-card-section {
+        background: linear-gradient(180deg, #ffffff 0%, #f0f9ff 35%, #e0f2fe 100%);
+        border: 4px solid #ffffff;
+        border-top: 6px solid #0284c7;
+        box-shadow: 0 20px 50px rgba(2, 132, 199, 0.18), 0 4px 12px rgba(0, 0, 0, 0.06);
+    }
+
+    .rule-indicator-pill {
+        display: inline-flex;
+        align-items: center;
+    }
+    .rule-badge {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        padding: 6px 16px;
+        border-radius: 999px;
+        font-size: 12px;
+        font-weight: 850;
+        letter-spacing: 0.3px;
+    }
+    .rule-passed {
+        background: linear-gradient(135deg, #ecfdf5 0%, #d1fae5 100%);
+        border: 2px solid #6ee7b7;
+        color: #065f46;
+        box-shadow: 0 3px 10px rgba(16, 185, 129, 0.2);
+    }
+    .rule-all {
+        background: linear-gradient(135deg, #eff6ff 0%, #dbeafe 100%);
+        border: 2px solid #bfdbfe;
+        color: #1e40af;
+        box-shadow: 0 3px 10px rgba(59, 130, 246, 0.2);
     }
 
     .section-top-header {
@@ -552,7 +522,6 @@
     }
     .badge-orange-shop { background: linear-gradient(135deg, #f97316, #ea580c); }
     .badge-blue-crown { background: linear-gradient(135deg, #0284c7, #1d4ed8); }
-    .badge-gold-medal { background: linear-gradient(135deg, #eab308, #ca8a04); }
 
     .section-title {
         margin: 0;
@@ -931,691 +900,878 @@
     .btn-boost-rank:active { transform: translateY(2px); box-shadow: 0 1px 0 #92400e; }
 
     /* =========================================================================
-       3D OLYMPIC CHAMPIONS STAGE SYSTEM
+       FANTASY GAME LEADERBOARD HERO (MATCH REFERENCE B - FIXED v3)
        ========================================================================= */
-    .olympic-stage-container {
-        display: grid;
-        grid-template-columns: 1fr 1.15fr 1fr;
-        gap: 16px;
-        align-items: flex-end;
-        margin-bottom: 0;
-        padding-top: 30px;
+    .leaderboard-ajax-section-wrapper {
         position: relative;
-    }
-    @media (max-width: 840px) {
-        .olympic-stage-container {
-            grid-template-columns: 1fr;
-            gap: 22px;
-        }
+        width: 100%;
     }
 
-    .podium-pillar {
+    .leaderboard-fantasy-hero {
+        position: relative;
+        width: 100%;
+        border-radius: 20px;
+        overflow: hidden;
+        box-shadow: 0 20px 50px rgba(2, 10, 32, 0.55);
         display: flex;
         flex-direction: column;
-        justify-content: flex-end;
-        position: relative;
-    }
-    .pillar-is-me .avatar-ring {
-        box-shadow: 0 0 0 4px #0284c7, 0 0 20px rgba(2, 132, 199, 0.7) !important;
     }
 
-    /* Golden Sunburst behind Champion */
-    .golden-sunburst-halo {
+    /* 1. HERO STAGE VIEWPORT */
+    .hero-stage-viewport {
+        position: relative;
+        width: 100%;
+        min-height: 500px;
+        background: url('/images/leaderboard/fantasy-arena-bg.jpg') center 15% / cover no-repeat;
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+        padding: 12px 16px 0;
+    }
+    .hero-stage-viewport::before {
+        content: '';
         position: absolute;
-        top: -20px;
-        left: 50%;
-        transform: translateX(-50%);
-        width: 240px;
-        height: 240px;
-        background: radial-gradient(circle, rgba(251, 191, 36, 0.35) 0%, rgba(245, 158, 11, 0.12) 50%, transparent 70%);
-        border-radius: 50%;
+        inset: 0;
+        background: radial-gradient(ellipse at 50% 20%, rgba(255,255,255,0.05) 0%, rgba(4,12,35,0.22) 100%);
         pointer-events: none;
         z-index: 1;
     }
 
-    .pillar-avatar-group {
+    /* 1A. SKY FLOATING HUD */
+    .sky-floating-hud {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 12px;
         position: relative;
-        z-index: 2;
+        z-index: 25;
+        flex-wrap: wrap;
+    }
+    .sky-hud-left {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
+    .sky-btn-menu {
+        width: 36px;
+        height: 36px;
+        border-radius: 10px;
+        background: rgba(6, 18, 48, 0.72);
+        backdrop-filter: blur(10px);
+        -webkit-backdrop-filter: blur(10px);
+        border: 1.5px solid rgba(56, 189, 248, 0.45);
+        color: #ffffff;
+        font-size: 17px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        box-shadow: 0 3px 10px rgba(0,0,0,0.35);
+        transition: all 0.15s;
+    }
+    .sky-btn-menu:hover {
+        background: rgba(29, 114, 254, 0.8);
+        border-color: #60a5fa;
+        transform: translateY(-1px);
+    }
+    .sky-grade-pill-group {
+        display: inline-flex;
+        align-items: center;
+        gap: 4px;
+        background: rgba(5, 15, 40, 0.72);
+        backdrop-filter: blur(10px);
+        -webkit-backdrop-filter: blur(10px);
+        border: 1.5px solid rgba(56, 189, 248, 0.4);
+        border-radius: 999px;
+        padding: 3px 5px;
+        box-shadow: 0 4px 14px rgba(0, 0, 0, 0.3);
+    }
+    .arena-grade-pill {
+        padding: 5px 13px;
+        border-radius: 999px;
+        font-family: 'Fredoka', cursive, sans-serif;
+        font-size: 12.5px;
+        font-weight: 700;
+        color: #94a3b8;
+        background: transparent;
+        border: 1.5px solid transparent;
+        cursor: pointer;
+        display: inline-flex;
+        align-items: center;
+        gap: 5px;
+        transition: all 0.18s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    }
+    .arena-grade-pill:hover {
+        color: #ffffff;
+        background: rgba(255, 255, 255, 0.12);
+    }
+    .arena-grade-pill.pill-active {
+        color: #ffffff;
+        background: linear-gradient(180deg, #1d72fe 0%, #0c50b8 100%);
+        border-color: #60a5fa;
+        box-shadow: 0 0 14px rgba(29, 114, 254, 0.8), inset 0 1px 0 rgba(255,255,255,0.4);
+        transform: translateY(-1px);
+    }
+    .arena-grade-pill .pill-icon { font-size: 13px; }
+
+    /* Timer capsule (right) */
+    .sky-hud-right { display: flex; align-items: center; }
+    .sky-timer-capsule {
+        display: inline-flex;
+        align-items: center;
+        gap: 9px;
+        background: rgba(5, 15, 40, 0.8);
+        backdrop-filter: blur(10px);
+        -webkit-backdrop-filter: blur(10px);
+        border: 1.5px solid rgba(56, 189, 248, 0.5);
+        border-radius: 999px;
+        padding: 4px 16px 4px 6px;
+        box-shadow: 0 4px 14px rgba(0,0,0,0.35);
+        color: #ffffff;
+    }
+    .timer-clock-badge {
+        width: 28px;
+        height: 28px;
+        border-radius: 50%;
+        background: rgba(56, 189, 248, 0.2);
+        border: 1.5px solid #38bdf8;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 14px;
+        animation: pulseClock 2s infinite ease-in-out;
+    }
+    @keyframes pulseClock {
+        0%, 100% { transform: scale(1); }
+        50% { transform: scale(1.08); }
+    }
+    .timer-text-group { display: flex; flex-direction: column; line-height: 1.15; }
+    .timer-header-label {
+        font-size: 9px;
+        font-weight: 850;
+        color: #7dd3fc;
+        letter-spacing: 0.8px;
+    }
+    .timer-countdown-val {
+        font-family: 'Fredoka', cursive, sans-serif;
+        font-size: 13px;
+        font-weight: 700;
+        color: #fef08a;
+        text-shadow: 0 0 8px rgba(254, 240, 138, 0.7);
+    }
+
+    /* 1B. SCENERY PROPS */
+    .scenery-prop {
+        position: absolute;
+        z-index: 10;
+        pointer-events: none;
+    }
+    .prop-left { left: 16px; top: 120px; }
+    .stone-pillar-tablet {
+        background: rgba(8, 18, 45, 0.72);
+        border: 2px solid #38bdf8;
+        border-radius: 10px;
+        padding: 7px 11px;
+        backdrop-filter: blur(6px);
+        box-shadow: 0 5px 14px rgba(0,0,0,0.45);
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 1px;
+    }
+    .tablet-brand {
+        font-family: 'Fredoka', cursive;
+        font-size: 15px;
+        font-weight: 900;
+        color: #38bdf8;
+        letter-spacing: 1px;
+    }
+    .tablet-point {
+        font-family: 'Fredoka', cursive;
+        font-size: 9.5px;
+        font-weight: 800;
+        color: #ffffff;
+        letter-spacing: 0.4px;
+        line-height: 1.2;
+    }
+
+    .prop-right {
+        right: 16px;
+        top: 125px;
+        animation: signGentleBob 3.5s infinite ease-in-out;
+    }
+    @keyframes signGentleBob {
+        0%, 100% { transform: translateY(0) rotate(1.5deg); }
+        50% { transform: translateY(-5px) rotate(2.5deg); }
+    }
+    .rustic-wood-signboard {
+        background: linear-gradient(180deg, #b45309 0%, #78350f 100%);
+        border: 2.5px solid #fef3c7;
+        border-radius: 12px;
+        padding: 8px 13px;
+        box-shadow: 0 8px 20px rgba(0,0,0,0.42), inset 0 2px 0 rgba(255,255,255,0.25);
+        color: #fefce8;
+        text-align: center;
+        display: flex;
+        flex-direction: column;
+        line-height: 1.2;
+    }
+    .rustic-wood-signboard .sign-top, .rustic-wood-signboard .sign-bot {
+        font-family: 'Fredoka', cursive;
+        font-size: 11px;
+        font-weight: 600;
+        opacity: 0.9;
+    }
+    .rustic-wood-signboard .sign-mid {
+        font-family: 'Fredoka', cursive;
+        font-size: 13px;
+        font-weight: 850;
+        color: #fde047;
+        text-shadow: 0 1px 3px rgba(0,0,0,0.6);
+        margin: 1px 0;
+    }
+
+    /* 1C. TITLE CREST */
+    .hero-title-crest {
         display: flex;
         flex-direction: column;
         align-items: center;
         text-align: center;
-        margin-bottom: 12px;
+        position: relative;
+        z-index: 15;
+        margin: -10px auto 0;
+        width: min(600px, 100%);
+    }
+    .crest-wings-image {
+        width: 260px;
+        max-width: 90%;
+        height: auto;
+        filter: drop-shadow(0 8px 18px rgba(245, 158, 11, 0.6));
+        margin-bottom: -38px;
+        pointer-events: none;
+        position: relative;
+        z-index: 1;
+    }
+    .crest-headings-overlay {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        position: relative;
+        z-index: 2;
+        width: 100%;
+    }
+    .crest-title-ic3 {
+        font-family: 'Fredoka', cursive, sans-serif;
+        font-size: clamp(20px, 2.8vw, 32px);
+        font-weight: 900;
+        color: #ffffff;
+        text-shadow:
+            0 2px 0 #92400e,
+            0 4px 12px rgba(0, 0, 0, 0.65),
+            0 0 24px rgba(251, 191, 36, 0.9);
+        letter-spacing: 1px;
+        margin: 0;
+        line-height: 1.05;
+    }
+    .crest-gold-ribbon {
+        background: linear-gradient(180deg, #fef08a 0%, #fbbf24 40%, #f59e0b 100%);
+        border: 2px solid #ffffff;
+        border-radius: 999px;
+        padding: 3px 26px;
+        box-shadow: 0 3px 12px rgba(180, 83, 9, 0.5), inset 0 1px 0 rgba(255,255,255,0.7);
+        margin-top: 3px;
+    }
+    .crest-gold-ribbon span {
+        font-family: 'Fredoka', cursive, sans-serif;
+        font-size: 13.5px;
+        font-weight: 900;
+        color: #78350f;
+        text-shadow: 0 1px 0 rgba(255,255,255,0.6);
+        letter-spacing: 0.8px;
+        text-transform: uppercase;
+    }
+    .crest-motto-capsule {
+        background: rgba(8, 24, 60, 0.82);
+        border: 1.5px solid rgba(125, 211, 252, 0.5);
+        border-radius: 999px;
+        padding: 2px 14px;
+        font-size: 10.5px;
+        font-weight: 750;
+        color: #e0f2fe;
+        box-shadow: 0 2px 6px rgba(0,0,0,0.3);
+        margin-top: 3px;
     }
 
-    /* Floating Crown */
-    .floating-crown-orb {
-        font-size: 32px;
-        line-height: 1;
-        margin-bottom: -10px;
-        filter: drop-shadow(0 4px 6px rgba(180, 83, 9, 0.5));
-        animation: crownFloat 2s infinite ease-in-out;
+    /* 1D. PODIUMS TRIO */
+    .podiums-arena-trio {
+        display: grid;
+        grid-template-columns: 1fr 1.2fr 1fr;
+        gap: 10px;
+        align-items: flex-end;
+        width: 100%;
+        max-width: 900px;
+        margin: 8px auto 0;
+        position: relative;
+        z-index: 12;
+    }
+    .podium-pillar {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: flex-end;
+        position: relative;
+    }
+
+    /* Characters */
+    .pillar-hero-figure {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        position: relative;
+        z-index: 3;
+    }
+    .hero-avatar-sprite {
+        width: auto;
+        display: block;
+        /* mix-blend-mode: multiply removes white bg in browsers that support it */
+        mix-blend-mode: multiply;
+        transition: transform 0.2s ease;
+        object-fit: contain;
+    }
+    .sprite-gold {
+        height: 175px;
+        filter: drop-shadow(0 12px 24px rgba(0,0,0,0.5));
+        transform: translateY(12px);
+    }
+    .sprite-silver {
+        height: 150px;
+        filter: drop-shadow(0 10px 20px rgba(0,0,0,0.45));
+        transform: translateY(10px);
+    }
+    .sprite-bronze {
+        height: 148px;
+        filter: drop-shadow(0 10px 20px rgba(0,0,0,0.45));
+        transform: translateY(10px);
+    }
+    .podium-pillar:hover .hero-avatar-sprite {
+        transform: translateY(4px) scale(1.04);
+    }
+
+    /* Champion orbital crown & halo */
+    .champion-hero-figure { position: relative; }
+    .champion-crown-orbit {
+        position: absolute;
+        top: -14px;
+        left: 50%;
+        transform: translateX(-50%);
+        z-index: 12;
+        pointer-events: none;
+        animation: crownFloat 2.5s infinite ease-in-out;
     }
     @keyframes crownFloat {
-        0%, 100% { transform: translateY(0); }
-        50% { transform: translateY(-6px); }
+        0%, 100% { transform: translateX(-50%) translateY(0); }
+        50% { transform: translateX(-50%) translateY(-6px); }
+    }
+    .orbit-crown-img {
+        width: 42px;
+        height: auto;
+        filter: drop-shadow(0 4px 10px rgba(180, 83, 9, 0.9));
+    }
+    .champion-crown-orbit .sparkle {
+        position: absolute;
+        font-size: 12px;
+        animation: sparkleSpin 2s infinite ease-in-out;
+    }
+    @keyframes sparkleSpin {
+        0%, 100% { opacity: 0.4; transform: scale(0.8) rotate(0deg); }
+        50% { opacity: 1; transform: scale(1.2) rotate(15deg); }
+    }
+    .sp-1 { top: -4px; left: -8px; }
+    .sp-2 { top: 2px; right: -8px; animation-delay: 1s; }
+
+    .champion-halo-ray {
+        position: absolute;
+        top: 14px;
+        left: 50%;
+        transform: translateX(-50%);
+        width: 200px;
+        height: 200px;
+        background: radial-gradient(circle, rgba(251, 191, 36, 0.5) 0%, rgba(245, 158, 11, 0.18) 55%, transparent 72%);
+        border-radius: 50%;
+        pointer-events: none;
+        z-index: 1;
+        animation: pulseHalo 3s infinite ease-in-out;
+    }
+    @keyframes pulseHalo {
+        0%, 100% { opacity: 0.8; transform: translateX(-50%) scale(1); }
+        50% { opacity: 1; transform: translateX(-50%) scale(1.06); }
     }
 
-    /* Medal Ribbons */
-    .pillar-medal-ribbon {
+    /* Number badge above pedestal */
+    .pedestal-shield-badge {
         display: inline-flex;
         align-items: center;
-        gap: 5px;
-        padding: 4px 14px;
-        border-radius: 999px;
+        justify-content: center;
+        gap: 2px;
         font-family: 'Fredoka', cursive, sans-serif;
-        font-size: 12px;
-        font-weight: 700;
-        margin-bottom: 10px;
-        border: 2px solid;
-        box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08);
-    }
-    .ribbon-gold {
-        background: linear-gradient(180deg, #fef08a 0%, #fde047 100%);
-        color: #854d0e;
-        border-color: #eab308;
-    }
-    .ribbon-silver {
-        background: linear-gradient(180deg, #f1f5f9 0%, #e2e8f0 100%);
-        color: #334155;
-        border-color: #94a3b8;
-    }
-    .ribbon-bronze {
-        background: linear-gradient(180deg, #ffedd5 0%, #fed7aa 100%);
-        color: #9a3412;
-        border-color: #f97316;
-    }
-
-    /* 3D Metallic Avatar Rings */
-    .avatar-ring {
-        width: 66px;
-        height: 66px;
-        border-radius: 50%;
-        display: grid;
-        place-items: center;
+        font-weight: 900;
         position: relative;
-        margin-bottom: 8px;
-        border: 4px solid #ffffff;
-        box-shadow: 0 8px 18px rgba(0,0,0,0.18);
-        transition: transform 0.2s ease;
+        z-index: 6;
+        margin-bottom: -12px;
     }
-    .pillar-gold .avatar-ring {
-        width: 78px;
-        height: 78px;
-        border-width: 4.5px;
+    .badge-gold {
+        font-size: 24px;
+        color: #fefce8;
+        text-shadow: 0 2px 0 #92400e, 0 3px 10px rgba(0,0,0,0.6);
     }
-    .ring-gold {
-        background: linear-gradient(135deg, #f59e0b, #d97706);
-        border-color: #fef08a !important;
-        box-shadow: 0 0 16px rgba(245, 158, 11, 0.5), 0 8px 18px rgba(0,0,0,0.2) !important;
-    }
-    .ring-silver {
-        background: linear-gradient(135deg, #94a3b8, #64748b);
-        border-color: #f8fafc !important;
-    }
-    .ring-bronze {
-        background: linear-gradient(135deg, #ea580c, #c2410c);
-        border-color: #ffedd5 !important;
-    }
-    .avatar-inner {
-        font-family: 'Fredoka', cursive, sans-serif;
-        font-size: 28px;
-        font-weight: 800;
+    .badge-gold .laurel-leaf { font-size: 17px; }
+    .badge-gold .num-champ { font-size: 30px; line-height: 1; }
+    .badge-silver {
+        font-size: 20px;
         color: #ffffff;
-        text-shadow: 0 2px 4px rgba(0, 0, 0, 0.35);
+        text-shadow: 0 2px 0 #1e293b, 0 3px 7px rgba(0,0,0,0.45);
     }
-    .pillar-gold .avatar-inner { font-size: 34px; }
+    .badge-bronze {
+        font-size: 20px;
+        color: #ffedd5;
+        text-shadow: 0 2px 0 #431407, 0 3px 7px rgba(0,0,0,0.45);
+    }
+    .pedestal-wing { font-size: 14px; }
+    .pedestal-num { padding: 0 1px; line-height: 1; }
 
-    .badge-me-tag {
+    /* Pedestal altars (colored steps + info card) */
+    .pedestal-altar {
+        width: 100%;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        position: relative;
+        z-index: 4;
+        padding-top: 16px;
+        box-shadow: 0 12px 28px rgba(0,0,0,0.4);
+    }
+    .altar-gold {
+        border-radius: 18px 18px 0 0;
+        background: linear-gradient(180deg, #ffe87a 0%, #f59e0b 22%, #d97706 68%, #b45309 100%);
+        border: 3px solid #fff9c3;
+        border-bottom: none;
+    }
+    .altar-silver {
+        border-radius: 14px 14px 0 0;
+        background: linear-gradient(180deg, #ffffff 0%, #d1d5db 22%, #6b7280 68%, #4b5563 100%);
+        border: 3px solid #f1f5f9;
+        border-bottom: none;
+    }
+    .altar-bronze {
+        border-radius: 14px 14px 0 0;
+        background: linear-gradient(180deg, #ffedd5 0%, #fb923c 22%, #ea580c 68%, #9a3412 100%);
+        border: 3px solid #ffedd5;
+        border-bottom: none;
+    }
+
+    /* Tier badge labels */
+    .altar-badge {
+        font-family: 'Fredoka', cursive, sans-serif;
+        font-size: 11.5px;
+        font-weight: 900;
+        letter-spacing: 0.5px;
+        padding: 2px 14px;
+        border-radius: 999px;
+        margin-bottom: 6px;
+        display: inline-block;
+        box-shadow: 0 2px 6px rgba(0,0,0,0.25);
+    }
+    .badge-gold-text {
+        background: linear-gradient(180deg, #fef08a, #facc15);
+        color: #78350f;
+        border: 1px solid #eab308;
+    }
+    .badge-silver-text {
+        background: linear-gradient(180deg, #e0e7ff, #c7d2fe);
+        color: #1e3a8a;
+        border: 1px solid #93c5fd;
+    }
+    .badge-bronze-text {
+        background: linear-gradient(180deg, #ffedd5, #fed7aa);
+        color: #7c2d12;
+        border: 1px solid #fb923c;
+    }
+
+    /* Altar info card */
+    .altar-card {
+        background: rgba(255, 255, 255, 0.97);
+        backdrop-filter: blur(8px);
+        -webkit-backdrop-filter: blur(8px);
+        border: 2px solid #ffffff;
+        border-radius: 16px;
+        padding: 8px 12px 10px;
+        width: 91%;
+        margin: 0 auto 10px;
+        box-shadow: 0 6px 20px rgba(0,0,0,0.2);
+        text-align: center;
+    }
+    .card-gold { border-color: #fde047; box-shadow: 0 8px 22px rgba(245,158,11,0.35); }
+    .altar-profile {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 7px;
+        text-align: left;
+        margin-bottom: 5px;
+    }
+    .avatar-ring {
+        width: 36px;
+        height: 36px;
+        border-radius: 50%;
+        overflow: hidden;
+        border: 2px solid;
+        flex-shrink: 0;
+        position: relative;
+    }
+    .ring-gold { border-color: #f59e0b; width: 40px; height: 40px; }
+    .ring-silver { border-color: #60a5fa; }
+    .ring-bronze { border-color: #ea580c; }
+    .avatar-img { width: 100%; height: 100%; object-fit: cover; }
+    .tag-me-dot {
         position: absolute;
-        bottom: -6px;
+        bottom: -2px;
+        right: -2px;
         background: #0284c7;
         color: #ffffff;
-        font-size: 9.5px;
+        font-size: 7.5px;
         font-weight: 900;
-        padding: 2px 8px;
+        padding: 1px 3px;
         border-radius: 999px;
-        border: 2px solid #ffffff;
-        box-shadow: 0 2px 6px rgba(0,0,0,0.2);
-        white-space: nowrap;
+        border: 1px solid #ffffff;
     }
-    .tag-champion {
-        background: #dc2626;
-        color: #ffffff;
-    }
-
-    .podium-player-name {
-        font-size: 15px;
-        font-weight: 800;
+    .tag-champ { background: #dc2626; }
+    .profile-info { display: flex; flex-direction: column; min-width: 0; }
+    .profile-name {
+        font-family: 'Fredoka', cursive, sans-serif;
+        font-size: 13px;
+        font-weight: 900;
         color: #0f172a;
-        line-height: 1.25;
-        max-width: 190px;
+        line-height: 1.2;
+        max-width: 105px;
         overflow: hidden;
         text-overflow: ellipsis;
         white-space: nowrap;
     }
-    .name-gold {
-        font-size: 16.5px;
-        color: #0f172a;
-    }
-    .podium-player-class {
-        font-size: 11.5px;
-        color: #64748b;
-        font-weight: 700;
-        margin-top: 1px;
-    }
-
-    /* Score Pills */
-    .podium-score-pill {
-        display: inline-flex;
-        align-items: center;
-        gap: 5px;
-        padding: 4px 12px;
-        border-radius: 12px;
-        margin-top: 6px;
-        font-family: 'Fredoka', cursive, sans-serif;
-        font-size: 18px;
-        font-weight: 700;
-        border: 1.5px solid;
-    }
-    .pill-gold-score {
-        background: linear-gradient(180deg, #fefce8, #fef08a);
-        color: #854d0e;
-        border-color: #fde047;
-    }
-    .pill-silver-score {
-        background: #f8fafc;
-        color: #334155;
-        border-color: #cbd5e1;
-    }
-    .pill-bronze-score {
-        background: #fff7ed;
-        color: #9a3412;
-        border-color: #fed7aa;
-    }
-    .podium-score-pill small {
-        font-size: 11px;
-        font-weight: 700;
-        opacity: 0.85;
-    }
-
-    /* =========================================================================
-       3D PEDESTAL BLOCKS (MẶT TRÊN & MẶT TRƯỚC NỔI KHỐI)
-       ========================================================================= */
-    .pedestal-block {
-        display: flex;
-        flex-direction: column;
-        border-radius: 16px 16px 0 0;
-        position: relative;
-        box-shadow: 0 12px 24px rgba(0,0,0,0.16);
-    }
-    .block-gold { height: 165px; }
-    .block-silver { height: 120px; }
-    .block-bronze { height: 90px; }
-
-    /* Top surface */
-    .pedestal-top-surface {
-        height: 18px;
-        border-radius: 16px 16px 0 0;
-        border: 2.5px solid;
-        border-bottom: none;
-    }
-    .surface-gold {
-        background: linear-gradient(90deg, #fef08a 0%, #fde047 100%);
-        border-color: #fef9c3;
-    }
-    .surface-silver {
-        background: linear-gradient(90deg, #f1f5f9 0%, #e2e8f0 100%);
-        border-color: #ffffff;
-    }
-    .surface-bronze {
-        background: linear-gradient(90deg, #fed7aa 0%, #fdba74 100%);
-        border-color: #ffedd5;
-    }
-
-    /* Front face with huge 3D embossed numbers */
-    .pedestal-front-face {
-        flex: 1;
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        justify-content: center;
-        text-align: center;
-        padding: 10px 14px;
-        border: 2.5px solid;
-        border-top: none;
-        color: #ffffff;
-        position: relative;
-    }
-    .face-gold {
-        background: linear-gradient(180deg, #f59e0b 0%, #d97706 65%, #b45309 100%);
-        border-color: #fbbf24;
-    }
-    .face-silver {
-        background: linear-gradient(180deg, #94a3b8 0%, #64748b 65%, #475569 100%);
-        border-color: #cbd5e1;
-    }
-    .face-bronze {
-        background: linear-gradient(180deg, #ea580c 0%, #c2410c 65%, #9a3412 100%);
-        border-color: #fb923c;
-    }
-
-    .pedestal-3d-number {
-        font-family: 'Fredoka', cursive, sans-serif;
-        font-size: 48px;
-        font-weight: 800;
-        line-height: 1;
-        text-shadow: 0 3px 0 rgba(0,0,0,0.35), 0 5px 12px rgba(0,0,0,0.25);
-    }
-    .num-gold {
-        font-size: 58px;
-        color: #fef08a;
-        text-shadow: 0 4px 0 #92400e, 0 6px 14px rgba(0,0,0,0.3);
-    }
-    .num-silver {
-        color: #f8fafc;
-        text-shadow: 0 3px 0 #334155, 0 5px 10px rgba(0,0,0,0.25);
-    }
-    .num-bronze {
-        color: #ffedd5;
-        text-shadow: 0 3px 0 #7c2d12, 0 5px 10px rgba(0,0,0,0.25);
-    }
-
-    .pedestal-subtext {
-        font-size: 11px;
-        font-weight: 900;
-        letter-spacing: 1px;
-        opacity: 0.95;
-        margin-top: 2px;
-        text-shadow: 0 1px 2px rgba(0,0,0,0.4);
-    }
-    .subtext-gold { color: #fefce8; font-size: 12px; }
-
-    .pedestal-meta-stat {
-        background: rgba(0, 0, 0, 0.18);
-        border-radius: 999px;
-        padding: 2px 10px;
-        font-size: 10.5px;
-        font-weight: 750;
-        margin-top: 4px;
-        color: rgba(255, 255, 255, 0.9);
-    }
-
-    /* Placeholders */
-    .placeholder-group {
-        padding: 20px 10px;
-    }
-    .placeholder-orb { font-size: 32px; margin-bottom: 4px; }
-    .placeholder-title { font-size: 13.5px; font-weight: 800; color: #64748b; }
-    .placeholder-sub { font-size: 11px; color: #94a3b8; font-weight: 600; margin-top: 2px; }
-
-    /* Unified 3D Stage Base Footer */
-    .stage-footer-base {
-        background: linear-gradient(180deg, #1e293b 0%, #0f172a 100%);
-        border: 2.5px solid #38bdf8;
-        border-radius: 0 0 18px 18px;
-        padding: 8px 16px;
-        text-align: center;
-        box-shadow: 0 8px 20px rgba(0,0,0,0.25), inset 0 2px 0 rgba(255,255,255,0.1);
-        margin-bottom: 24px;
-    }
-    .stage-base-label {
-        font-family: 'Fredoka', cursive, sans-serif;
-        font-size: 12.5px;
-        font-weight: 700;
-        color: #38bdf8;
-        letter-spacing: 1px;
-        text-shadow: 0 0 8px rgba(56, 189, 248, 0.5);
-    }
-
-    /* =========================================================================
-       TOP TIẾP THEO (HẠNG 4 – 10) GỌN GÀNG, SẮC NÉT
-       ========================================================================= */
-    .next-ranks-section {
-        border-top: 2px dashed #e2e8f0;
-        padding-top: 18px;
-    }
-    .next-ranks-header {
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
-        margin-bottom: 12px;
-    }
-    .header-left {
-        display: flex;
-        align-items: center;
-        gap: 6px;
-    }
-    .header-bolt { font-size: 16px; color: #f59e0b; }
-    .header-title {
-        font-size: 12.5px;
-        font-weight: 850;
-        color: #475569;
-        letter-spacing: 0.5px;
-        text-transform: uppercase;
-    }
-    .header-badge-hint {
-        font-size: 11.5px;
-        color: #64748b;
-        font-weight: 700;
-    }
-
-    .next-ranks-grid {
-        display: grid;
-        gap: 8px;
-    }
-    .rank-row-item {
-        background: #f8fafc;
-        border: 1.5px solid #e2e8f0;
-        border-radius: 14px;
-        padding: 10px 16px;
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
-        gap: 12px;
-        transition: transform 0.15s ease, background-color 0.15s ease, border-color 0.15s ease;
-    }
-    .rank-row-item:hover {
-        transform: translateX(4px);
-        background: #ffffff;
-        border-color: #cbd5e1;
-    }
-    .rank-row-item.row-is-me {
-        background: #eff6ff;
-        border-color: #93c5fd;
-        box-shadow: 0 2px 8px rgba(37, 99, 235, 0.12);
-    }
-
-    .rank-row-left {
-        display: flex;
-        align-items: center;
-        gap: 12px;
-    }
-    .rank-badge-num {
-        font-family: 'Fredoka', cursive, sans-serif;
-        font-size: 15px;
-        font-weight: 700;
-        color: #64748b;
-        width: 28px;
-        text-align: center;
-    }
-    .rank-row-avatar {
-        width: 36px;
-        height: 36px;
-        border-radius: 50%;
-        background: #e2e8f0;
-        color: #334155;
-        display: grid;
-        place-items: center;
-        font-size: 14px;
-        font-weight: 800;
-        flex-shrink: 0;
-    }
-    .row-is-me .rank-row-avatar {
-        background: #0284c7;
-        color: #ffffff;
-    }
-
-    .rank-row-title {
-        display: flex;
-        align-items: center;
-        gap: 6px;
-        font-size: 14px;
-        color: #0f172a;
-    }
-    .tag-me-pill {
-        background: #0284c7;
-        color: #ffffff;
-        font-size: 9.5px;
-        font-weight: 900;
-        padding: 1px 6px;
-        border-radius: 999px;
-    }
-    .class-chip {
-        background: #f1f5f9;
-        color: #475569;
-        font-size: 11px;
-        font-weight: 700;
-        padding: 1px 7px;
-        border-radius: 999px;
-    }
-    .rank-row-sub {
-        font-size: 11.5px;
-        color: #64748b;
-        font-weight: 650;
-        display: flex;
-        align-items: center;
-        gap: 6px;
-        margin-top: 1px;
-    }
-    .rank-row-score {
-        text-align: right;
-    }
-    .rank-row-score b {
-        font-family: 'Fredoka', cursive, sans-serif;
-        font-size: 17px;
-        color: #0f172a;
-        display: block;
-        line-height: 1.1;
-    }
-    .rank-row-score small {
-        font-size: 11px;
-        color: #64748b;
-        font-weight: 650;
-    }
-
-    /* =========================================================================
-       BỘ SƯU TẬP HUY HIỆU (TROPHY CASE & 3D MEDALS)
-       ========================================================================= */
-    .badge-guide-capsule {
-        background: linear-gradient(135deg, #eff6ff 0%, #f0fdf4 100%);
-        border: 2px solid #bfdbfe;
-        border-radius: 18px;
-        padding: 14px 18px;
-        margin-bottom: 20px;
-        display: flex;
-        align-items: flex-start;
-        gap: 12px;
-        box-shadow: 0 4px 12px rgba(2, 132, 199, 0.08);
-    }
-    .guide-icon-orb {
-        width: 38px;
-        height: 38px;
-        border-radius: 12px;
-        background: linear-gradient(135deg, #38bdf8, #0284c7);
-        display: grid;
-        place-items: center;
-        font-size: 20px;
-        color: #ffffff;
-        flex-shrink: 0;
-        box-shadow: 0 3px 6px rgba(2, 132, 199, 0.25);
-    }
-    .guide-title {
-        font-size: 13.5px;
-        font-weight: 850;
-        color: #1e3a8a;
-        display: block;
-    }
-    .guide-desc {
-        margin: 3px 0 0;
-        font-size: 12.5px;
-        color: #334155;
-        line-height: 1.4;
-    }
-
-    .trophy-badges-grid {
-        display: grid;
-        grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
-        gap: 14px;
-    }
-    .trophy-badge-card {
-        border-radius: 20px;
-        padding: 16px 12px;
-        text-align: center;
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        justify-content: space-between;
-        border: 2.5px solid;
-        cursor: pointer;
-        position: relative;
-        transition: transform 0.2s ease, box-shadow 0.2s ease;
-    }
-    .trophy-badge-card:hover {
-        transform: translateY(-4px);
-    }
-
-    .badge-card-unlocked {
-        background: linear-gradient(180deg, #fffbeb 0%, #fef3c7 45%, #fde68a 100%);
-        border-color: #fbbf24;
-        box-shadow: 0 6px 16px rgba(245, 158, 11, 0.18), inset 0 -3px 0 rgba(217, 119, 6, 0.15);
-    }
-    .badge-card-locked {
-        background: rgba(248, 250, 252, 0.85);
-        border-color: #e2e8f0;
-        box-shadow: 0 4px 10px rgba(0, 0, 0, 0.04);
-        opacity: 0.85;
-    }
-
-    .badge-type-pill {
-        font-size: 9.5px;
-        font-weight: 900;
-        padding: 2px 8px;
-        border-radius: 999px;
-        margin-bottom: 8px;
-        letter-spacing: 0.5px;
-        text-transform: uppercase;
-    }
-    .type-pill-unlocked {
-        background: rgba(180, 83, 9, 0.12);
-        color: #92400e;
-    }
-    .type-pill-locked {
-        background: #e2e8f0;
-        color: #64748b;
-    }
-
-    .badge-orb-3d {
-        width: 58px;
-        height: 58px;
-        border-radius: 50%;
-        display: grid;
-        place-items: center;
-        font-size: 28px;
-        margin-bottom: 8px;
-        position: relative;
-        border: 3px solid;
-    }
-    .orb-3d-unlocked {
-        background: linear-gradient(135deg, #fef08a, #fde047);
-        border-color: #facc15;
-        box-shadow: 0 0 14px rgba(234, 179, 8, 0.4), 0 4px 10px rgba(0,0,0,0.12);
-    }
-    .orb-3d-locked {
-        background: #f1f5f9;
-        border-color: #cbd5e1;
-    }
-
-    .badge-lock-tag, .badge-check-tag {
-        position: absolute;
-        bottom: -2px;
-        right: -2px;
-        border-radius: 50%;
-        width: 20px;
-        height: 20px;
-        display: grid;
-        place-items: center;
-        font-size: 11px;
-        border: 2px solid #ffffff;
-        box-shadow: 0 2px 4px rgba(0,0,0,0.15);
-    }
-    .badge-lock-tag { background: #64748b; color: #fff; }
-    .badge-check-tag { background: #10b981; color: #fff; font-weight: 900; }
-
-    .badge-item-title {
-        font-size: 13px;
-        font-weight: 850;
-        color: #0f172a;
-        line-height: 1.2;
-    }
-    .badge-item-rule {
-        font-size: 11px;
-        color: #64748b;
-        font-weight: 650;
-        display: block;
-        margin: 3px 0 6px;
-        line-height: 1.3;
-        min-height: 28px;
-    }
-
-    .badge-reward-pill {
-        font-size: 11px;
-        font-weight: 800;
-        padding: 3px 10px;
-        border-radius: 999px;
-        margin-bottom: 8px;
-    }
-    .reward-pill-received {
-        background: #f0fdf4;
-        color: #15803d;
-        border: 1px solid #bbf7d0;
-    }
-    .reward-pill-pending {
-        background: #fff7ed;
-        color: #c2410c;
-        border: 1px solid #fed7aa;
-    }
-
-    .badge-progress-box {
-        width: 100%;
-        margin-bottom: 8px;
-    }
-    .badge-progress-track {
-        height: 6px;
-        background: #e2e8f0;
-        border-radius: 999px;
-        overflow: hidden;
-    }
-    .badge-progress-fill {
-        height: 100%;
-        border-radius: 999px;
-        transition: width 0.3s ease;
-    }
-    .fill-complete { background: linear-gradient(90deg, #10b981, #059669); }
-    .fill-pending { background: linear-gradient(90deg, #f59e0b, #ea580c); }
-    .badge-progress-label {
+    .name-gold { font-size: 14px; color: #78350f; }
+    .profile-class {
         font-size: 10px;
-        color: #64748b;
-        font-weight: 750;
-        display: block;
-        margin-top: 2px;
-    }
-
-    .btn-badge-trigger {
-        width: 100%;
-        border: none;
-        padding: 6px 10px;
-        border-radius: 10px;
-        font-family: 'Fredoka', cursive, sans-serif;
-        font-size: 11.5px;
         font-weight: 700;
-        cursor: pointer;
+        color: #64748b;
+        margin-top: 1px;
+    }
+    .altar-score-pill {
         display: inline-flex;
         align-items: center;
         justify-content: center;
         gap: 4px;
-        transition: background-color 0.15s ease;
+        padding: 3px 12px;
+        border-radius: 999px;
+        font-family: 'Fredoka', cursive, sans-serif;
+        font-size: 13px;
+        font-weight: 700;
+        border: 1.5px solid;
     }
-    .btn-trigger-unlocked {
-        background: #10b981;
-        color: #ffffff;
-    }
-    .btn-trigger-locked {
-        background: #e2e8f0;
-        color: #475569;
+    .pill-gold { background: linear-gradient(180deg, #fffbeb, #fef08a); color: #78350f; border-color: #facc15; box-shadow: 0 2px 7px rgba(245,158,11,0.3); }
+    .pill-silver { background: linear-gradient(180deg, #ffffff, #e0e7ff); color: #1e3a8a; border-color: #93c5fd; }
+    .pill-bronze { background: linear-gradient(180deg, #ffffff, #ffedd5); color: #7c2d12; border-color: #fdba74; }
+    .altar-score-pill .coin-icon { font-size: 13px; }
+    .placeholder-text { font-size: 12px; color: #94a3b8; font-weight: 600; padding: 8px 0; }
+
+    /* Red carpet runner for champion */
+    .royal-carpet-runner {
+        width: 100px;
+        height: 20px;
+        background: linear-gradient(180deg, #dc2626 0%, #991b1b 100%);
+        border-left: 2px solid #fbbf24;
+        border-right: 2px solid #fbbf24;
+        box-shadow: 0 4px 10px rgba(0,0,0,0.5);
+        margin: 0 auto;
     }
 
-    /* =========================================================================
+    /* 1E. HONOR PLAQUE */
+    .stage-honor-dock {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+        margin: 5px 0 3px;
+        position: relative;
+        z-index: 10;
+    }
+    .honor-torch { font-size: 17px; filter: drop-shadow(0 0 8px rgba(251, 146, 60, 0.9)); }
+    .honor-stone-slab {
+        display: inline-flex;
+        align-items: center;
+        gap: 7px;
+        background: linear-gradient(180deg, #1e2d45 0%, #0e1a28 100%);
+        border: 2px solid #d4a017;
+        border-radius: 10px;
+        padding: 4px 20px;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.5), inset 0 1px 0 rgba(255,255,255,0.12);
+    }
+    .honor-stone-slab .star-accent { color: #f59e0b; font-size: 11px; }
+    .honor-slab-text {
+        font-family: 'Fredoka', cursive, sans-serif;
+        font-size: 11.5px;
+        font-weight: 800;
+        color: #fef08a;
+        letter-spacing: 1.2px;
+        text-shadow: 0 1px 3px rgba(0,0,0,0.7);
+        text-transform: uppercase;
+    }
+
+    /* 2. RANK 4-10 STRIP */
+    .hero-chaser-dock {
+        background: linear-gradient(180deg, #081c40 0%, #040f22 100%);
+        border-top: 2.5px solid #00d0f5;
+        padding: 7px 14px 9px;
+        width: 100%;
+        position: relative;
+        z-index: 20;
+        box-shadow: inset 0 2px 12px rgba(0, 210, 245, 0.12);
+    }
+    .chaser-dock-header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        margin-bottom: 7px;
+    }
+    .chaser-dock-title {
+        display: flex;
+        align-items: center;
+        gap: 5px;
+        font-family: 'Fredoka', cursive, sans-serif;
+        font-size: 12px;
+        font-weight: 800;
+        color: #00e5ff;
+        letter-spacing: 0.5px;
+        text-transform: uppercase;
+        text-shadow: 0 0 10px rgba(0, 229, 255, 0.55);
+    }
+    .chaser-bolt-glow {
+        color: #facc15;
+        font-size: 14px;
+        filter: drop-shadow(0 0 6px #facc15);
+    }
+    .chaser-dock-link {
+        font-size: 11px;
+        font-weight: 700;
+        color: #38bdf8;
+        text-decoration: none;
+        display: inline-flex;
+        align-items: center;
+        gap: 4px;
+        transition: color 0.15s;
+    }
+    .chaser-dock-link:hover { color: #7dd3fc; }
+
+    .chaser-dock-cards-row {
+        display: grid;
+        grid-template-columns: repeat(7, 1fr);
+        gap: 7px;
+    }
+    .chaser-item-pill {
+        background: rgba(255, 255, 255, 0.07);
+        border: 1px solid rgba(255, 255, 255, 0.13);
+        border-radius: 11px;
+        padding: 5px 7px;
+        display: flex;
+        align-items: center;
+        gap: 5px;
+        transition: transform 0.15s, background 0.15s, border-color 0.15s;
+        min-width: 0;
+        cursor: default;
+    }
+    .chaser-item-pill:hover {
+        transform: translateY(-2px);
+        background: rgba(255, 255, 255, 0.13);
+        border-color: #38bdf8;
+    }
+    .chaser-item-pill.item-is-me {
+        background: rgba(245, 158, 11, 0.25) !important;
+        border-color: #fbbf24 !important;
+        box-shadow: 0 0 12px rgba(245, 158, 11, 0.5) !important;
+    }
+    .chaser-item-pill.item-is-me .item-name { color: #fef08a !important; }
+    .item-rank-num {
+        width: 19px;
+        height: 19px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-family: 'Fredoka', cursive, sans-serif;
+        font-size: 9.5px;
+        font-weight: 900;
+        color: #ffffff;
+        border: 1px solid rgba(255,255,255,0.5);
+        flex-shrink: 0;
+    }
+    .badge-cyan { background: linear-gradient(135deg, #0284c7, #0369a1); }
+    .badge-pink { background: linear-gradient(135deg, #ec4899, #be185d); }
+    .item-avatar-col { position: relative; flex-shrink: 0; }
+    .item-avatar-img {
+        width: 30px;
+        height: 30px;
+        border-radius: 50%;
+        border: 1.5px solid #ffffff;
+        object-fit: cover;
+        box-shadow: 0 2px 5px rgba(0,0,0,0.3);
+    }
+    .item-mini-ribbon {
+        position: absolute;
+        bottom: -4px;
+        right: -4px;
+        font-size: 10px;
+        line-height: 1;
+        filter: drop-shadow(0 1px 2px rgba(0,0,0,0.5));
+    }
+    .item-info-col {
+        display: flex;
+        flex-direction: column;
+        min-width: 0;
+        flex: 1;
+    }
+    .item-name {
+        font-size: 10.5px;
+        font-weight: 800;
+        color: #ffffff;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        line-height: 1.2;
+    }
+    .item-class {
+        font-size: 9px;
+        font-weight: 600;
+        color: #94a3b8;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+    .item-score {
+        display: inline-flex;
+        align-items: center;
+        gap: 2px;
+        font-family: 'Fredoka', cursive, sans-serif;
+        font-size: 10px;
+        font-weight: 700;
+        color: #fef08a;
+        margin-top: 1px;
+    }
+    .item-score .score-star { font-size: 9px; }
+    .chaser-empty-row { color: #94a3b8; font-size: 12px; padding: 8px 0; text-align: center; }
+
+    /* 3. PLAYER FOOTER HUD */
+    .hero-player-footer-hud {
+        background: linear-gradient(90deg, #07173a 0%, #0c2860 50%, #07173a 100%);
+        border-top: 1.5px solid rgba(56, 189, 248, 0.35);
+        padding: 7px 16px;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 10px;
+        position: relative;
+        z-index: 22;
+        color: #ffffff;
+    }
+    .footer-hud-left { display: flex; align-items: center; gap: 9px; }
+    .footer-rank-badge {
+        width: 32px;
+        height: 32px;
+        border-radius: 50%;
+        background: linear-gradient(135deg, #38bdf8, #0284c7);
+        border: 2px solid #fef08a;
+        color: #ffffff;
+        font-family: 'Fredoka', cursive, sans-serif;
+        font-size: 13px;
+        font-weight: 700;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        box-shadow: 0 0 10px rgba(56,189,248,0.6);
+        flex-shrink: 0;
+    }
+    .rank-top3 {
+        background: linear-gradient(135deg, #fbbf24, #d97706);
+        box-shadow: 0 0 14px rgba(245,158,11,0.9) !important;
+    }
+    .context-label {
+        font-size: 11px;
+        font-weight: 850;
+        color: #e0f2fe;
+        letter-spacing: 0.3px;
+    }
+    .footer-hud-center { display: flex; align-items: center; }
+    .hud-status-text { font-size: 12.5px; font-weight: 700; color: #e0f2fe; }
+    .footer-hud-right { display: flex; align-items: center; }
+    .btn-luyen-ngay-action {
+        background: linear-gradient(180deg, #fbbf24 0%, #f59e0b 50%, #d97706 100%);
+        border: 1.5px solid #fef08a;
+        border-radius: 999px;
+        padding: 5px 18px;
+        font-family: 'Fredoka', cursive, sans-serif;
+        font-size: 12.5px;
+        font-weight: 700;
+        color: #78350f;
+        text-decoration: none;
+        display: inline-flex;
+        align-items: center;
+        gap: 4px;
+        box-shadow: 0 3px 0 #92400e, 0 4px 10px rgba(0,0,0,0.2);
+        white-space: nowrap;
+        transition: transform 0.15s;
+    }
+    .btn-luyen-ngay-action:hover { transform: translateY(-2px); color: #78350f; }
+
+    /* Modal leaderboard theme */
+    .modal-leaderboard-theme {
+        background: linear-gradient(180deg, #0f1d38 0%, #071226 100%);
+        border: 2px solid #38bdf8;
+        border-radius: 20px;
+        color: #ffffff;
+    }
+    .modal-leaderboard-theme .modal-header {
+        background: rgba(15, 23, 42, 0.8);
+        border-bottom: 1.5px solid rgba(56, 189, 248, 0.3);
+    }
+
+    /* 4. RESPONSIVE */
+    @media (max-width: 992px) {
+        .hero-stage-viewport { min-height: 460px; }
+        .podiums-arena-trio { grid-template-columns: 1fr 1.1fr 1fr; gap: 8px; }
+        .sprite-gold { height: 148px; }
+        .sprite-silver { height: 128px; }
+        .sprite-bronze { height: 125px; }
+        .chaser-dock-cards-row {
+            display: flex;
+            overflow-x: auto;
+            scroll-snap-type: x mandatory;
+            gap: 7px;
+            padding-bottom: 4px;
+        }
+        .chaser-item-pill {
+            min-width: 130px;
+            scroll-snap-align: start;
+        }
+    }
+    @media (max-width: 640px) {
+        .sky-floating-hud { flex-direction: column; align-items: stretch; gap: 7px; }
+        .hero-player-footer-hud { flex-direction: column; align-items: stretch; text-align: center; gap: 7px; }
+        .footer-hud-left, .footer-hud-center, .footer-hud-right { justify-content: center; }
+        .scenery-prop { display: none; }
+        .crest-title-ic3 { font-size: 18px; }
+    }
+    @media (prefers-reduced-motion: reduce) {
+        .champion-crown-orbit, .champion-halo-ray, .prop-right, .timer-clock-badge { animation: none !important; }
+    }
+
+/* =========================================================================
        CTA BANNER (BÍ KÍP CÀY SAO)
        ========================================================================= */
     .adventure-cta-banner {
@@ -1675,173 +1831,11 @@
         display: inline-flex;
         align-items: center;
         gap: 6px;
-        box-shadow: 0 4px 0 #0284c7, 0 6px 14px rgba(0,0,0,0.15);
+        box-shadow: 0 4px 0 #024e75, 0 6px 14px rgba(0,0,0,0.15);
         white-space: nowrap;
         transition: transform 0.15s ease;
     }
     .btn-cta-action:hover { transform: translateY(-2px); }
-
-    /* =========================================================================
-       MODAL 3D POPUP CHI TIẾT HUY HIỆU
-       ========================================================================= */
-    .badge-modal-overlay {
-        position: fixed;
-        inset: 0;
-        background: rgba(15, 23, 42, 0.7);
-        backdrop-filter: blur(8px);
-        -webkit-backdrop-filter: blur(8px);
-        z-index: 9999;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        padding: 20px;
-    }
-    .badge-modal-box {
-        background: #ffffff;
-        border: 4px solid #38bdf8;
-        border-radius: 26px;
-        width: min(460px, 100%);
-        padding: 28px 24px;
-        text-align: center;
-        position: relative;
-        box-shadow: 0 20px 40px rgba(0,0,0,0.3);
-        animation: modalScale 0.25s cubic-bezier(0.16, 1, 0.3, 1);
-    }
-    @keyframes modalScale {
-        from { opacity: 0; transform: scale(0.9); }
-        to { opacity: 1; transform: scale(1); }
-    }
-    .modal-close-btn {
-        position: absolute;
-        top: 14px;
-        right: 14px;
-        background: #f1f5f9;
-        border: none;
-        width: 32px;
-        height: 32px;
-        border-radius: 50%;
-        font-size: 15px;
-        cursor: pointer;
-        color: #64748b;
-        font-weight: 800;
-        display: grid;
-        place-items: center;
-    }
-    .modal-close-btn:hover { background: #e2e8f0; color: #0f172a; }
-
-    .modal-hero-orb {
-        width: 80px;
-        height: 80px;
-        border-radius: 50%;
-        margin: 0 auto 12px;
-        display: grid;
-        place-items: center;
-        font-size: 42px;
-        background: linear-gradient(135deg, #fef08a, #fde047);
-        border: 4px solid #facc15;
-        box-shadow: 0 0 20px rgba(234, 179, 8, 0.5);
-    }
-    .modal-badge-type {
-        font-size: 11px;
-        font-weight: 900;
-        color: #b45309;
-        letter-spacing: 0.8px;
-        text-transform: uppercase;
-        background: #fef3c7;
-        padding: 2px 10px;
-        border-radius: 999px;
-    }
-    .modal-badge-title {
-        font-family: 'Fredoka', cursive, sans-serif;
-        font-size: 22px;
-        font-weight: 700;
-        color: #0f172a;
-        margin: 6px 0 4px;
-    }
-    .modal-badge-meaning {
-        font-size: 13px;
-        color: #64748b;
-        line-height: 1.4;
-        margin: 0 0 16px;
-    }
-
-    .modal-stats-card {
-        background: #f8fafc;
-        border: 1.5px solid #e2e8f0;
-        border-radius: 16px;
-        padding: 14px 16px;
-        text-align: left;
-        margin-bottom: 20px;
-    }
-    .modal-stat-row {
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
-        padding-bottom: 8px;
-        margin-bottom: 8px;
-        border-bottom: 1px dashed #e2e8f0;
-        gap: 10px;
-    }
-    .stat-row-label {
-        font-size: 12px;
-        color: #64748b;
-        font-weight: 700;
-    }
-    .stat-row-val {
-        font-size: 12.5px;
-        color: #0f172a;
-        font-weight: 800;
-        text-align: right;
-    }
-    .val-reward { color: #ea580c; }
-
-    .modal-progress-track {
-        height: 8px;
-        background: #e2e8f0;
-        border-radius: 999px;
-        overflow: hidden;
-        margin-top: 10px;
-    }
-    .modal-progress-fill {
-        height: 100%;
-        background: linear-gradient(90deg, #10b981, #059669);
-        border-radius: 999px;
-        transition: width 0.3s ease;
-    }
-
-    .modal-action-footer {
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        gap: 12px;
-    }
-    .btn-modal-action {
-        flex: 1;
-        background: linear-gradient(180deg, #0284c7 0%, #0369a1 100%);
-        border: 2px solid #7dd3fc;
-        color: #ffffff;
-        font-family: 'Fredoka', cursive, sans-serif;
-        font-size: 14.5px;
-        font-weight: 700;
-        padding: 11px 18px;
-        border-radius: 14px;
-        text-decoration: none;
-        display: inline-flex;
-        align-items: center;
-        justify-content: center;
-        gap: 6px;
-        box-shadow: 0 4px 0 #024e75;
-    }
-    .btn-modal-close {
-        background: #f1f5f9;
-        border: 1.5px solid #cbd5e1;
-        color: #475569;
-        font-size: 13.5px;
-        font-weight: 750;
-        padding: 11px 18px;
-        border-radius: 14px;
-        cursor: pointer;
-    }
 </style>
 
 <script>
@@ -1936,7 +1930,7 @@
         isLeaderboardLoading = true;
 
         // Cập nhật giao diện tab ngay lập tức (instant visual feedback)
-        document.querySelectorAll('.grade-filter-pill').forEach(pill => {
+        document.querySelectorAll('.arena-grade-pill').forEach(pill => {
             const isActive = pill.getAttribute('data-grade') === String(grade);
             pill.classList.toggle('pill-active', isActive);
         });
@@ -2022,59 +2016,6 @@
 
         updateCountdown();
         leaderboardCountdownInterval = setInterval(updateCountdown, 1000);
-    }
-
-    // =========================================================================
-    // 🎖️ MODAL 3D CHI TIẾT HUY HIỆU DANH DỰ
-    // =========================================================================
-    const badgesData = @json($badges);
-
-    function openBadgeModal(badgeId) {
-        const badge = badgesData.find(b => b.id === badgeId);
-        if (!badge) return;
-
-        const modal = document.getElementById('badge-detail-modal');
-        const iconEl = document.getElementById('modal-badge-icon');
-        const typeEl = document.getElementById('modal-badge-type');
-        const titleEl = document.getElementById('modal-badge-title');
-        const meaningEl = document.getElementById('modal-badge-meaning');
-        const ruleEl = document.getElementById('modal-badge-rule');
-        const rewardEl = document.getElementById('modal-badge-reward');
-        const progressEl = document.getElementById('modal-badge-progress');
-        const fillEl = document.getElementById('modal-progress-fill');
-        const actionBtn = document.getElementById('modal-action-btn');
-
-        if (iconEl) iconEl.innerText = badge.icon;
-        if (typeEl) typeEl.innerText = badge.badge_type;
-        if (titleEl) titleEl.innerText = badge.badge_name;
-        if (meaningEl) meaningEl.innerText = badge.desc;
-        if (ruleEl) ruleEl.innerText = badge.rule;
-        if (rewardEl) rewardEl.innerText = `+${badge.reward_stars} ⭐ Sao thưởng vào ví`;
-        if (progressEl) progressEl.innerText = `${badge.progress_text} (${badge.percent}%)`;
-        if (fillEl) fillEl.style.width = `${badge.percent}%`;
-
-        if (actionBtn) {
-            if (badge.unlocked) {
-                actionBtn.innerHTML = '<span>🎉</span> Bé Đã Hoàn Thành!';
-                actionBtn.style.background = 'linear-gradient(180deg, #10b981 0%, #059669 100%)';
-                actionBtn.style.borderColor = '#6ee7b7';
-                actionBtn.href = 'javascript:void(0)';
-                actionBtn.onclick = closeBadgeModal;
-            } else {
-                actionBtn.innerHTML = '<span>🚀</span> Làm Bài Ngay (+ ' + badge.reward_stars + ' ⭐)';
-                actionBtn.style.background = 'linear-gradient(180deg, #0284c7 0%, #0369a1 100%)';
-                actionBtn.style.borderColor = '#7dd3fc';
-                actionBtn.href = '{{ route('programs') }}';
-                actionBtn.onclick = null;
-            }
-        }
-
-        if (modal) modal.style.display = 'flex';
-    }
-
-    function closeBadgeModal() {
-        const modal = document.getElementById('badge-detail-modal');
-        if (modal) modal.style.display = 'none';
     }
 
     document.addEventListener('DOMContentLoaded', () => {

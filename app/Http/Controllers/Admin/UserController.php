@@ -76,6 +76,11 @@ class UserController extends Controller
             unset($data['password']);
         }
 
+        // 🛡️ BẢO VỆ TUYỆT ĐỐI: Nếu tự sửa thông tin chính mình, tuyệt đối không cho phép đổi vai trò hoặc trạng thái
+        if ($user->id === $currentUser->id) {
+            unset($data['role'], $data['status']);
+        }
+
         // Cập nhật danh sách Khối học cho Học sinh
         // sync() thay danh sách quyền: [] là gỡ hết, còn null ở đây là không cập nhật.
         if ($levelIds !== null && $user->isStudent()) {

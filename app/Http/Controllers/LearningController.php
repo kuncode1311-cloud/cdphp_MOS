@@ -80,9 +80,11 @@ class LearningController extends Controller
         $user = $request->user() ?? auth()->user();
         $tz = config('learning.display_timezone', 'Asia/Ho_Chi_Minh');
 
-        // Lấy mốc thời gian bắt đầu vòng thi đua từ cấu hình GameSetting
+        // Lấy mốc thời gian bắt đầu vòng thi đua & cấu hình quy tắc tính điểm từ GameSetting
         $startOfLeaderboard = GameSetting::getLeaderboardResetStart();
         $resetPeriod = GameSetting::getLeaderboardResetPeriod();
+        $scoreMode = GameSetting::getLeaderboardScoreMode();
+        $minPassScore = GameSetting::getLeaderboardMinPassScore();
         $nextReset = GameSetting::getLeaderboardNextReset();
         $nextResetTimestamp = $nextReset ? $nextReset->timestamp : null;
 
@@ -93,8 +95,13 @@ class LearningController extends Controller
             ->get();
 
         $allAttempts = $user->attempts()->with('practiceTest.topic.level')->get();
-        $weeklyScore = $weeklyAttempts->sum('score');
-        $weeklyPassed = $weeklyAttempts->filter(fn ($a) => $a->score >= 700)->count();
+
+        // Điểm thi đua của học sinh hiện tại dựa trên quy tắc tính điểm (chỉ tính bài đạt chuẩn hoặc tính tất cả)
+        $userCountedWeekly = $scoreMode === 'passed_only'
+            ? $weeklyAttempts->filter(fn ($a) => $a->score >= $minPassScore)
+            : $weeklyAttempts;
+        $weeklyScore = (int) $userCountedWeekly->sum('score');
+        $weeklyPassed = (int) $weeklyAttempts->filter(fn ($a) => $a->score >= $minPassScore)->count();
 
         // Điểm Sao thưởng tích lũy & Thời gian chơi game
         $rewardStars = (int) ($user->reward_stars ?? 0);
@@ -122,10 +129,13 @@ class LearningController extends Controller
             $q->where('completed_at', '>=', $startOfLeaderboard);
         }])->get();
 
-        $leaderboard = $leaderboardStudents->map(function ($s) use ($user) {
+        $leaderboard = $leaderboardStudents->map(function ($s) use ($user, $scoreMode, $minPassScore) {
             $weeklyAtts = $s->attempts;
-            $totalScore = (int) $weeklyAtts->sum('score');
-            $passedCount = (int) $weeklyAtts->filter(fn ($a) => $a->score >= 700)->count();
+            $passedAttempts = $weeklyAtts->filter(fn ($a) => $a->score >= $minPassScore);
+            $countedAttempts = $scoreMode === 'passed_only' ? $passedAttempts : $weeklyAtts;
+
+            $totalScore = (int) $countedAttempts->sum('score');
+            $passedCount = (int) $passedAttempts->count();
             $testsCount = (int) $weeklyAtts->count();
             $bestScore = (int) ($weeklyAtts->max('score') ?? 0);
 
@@ -179,6 +189,8 @@ class LearningController extends Controller
                     'weeklyScore',
                     'weeklyAttempts',
                     'resetPeriod',
+                    'scoreMode',
+                    'minPassScore',
                     'nextResetTimestamp'
                 ))->render(),
             ]);
@@ -200,6 +212,8 @@ class LearningController extends Controller
             'rankingList',
             'myRank',
             'resetPeriod',
+            'scoreMode',
+            'minPassScore',
             'nextResetTimestamp'
         ));
     }

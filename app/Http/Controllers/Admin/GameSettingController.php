@@ -55,6 +55,8 @@ class GameSettingController extends Controller
         $leaderboardStart = GameSetting::getLeaderboardResetStart();
         $leaderboardNext = GameSetting::getLeaderboardNextReset();
         $leaderboardLastReset = GameSetting::get('leaderboard_last_reset_at');
+        $leaderboardScoreMode = GameSetting::getLeaderboardScoreMode();
+        $leaderboardMinPassScore = GameSetting::getLeaderboardMinPassScore();
 
         return view('admin.games.settings', compact(
             'settings',
@@ -67,7 +69,9 @@ class GameSettingController extends Controller
             'leaderboardPeriod',
             'leaderboardStart',
             'leaderboardNext',
-            'leaderboardLastReset'
+            'leaderboardLastReset',
+            'leaderboardScoreMode',
+            'leaderboardMinPassScore'
         ));
     }
 
@@ -135,7 +139,7 @@ class GameSettingController extends Controller
     }
 
     /**
-     * Cập nhật chu kỳ reset Bảng xếp hạng thi đua
+     * Cập nhật cấu hình Bảng xếp hạng thi đua (Chu kỳ reset, Chế độ tính điểm, Điểm chuẩn đạt)
      */
     public function updateLeaderboardSettings(Request $request): RedirectResponse
     {
@@ -143,11 +147,15 @@ class GameSettingController extends Controller
 
         $validated = $request->validate([
             'leaderboard_reset_period' => 'required|in:weekly,monthly,manual',
+            'leaderboard_score_mode' => 'required|in:passed_only,all_attempts',
+            'leaderboard_min_pass_score' => 'required|integer|min:100|max:1000',
         ]);
 
         GameSetting::set('leaderboard_reset_period', $validated['leaderboard_reset_period'], 'Chu kỳ reset Bảng xếp hạng thi đua');
+        GameSetting::set('leaderboard_score_mode', $validated['leaderboard_score_mode'], 'Chế độ tính điểm xếp hạng (passed_only hoặc all_attempts)');
+        GameSetting::set('leaderboard_min_pass_score', $validated['leaderboard_min_pass_score'], 'Điểm chuẩn tối thiểu để tính xếp hạng');
 
-        return back()->with('ok', 'Đã cập nhật chu kỳ reset Bảng xếp hạng thành công!');
+        return back()->with('ok', 'Đã cập nhật cấu hình Bảng xếp hạng thi đua thành công!');
     }
 
     /**

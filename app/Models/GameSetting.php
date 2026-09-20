@@ -64,6 +64,24 @@ class GameSetting extends Model
     }
 
     /**
+     * Lấy chế độ tính điểm xếp hạng:
+     * - 'passed_only' (mặc định): Chỉ tính điểm các bài thi ĐẠT CHUẨN IC3 (score >= min_pass_score)
+     * - 'all_attempts': Tính điểm tất cả các bài thi (không phân biệt đạt hay chưa đạt)
+     */
+    public static function getLeaderboardScoreMode(): string
+    {
+        return (string) static::get('leaderboard_score_mode', 'passed_only');
+    }
+
+    /**
+     * Lấy điểm chuẩn tối thiểu để tính điểm xếp hạng (chuẩn IC3 là 700 điểm)
+     */
+    public static function getLeaderboardMinPassScore(): int
+    {
+        return (int) static::get('leaderboard_min_pass_score', 700);
+    }
+
+    /**
      * Lấy mốc thời gian bắt đầu của đợt thi đua hiện tại (UTC để truy vấn Database)
      */
     public static function getLeaderboardResetStart(): \Carbon\Carbon

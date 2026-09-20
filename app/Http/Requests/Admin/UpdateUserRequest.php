@@ -27,9 +27,21 @@ class UpdateUserRequest extends FormRequest
         $currentUser = $this->user();
         $targetUser = $this->route('user');
 
-        // Nếu là Giáo viên cập nhật: Giữ nguyên role student
-        if ($currentUser && $currentUser->isTeacher()) {
-            $this->merge(['role' => UserRole::Student->value]);
+        if ($currentUser) {
+            // 🛡️ BẢO VỆ 1: Nếu người dùng tự cập nhật thông tin cá nhân (isSelf)
+            // Tuyệt đối giữ nguyên vai trò (role) và trạng thái (status) hiện tại, không cho phép tự sửa thành học sinh hoặc tự khóa
+            if ($targetUser && $targetUser->id === $currentUser->id) {
+                $this->merge([
+                    'role' => is_object($currentUser->role) ? $currentUser->role->value : $currentUser->role,
+                    'status' => $currentUser->status ?? 'active',
+                ]);
+            }
+            // 🛡️ BẢO VỆ 2: Nếu là Giáo viên cập nhật học sinh do mình quản lý -> vai trò luôn là student
+            elseif ($currentUser->isTeacher()) {
+                $this->merge([
+                    'role' => UserRole::Student->value,
+                ]);
+            }
         }
     }
 

@@ -3639,7 +3639,7 @@
                                         </span>
                                     @else
                                         <span style="background: #ffffff; border: 1.5px solid #c084fc; color: #7e22ce; font-weight: 900; font-size: 12px; padding: 3px 12px; border-radius: 999px; box-shadow: 0 2px 6px rgba(192, 132, 252, 0.2); white-space: nowrap;">
-                                            🟢 Còn {{ (int) now()->diffInDays($expiresAt, false) }} ngày
+                                            🟢 Còn {{ (int) max(0, ceil(now()->floatDiffInDays($expiresAt, false))) }} ngày
                                         </span>
                                     @endif
                                 @else
@@ -5139,7 +5139,7 @@
 <div id="edit-user-modal" class="modal-backdrop">
     <div class="modal-box" style="width: min(600px, 100%);">
         <div class="modal-header">
-            <h3><span>✏️</span> Chỉnh sửa thông tin & Đổi mật khẩu</h3>
+            <h3 id="edit-user-modal-title"><span>✏️</span> Chỉnh sửa thông tin & Đổi mật khẩu</h3>
             <button type="button" class="modal-close-btn" onclick="closeEditUserModal()">✕</button>
         </div>
         <form id="edit-user-form" method="post" action="" onsubmit="handleAjaxUserForm(event, this)">
@@ -5152,16 +5152,16 @@
                         <input name="name" id="edit-user-name" class="form-control" required placeholder="Ví dụ: Nguyễn Văn An">
                         <small class="modal-field-hint">Tên đầy đủ của người dùng</small>
                     </div>
-                    <div class="form-group">
+                    <div class="form-group" id="edit-group-role">
                         <label><span class="label-title">🛡️ Vai trò tài khoản <span class="req">*</span></span></label>
                         <select name="role" id="edit-user-role" class="form-control" onchange="toggleEditStudentClassSelect(this.value)" required style="font-weight:800;">
                             <option value="student">👨‍🎓 Học sinh</option>
-                            @if(! $isTeacher)
                             <option value="teacher">👩‍🏫 Giáo viên</option>
+                            @if(! $isTeacher)
                             <option value="admin">👑 Quản trị viên</option>
                             @endif
                         </select>
-                        <small class="modal-field-hint">Phân quyền chức năng</small>
+                        <small class="modal-field-hint" id="edit-user-role-hint">Phân quyền chức năng</small>
                     </div>
                     <div class="form-group">
                         <label>
@@ -5177,13 +5177,13 @@
                         <input name="student_code" id="edit-user-student-code" class="form-control" placeholder="Ví dụ: HS004">
                         <small class="modal-field-hint">Mã đăng nhập nhanh của học sinh</small>
                     </div>
-                    <div class="form-group" style="grid-column: 1 / -1;">
+                    <div class="form-group" id="edit-group-status" style="grid-column: 1 / -1;">
                         <label><span class="label-title">⚡ Trạng thái hoạt động <span class="req">*</span></span></label>
                         <select name="status" id="edit-user-status" class="form-control" style="font-weight:800;">
                             <option value="active">🟢 Đang hoạt động / Được phép học (Active)</option>
                             <option value="suspended">🔒 Tạm khóa quyền truy cập (Suspended)</option>
                         </select>
-                        <small class="modal-field-hint">Khi bị khóa, học sinh sẽ không thể đăng nhập hoặc làm bài thi</small>
+                        <small class="modal-field-hint" id="edit-user-status-hint">Khi bị khóa, học sinh sẽ không thể đăng nhập hoặc làm bài thi</small>
                     </div>
                     <div class="form-group" style="grid-column: 1 / -1; background:#fffbeb; border:1.5px dashed #fde68a; border-radius:10px; padding:12px 14px;">
                         <label style="margin-bottom:4px;">
@@ -5824,88 +5824,192 @@
 </div>
 
 <!-- ===========================================================================
-     👩‍🏫 MODAL HỒ SƠ GIÁO VIÊN & TÀI KHOẢN CÁ NHÂN (TEACHER PROFILE MODAL)
+     👩‍🏫 MODAL HỒ SƠ GIÁO VIÊN & TÀI KHOẢN CÁ NHÂN (MODERN PROFILE MODAL)
      =========================================================================== -->
 <div id="teacher-profile-modal" class="modal-backdrop" style="display:none; z-index: 10500;">
-    <div class="modal-box" style="width: min(600px, 95vw); border-radius: 20px; overflow: hidden; box-shadow: 0 25px 60px -15px rgba(0, 0, 0, 0.35); border: 3px solid #ffffff;">
-        <!-- Header Banner 3D -->
-        <div style="background: linear-gradient(135deg, #047857 0%, #065f46 50%, #0f172a 100%); padding: 24px 28px; color: #ffffff; position: relative;">
-            <button type="button" class="modal-close-btn" onclick="closeTeacherProfileModal()" style="position: absolute; right: 16px; top: 16px; color: #ffffff; background: rgba(255,255,255,0.2); border: none; border-radius: 50%; width: 32px; height: 32px; cursor: pointer; display: grid; place-items: center; font-size: 14px;">✕</button>
-            <div style="display: flex; align-items: center; gap: 16px;">
-                <div style="width: 64px; height: 64px; border-radius: 18px; background: linear-gradient(135deg, #10b981, #06b6d4); color: #ffffff; font-size: 26px; font-weight: 900; display: grid; place-items: center; box-shadow: 0 4px 16px rgba(0,0,0,0.3); border: 3px solid #ffffff; flex-shrink: 0;">
-                    {{ $isTeacher ? 'GV' : 'AD' }}
+    <div class="modal-box" style="width: min(580px, 95vw); border-radius: 22px; overflow: hidden; background: #ffffff; border: 3px solid #ffffff; box-shadow: 0 25px 60px -15px rgba(15, 23, 42, 0.3), 0 0 0 1px rgba(226, 232, 240, 0.8);">
+        
+        <!-- 1. Cover Banner Nền Sống Động Hiện Đại (Modern Profile Cover) -->
+        <div style="height: 95px; background: linear-gradient(135deg, #1e40af 0%, #0284c7 50%, #0ea5e9 100%); position: relative; overflow: hidden;">
+            <!-- Họa tiết sóng ánh sáng trang trí -->
+            <div style="position: absolute; inset: 0; background: radial-gradient(circle at 80% 20%, rgba(255,255,255,0.25) 0%, transparent 60%);"></div>
+            <div style="position: absolute; bottom: 0; left: 0; right: 0; height: 30px; background: linear-gradient(to top, rgba(0,0,0,0.08), transparent);"></div>
+            
+            <button type="button" class="modal-close-btn" onclick="closeTeacherProfileModal()" style="position: absolute; right: 14px; top: 14px; color: #ffffff; background: rgba(0, 0, 0, 0.25); backdrop-filter: blur(8px); border: 1.5px solid rgba(255,255,255,0.3); border-radius: 50%; width: 32px; height: 32px; cursor: pointer; display: grid; place-items: center; font-size: 13px; font-weight: 900; transition: all 0.2s;" onmouseover="this.style.background='rgba(239, 68, 68, 0.85)'; this.style.borderColor='#fca5a5';" onmouseout="this.style.background='rgba(0, 0, 0, 0.25)'; this.style.borderColor='rgba(255,255,255,0.3)';">✕</button>
+        </div>
+
+        <!-- 2. Avatar Overlap & Thông Tin Cá Nhân Sắc Nét -->
+        <div style="padding: 0 24px 16px; position: relative;">
+            <div style="display: flex; align-items: flex-end; justify-content: space-between; margin-top: -42px; margin-bottom: 12px;">
+                <!-- Avatar 3D nổi bật có chấm online -->
+                <div style="position: relative; width: 76px; height: 76px; flex-shrink: 0;">
+                    <div style="width: 100%; height: 100%; border-radius: 20px; background: linear-gradient(135deg, #0284c7 0%, #0ea5e9 100%); color: #ffffff; font-size: 30px; font-weight: 900; display: grid; place-items: center; box-shadow: 0 10px 25px rgba(2, 132, 199, 0.35); border: 4px solid #ffffff;">
+                        {{ $isTeacher ? 'GV' : 'AD' }}
+                    </div>
+                    <div style="position: absolute; bottom: 2px; right: 2px; width: 16px; height: 16px; background: #22c55e; border: 3px solid #ffffff; border-radius: 50%; box-shadow: 0 2px 5px rgba(0,0,0,0.15);" title="Đang hoạt động"></div>
                 </div>
-                <div style="min-width: 0; flex: 1;">
-                    <div style="display: flex; align-items: center; gap: 8px; flex-wrap: wrap;">
-                        <h3 style="margin: 0; font-size: 20px; font-weight: 900; color: #ffffff; text-shadow: 0 1px 3px rgba(0,0,0,0.2);">
-                            {{ auth()->user()->name }}
-                        </h3>
-                        <span style="font-size: 11px; padding: 2px 8px; border-radius: 999px; font-weight: 800; background: #34d399; color: #064e3b;">
-                            {{ $isTeacher ? '👩‍🏫 Giáo Viên Phụ Trách' : '👑 Quản Trị Viên' }}
+                <!-- Badge Vai Trò Hiện Đại -->
+                <span style="font-size: 12px; padding: 5px 12px; border-radius: 999px; font-weight: 850; background: #ecfdf5; color: #047857; border: 1.5px solid #a7f3d0; box-shadow: 0 2px 6px rgba(16, 185, 129, 0.12); display: inline-flex; align-items: center; gap: 5px;">
+                    {{ $isTeacher ? '👩‍🏫 Giáo Viên Phụ Trách' : '👑 Quản Trị Viên' }}
+                </span>
+            </div>
+
+            <!-- Tên & Liên hệ rõ chữ, phân tách chip thẻ -->
+            <div>
+                <h3 style="margin: 0; font-size: 21px; font-weight: 900; color: #0f172a; letter-spacing: -0.4px;">
+                    {{ auth()->user()->name }}
+                </h3>
+                
+                <div style="display: flex; align-items: center; gap: 8px; margin-top: 8px; flex-wrap: wrap;">
+                    <span style="display: inline-flex; align-items: center; gap: 5px; padding: 4px 10px; background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 8px; font-size: 12px; color: #334155; font-weight: 700;">
+                        <span>✉️</span> {{ auth()->user()->email }}
+                    </span>
+                    @if(auth()->user()->phone)
+                        <span style="display: inline-flex; align-items: center; gap: 5px; padding: 4px 10px; background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 8px; font-size: 12px; color: #334155; font-weight: 700;">
+                            <span>📞</span> {{ auth()->user()->phone }}
                         </span>
-                    </div>
-                    <div style="font-size: 12.5px; color: #a7f3d0; margin-top: 4px; font-weight: 600;">
-                        {{ auth()->user()->email }}
-                    </div>
+                    @endif
+                    @if(auth()->user()->school_name)
+                        <span style="display: inline-flex; align-items: center; gap: 5px; padding: 4px 10px; background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 8px; font-size: 12px; color: #334155; font-weight: 700;">
+                            <span>🏫</span> {{ auth()->user()->school_name }}
+                        </span>
+                    @endif
                 </div>
             </div>
         </div>
 
-        <!-- Body: Chi Tiết Gói & Quota Năng Lực -->
-        <div class="modal-body" style="padding: 22px 26px; background: #f8fafc;">
+        <!-- 3. Thẻ Bản Quyền & Năng Lực (VIP Subscription Card) -->
+        <div class="modal-body" style="padding: 0 24px 20px; background: #ffffff;">
             @if($isTeacher)
-                <!-- Thông tin gói bản quyền -->
-                <div style="background: #ffffff; border: 1.5px solid #cbd5e1; border-radius: 14px; padding: 16px; margin-bottom: 16px; box-shadow: 0 2px 8px rgba(0,0,0,0.04);">
-                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
-                        <div style="display: flex; align-items: center; gap: 6px;">
-                            <span style="font-size: 16px;">👑</span>
-                            <b style="font-size: 14px; color: #0f172a;">{{ $activeTeacherOrder ? $activeTeacherOrder->package_name : 'Gói Bản Quyền Giảng Dạy Đặc Cách' }}</b>
+                @php
+                    $quotaPct = ($maxStudents > 0) ? min(100, round(($usedStudents / $maxStudents) * 100)) : 0;
+                    $remainSlots = max(0, ($maxStudents ?: 0) - $usedStudents);
+                    $daysLeft = $expiresAt ? (int) max(0, ceil(now()->floatDiffInDays($expiresAt, false))) : null;
+                @endphp
+
+                <div style="background: #ffffff; border: 1.5px solid #cbd5e1; border-radius: 18px; overflow: hidden; margin-bottom: 16px; box-shadow: 0 10px 25px -5px rgba(15, 23, 42, 0.07);">
+                    
+                    <!-- Header Gói Thanh Lịch -->
+                    <div style="background: #f8fafc; border-bottom: 1.5px solid #e2e8f0; padding: 12px 16px; display: flex; justify-content: space-between; align-items: center;">
+                        <div style="display: flex; align-items: center; gap: 10px;">
+                            <div style="width: 32px; height: 32px; border-radius: 10px; background: #fef3c7; border: 1.5px solid #fde68a; display: grid; place-items: center; font-size: 16px; flex-shrink: 0;">
+                                👑
+                            </div>
+                            <div>
+                                <small style="font-size: 10px; font-weight: 850; color: #64748b; text-transform: uppercase; letter-spacing: 0.5px; display: block;">GÓI BẢN QUYỀN ĐANG DÙNG</small>
+                                <b style="font-size: 15px; color: #0f172a; font-weight: 900; display: block;">
+                                    {{ $activeTeacherOrder ? $activeTeacherOrder->package_name : 'Gói Tiêu Chuẩn (Standard)' }}
+                                </b>
+                            </div>
                         </div>
-                        <span style="font-size: 11px; font-weight: 800; color: #059669; background: #dcfce7; padding: 2px 8px; border-radius: 6px;">
-                            🟢 Đang hoạt động
+                        <span style="font-size: 11.5px; font-weight: 850; color: #15803d; background: #dcfce7; border: 1.5px solid #86efac; padding: 3px 10px; border-radius: 999px; display: inline-flex; align-items: center; gap: 5px;">
+                            <span style="width: 7px; height: 7px; border-radius: 50%; background: #16a34a;"></span> Đang hoạt động
                         </span>
                     </div>
 
-                    <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; text-align: center; margin-top: 12px;">
-                        <div style="background: #f1f5f9; padding: 10px 8px; border-radius: 10px;">
-                            <small style="font-size: 10.5px; color: #64748b; font-weight: 800; display: block;">SĨ SỐ QUOTA</small>
-                            <b style="font-size: 14px; color: #0284c7; display: block; margin-top: 2px;">{{ $usedStudents }} / {{ $maxStudents ?: '∞' }}</b>
+                    <!-- Thân Thẻ: 2 Cột Thống Kê Sĩ Số & Hạn Dùng -->
+                    <div style="padding: 14px 16px; display: flex; flex-direction: column; gap: 12px;">
+                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
+                            
+                            <!-- Cột Sĩ Số -->
+                            <div style="background: #f8fafc; border: 1.5px solid #e2e8f0; border-radius: 14px; padding: 12px 14px;">
+                                <div style="display: flex; justify-content: space-between; align-items: center;">
+                                    <span style="font-size: 10.5px; font-weight: 850; color: #64748b; text-transform: uppercase;">👥 SĨ SỐ HỌC SINH</span>
+                                    <span style="font-size: 11px; font-weight: 800; color: #0284c7; background: #e0f2fe; padding: 2px 7px; border-radius: 6px;">{{ $quotaPct }}%</span>
+                                </div>
+                                <div style="font-size: 20px; font-weight: 900; color: #0f172a; margin-top: 4px; line-height: 1.2;">
+                                    <span style="color: #0284c7;">{{ $usedStudents }}</span> <span style="font-size: 13px; font-weight: 700; color: #64748b;">/ {{ $maxStudents ?: '∞' }} HS</span>
+                                </div>
+                                <!-- Thanh tiến độ mini -->
+                                <div style="height: 6px; background: #e2e8f0; border-radius: 999px; margin-top: 8px; overflow: hidden;">
+                                    <div style="height: 100%; width: {{ $quotaPct }}%; background: linear-gradient(90deg, #0284c7, #38bdf8); border-radius: 999px;"></div>
+                                </div>
+                                <small style="font-size: 11px; color: #475569; font-weight: 700; margin-top: 6px; display: block;">
+                                    Còn trống <b style="color: #0284c7;">{{ $remainSlots }}</b> suất
+                                </small>
+                            </div>
+
+                            <!-- Cột Hạn Dùng (Đảm bảo số ngày luôn là số nguyên sạch đẹp) -->
+                            <div style="background: #f8fafc; border: 1.5px solid #e2e8f0; border-radius: 14px; padding: 12px 14px;">
+                                <div style="font-size: 10.5px; font-weight: 850; color: #64748b; text-transform: uppercase;">
+                                    ⏰ THỜI HẠN BẢN QUYỀN
+                                </div>
+                                <div style="font-size: 19px; font-weight: 900; color: #0f172a; margin-top: 4px; line-height: 1.2;">
+                                    {{ $expiresAt ? $expiresAt->format('d/m/Y') : 'Vĩnh viễn' }}
+                                </div>
+                                <div style="margin-top: 8px;">
+                                    @if($daysLeft !== null)
+                                        <span style="display: inline-flex; align-items: center; gap: 4px; font-size: 11.5px; font-weight: 850; color: #047857; background: #ecfdf5; padding: 3px 9px; border-radius: 6px; border: 1px solid #a7f3d0;">
+                                            <span>⏳</span> Còn <b>{{ $daysLeft }}</b> ngày
+                                        </span>
+                                    @else
+                                        <span style="display: inline-flex; align-items: center; gap: 4px; font-size: 11.5px; font-weight: 850; color: #047857; background: #ecfdf5; padding: 3px 9px; border-radius: 6px; border: 1px solid #a7f3d0;">
+                                            <span>♾️</span> Sử dụng trọn đời
+                                        </span>
+                                    @endif
+                                </div>
+                            </div>
+
                         </div>
-                        <div style="background: #f1f5f9; padding: 10px 8px; border-radius: 10px;">
-                            <small style="font-size: 10.5px; color: #64748b; font-weight: 800; display: block;">KHỐI ĐƯỢC CẤP</small>
-                            <b style="font-size: 12.5px; color: #0f172a; display: block; margin-top: 2px;">
+
+                        <!-- Khối Lớp Giảng Dạy -->
+                        <div style="background: #ffffff; border: 1.5px solid #e2e8f0; border-radius: 12px; padding: 10px 14px; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 8px;">
+                            <span style="font-size: 11.5px; font-weight: 850; color: #475569; display: flex; align-items: center; gap: 6px;">
+                                <span>🎒</span> KHỐI GIẢNG DẠY ĐƯỢC CẤP:
+                            </span>
+                            <div style="display: flex; gap: 6px; flex-wrap: wrap;">
                                 @forelse($teacherLevels as $tl)
-                                    Khối {{ $tl->grade }}{{ !$loop->last ? ',' : '' }}
+                                    <span style="background: #fef08a; color: #854d0e; font-weight: 900; font-size: 12px; padding: 3px 10px; border-radius: 6px; border: 1px solid #fde047;">
+                                        Khối {{ $tl->grade }}
+                                    </span>
                                 @empty
-                                    Chưa cấp
+                                    <span style="color: #64748b; font-weight: 700; font-size: 12px;">Chưa cấp khối nào</span>
                                 @endforelse
-                            </b>
-                        </div>
-                        <div style="background: #f1f5f9; padding: 10px 8px; border-radius: 10px;">
-                            <small style="font-size: 10.5px; color: #64748b; font-weight: 800; display: block;">HẠN DÙNG</small>
-                            <b style="font-size: 13px; color: #059669; display: block; margin-top: 2px;">{{ $expiresAt ? $expiresAt->format('d/m/Y') : 'Vĩnh viễn' }}</b>
+                            </div>
                         </div>
                     </div>
+
                 </div>
             @endif
 
-            <!-- Danh sách hành động nhanh -->
-            <div style="display: flex; flex-direction: column; gap: 8px;">
+            <!-- 4. Danh Sách Thao Tác Nhanh (Modern Action Cards) -->
+            <div style="display: flex; flex-direction: column; gap: 10px;">
                 @if($isTeacher)
-                    <button type="button" class="btn-ghost" onclick="closeTeacherProfileModal(); switchAdminTab('tab-teacher-packages');" style="display: flex; justify-content: space-between; align-items: center; padding: 11px 16px; border-radius: 10px; border: 1.5px solid #cbd5e1; background: #ffffff; text-align: left; cursor: pointer;">
-                        <span style="font-weight: 800; color: #334155; font-size: 13px;">💎 Xem Gói Bản Quyền & Lịch Sử Thuê Gói</span>
-                        <span style="color: #64748b; font-size: 12px;">Chi tiết ➔</span>
+                    <button type="button" onclick="closeTeacherProfileModal(); switchAdminTab('tab-teacher-packages');" style="display: flex; justify-content: space-between; align-items: center; padding: 12px 16px; border-radius: 14px; border: 1.5px solid #e2e8f0; background: #ffffff; text-align: left; cursor: pointer; transition: all 0.2s;" onmouseover="this.style.borderColor='#0284c7'; this.style.background='#f8fafc'; this.style.transform='translateY(-2px)';" onmouseout="this.style.borderColor='#e2e8f0'; this.style.background='#ffffff'; this.style.transform='none';">
+                        <div style="display: flex; align-items: center; gap: 12px;">
+                            <div style="width: 38px; height: 38px; border-radius: 12px; background: linear-gradient(135deg, #e0f2fe 0%, #bae6fd 100%); border: 1px solid #7dd3fc; color: #0284c7; display: grid; place-items: center; font-size: 18px; flex-shrink: 0;">
+                                💎
+                            </div>
+                            <div>
+                                <b style="font-size: 13.5px; color: #0f172a; font-weight: 850; display: block;">Xem Gói Bản Quyền & Lịch Sử Thuê Gói</b>
+                                <span style="font-size: 11.5px; color: #64748b; display: block;">Quản lý mã đơn, hạn mức sĩ số và yêu cầu nâng cấp gói</span>
+                            </div>
+                        </div>
+                        <span style="font-size: 12px; font-weight: 850; color: #0284c7; background: #e0f2fe; padding: 4px 10px; border-radius: 8px;">Chi tiết ➔</span>
                     </button>
                 @endif
-                <button type="button" class="btn-ghost" onclick="closeTeacherProfileModal(); openEditUserModal(null, true);" style="display: flex; justify-content: space-between; align-items: center; padding: 11px 16px; border-radius: 10px; border: 1.5px solid #cbd5e1; background: #ffffff; text-align: left; cursor: pointer;">
-                    <span style="font-weight: 800; color: #334155; font-size: 13px;">✏️ Chỉnh Sửa Thông Tin & Đổi Mật Khẩu</span>
-                    <span style="color: #64748b; font-size: 12px;">Cập nhật ➔</span>
+
+                <button type="button" onclick="closeTeacherProfileModal(); openEditUserModal(null, true);" style="display: flex; justify-content: space-between; align-items: center; padding: 12px 16px; border-radius: 14px; border: 1.5px solid #e2e8f0; background: #ffffff; text-align: left; cursor: pointer; transition: all 0.2s;" onmouseover="this.style.borderColor='#d97706'; this.style.background='#fffbeb'; this.style.transform='translateY(-2px)';" onmouseout="this.style.borderColor='#e2e8f0'; this.style.background='#ffffff'; this.style.transform='none';">
+                    <div style="display: flex; align-items: center; gap: 12px;">
+                        <div style="width: 38px; height: 38px; border-radius: 12px; background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%); border: 1px solid #fcd34d; color: #d97706; display: grid; place-items: center; font-size: 18px; flex-shrink: 0;">
+                            ✏️
+                        </div>
+                        <div>
+                            <b style="font-size: 13.5px; color: #0f172a; font-weight: 850; display: block;">Chỉnh Sửa Thông Tin & Đổi Mật Khẩu</b>
+                            <span style="font-size: 11.5px; color: #64748b; display: block;">Cập nhật họ tên, số điện thoại hoặc đổi mật khẩu mới</span>
+                        </div>
+                    </div>
+                    <span style="font-size: 12px; font-weight: 850; color: #d97706; background: #fef3c7; padding: 4px 10px; border-radius: 8px;">Cập nhật ➔</span>
                 </button>
             </div>
         </div>
 
-        <div class="modal-footer" style="padding: 12px 24px; background: #ffffff; border-top: 1.5px solid #e2e8f0; display: flex; justify-content: flex-end;">
-            <button type="button" class="btn-primary" onclick="closeTeacherProfileModal()" style="padding: 7px 20px; font-size: 13px;">
+        <!-- 5. Footer Hiện Đại -->
+        <div class="modal-footer" style="padding: 14px 24px; background: #f8fafc; border-top: 1.5px solid #e2e8f0; display: flex; justify-content: space-between; align-items: center;">
+            <span style="font-size: 12px; color: #64748b; font-weight: 700; display: flex; align-items: center; gap: 6px;">
+                <span>🛡️</span> Hệ thống Quản trị IC3 Quest
+            </span>
+            <button type="button" onclick="closeTeacherProfileModal()" style="padding: 9px 24px; font-size: 13.5px; font-weight: 850; border-radius: 12px; background: #0f172a; color: #ffffff; border: 1.5px solid #0f172a; cursor: pointer; transition: all 0.15s ease; box-shadow: 0 4px 12px rgba(15, 23, 42, 0.18);" onmouseover="this.style.background='#1e293b'; this.style.borderColor='#1e293b'; this.style.transform='translateY(-1px)';" onmouseout="this.style.background='#0f172a'; this.style.borderColor='#0f172a'; this.style.transform='none';">
                 Đóng
             </button>
         </div>
@@ -7901,10 +8005,49 @@
         document.getElementById('edit-user-name').value = d.name || '';
         document.getElementById('edit-user-email').value = d.email || '';
         document.getElementById('edit-user-student-code').value = d.studentCode || d.code || '';
-        document.getElementById('edit-user-role').value = d.role || 'student';
         document.getElementById('edit-user-password').value = '';
-        if (document.getElementById('edit-user-status')) {
-            document.getElementById('edit-user-status').value = d.status || 'active';
+
+        const roleSelect = document.getElementById('edit-user-role');
+        const roleHint = document.getElementById('edit-user-role-hint');
+        const statusSelect = document.getElementById('edit-user-status');
+        const statusHint = document.getElementById('edit-user-status-hint');
+        const titleEl = document.getElementById('edit-user-modal-title');
+        const isCurrentTeacher = {{ $isTeacher ? 'true' : 'false' }};
+
+        if (roleSelect) {
+            roleSelect.value = d.role || 'student';
+            if (isSelf) {
+                // Tự sửa chính mình: Cố định vai trò, không cho phép tự sửa thành học sinh
+                roleSelect.disabled = true;
+                if (roleHint) roleHint.innerHTML = '<span style="color:#0284c7; font-weight:800;">🔒 Vai trò cố định (Không thể tự thay đổi)</span>';
+            } else if (isCurrentTeacher) {
+                // Giáo viên sửa học sinh: Cố định vai trò học sinh
+                roleSelect.value = 'student';
+                roleSelect.disabled = true;
+                if (roleHint) roleHint.innerHTML = '<span style="color:#64748b; font-weight:700;">Giáo viên chỉ quản lý tài khoản Học sinh</span>';
+            } else {
+                // Quản trị viên sửa người dùng
+                roleSelect.disabled = false;
+                if (roleHint) roleHint.innerHTML = 'Phân quyền chức năng';
+            }
+        }
+
+        if (statusSelect) {
+            statusSelect.value = d.status || 'active';
+            if (isSelf) {
+                // Tự sửa chính mình: Cố định trạng thái hoạt động, không tự khóa mình
+                statusSelect.disabled = true;
+                if (statusHint) statusHint.innerHTML = '<span style="color:#059669; font-weight:800;">🟢 Tài khoản của bạn luôn ở trạng thái hoạt động</span>';
+            } else {
+                statusSelect.disabled = false;
+                if (statusHint) statusHint.innerHTML = 'Khi bị khóa, học sinh sẽ không thể đăng nhập hoặc làm bài thi';
+            }
+        }
+
+        if (titleEl) {
+            titleEl.innerHTML = isSelf 
+                ? '<span>✏️</span> Chỉnh sửa thông tin cá nhân & Đổi mật khẩu'
+                : '<span>✏️</span> Chỉnh sửa tài khoản người dùng';
         }
 
         const teacherSelect = document.getElementById('edit-user-teacher-select');
@@ -7912,7 +8055,18 @@
             teacherSelect.value = d.teacherId || '';
         }
 
-        toggleEditStudentClassSelect(d.role || 'student');
+        // Ẩn/hiện các ô đặc thù của học sinh
+        if (isSelf) {
+            // Đang tự sửa chính mình (Giáo viên hoặc Admin): Ẩn toàn bộ ô dành riêng cho học sinh
+            const codeGroup = document.getElementById('edit-group-student-code');
+            const levelsBox = document.getElementById('edit-student-levels-box');
+            const teacherGroup = document.getElementById('edit-group-select-teacher');
+            if (codeGroup) codeGroup.style.display = 'none';
+            if (levelsBox) levelsBox.style.display = 'none';
+            if (teacherGroup) teacherGroup.style.display = 'none';
+        } else {
+            toggleEditStudentClassSelect(d.role || 'student');
+        }
 
         let levelIds = [];
         try {
@@ -7925,7 +8079,7 @@
             cb.checked = levelIds.includes(parseInt(cb.value));
         });
 
-        modal.style.zIndex = isSelf ? '1200' : '1000';
+        modal.style.zIndex = isSelf ? '12000' : '1000';
         modal.style.display = 'grid';
     }
 

@@ -349,12 +349,12 @@
                         <span style="font-size:12px; color:var(--text-muted); font-weight:700;">Thi đua toàn trường</span>
                     </div>
 
-                    <!-- 1. Cấu hình Chu kỳ Reset -->
+                    <!-- 1. Cấu hình Chu kỳ & Chế độ tính điểm Bảng Xếp Hạng -->
                     <form method="post" action="{{ route('admin.games.leaderboard.settings') }}" style="margin-bottom: 18px;">
                         @csrf
                         <div class="form-unit">
                             <label class="form-label">⏱️ Chu kỳ Reset Bảng Xếp Hạng</label>
-                            <select name="leaderboard_reset_period" class="form-select" onchange="this.form.submit()">
+                            <select name="leaderboard_reset_period" class="form-select">
                                 <option value="weekly" {{ ($leaderboardPeriod ?? 'weekly') === 'weekly' ? 'selected' : '' }}>
                                     📅 Hàng tuần (Tự động reset vào 00:00 Thứ Hai)
                                 </option>
@@ -365,9 +365,42 @@
                                     ✋ Thủ công (Chỉ reset khi Quản trị viên bấm nút)
                                 </option>
                             </select>
-                            <small style="color:var(--text-muted); font-size:11.5px; display:block; margin-top:4px;">
-                                Thay đổi có hiệu lực ngay lập tức. Điểm thi đua của học sinh sẽ được tính từ mốc bắt đầu của chu kỳ này.
-                            </small>
+                        </div>
+
+                        <!-- Chế độ tính điểm xếp hạng -->
+                        <div class="form-unit" style="margin-top: 14px;">
+                            <label class="form-label">🎯 Quy Tắc Tính Điểm Đua Top Bảng Vàng</label>
+                            <div style="display: flex; flex-direction: column; gap: 8px; margin-top: 6px;">
+                                <label style="display: flex; align-items: flex-start; gap: 10px; background: #eff6ff; border: 1.5px solid #bfdbfe; border-radius: 10px; padding: 10px 12px; cursor: pointer;">
+                                    <input type="radio" name="leaderboard_score_mode" value="passed_only" {{ ($leaderboardScoreMode ?? 'passed_only') === 'passed_only' ? 'checked' : '' }} style="margin-top: 3px;">
+                                    <div>
+                                        <b style="color: #1e40af; font-size: 13.5px; display: block;">🌟 Chỉ tính bài thi ĐẠT CHUẨN IC3 (≥ {{ $leaderboardMinPassScore ?? 700 }}đ) — Khuyên dùng</b>
+                                        <span style="color: #475569; font-size: 12px; line-height: 1.35; display: block;">Học sinh phải đạt từ điểm chuẩn trở lên mới được tích lũy điểm vào Bảng Vàng thi đua. Khích lệ tinh thần ôn luyện chất lượng cao.</span>
+                                    </div>
+                                </label>
+                                <label style="display: flex; align-items: flex-start; gap: 10px; background: #f8fafc; border: 1.5px solid #e2e8f0; border-radius: 10px; padding: 10px 12px; cursor: pointer;">
+                                    <input type="radio" name="leaderboard_score_mode" value="all_attempts" {{ ($leaderboardScoreMode ?? 'passed_only') === 'all_attempts' ? 'checked' : '' }} style="margin-top: 3px;">
+                                    <div>
+                                        <b style="color: #334155; font-size: 13.5px; display: block;">📊 Tính TẤT CẢ các bài thi (Kể cả dưới điểm chuẩn)</b>
+                                        <span style="color: #64748b; font-size: 12px; line-height: 1.35; display: block;">Cộng dồn toàn bộ điểm của mọi lượt làm bài, bất kể điểm số đạt hay không đạt.</span>
+                                    </div>
+                                </label>
+                            </div>
+                        </div>
+
+                        <!-- Điểm chuẩn tối thiểu -->
+                        <div class="form-unit" style="margin-top: 14px;">
+                            <label class="form-label">🏅 Điểm Chuẩn Tối Thiểu Đạt Chuẩn IC3</label>
+                            <div style="display: flex; align-items: center; gap: 10px;">
+                                <input type="number" name="leaderboard_min_pass_score" class="form-input" value="{{ $leaderboardMinPassScore ?? 700 }}" min="100" max="1000" step="50" style="max-width: 140px;" required>
+                                <span style="font-size: 13px; color: var(--text-muted); font-weight: 600;">điểm (Thang điểm 1000 IC3 Spark GS6)</span>
+                            </div>
+                        </div>
+
+                        <div style="text-align: right; margin-top: 14px;">
+                            <button type="submit" class="btn-save" style="padding: 9px 18px; font-size: 13px;">
+                                <span>✓</span> Lưu Cài Đặt Bảng Xếp Hạng
+                            </button>
                         </div>
                     </form>
 
@@ -376,6 +409,14 @@
                         <div style="display:flex; justify-content:space-between;">
                             <span style="color:var(--text-muted);">Mốc bắt đầu tính điểm:</span>
                             <b style="color:#0f172a;">{{ $leaderboardStart ? $leaderboardStart->setTimezone(config('learning.display_timezone', 'Asia/Ho_Chi_Minh'))->format('H:i d/m/Y') : 'Chưa thiết lập' }}</b>
+                        </div>
+                        <div style="display:flex; justify-content:space-between;">
+                            <span style="color:var(--text-muted);">Quy tắc tính điểm:</span>
+                            @if(($leaderboardScoreMode ?? 'passed_only') === 'passed_only')
+                                <b style="color:#059669;">🌟 Chỉ tính bài Đạt chuẩn (≥ {{ $leaderboardMinPassScore ?? 700 }}đ)</b>
+                            @else
+                                <b style="color:#2563eb;">📊 Tính tất cả bài thi</b>
+                            @endif
                         </div>
                         <div style="display:flex; justify-content:space-between;">
                             <span style="color:var(--text-muted);">Lần reset gần nhất:</span>
