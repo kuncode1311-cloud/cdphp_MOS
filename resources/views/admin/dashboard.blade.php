@@ -3540,7 +3540,7 @@
                         <a href="{{ route('pricing.index') }}" class="btn-primary" style="display:inline-flex; align-items:center; gap:7px; background:linear-gradient(135deg, #f59e0b, #d97706); box-shadow:0 4px 14px rgba(217,119,6,0.35); text-decoration:none;">
                             <span>✨</span> Nâng Cấp Gói Mới ➔
                         </a>
-                        <button type="button" class="btn-ghost" onclick="alert('Thầy/Cô vui lòng liên hệ Ban Quản Trị qua Hotline/Zalo: 0988.xxx.xxx hoặc gửi yêu cầu để được hỗ trợ cấp thêm Quota / Khối lớp miễn phí!')" title="Liên hệ Quản trị viên để được cấp thêm hạn mức">
+                        <button type="button" class="btn-ghost" onclick="alert('Thầy/Cô vui lòng liên hệ Ban Quản Trị qua Hotline/Zalo: 0345.151.438 hoặc gửi yêu cầu để được hỗ trợ cấp thêm Quota / Khối lớp miễn phí!')" title="Liên hệ Quản trị viên để được cấp thêm hạn mức">
                             <span>💬</span> Yêu Cầu Cấp Thêm
                         </button>
                     </div>

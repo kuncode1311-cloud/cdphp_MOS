@@ -973,7 +973,7 @@
                 </div>
             </div>
             <div class="zalo-header-actions">
-                <a href="tel:0987654321" class="zalo-btn-action" title="Gọi Hotline">📞 Gọi</a>
+                <a href="tel:0345151438" class="zalo-btn-action" title="Gọi Hotline (0345.151.438)">📞 Gọi</a>
                 <button type="button" class="zalo-btn-action" onclick="toggleLiveChat()" style="width:28px; padding:0;" title="Đóng">✕</button>
             </div>
         </div>

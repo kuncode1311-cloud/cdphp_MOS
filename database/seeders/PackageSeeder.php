@@ -120,7 +120,7 @@ class PackageSeeder extends Seeder
                     'Quyền sử dụng toàn bộ Question Studio soạn đề thi chuyên biệt',
                     'Kênh hỗ trợ kỹ thuật và bảo trì hệ thống ưu tiên 24/7',
                 ],
-                'is_active' => true,
+                'is_active' => false,
                 'sort_order' => 4,
             ]
         );

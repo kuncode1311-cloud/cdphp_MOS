@@ -33,8 +33,10 @@ class PricingController extends Controller
      */
     public function index(): View
     {
+        // 🌟 Chỉ hiển thị 3 gói bản quyền mặc định cốt lõi (Khởi Đầu, Tiêu Chuẩn, Toàn Diện)
         $packages = Package::active()
             ->ordered()
+            ->take(3)
             ->with('levels')
             ->get();
 
