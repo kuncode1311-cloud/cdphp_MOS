@@ -105,51 +105,9 @@ class TelegramBotPollCommand extends Command
 
                         $this->line("<fg=cyan>[Tin nhắn từ {$fromName} ({$chatId})]:</> {$text}");
 
-                        // Kiểm tra nếu admin đang Reply một tin nhắn cụ thể trên Telegram
-                        $replyTo = $message['reply_to_message'] ?? null;
-                        $isExplicitCustomerReply = false;
-                        $replyContent = $text;
-
-                        if (! empty($replyTo)) {
-                            // Admin dùng tính năng Swipe / Right-click Reply trên Telegram
-                            $isExplicitCustomerReply = true;
-                        } elseif (preg_match('/^(?:rep|tl|khach|chat)\s*[:\-]\s*(.+)$/ui', $text, $matches)) {
-                            // Admin gõ cú pháp "rep: Chào thầy, ..."
-                            $isExplicitCustomerReply = true;
-                            $replyContent = trim($matches[1]);
-                        }
-
-                        if ($isExplicitCustomerReply) {
-                            if (! $telegramService->isAdminChat($chatId)) {
-                                $telegramService->sendMessage("⛔ Bạn không có quyền phản hồi tin nhắn khách hàng.", null, $chatId);
-                                continue;
-                            }
-
-                            $supportMsg = \App\Models\SupportMessage::where('status', 'pending')->latest('id')->first();
-                            if ($supportMsg) {
-                                if (empty($supportMsg->admin_reply)) {
-                                    $supportMsg->admin_reply = $replyContent;
-                                } else {
-                                    $supportMsg->admin_reply .= "\n" . $replyContent;
-                                }
-                                $supportMsg->status = 'responded';
-                                $supportMsg->replied_at = now();
-                                $supportMsg->save();
-
-                                $confirm = "✅ <b>ĐÃ CHUYỂN TIẾP TỚI KHÁCH TRÊN WEBSITE!</b>\n";
-                                $confirm .= "━━━━━━━━━━━━━━━━━━━━\n";
-                                $confirm .= "👤 <b>Khách hàng:</b> " . htmlspecialchars($supportMsg->name) . "\n";
-                                $confirm .= "💬 <b>Nội dung gửi:</b> <i>" . htmlspecialchars($replyContent) . "</i>";
-                                $telegramService->sendMessage($confirm, null, $chatId);
-                                $this->line("<fg=green>[Đã chuyển tiếp tới khách]:</> {$supportMsg->name}: {$replyContent}\n");
-                            } else {
-                                $telegramService->sendMessage("ℹ️ Hiện không có câu hỏi tư vấn nào đang chờ phản hồi từ khách.", null, $chatId);
-                            }
-                        } else {
-                            // Mọi tin nhắn lệnh, bấm nút menu, tra cứu -> chuyển tới handleCommand
-                            $telegramService->handleCommand($text, $chatId);
-                            $this->line("<fg=green>[Bot phản hồi lệnh/menu]:</> {$text}\n");
-                        }
+                        // Xử lý tất cả các luồng: Trả lời trực tiếp, Swipe Reply, /rep, rep:, menu và lệnh
+                        $telegramService->handleCommand($text, $chatId, $message);
+                        $this->line("<fg=green>[Bot đã xử lý]:</> {$text}\n");
                     }
                 }
             } catch (\Throwable $e) {

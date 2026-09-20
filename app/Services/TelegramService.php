@@ -333,6 +333,9 @@ class TelegramService
 
         $text = "💬 <b>[IC3 QUEST] CÓ TIN NHẮN TƯ VẤN MỚI TỪ WEBSITE!</b>\n";
         $text .= "━━━━━━━━━━━━━━━━━━━━\n";
+        if ($msgId) {
+            $text .= "🆔 <b>Mã tin:</b> <code>#{$msgId}</code>\n";
+        }
         $text .= "👤 <b>Họ tên:</b> <b>" . htmlspecialchars($name) . "</b>\n";
         if ($phone) {
             $text .= "📞 <b>Số điện thoại:</b> <code>" . htmlspecialchars($phone) . "</code>\n";
@@ -340,26 +343,37 @@ class TelegramService
         if ($email) {
             $text .= "📧 <b>Email:</b> " . htmlspecialchars($email) . "\n";
         }
-        $text .= "📝 <b>Nội dung câu hỏi:</b>\n<i>" . htmlspecialchars($message) . "</i>\n";
+        $text .= "📝 <b>Nội dung câu hỏi:</b>\n<i>\"" . htmlspecialchars($message) . "\"</i>\n";
         $text .= "━━━━━━━━━━━━━━━━━━━━\n";
-        $text .= "⚡ <i>Bấm phản hồi nhanh hoặc gõ trực tiếp tin nhắn ở đây để bot chuyển tiếp về web cho khách!</i>";
+        $text .= "⚡ <i>Bấm các nút trả lời nhanh bên dưới hoặc gạt Reply tin nhắn để bot chuyển tiếp về web cho khách!</i>";
 
         $cleanPhone = $phone ? preg_replace('/[^0-9]/', '', $phone) : null;
         $inlineButtons = [];
 
-        if ($cleanPhone) {
+        // 1. Các nút Trả Lời Nhanh 1-Chạm (Quick Reply Buttons)
+        if ($msgId) {
             $inlineButtons[] = [
-                ['text' => "💬 Mở Chat Zalo ({$cleanPhone})", 'url' => "https://zalo.me/{$cleanPhone}"]
+                ['text' => '⚡ "Đã cấp xong sĩ số ạ!"', 'callback_data' => "qrep_{$msgId}_capthemsiso"],
+            ];
+            $inlineButtons[] = [
+                ['text' => '⚡ "BQT đang hỗ trợ ngay!"', 'callback_data' => "qrep_{$msgId}_dangxuly"],
+                ['text' => '📞 "Sẽ gọi hỗ trợ ngay"', 'callback_data' => "qrep_{$msgId}_goidien"],
+            ];
+            $inlineButtons[] = [
+                ['text' => '✍️ Soạn Tin Phản Hồi...', 'callback_data' => "prompt_rep_{$msgId}"],
+                ['text' => '✅ Đã Tư Vấn Xong', 'callback_data' => "done_chat_{$msgId}"],
             ];
         }
 
-        $rowActions = [];
-        if ($msgId) {
-            $rowActions[] = ['text' => '✅ Đã Tư Vấn Xong', 'callback_data' => "done_chat_{$msgId}"];
+        // 2. Hàng liên hệ & Chat
+        $rowContact = [];
+        if ($cleanPhone) {
+            $rowContact[] = ['text' => "💬 Mở Chat Zalo ({$cleanPhone})", 'url' => "https://zalo.me/{$cleanPhone}"];
         }
-        $rowActions[] = ['text' => '💬 Danh Sách Chat', 'callback_data' => 'cmd_danhsachchat'];
-        $inlineButtons[] = $rowActions;
+        $rowContact[] = ['text' => '💬 Danh Sách Chat', 'callback_data' => 'cmd_danhsachchat'];
+        $inlineButtons[] = $rowContact;
 
+        // 3. Mở Live Chat Quản Trị
         $inlineButtons[] = [
             ['text' => '🌐 Mở Live Chat Quản Trị', 'url' => url('/quan-tri#tab-messenger')]
         ];
@@ -506,7 +520,98 @@ class TelegramService
             return;
         }
 
-        // 4. Đánh dấu tin nhắn tư vấn là Đã Hỗ Trợ: done_chat_{id}
+        // 4.1 Phản hồi nhanh 1-chạm: qrep_{id}_{type}
+        if (str_starts_with($data, 'qrep_')) {
+            $parts = explode('_', substr($data, 5), 2);
+            $msgId = (int) ($parts[0] ?? 0);
+            $type = $parts[1] ?? 'custom';
+
+            $supportMsg = SupportMessage::find($msgId);
+            if (! $supportMsg) {
+                $this->answerCallbackQuery($callbackId, "❌ Không tìm thấy tin nhắn tư vấn ID: #{$msgId}", true);
+                return;
+            }
+
+            $replyText = match ($type) {
+                'capthemsiso' => "Dạ chào Thầy/Cô, Ban Quản Trị đã kiểm tra và phê duyệt cấp thêm sĩ số thành công cho tài khoản của Thầy/Cô rồi ạ. Thầy/Cô vui lòng tải lại trang để phân bổ lớp nhé!",
+                'dangxuly' => "Dạ chào Thầy/Cô, Ban Quản Trị đã tiếp nhận yêu cầu và đang tiến hành kiểm tra hỗ trợ ngay cho Thầy/Cô ạ!",
+                'goidien' => "Dạ chào Thầy/Cô, chuyên viên Ban Quản Trị sẽ liên hệ trực tiếp qua Số điện thoại / Zalo của Thầy/Cô trong ít phút để hỗ trợ nhanh nhất ạ!",
+                default => "Dạ Ban Quản Trị đã tiếp nhận thông tin và sẽ hỗ trợ Thầy/Cô ngay ạ!",
+            };
+
+            // Lưu phản hồi vào DB
+            if (empty($supportMsg->admin_reply)) {
+                $supportMsg->admin_reply = $replyText;
+            } else {
+                $supportMsg->admin_reply .= "\n" . $replyText;
+            }
+            $supportMsg->status = 'responded';
+            $supportMsg->replied_at = now();
+            $supportMsg->save();
+
+            $this->answerCallbackQuery($callbackId, "🎉 Đã gửi phản hồi tới {$supportMsg->name} trên website!", true);
+
+            // Cập nhật lại tin nhắn trên Telegram để hiển thị trạng thái đã trả lời
+            $updatedText = "💬 <b>[IC3 QUEST] TIN NHẮN TƯ VẤN TỪ WEBSITE</b>\n";
+            $updatedText .= "━━━━━━━━━━━━━━━━━━━━\n";
+            $updatedText .= "🆔 <b>Mã tin:</b> <code>#{$supportMsg->id}</code>\n";
+            $updatedText .= "👤 <b>Họ tên:</b> <b>" . htmlspecialchars($supportMsg->name) . "</b>\n";
+            if ($supportMsg->phone) {
+                $updatedText .= "📞 <b>Số điện thoại:</b> <code>" . htmlspecialchars($supportMsg->phone) . "</code>\n";
+            }
+            if ($supportMsg->email) {
+                $updatedText .= "📧 <b>Email:</b> " . htmlspecialchars($supportMsg->email) . "\n";
+            }
+            $updatedText .= "📝 <b>Nội dung:</b>\n<i>\"" . htmlspecialchars($supportMsg->message) . "\"</i>\n";
+            $updatedText .= "━━━━━━━━━━━━━━━━━━━━\n";
+            $updatedText .= "✅ <b>ĐÃ PHẢN HỒI LÚC " . now()->format('H:i d/m/Y') . ":</b>\n";
+            $updatedText .= "💬 <i>\"" . htmlspecialchars($replyText) . "\"</i>\n";
+            $updatedText .= "━━━━━━━━━━━━━━━━━━━━\n";
+            $updatedText .= "⚡ <i>Khách hàng đã nhận được tin nhắn trực tiếp trên widget Live Chat website.</i>";
+
+            $cleanPhone = $supportMsg->phone ? preg_replace('/[^0-9]/', '', $supportMsg->phone) : null;
+            $updatedButtons = [];
+            $rowActions = [];
+            if ($cleanPhone) {
+                $rowActions[] = ['text' => "💬 Zalo ({$cleanPhone})", 'url' => "https://zalo.me/{$cleanPhone}"];
+            }
+            $rowActions[] = ['text' => '💬 Danh Sách Chat', 'callback_data' => 'cmd_danhsachchat'];
+            $updatedButtons[] = $rowActions;
+            $updatedButtons[] = [
+                ['text' => '✍️ Nhắn Thêm...', 'callback_data' => "prompt_rep_{$msgId}"],
+                ['text' => '🌐 Mở Live Chat Quản Trị', 'url' => url('/quan-tri#tab-messenger')]
+            ];
+
+            if ($messageId > 0) {
+                $this->editMessageText($chatId, $messageId, $updatedText, ['inline_keyboard' => $updatedButtons]);
+            }
+            return;
+        }
+
+        // 4.2 Hướng dẫn soạn tin nhắn phản hồi: prompt_rep_{id}
+        if (str_starts_with($data, 'prompt_rep_')) {
+            $msgId = (int) substr($data, 11);
+            $supportMsg = SupportMessage::find($msgId);
+            $name = $supportMsg ? $supportMsg->name : "Khách hàng #{$msgId}";
+
+            $this->answerCallbackQuery($callbackId, "✍️ Vui lòng gõ tin nhắn phản hồi...");
+
+            $guideText = "✍️ <b>HƯỚNG DẪN TRẢ LỜI CHO: {$name} (MÃ #{$msgId})</b>\n";
+            $guideText .= "━━━━━━━━━━━━━━━━━━━━\n";
+            $guideText .= "Thầy/Cô có thể trả lời bằng 1 trong các cách sau:\n\n";
+            $guideText .= "1️⃣ <b>Gõ lệnh kèm nội dung:</b>\n";
+            $guideText .= "<code>/rep {$msgId} [Nội dung tin nhắn muốn gửi]</code>\n\n";
+            $guideText .= "2️⃣ <b>Gõ nhanh:</b>\n";
+            $guideText .= "<code>rep: [Nội dung tin nhắn]</code>\n\n";
+            $guideText .= "3️⃣ <b>Gạt Swipe Reply</b> trực tiếp tin nhắn thông báo ở trên và gõ câu trả lời.\n";
+            $guideText .= "━━━━━━━━━━━━━━━━━━━━\n";
+            $guideText .= "⚡ <i>Tin nhắn sẽ lập tức hiển thị trên Live Chat của khách kèm chuông báo!</i>";
+
+            $this->sendMessage($guideText, null, $chatId);
+            return;
+        }
+
+        // 4.3 Đánh dấu tin nhắn tư vấn là Đã Hỗ Trợ: done_chat_{id}
         if (str_starts_with($data, 'done_chat_')) {
             $msgId = (int) substr($data, 10);
             $msg = SupportMessage::find($msgId);
@@ -623,7 +728,7 @@ class TelegramService
     /**
      * Xử lý tin nhắn văn bản hoặc bấm nút Persistent Keyboard
      */
-    public function handleCommand(string $rawText, ?string $chatId = null): string
+    public function handleCommand(string $rawText, ?string $chatId = null, ?array $rawMessage = null): string
     {
         $targetChat = $chatId ?: $this->adminChatId;
         $text = trim($rawText);
@@ -659,7 +764,9 @@ class TelegramService
                 || str_contains($lower, 'live chat') || str_contains($lower, 'tin nhắn') || str_contains($lower, 'hộp thư') || $lower === '/danhsachchat'
                 || str_contains($lower, 'thống kê') || str_contains($lower, 'học sinh') || $lower === '/thongke'
                 || str_contains($lower, 'tạo qr') || str_contains($lower, 'vietqr') || str_contains($lower, 'mã qr') || str_contains($lower, 'thanh toán') || $lower === '/qrtest'
-                || str_starts_with($lower, '/chitiet');
+                || str_starts_with($lower, '/chitiet')
+                || str_starts_with($lower, '/rep')
+                || preg_match('/^(?:rep|tl|khach|chat)\s*[:\-]/ui', $lower);
 
             if ($isAdminAction) {
                 $reply = "⛔ <b>TỪ CHỐI TRUY CẬP!</b>\n";
@@ -679,6 +786,30 @@ class TelegramService
         }
 
         // ==================== CÁC LỆNH DÀNH RIÊNG CHO QUẢN TRỊ VIÊN ====================
+
+        // Xử lý Phản Hồi Trực Tiếp Tới Khách Live Chat trên Website:
+        // Cú pháp 1: /rep {id} [nội dung]
+        if (preg_match('/^\/rep\s+(\d+)\s+(.+)$/usi', $text, $matches)) {
+            $msgId = (int) $matches[1];
+            $replyContent = trim($matches[2]);
+            return $this->processDirectReply($msgId, $replyContent, $targetChat);
+        }
+
+        // Cú pháp 2: rep: [nội dung] hoặc tl: [nội dung] hoặc khach: [nội dung]
+        if (preg_match('/^(?:rep|tl|khach|chat)\s*[:\-]\s*(.+)$/usi', $text, $matches)) {
+            $replyContent = trim($matches[1]);
+            return $this->processDirectReply(null, $replyContent, $targetChat);
+        }
+
+        // Cú pháp 3: Swipe Reply tin nhắn thông báo trên Telegram
+        if (! empty($rawMessage['reply_to_message']) && ! str_starts_with($text, '/')) {
+            $replyToText = (string) ($rawMessage['reply_to_message']['text'] ?? '');
+            $targetMsgId = null;
+            if (preg_match('/#(?:(\d+)|ID:\s*(\d+))/ui', $replyToText, $mId)) {
+                $targetMsgId = (int) ($mId[1] ?: $mId[2]);
+            }
+            return $this->processDirectReply($targetMsgId, $text, $targetChat);
+        }
 
         // Tự động kích hoạt bàn phím cố định đáy chat nếu admin gõ /start hoặc menu
         if ($isStart || str_contains($lower, 'hướng dẫn') || str_contains($lower, 'menu') || in_array($lower, ['/help', '/trogiup'])) {
@@ -737,13 +868,74 @@ class TelegramService
             return $res['text'];
         }
 
+        // Tự động nhận diện Admin chat tự do (gõ bất kỳ chữ gì như "dạ", "ok cô", "đã cấp rồi nhé"):
+        // Tự động chuyển tiếp thẳng tới câu hỏi tư vấn đang chờ hoặc gần nhất của khách trên website!
+        if (! str_starts_with($text, '/')) {
+            $latestSupportMsg = SupportMessage::where('status', 'pending')->latest('id')->first()
+                ?: SupportMessage::where('created_at', '>=', now()->subHours(24))->latest('id')->first();
+
+            if ($latestSupportMsg) {
+                return $this->processDirectReply($latestSupportMsg->id, $text, $targetChat);
+            }
+        }
+
         // Lệnh mặc định nếu không khớp
         $reply = "❓ <b>Không nhận diện được thao tác!</b>\n";
         $reply .= "━━━━━━━━━━━━━━━━━━━━\n";
-        $reply .= "👉 Thầy/Cô vui lòng bấm chọn trực tiếp vào các nút ở menu bên dưới hoặc gõ <b>/start</b> để mở Trung tâm điều khiển.";
+        $reply .= "👉 Thầy/Cô vui lòng bấm chọn trực tiếp vào các nút ở menu bên dưới hoặc gõ <b>/start</b> để mở Trung tâm điều khiển.\n";
+        $reply .= "💡 Hiện không có tin nhắn tư vấn nào của khách để phản hồi.";
 
         $this->sendMessageWithPersistentKeyboard($reply, null, $targetChat);
         return $reply;
+    }
+
+    /**
+     * Xử lý gửi phản hồi trực tiếp tới Live Chat khách hàng trên website
+     */
+    public function processDirectReply(?int $msgId, string $replyContent, string $chatId): string
+    {
+        $query = SupportMessage::query();
+        if ($msgId) {
+            $supportMsg = $query->find($msgId);
+        } else {
+            $supportMsg = $query->where('status', 'pending')->latest('id')->first()
+                ?: SupportMessage::latest('id')->first();
+        }
+
+        if (! $supportMsg) {
+            $reply = "ℹ️ Hiện không tìm thấy câu hỏi tư vấn nào của khách để phản hồi.";
+            $this->sendMessage($reply, null, $chatId);
+            return $reply;
+        }
+
+        if (empty($supportMsg->admin_reply)) {
+            $supportMsg->admin_reply = $replyContent;
+        } else {
+            $supportMsg->admin_reply .= "\n" . $replyContent;
+        }
+        $supportMsg->status = 'responded';
+        $supportMsg->replied_at = now();
+        $supportMsg->save();
+
+        $confirm = "✅ <b>ĐÃ CHUYỂN TIẾP TỚI KHÁCH TRÊN WEBSITE!</b>\n";
+        $confirm .= "━━━━━━━━━━━━━━━━━━━━\n";
+        $confirm .= "🆔 <b>Mã tin:</b> <code>#{$supportMsg->id}</code>\n";
+        $confirm .= "👤 <b>Khách hàng:</b> <b>" . htmlspecialchars($supportMsg->name) . "</b>\n";
+        $confirm .= "💬 <b>Nội dung gửi:</b> <i>\"" . htmlspecialchars($replyContent) . "\"</i>\n";
+        $confirm .= "━━━━━━━━━━━━━━━━━━━━\n";
+        $confirm .= "⚡ <i>Khách hàng đã nhận được tin nhắn trực tiếp trên Live Chat website kèm chuông báo!</i>";
+
+        $keyboard = [
+            'inline_keyboard' => [
+                [
+                    ['text' => '💬 Danh Sách Chat', 'callback_data' => 'cmd_danhsachchat'],
+                    ['text' => '🌐 Mở Live Chat Quản Trị', 'url' => url('/quan-tri#tab-messenger')]
+                ]
+            ]
+        ];
+
+        $this->sendMessage($confirm, $keyboard, $chatId);
+        return $confirm;
     }
 
     /**

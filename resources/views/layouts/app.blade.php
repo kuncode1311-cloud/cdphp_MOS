@@ -583,7 +583,7 @@
                             <b>Explorer {{ auth()->user()->name }}</b>
                             <small>
                                 <span>{{ auth()->user()->classroom?->name ?? 'Học sinh' }}</span> · 
-                                <span class="player-level-badge" data-open-star-modal title="Bấm để xem hướng dẫn Điểm Sao">⭐ {{ auth()->user()->attempts()->sum('score') }} Điểm</span>
+                                <span class="player-level-badge" data-open-star-modal title="Tổng điểm bài thi tích lũy">🏆 {{ number_format(auth()->user()->attempts()->sum('score') ?? 0) }} Điểm</span>
                             </small>
                         </div>
                     </a>
@@ -627,9 +627,9 @@
                             <b style="color: #ffffff; font-size: 13px;">Về Quản trị</b>
                         </a>
                     @else
-                        <div class="star-wallet-card" data-open-star-modal title="Bấm để xem hướng dẫn Điểm Sao Vàng">
-                            <small>Stars</small>
-                            <b>⭐ {{ auth()->user()->attempts()->sum('score') ?? 0 }}</b>
+                        <div class="star-wallet-card" data-open-star-modal title="Bấm để xem hướng dẫn Ví Sao Thưởng">
+                            <small>Ví Sao Thưởng</small>
+                            <b>⭐ {{ number_format(auth()->user()->reward_stars ?? 0) }}</b>
                         </div>
                     @endif
                 @else

@@ -28,7 +28,7 @@ class TelegramBotController extends Controller
         $text = $message['text'];
         $chatId = (string) ($message['chat']['id'] ?? '');
 
-        $telegramService->handleCommand($text, $chatId);
+        $telegramService->handleCommand($text, $chatId, $message);
 
         return response()->json(['status' => 'ok']);
     }

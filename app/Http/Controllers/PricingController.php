@@ -361,7 +361,8 @@ class PricingController extends Controller
             $data['name'],
             $data['phone'] ?? null,
             $data['email'] ?? null,
-            $data['message']
+            $data['message'],
+            $supportMsg->id
         );
 
         return response()->json([

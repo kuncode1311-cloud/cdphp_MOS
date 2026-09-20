@@ -1,197 +1,254 @@
 {{-- Partial Bảng Vàng Thi Đua & Bảng Xếp Hạng (Dùng cho cả lần đầu nạp trang và AJAX load động) --}}
 <div id="leaderboard-dynamic-container" class="leaderboard-dynamic-fade-in">
     
-    <!-- Thanh chọn Khối lớp và Trạng thái Vòng đua -->
+    <!-- Thanh điều khiển: Tabs chọn Khối lớp 3D & Viên nhộng đếm ngược -->
     <div class="leaderboard-controls-row">
-        <!-- Tabs chọn Khối lớp thông minh chuẩn game 3D pill -->
+        <!-- Tabs chọn Khối lớp 3D xúc giác đa sắc màu -->
         <div class="grade-filter-tabs" id="grade-filter-tabs">
-            @foreach([3 => 'Khối 3', 4 => 'Khối 4', 5 => 'Khối 5', 'all' => 'Toàn trường'] as $gKey => $gLabel)
+            @php
+                $gradeTabs = [
+                    'all' => ['label' => 'Toàn trường', 'icon' => '🌐', 'colorClass' => 'tab-royal'],
+                    3 => ['label' => 'Khối 3', 'icon' => '🎒', 'colorClass' => 'tab-emerald'],
+                    4 => ['label' => 'Khối 4', 'icon' => '🎒', 'colorClass' => 'tab-sky'],
+                    5 => ['label' => 'Khối 5', 'icon' => '🎒', 'colorClass' => 'tab-purple'],
+                ];
+            @endphp
+            @foreach($gradeTabs as $gKey => $gData)
                 <button type="button"
-                    class="grade-filter-pill {{ (string)$selectedGrade === (string)$gKey ? 'pill-active' : '' }}"
+                    class="grade-filter-pill {{ $gData['colorClass'] }} {{ (string)$selectedGrade === (string)$gKey ? 'pill-active' : '' }}"
                     data-grade="{{ $gKey }}"
                     onclick="switchLeaderboardGrade('{{ $gKey }}')">
-                    @if($gKey === 'all') 🌐 @else 🎒 @endif {{ $gLabel }}
+                    <span class="pill-icon">{{ $gData['icon'] }}</span>
+                    <span>{{ $gData['label'] }}</span>
                 </button>
             @endforeach
         </div>
 
-        <!-- Huy hiệu đếm ngược kết thúc vòng đua -->
+        <!-- Viên nhộng đếm ngược kết thúc vòng đua sống động -->
         @if(!empty($nextResetTimestamp))
             <div class="leaderboard-timer-capsule" id="leaderboard-timer-capsule" data-next-reset="{{ $nextResetTimestamp }}" title="Thời gian còn lại của vòng thi đua hiện tại">
-                <span class="timer-icon">⏱️</span>
-                <span class="timer-label">Kết thúc sau:</span>
-                <b class="timer-countdown" id="live-countdown-text">Đang tính...</b>
+                <span class="timer-orb">⏱️</span>
+                <div class="timer-text-wrap">
+                    <span class="timer-label">KẾT THÚC VÒNG ĐUA SAU:</span>
+                    <b class="timer-countdown" id="live-countdown-text">Đang tính...</b>
+                </div>
             </div>
         @else
             <div class="leaderboard-timer-capsule" title="Vòng đua thi đua liên tục">
-                <span class="timer-icon">🏆</span>
-                <span class="timer-label">Vòng đua:</span>
-                <b class="timer-countdown">Đang diễn ra</b>
+                <span class="timer-orb">🏆</span>
+                <div class="timer-text-wrap">
+                    <span class="timer-label">VÒNG ĐUA HIỆN TẠI:</span>
+                    <b class="timer-countdown">Đang diễn ra</b>
+                </div>
             </div>
         @endif
     </div>
 
-    <!-- Thanh ghim vị trí thi đua của bé (My Rank Banner) -->
-    <div class="my-rank-banner">
-        <div class="my-rank-left">
-            <div class="my-rank-circle {{ isset($myRank['rank']) && $myRank['rank'] <= 3 ? 'rank-top3-glow' : '' }}">
-                <span>#{{ $myRank['rank'] ?? '?' }}</span>
+    <!-- Thanh Năng Lượng Chiến Tích Của Bé (My Rank Energy Bar) -->
+    <div class="my-rank-energy-bar">
+        <div class="rank-bar-left">
+            <div class="my-rank-orb {{ isset($myRank['rank']) && $myRank['rank'] <= 3 ? 'rank-orb-top3' : '' }}">
+                <span class="rank-hash">#</span>
+                <span class="rank-number">{{ $myRank['rank'] ?? '?' }}</span>
             </div>
-            <div>
-                <span class="my-rank-label">VỊ TRÍ CỦA BẠN TRÊN BẢNG XẾP HẠNG ({{ (string)$selectedGrade === 'all' ? 'TOÀN TRƯỜNG' : 'KHỐI ' . $selectedGrade }})</span>
-                <div class="my-rank-name">
-                    <b>{{ auth()->user()->name }}</b>
-                    <span class="my-rank-stats">
-                        • Đạt <b>{{ number_format($myRank['weekly_score'] ?? $weeklyScore) }}</b> điểm tuần này ({{ $myRank['tests_count'] ?? $weeklyAttempts->count() }} bài làm)
+            <div class="rank-user-info">
+                <div class="rank-context-label">
+                    VỊ TRÍ CỦA BẠN TRÊN BẢNG VÀNG — <b>{{ (string)$selectedGrade === 'all' ? 'TOÀN TRƯỜNG' : 'KHỐI ' . $selectedGrade }}</b>
+                </div>
+                <div class="rank-user-name-row">
+                    <b class="user-display-name">{{ auth()->user()->name }}</b>
+                    <span class="user-class-chip">🏫 {{ auth()->user()->classroom?->name ?? 'Học sinh IC3' }}</span>
+                    <span class="user-score-badge">
+                        ⭐ <b>{{ number_format($myRank['weekly_score'] ?? $weeklyScore) }}</b> điểm vòng này ({{ $myRank['tests_count'] ?? $weeklyAttempts->count() }} bài)
                     </span>
                 </div>
             </div>
         </div>
-        <div class="my-rank-motivation">
-            @if(isset($myRank['rank']) && $myRank['rank'] == 1)
-                👑 <b>Xuất sắc!</b> Bé đang giữ ngôi vị <b>Quán quân</b> Bảng vàng! 🎉
-            @elseif(isset($myRank['rank']) && $myRank['rank'] <= 3)
-                🔥 <b>Tuyệt vời!</b> Bé đang đứng trong <b>TOP 3</b> vinh quang! Tiếp tục bứt phá nhé!
-            @else
-                ⚡ Luyện thêm bài để thăng hạng vào <b>TOP 3 Hiệp sĩ</b> nhé!
-            @endif
+
+        <div class="rank-bar-right">
+            <div class="rank-motivation-badge">
+                @if(isset($myRank['rank']) && $myRank['rank'] == 1)
+                    <span>👑</span> <b>Quán Quân! Bé đang dẫn đầu Bảng Vàng!</b>
+                @elseif(isset($myRank['rank']) && $myRank['rank'] <= 3)
+                    <span>🔥</span> <b>Tuyệt đỉnh! Bé đang vinh dự đứng trong TOP 3!</b>
+                @else
+                    <span>⚡</span> <b>Luyện thi thêm để bứt phá vào TOP 3 nhé!</b>
+                @endif
+            </div>
+            <a href="{{ route('programs') }}" class="btn-boost-rank" title="Làm thêm bài thi để cộng điểm thăng hạng">
+                <span>🚀</span> Luyện Ngay <b>➔</b>
+            </a>
         </div>
     </div>
 
-    <!-- BỤC VINH QUANG 3D OLYMPIC PODIUM (Top 1, 2, 3) -->
+    <!-- SÂN KHẤU VINH QUANG 3D OLYMPIC (CHAMPIONS STAGE) -->
     @php
         $first = $podiumStudents->firstWhere('rank', 1);
         $second = $podiumStudents->firstWhere('rank', 2);
         $third = $podiumStudents->firstWhere('rank', 3);
     @endphp
 
-    <div class="olympic-podium-wrap">
+    <div class="olympic-stage-container">
         
-        <!-- BẬC 2: Á QUÂN (BÊN TRÁI) -->
-        <div class="podium-col col-second {{ $second && $second['is_me'] ? 'col-me' : '' }}">
+        <!-- ==================== BẬC 2: Á QUÂN (BÊN TRÁI) ==================== -->
+        <div class="podium-pillar pillar-silver {{ $second && $second['is_me'] ? 'pillar-is-me' : '' }}">
             @if($second)
-                <div class="podium-card-top card-silver">
-                    <div class="rank-badge-pill pill-silver">
+                <!-- Phần Avatar & Thông tin đứng trên đỉnh bục -->
+                <div class="pillar-avatar-group">
+                    <div class="pillar-medal-ribbon ribbon-silver">
                         <span>🥈 Á QUÂN</span>
                     </div>
-                    <div class="podium-avatar avatar-silver">
-                        {{ mb_substr($second['name'], 0, 1) }}
+
+                    <div class="avatar-ring ring-silver {{ $second['is_me'] ? 'ring-pulse-me' : '' }}">
+                        <div class="avatar-inner">
+                            {{ mb_substr($second['name'], 0, 1) }}
+                        </div>
+                        @if($second['is_me'])
+                            <span class="badge-me-tag">BÉ</span>
+                        @endif
                     </div>
-                    <b class="podium-name">
-                        {{ $second['name'] }}
-                        @if($second['is_me']) <span class="tag-me">BẠN</span> @endif
-                    </b>
-                    <span class="podium-class">🏫 {{ $second['classroom_name'] }}</span>
-                    <div class="podium-score score-silver">
-                        {{ number_format($second['weekly_score']) }} <small>điểm</small>
-                    </div>
-                    <div class="podium-footer-meta">
-                        <span>🎯 {{ $second['passed_count'] }} bài đạt</span>
-                        <span>⭐ {{ number_format($second['reward_stars']) }}</span>
+
+                    <div class="podium-player-name">{{ $second['name'] }}</div>
+                    <div class="podium-player-class">🏫 {{ $second['classroom_name'] }}</div>
+
+                    <div class="podium-score-pill pill-silver-score">
+                        <span class="score-icon">🥈</span>
+                        <b>{{ number_format($second['weekly_score']) }}</b>
+                        <small>điểm</small>
                     </div>
                 </div>
-                <div class="podium-step-block step-silver">
-                    <div class="step-face-front">
-                        <span class="step-num">2</span>
-                        <small class="step-title">Á QUÂN</small>
+
+                <!-- Bục Đứng 3D Kim Loại Bạc -->
+                <div class="pedestal-block block-silver">
+                    <div class="pedestal-top-surface surface-silver"></div>
+                    <div class="pedestal-front-face face-silver">
+                        <div class="pedestal-3d-number num-silver">2</div>
+                        <span class="pedestal-subtext">Á QUÂN</span>
+                        <div class="pedestal-meta-stat">🎯 {{ $second['passed_count'] }} bài đạt chuẩn</div>
                     </div>
                 </div>
             @else
-                <div class="podium-card-top card-placeholder">
-                    <div class="placeholder-icon">🚀</div>
-                    <b class="placeholder-text">Đang chờ Á Quân!</b>
-                    <span class="placeholder-hint">Luyện thi ngay để chiếm bục số 2</span>
+                <div class="pillar-avatar-group placeholder-group">
+                    <div class="placeholder-orb">🚀</div>
+                    <div class="placeholder-title">Đang chờ Á Quân</div>
+                    <div class="placeholder-sub">Bứt phá để chiếm bục 2</div>
                 </div>
-                <div class="podium-step-block step-silver">
-                    <div class="step-face-front">
-                        <span class="step-num">2</span>
+                <div class="pedestal-block block-silver">
+                    <div class="pedestal-top-surface surface-silver"></div>
+                    <div class="pedestal-front-face face-silver">
+                        <div class="pedestal-3d-number num-silver">2</div>
                     </div>
                 </div>
             @endif
         </div>
 
-        <!-- BẬC 1: QUÁN QUÂN (Ở GIỮA - CAO NHẤT & TỎA SÁNG) -->
-        <div class="podium-col col-first {{ $first && $first['is_me'] ? 'col-me' : '' }}">
+        <!-- ==================== BẬC 1: QUÁN QUÂN (Ở GIỮA - CAO NHẤT & TỎA SÁNG) ==================== -->
+        <div class="podium-pillar pillar-gold {{ $first && $first['is_me'] ? 'pillar-is-me' : '' }}">
+            <!-- Hào quang mặt trời tỏa sáng phía sau Quán Quân -->
+            <div class="golden-sunburst-halo"></div>
+
             @if($first)
-                <div class="podium-card-top card-gold">
-                    <div class="crown-orb">👑</div>
-                    <div class="rank-badge-pill pill-gold">
+                <!-- Phần Avatar & Thông tin đứng trên đỉnh bục -->
+                <div class="pillar-avatar-group">
+                    <!-- Vương miện vàng 3D bay bồng bềnh -->
+                    <div class="floating-crown-orb">
+                        <span>👑</span>
+                    </div>
+
+                    <div class="pillar-medal-ribbon ribbon-gold">
                         <span>🥇 QUÁN QUÂN</span>
                     </div>
-                    <div class="podium-avatar avatar-gold">
-                        {{ mb_substr($first['name'], 0, 1) }}
+
+                    <div class="avatar-ring ring-gold {{ $first['is_me'] ? 'ring-pulse-me' : '' }}">
+                        <div class="avatar-inner">
+                            {{ mb_substr($first['name'], 0, 1) }}
+                        </div>
+                        @if($first['is_me'])
+                            <span class="badge-me-tag tag-champion">⭐ BẠN LÀ VÔ ĐỊCH</span>
+                        @endif
                     </div>
-                    <b class="podium-name" style="font-size: 16.5px;">
-                        {{ $first['name'] }}
-                        @if($first['is_me']) <span class="tag-me">BẠN</span> @endif
-                    </b>
-                    <span class="podium-class">🏫 {{ $first['classroom_name'] }}</span>
-                    <div class="podium-score score-gold">
-                        {{ number_format($first['weekly_score']) }} <small>điểm</small>
-                    </div>
-                    <div class="podium-footer-meta meta-gold">
-                        <span>🎯 {{ $first['passed_count'] }} bài đạt</span>
-                        <span>⭐ {{ number_format($first['reward_stars']) }}</span>
+
+                    <div class="podium-player-name name-gold">{{ $first['name'] }}</div>
+                    <div class="podium-player-class">🏫 {{ $first['classroom_name'] }}</div>
+
+                    <div class="podium-score-pill pill-gold-score">
+                        <span class="score-icon">🏆</span>
+                        <b>{{ number_format($first['weekly_score']) }}</b>
+                        <small>điểm</small>
                     </div>
                 </div>
-                <div class="podium-step-block step-gold">
-                    <div class="step-face-front">
-                        <span class="step-num">1</span>
-                        <small class="step-title">QUÁN QUÂN</small>
+
+                <!-- Bục Đứng 3D Kim Loại Vàng Hoàng Gia Khổng Lồ -->
+                <div class="pedestal-block block-gold">
+                    <div class="pedestal-top-surface surface-gold"></div>
+                    <div class="pedestal-front-face face-gold">
+                        <div class="pedestal-3d-number num-gold">1</div>
+                        <span class="pedestal-subtext subtext-gold">QUÁN QUÂN</span>
+                        <div class="pedestal-meta-stat stat-gold">🎯 {{ $first['passed_count'] }} bài đạt chuẩn</div>
                     </div>
                 </div>
             @else
-                <div class="podium-card-top card-placeholder">
-                    <div class="placeholder-icon">👑</div>
-                    <b class="placeholder-text">Đang chờ Quán Quân!</b>
-                    <span class="placeholder-hint">Chinh phục 1000 điểm để giữ ngôi đầu</span>
+                <div class="pillar-avatar-group placeholder-group">
+                    <div class="placeholder-orb">👑</div>
+                    <div class="placeholder-title">Đang chờ Quán Quân</div>
+                    <div class="placeholder-sub">Chinh phục ngôi vương</div>
                 </div>
-                <div class="podium-step-block step-gold">
-                    <div class="step-face-front">
-                        <span class="step-num">1</span>
+                <div class="pedestal-block block-gold">
+                    <div class="pedestal-top-surface surface-gold"></div>
+                    <div class="pedestal-front-face face-gold">
+                        <div class="pedestal-3d-number num-gold">1</div>
                     </div>
                 </div>
             @endif
         </div>
 
-        <!-- BẬC 3: HẠNG BA (BÊN PHẢI) -->
-        <div class="podium-col col-third {{ $third && $third['is_me'] ? 'col-me' : '' }}">
+        <!-- ==================== BẬC 3: HẠNG BA (BÊN PHẢI) ==================== -->
+        <div class="podium-pillar pillar-bronze {{ $third && $third['is_me'] ? 'pillar-is-me' : '' }}">
             @if($third)
-                <div class="podium-card-top card-bronze">
-                    <div class="rank-badge-pill pill-bronze">
+                <!-- Phần Avatar & Thông tin đứng trên đỉnh bục -->
+                <div class="pillar-avatar-group">
+                    <div class="pillar-medal-ribbon ribbon-bronze">
                         <span>🥉 HẠNG BA</span>
                     </div>
-                    <div class="podium-avatar avatar-bronze">
-                        {{ mb_substr($third['name'], 0, 1) }}
+
+                    <div class="avatar-ring ring-bronze {{ $third['is_me'] ? 'ring-pulse-me' : '' }}">
+                        <div class="avatar-inner">
+                            {{ mb_substr($third['name'], 0, 1) }}
+                        </div>
+                        @if($third['is_me'])
+                            <span class="badge-me-tag">BÉ</span>
+                        @endif
                     </div>
-                    <b class="podium-name">
-                        {{ $third['name'] }}
-                        @if($third['is_me']) <span class="tag-me">BẠN</span> @endif
-                    </b>
-                    <span class="podium-class">🏫 {{ $third['classroom_name'] }}</span>
-                    <div class="podium-score score-bronze">
-                        {{ number_format($third['weekly_score']) }} <small>điểm</small>
-                    </div>
-                    <div class="podium-footer-meta">
-                        <span>🎯 {{ $third['passed_count'] }} bài đạt</span>
-                        <span>⭐ {{ number_format($third['reward_stars']) }}</span>
+
+                    <div class="podium-player-name">{{ $third['name'] }}</div>
+                    <div class="podium-player-class">🏫 {{ $third['classroom_name'] }}</div>
+
+                    <div class="podium-score-pill pill-bronze-score">
+                        <span class="score-icon">🥉</span>
+                        <b>{{ number_format($third['weekly_score']) }}</b>
+                        <small>điểm</small>
                     </div>
                 </div>
-                <div class="podium-step-block step-bronze">
-                    <div class="step-face-front">
-                        <span class="step-num">3</span>
-                        <small class="step-title">HẠNG BA</small>
+
+                <!-- Bục Đứng 3D Kim Loại Đồng Hổ Phách -->
+                <div class="pedestal-block block-bronze">
+                    <div class="pedestal-top-surface surface-bronze"></div>
+                    <div class="pedestal-front-face face-bronze">
+                        <div class="pedestal-3d-number num-bronze">3</div>
+                        <span class="pedestal-subtext">HẠNG BA</span>
+                        <div class="pedestal-meta-stat">🎯 {{ $third['passed_count'] }} bài đạt chuẩn</div>
                     </div>
                 </div>
             @else
-                <div class="podium-card-top card-placeholder">
-                    <div class="placeholder-icon">⚡</div>
-                    <b class="placeholder-text">Đang chờ Hạng Ba!</b>
-                    <span class="placeholder-hint">Luyện thi để bước lên bục vinh quang</span>
+                <div class="pillar-avatar-group placeholder-group">
+                    <div class="placeholder-orb">⚡</div>
+                    <div class="placeholder-title">Đang chờ Hạng Ba</div>
+                    <div class="placeholder-sub">Luyện thi để lên bục</div>
                 </div>
-                <div class="podium-step-block step-bronze">
-                    <div class="step-face-front">
-                        <span class="step-num">3</span>
+                <div class="pedestal-block block-bronze">
+                    <div class="pedestal-top-surface surface-bronze"></div>
+                    <div class="pedestal-front-face face-bronze">
+                        <div class="pedestal-3d-number num-bronze">3</div>
                     </div>
                 </div>
             @endif
@@ -199,13 +256,24 @@
 
     </div>
 
-    <!-- BẢNG DANH SÁCH TOP TIẾP THEO (HẠNG 4 – 10) GỌN GÀNG, ĐẸP MẮT -->
+    <!-- Bệ Đỡ Sân Khấu Chung (Unified 3D Stage Footer Base) -->
+    <div class="stage-footer-base">
+        <div class="stage-base-label">
+            <span>✨</span> ĐẤU TRƯỜNG VINH QUANG IC3 DIGITAL ADVENTURE <span>✨</span>
+        </div>
+    </div>
+
+    <!-- BẢNG TOP HIỆP SĨ BÁM ĐUỔI (HẠNG 4 – 10) GỌN GÀNG, SẮC NÉT -->
     @if($rankingList->isNotEmpty())
         <div class="next-ranks-section">
             <div class="next-ranks-header">
-                <span>⚡ TOP HIỆP SĨ TIẾP THEO (HẠNG 4 – 10)</span>
-                <small style="color: #64748b; font-weight: 700;">Đua tranh từng điểm số</small>
+                <div class="header-left">
+                    <span class="header-bolt">⚡</span>
+                    <span class="header-title">TOP HIỆP SĨ BÁM ĐUỔI (HẠNG 4 – 10)</span>
+                </div>
+                <span class="header-badge-hint">Cạnh tranh bứt phá từng điểm số</span>
             </div>
+
             <div class="next-ranks-grid">
                 @foreach($rankingList as $st)
                     <div class="rank-row-item {{ $st['is_me'] ? 'row-is-me' : '' }}">
@@ -218,16 +286,16 @@
                             </div>
                             <div class="rank-row-info">
                                 <div class="rank-row-title">
-                                    <b>{{ $st['name'] }}</b>
+                                    <b class="name-text">{{ $st['name'] }}</b>
                                     @if($st['is_me'])
-                                        <span class="tag-me">BẠN</span>
+                                        <span class="tag-me-pill">⭐ BẠN</span>
                                     @endif
                                     <span class="class-chip">🏫 {{ $st['classroom_name'] }}</span>
                                 </div>
                                 <div class="rank-row-sub">
-                                    <span>🎯 Đạt chuẩn {{ $st['passed_count'] }}/{{ $st['tests_count'] }} bài</span>
+                                    <span>🎯 Đạt chuẩn: <b>{{ $st['passed_count'] }}/{{ $st['tests_count'] }} bài</b></span>
                                     <span>•</span>
-                                    <span>⭐ {{ number_format($st['reward_stars']) }} Sao</span>
+                                    <span>⭐ {{ number_format($st['reward_stars']) }} Sao thưởng</span>
                                 </div>
                             </div>
                         </div>
@@ -243,12 +311,12 @@
             </div>
         </div>
     @elseif($podiumStudents->isEmpty())
-        <div class="empty-leaderboard-card" style="text-align:center; padding: 36px 20px; background: #f8fafc; border-radius: 20px; border: 2px dashed #cbd5e1; margin-top: 16px;">
-            <div style="font-size: 42px; margin-bottom: 8px;">🎮</div>
-            <h4 style="font-family: 'Fredoka', cursive; font-size: 18px; color: #1e293b; margin-bottom: 6px;">VÒNG THI ĐUA MỚI ĐÃ KHỞI TRANH!</h4>
-            <p style="font-size: 13.5px; color: #64748b; margin-bottom: 18px;">Chưa có bạn nào ghi danh điểm số ở khối này tuần này. Hãy là người đầu tiên bứt phá ngôi vị Quán quân!</p>
-            <a href="{{ route('programs') }}" class="btn-3d-tactile" style="background: linear-gradient(180deg, #3b82f6, #1d4ed8); color: #fff; text-decoration: none; padding: 10px 24px;">
-                🚀 Bắt Đầu Luyện Thi Ngay
+        <div class="empty-leaderboard-card">
+            <div class="empty-icon">🎮</div>
+            <h4>VÒNG THI ĐUA MỚI ĐÃ KHỞI TRANH!</h4>
+            <p>Chưa có bạn nào ghi danh điểm số ở khối này trong vòng đua hiện tại. Hãy là người đầu tiên bước lên ngôi vị Quán quân!</p>
+            <a href="{{ route('programs') }}" class="btn-boost-rank" style="margin: 0 auto; display: inline-flex;">
+                <span>🚀</span> Luyện thi nhận điểm ngay
             </a>
         </div>
     @endif

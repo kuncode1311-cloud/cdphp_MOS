@@ -8783,10 +8783,10 @@
 
 <script>
     // =====================================================================
-    // 💬 LOGIC LIVE CHAT DÀNH CHO GIÁO VIÊN TRONG DASHBOARD
+    // 💬 LOGIC LIVE CHAT DÀNH CHO GIÁO VIÊN TRONG DASHBOARD (REAL-TIME CHAT)
     // =====================================================================
     let teacherChatActiveId = localStorage.getItem('mos_teacher_support_id') || null;
-    let teacherLastAdminReply = null;
+    let teacherRenderedReplies = new Set();
     let teacherPollInterval = null;
 
     function toggleTeacherLiveChat() {
@@ -8798,9 +8798,9 @@
             const input = document.getElementById('teacher-chat-input');
             if (input) setTimeout(() => input.focus(), 150);
             scrollTeacherChatToBottom();
-            if (teacherChatActiveId && !teacherPollInterval) {
-                teacherPollInterval = setInterval(pollTeacherSupportReply, 3000);
-            }
+            startTeacherChatPolling();
+        } else {
+            stopTeacherChatPolling();
         }
     }
 
@@ -8815,8 +8815,21 @@
             setTimeout(() => input.focus(), 150);
         }
         scrollTeacherChatToBottom();
-        if (teacherChatActiveId && !teacherPollInterval) {
-            teacherPollInterval = setInterval(pollTeacherSupportReply, 3000);
+        startTeacherChatPolling();
+    }
+
+    function startTeacherChatPolling() {
+        if (!teacherPollInterval && teacherChatActiveId) {
+            // Polling siêu tốc 1.2s khi khung chat đang mở để đạt trải nghiệm Realtime
+            teacherPollInterval = setInterval(pollTeacherSupportReply, 1200);
+            pollTeacherSupportReply();
+        }
+    }
+
+    function stopTeacherChatPolling() {
+        if (teacherPollInterval) {
+            clearInterval(teacherPollInterval);
+            teacherPollInterval = null;
         }
     }
 
@@ -8830,7 +8843,9 @@
 
     function scrollTeacherChatToBottom() {
         const body = document.getElementById('teacher-chat-messages-body');
-        if (body) body.scrollTop = body.scrollHeight;
+        if (body) {
+            body.scrollTop = body.scrollHeight;
+        }
     }
 
     function playTeacherNotificationSound() {
@@ -8842,27 +8857,43 @@
             const gain = ctx.createGain();
             osc.type = 'sine';
             osc.frequency.setValueAtTime(880, ctx.currentTime);
-            gain.gain.setValueAtTime(0.18, ctx.currentTime);
-            gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.4);
+            gain.gain.setValueAtTime(0.2, ctx.currentTime);
+            gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.35);
             osc.connect(gain);
             gain.connect(ctx.destination);
             osc.start(ctx.currentTime);
-            osc.stop(ctx.currentTime + 0.4);
+            osc.stop(ctx.currentTime + 0.35);
         } catch(e) {}
     }
 
+    // Gửi tin nhắn siêu tốc (Optimistic UI - Hiện tức thì 0ms, không chờ server)
     async function submitTeacherChat(e) {
-        e.preventDefault();
+        if (e && e.preventDefault) e.preventDefault();
         const input = document.getElementById('teacher-chat-input');
-        const btn = document.getElementById('teacher-chat-send-btn');
         const message = (input ? input.value : '').trim();
         if (!message) return;
 
-        const token = document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || '{{ csrf_token() }}';
-        
-        btn.disabled = true;
-        btn.innerHTML = '<span>⏳</span> Đang gửi...';
+        // 1. Xóa trắng ô nhập và giữ focus ngay lập tức để giáo viên gõ tiếp câu sau
+        input.value = '';
+        input.focus();
 
+        // 2. Hiển thị ngay lập tức lên màn hình (0ms - Không lag, không chờ đợi)
+        const body = document.getElementById('teacher-chat-messages-body');
+        const tempMsgId = 'tmsg_' + Date.now();
+        const nowTime = new Date().toLocaleTimeString('vi-VN', { hour: '2-digit', minute: '2-digit' });
+
+        if (body) {
+            const userMsgDiv = document.createElement('div');
+            userMsgDiv.id = tempMsgId;
+            userMsgDiv.className = 'teacher-chat-msg teacher-chat-msg-user';
+            userMsgDiv.innerHTML = `<div>${escapeHtml(message)}</div><div class="teacher-chat-msg-time" style="display:flex;align-items:center;justify-content:flex-end;gap:4px;"><span>${nowTime}</span> <span class="teacher-msg-status" style="opacity:0.75;font-size:10px;">⏳ Đang gửi...</span></div>`;
+            body.appendChild(userMsgDiv);
+            scrollTeacherChatToBottom();
+        }
+
+        const token = document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || '{{ csrf_token() }}';
+
+        // 3. Gửi ngầm tới server
         try {
             const res = await fetch('/ho-tro/gui-tin-nhan', {
                 method: 'POST',
@@ -8882,69 +8913,75 @@
             });
 
             const data = await res.json();
-            btn.disabled = false;
-            btn.innerHTML = '<span>🚀</span> Gửi';
+            const statusEl = document.querySelector(`#${tempMsgId} .teacher-msg-status`);
 
             if (data.ok) {
-                // Thêm bubble tin nhắn của giáo viên
-                const body = document.getElementById('teacher-chat-messages-body');
-                if (body) {
-                    const userMsgDiv = document.createElement('div');
-                    userMsgDiv.className = 'teacher-chat-msg teacher-chat-msg-user';
-                    userMsgDiv.innerHTML = `<div>${escapeHtml(message)}</div><div class="teacher-chat-msg-time">${data.time || 'Vừa xong'}</div>`;
-                    body.appendChild(userMsgDiv);
-
-                    // Thêm thông báo đã gửi Telegram tới Admin
-                    const botReplyDiv = document.createElement('div');
-                    botReplyDiv.className = 'teacher-chat-msg teacher-chat-msg-bot';
-                    botReplyDiv.innerHTML = `✅ <b>Đã gửi tin nhắn tới Ban Quản Trị!</b> Hệ thống đã thông báo đến Admin qua Telegram. Admin sẽ phản hồi trực tiếp tại đây trong ít phút ạ!`;
-                    body.appendChild(botReplyDiv);
-
-                    scrollTeacherChatToBottom();
+                // Cập nhật trạng thái đã gửi thành công
+                if (statusEl) {
+                    statusEl.innerHTML = '✓ Đã gửi';
+                    statusEl.style.opacity = '0.9';
                 }
-
-                input.value = '';
 
                 if (data.message_id) {
                     teacherChatActiveId = data.message_id;
                     localStorage.setItem('mos_teacher_support_id', teacherChatActiveId);
-                    if (!teacherPollInterval) {
-                        teacherPollInterval = setInterval(pollTeacherSupportReply, 3000);
-                    }
+                    startTeacherChatPolling();
+                    // Kích hoạt check phản hồi ngay sau 400ms
+                    setTimeout(pollTeacherSupportReply, 400);
                 }
             } else {
-                alert(data.message || 'Có lỗi khi gửi tin nhắn. Vui lòng thử lại!');
+                if (statusEl) {
+                    statusEl.innerHTML = '⚠️ Lỗi';
+                    statusEl.style.color = '#f87171';
+                }
             }
         } catch (err) {
-            btn.disabled = false;
-            btn.innerHTML = '<span>🚀</span> Gửi';
-            alert('Có lỗi mạng khi gửi tin nhắn. Thầy/Cô vui lòng kiểm tra kết nối!');
+            const statusEl = document.querySelector(`#${tempMsgId} .teacher-msg-status`);
+            if (statusEl) {
+                statusEl.innerHTML = '⚠️ Lỗi mạng';
+                statusEl.style.color = '#f87171';
+            }
         }
     }
 
+    // Polling nhận tin nhắn phản hồi từ Admin theo thời gian thực (Real-time)
     async function pollTeacherSupportReply() {
         if (!teacherChatActiveId) return;
         try {
-            const res = await fetch(`/ho-tro/tin-nhan/kiem-tra?id=${teacherChatActiveId}`);
+            const res = await fetch(`/ho-tro/tin-nhan/kiem-tra?id=${teacherChatActiveId}&t=${Date.now()}`);
             if (!res.ok) return;
             const data = await res.json();
-            if (data.ok && data.admin_reply && data.admin_reply !== teacherLastAdminReply) {
-                teacherLastAdminReply = data.admin_reply;
-                playTeacherNotificationSound();
+
+            if (data.ok && data.admin_reply) {
+                // Tách các câu trả lời theo từng dòng để render thành từng bong bóng tin nhắn riêng
+                const rawReplies = data.admin_reply.split('\n').map(s => s.trim()).filter(Boolean);
+                let hasNewReply = false;
 
                 const body = document.getElementById('teacher-chat-messages-body');
                 if (body) {
-                    const adminDiv = document.createElement('div');
-                    adminDiv.className = 'teacher-chat-msg teacher-chat-msg-admin';
-                    adminDiv.innerHTML = `<div><b>👑 Ban Quản Trị:</b> ${escapeHtml(data.admin_reply)}</div><div class="teacher-chat-msg-time">${data.replied_at || 'Vừa xong'}</div>`;
-                    body.appendChild(adminDiv);
-                    scrollTeacherChatToBottom();
-                }
+                    rawReplies.forEach(replyLine => {
+                        const replyKey = `${teacherChatActiveId}_${replyLine}`;
+                        if (!teacherRenderedReplies.has(replyKey)) {
+                            teacherRenderedReplies.add(replyKey);
+                            hasNewReply = true;
 
-                // Mở khung chat nếu đang đóng để giáo viên đọc được
-                const box = document.getElementById('teacher-chat-box');
-                if (box && box.style.display === 'none') {
-                    box.style.display = 'flex';
+                            const adminDiv = document.createElement('div');
+                            adminDiv.className = 'teacher-chat-msg teacher-chat-msg-admin';
+                            adminDiv.innerHTML = `<div><b>👑 Ban Quản Trị:</b> ${escapeHtml(replyLine)}</div><div class="teacher-chat-msg-time">${data.replied_at || 'Vừa xong'}</div>`;
+                            body.appendChild(adminDiv);
+                        }
+                    });
+
+                    if (hasNewReply) {
+                        playTeacherNotificationSound();
+                        scrollTeacherChatToBottom();
+
+                        // Tự động mở khung chat nếu đang đóng để giáo viên đọc được ngay
+                        const box = document.getElementById('teacher-chat-box');
+                        if (box && box.style.display === 'none') {
+                            box.style.display = 'flex';
+                        }
+                    }
                 }
             }
         } catch (e) {}
@@ -8962,10 +8999,23 @@
         });
     }
 
-    // Khởi động polling nếu đã có phiên chat trước đó
-    if (teacherChatActiveId) {
-        teacherPollInterval = setInterval(pollTeacherSupportReply, 4000);
-    }
+    // Lắng nghe sự kiện gõ phím Enter để gửi nhanh (Shift + Enter để xuống dòng)
+    document.addEventListener('DOMContentLoaded', function() {
+        const chatInput = document.getElementById('teacher-chat-input');
+        if (chatInput) {
+            chatInput.addEventListener('keydown', function(e) {
+                if (e.key === 'Enter' && !e.shiftKey) {
+                    e.preventDefault();
+                    submitTeacherChat(e);
+                }
+            });
+        }
+
+        // Tự động kích hoạt polling nếu đã có phiên chat
+        if (teacherChatActiveId) {
+            startTeacherChatPolling();
+        }
+    });
 </script>
 @endif
 
