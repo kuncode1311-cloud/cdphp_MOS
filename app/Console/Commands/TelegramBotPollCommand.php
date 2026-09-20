@@ -120,6 +120,11 @@ class TelegramBotPollCommand extends Command
                         }
 
                         if ($isExplicitCustomerReply) {
+                            if (! $telegramService->isAdminChat($chatId)) {
+                                $telegramService->sendMessage("⛔ Bạn không có quyền phản hồi tin nhắn khách hàng.", null, $chatId);
+                                continue;
+                            }
+
                             $supportMsg = \App\Models\SupportMessage::where('status', 'pending')->latest('id')->first();
                             if ($supportMsg) {
                                 if (empty($supportMsg->admin_reply)) {

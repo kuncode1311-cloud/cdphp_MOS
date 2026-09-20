@@ -43,6 +43,77 @@ class TelegramService
     }
 
     /**
+     * Danh sách Chat ID được cấp quyền Quản trị viên
+     */
+    public function getAdminChatIds(): array
+    {
+        $raw = (string) $this->adminChatId;
+        $ids = [];
+        if (! empty($raw)) {
+            $ids = array_filter(array_map('trim', explode(',', $raw)));
+        }
+
+        // Bổ sung các ID admin mặc định đã biết nếu chưa có trong danh sách
+        $knownAdminIds = ['8952266086', '8732001731'];
+        foreach ($knownAdminIds as $knownId) {
+            if (! in_array($knownId, $ids, true)) {
+                $ids[] = $knownId;
+            }
+        }
+
+        return array_values(array_unique($ids));
+    }
+
+    /**
+     * Kiểm tra một Chat ID có quyền Quản trị viên hay không
+     */
+    public function isAdminChat(?string $chatId): bool
+    {
+        if (empty($chatId)) {
+            return false;
+        }
+
+        $adminIds = $this->getAdminChatIds();
+        if (empty($adminIds)) {
+            return false;
+        }
+
+        return in_array((string) $chatId, $adminIds, true);
+    }
+
+    /**
+     * Menu lời chào công khai dành cho khách hoặc người dùng thông thường
+     */
+    public function buildPublicWelcomeMessage(): array
+    {
+        $text = "👋 <b>Chào mừng bạn đến với Hệ thống Luyện thi IC3 Quest!</b>\n";
+        $text .= "━━━━━━━━━━━━━━━━━━━━\n";
+        $text .= "Nền tảng học tập, rèn luyện kỹ năng số và ôn luyện chứng chỉ tin học quốc tế IC3 GS6 dành cho học sinh tiểu học.\n\n";
+        $text .= "🌐 <b>Website chính thức:</b> https://mos.app\n";
+        $text .= "💎 <b>Gói dịch vụ & Bảng giá:</b> Hỗ trợ đầy đủ các khối lớp 3, 4, 5\n";
+        $text .= "📞 <b>Hotline / Zalo tư vấn:</b> <code>0345151438</code>\n";
+        $text .= "━━━━━━━━━━━━━━━━━━━━\n";
+        $text .= "<i>💡 Nếu bạn là Quản trị viên, vui lòng sử dụng tài khoản Telegram được cấp quyền để truy cập Trung tâm điều hành.</i>";
+
+        $keyboard = [
+            'inline_keyboard' => [
+                [
+                    ['text' => '🌐 Khám Phá Website IC3 Quest', 'url' => config('app.url', 'https://mos.app')],
+                    ['text' => '💎 Xem Bảng Giá Các Gói', 'callback_data' => 'cmd_banggia']
+                ],
+                [
+                    ['text' => '💬 Nhắn Tin Tư Vấn Zalo', 'url' => 'https://zalo.me/0345151438']
+                ]
+            ]
+        ];
+
+        return [
+            'text' => $text,
+            'keyboard' => $keyboard
+        ];
+    }
+
+    /**
      * Bàn phím bấm cố định (Persistent Reply Keyboard) ở đáy màn hình Telegram
      */
     public function getMainPersistentKeyboard(): array
@@ -311,10 +382,29 @@ class TelegramService
     {
         $callbackId = (string) ($callbackQuery['id'] ?? '');
         $data = (string) ($callbackQuery['data'] ?? '');
-        $chatId = (string) ($callbackQuery['message']['chat']['id'] ?? $this->adminChatId);
+        $chatId = (string) ($callbackQuery['message']['chat']['id'] ?? '');
+        $fromId = (string) ($callbackQuery['from']['id'] ?? $chatId);
         $messageId = (int) ($callbackQuery['message']['message_id'] ?? 0);
 
         if (empty($callbackId) || empty($data)) {
+            return;
+        }
+
+        // Nút xem bảng giá công khai: Cho phép tất cả mọi người bấm xem
+        if ($data === 'cmd_banggia') {
+            $this->answerCallbackQuery($callbackId, "💎 Đang tải Bảng giá...");
+            $res = $this->buildPricingMessage();
+            if ($messageId > 0 && ! empty($chatId)) {
+                $this->editMessageText($chatId, $messageId, $res['text'], $res['keyboard']);
+            } elseif (! empty($chatId)) {
+                $this->sendMessage($res['text'], $res['keyboard'], $chatId);
+            }
+            return;
+        }
+
+        // BẢO VỆ BẢO MẬT: Kiểm tra quyền Admin cho TẤT CẢ các thao tác quản trị khác
+        if (! $this->isAdminChat($fromId) && ! $this->isAdminChat($chatId)) {
+            $this->answerCallbackQuery($callbackId, "⛔ Bạn không có quyền thực hiện thao tác quản trị này!", true);
             return;
         }
 
@@ -560,12 +650,48 @@ class TelegramService
             $lower = explode('@', $lower)[0];
         }
 
-        // Tự động kích hoạt bàn phím cố định đáy chat nếu người dùng gõ /start
         $isStart = in_array($lower, ['/start', 'start', 'bắt đầu']);
 
+        // BẢO VỆ BẢO MẬT: Nếu KHÔNG PHẢI là Admin Chat ID
+        if (! $this->isAdminChat($targetChat)) {
+            // 1. Cho phép xem bảng giá công khai
+            if (str_contains($lower, 'bảng giá') || str_contains($lower, 'các gói') || $lower === '/banggia') {
+                $res = $this->buildPricingMessage();
+                $this->sendMessage($res['text'], $res['keyboard'], $targetChat);
+                return $res['text'];
+            }
+
+            // 2. Chặn các lệnh quản trị nhạy cảm (doanh thu, đơn chờ, chat, thống kê, qr)
+            $isAdminAction = str_contains($lower, 'doanh thu') || $lower === '/doanhthu'
+                || str_contains($lower, 'chờ duyệt') || str_contains($lower, 'đơn chờ') || $lower === '/choduyet'
+                || str_contains($lower, 'live chat') || str_contains($lower, 'tin nhắn') || str_contains($lower, 'hộp thư') || $lower === '/danhsachchat'
+                || str_contains($lower, 'thống kê') || str_contains($lower, 'học sinh') || $lower === '/thongke'
+                || str_contains($lower, 'tạo qr') || str_contains($lower, 'vietqr') || str_contains($lower, 'mã qr') || str_contains($lower, 'thanh toán') || $lower === '/qrtest'
+                || str_starts_with($lower, '/chitiet');
+
+            if ($isAdminAction) {
+                $reply = "⛔ <b>TỪ CHỐI TRUY CẬP!</b>\n";
+                $reply .= "━━━━━━━━━━━━━━━━━━━━\n";
+                $reply .= "Bạn không có quyền truy cập dữ liệu quản trị của IC3 Quest.\n";
+                $reply .= "Mã Chat ID của bạn: <code>{$targetChat}</code>\n";
+                $reply .= "Nếu bạn là Quản trị viên, vui lòng cấu hình Chat ID này vào hệ thống.";
+
+                $this->sendMessage($reply, null, $targetChat);
+                return $reply;
+            }
+
+            // 3. Với các lệnh còn lại hoặc /start: Hiển thị lời chào công khai
+            $res = $this->buildPublicWelcomeMessage();
+            $this->sendMessage($res['text'], $res['keyboard'], $targetChat);
+            return $res['text'];
+        }
+
+        // ==================== CÁC LỆNH DÀNH RIÊNG CHO QUẢN TRỊ VIÊN ====================
+
+        // Tự động kích hoạt bàn phím cố định đáy chat nếu admin gõ /start hoặc menu
         if ($isStart || str_contains($lower, 'hướng dẫn') || str_contains($lower, 'menu') || in_array($lower, ['/help', '/trogiup'])) {
             $res = $this->buildHelpMessage();
-            // Gửi kèm Persistent Keyboard để ghim chặt vào đáy màn hình người dùng
+            // Gửi kèm Persistent Keyboard để ghim chặt vào đáy màn hình admin
             $this->sendMessage($res['text'], $this->getMainPersistentKeyboard(), $targetChat);
             return $res['text'];
         }
