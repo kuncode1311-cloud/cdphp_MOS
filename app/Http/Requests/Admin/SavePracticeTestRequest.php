@@ -26,7 +26,7 @@ class SavePracticeTestRequest extends FormRequest
             'topic_id' => ['required', 'exists:topics,id'],
             'name' => ['required', 'string', 'max:150'],
             'slug' => ['nullable', 'string', 'max:180', Rule::unique('practice_tests')->ignore($test)],
-            'duration_minutes' => ['nullable', 'integer', 'min:1', 'max:300'],
+            'duration_minutes' => ['nullable', 'integer', 'min:0', 'max:300'],
             'pass_score' => ['nullable', 'integer', 'between:0,1000'],
             'max_score' => ['nullable', 'integer', 'min:1', 'max:1000'],
             'difficulty' => ['required', 'in:Cơ bản,Trung bình,Nâng cao'],

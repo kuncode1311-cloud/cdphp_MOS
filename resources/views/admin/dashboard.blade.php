@@ -41,7 +41,11 @@
 
         * { box-sizing: border-box; margin: 0; padding: 0; }
         body {
-            background-color: var(--bg-body);
+            background: radial-gradient(circle at 10% 15%, rgba(254, 240, 138, 0.35) 0%, transparent 45%),
+                        radial-gradient(circle at 90% 85%, rgba(199, 210, 254, 0.38) 0%, transparent 45%),
+                        radial-gradient(circle at 50% 50%, rgba(240, 253, 250, 0.35) 0%, transparent 60%),
+                        #f8fafc;
+            background-attachment: fixed;
             color: var(--text-main);
             font-family: 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif;
             -webkit-font-smoothing: antialiased;
@@ -1584,7 +1588,7 @@
             @endif
 
             @if($isTeacher)
-                <div style="background: linear-gradient(135deg, #064e3b, #047857); border-radius: 18px; padding: 20px 24px; color: #fff; margin-bottom: 24px; box-shadow: 0 10px 25px rgba(4, 120, 87, 0.25); display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 16px;">
+                <div id="teacher-global-banner" style="background: linear-gradient(135deg, #064e3b, #047857); border-radius: 18px; padding: 20px 24px; color: #fff; margin-bottom: 24px; box-shadow: 0 10px 25px rgba(4, 120, 87, 0.25); display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 16px;">
                     <div style="display: flex; align-items: center; gap: 16px;">
                         <div style="width: 52px; height: 52px; border-radius: 16px; background: rgba(255,255,255,0.2); border: 2px solid rgba(255,255,255,0.4); display: grid; place-items: center; font-size: 26px;">
                             👩‍🏫
@@ -3424,7 +3428,7 @@
                                         </span>
 
                                         <span class="ord-date-text">📅 {{ $ord->created_at?->format('d/m/Y H:i') }}</span>
-                                        <span class="ord-paymethod-text">· 💳 {{ $ord->payment_method === 'bank_transfer' ? 'VietQR Tự Động' : ($ord->payment_method === 'payos' ? 'PayOS' : $ord->payment_method) }}</span>
+                                        <span class="ord-paymethod-text">· 💳 {{ $ord->payment_method === 'payos' ? 'Chuyển khoản QR' : ($ord->payment_method === 'bank_transfer' ? 'Chuyển khoản ngân hàng' : ($ord->payment_method_label ?? 'Chuyển khoản')) }}</span>
                                     </div>
 
                                     <div class="ord-price-pill">
@@ -3525,161 +3529,139 @@
             <!-- ========================================================= -->
             <!-- TAB: 💎 GÓI BẢN QUYỀN & LỊCH SỬ THUÊ GÓI DÀNH CHO GIÁO VIÊN (TAB-TEACHER-PACKAGES) -->
             <!-- ========================================================= -->
-            <div id="tab-teacher-packages" class="admin-tab-pane" style="display:none; padding-top:12px;">
-                <!-- Toolbar Header -->
-                <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:24px; flex-wrap:wrap; gap:14px;">
+            <div id="tab-teacher-packages" class="admin-tab-pane" style="display:none; padding-top: 4px;">
+                <!-- Toolbar Header Tối Giản, Gọn Gàng -->
+                <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px; flex-wrap:wrap; gap:12px;">
                     <div>
-                        <h2 style="font-size:18.5px; font-weight:900; color:#0f172a; display:flex; align-items:center; gap:8px;">
-                            <span>💎</span> Quản Lý Bản Quyền & Lịch Sử Thuê Gói
+                        <h2 style="font-size:20px; font-weight:900; color:#0f172a; display:flex; align-items:center; gap:8px; margin:0; letter-spacing: -0.3px;">
+                            <span>💎</span> Gói Bản Quyền & Lịch Sử Thuê Gói
                         </h2>
-                        <p style="font-size:13px; color:var(--text-muted); margin-top:3px;">
-                            Kiểm tra thời hạn bản quyền, phân bổ sĩ số học sinh và theo dõi trạng thái các đơn hàng đã đặt
-                        </p>
                     </div>
-                    <div style="display:flex; align-items:center; gap:10px; flex-wrap:wrap;">
-                        <a href="{{ route('pricing.index') }}" class="btn-primary" style="display:inline-flex; align-items:center; gap:7px; background:linear-gradient(135deg, #f59e0b, #d97706); box-shadow:0 4px 14px rgba(217,119,6,0.35); text-decoration:none;">
-                            <span>✨</span> Nâng Cấp Gói Mới ➔
-                        </a>
-                        <button type="button" class="btn-ghost" onclick="alert('Thầy/Cô vui lòng liên hệ Ban Quản Trị qua Hotline/Zalo: 0345.151.438 hoặc gửi yêu cầu để được hỗ trợ cấp thêm Quota / Khối lớp miễn phí!')" title="Liên hệ Quản trị viên để được cấp thêm hạn mức">
+                    <div style="display:flex; align-items:center; gap:10px;">
+                        <button type="button" onclick="openTeacherSupportChat('Kính gửi Ban Quản Trị, tôi muốn gửi yêu cầu cấp thêm số lượng học sinh / mở rộng khối lớp giảng dạy cho tài khoản của mình. Nhờ Ban Quản Trị hỗ trợ giúp tôi với ạ!')" style="font-size:12.5px; font-weight:800; color:#0284c7; border-radius:999px; padding:7px 18px; border:1.5px solid #bae6fd; background:#f0f9ff; box-shadow:0 2px 6px rgba(14,165,233,0.12); cursor:pointer; display:inline-flex; align-items:center; gap:6px; transition:all 0.2s;" onmouseover="this.style.background='#e0f2fe'" onmouseout="this.style.background='#f0f9ff'">
                             <span>💬</span> Yêu Cầu Cấp Thêm
                         </button>
                     </div>
                 </div>
 
-                <!-- 🌟 CARD 1: THÔNG TIN GÓI BẢN QUYỀN ĐANG KÍCH HOẠT (3D GAMIFIED CARD) -->
-                <div style="background: linear-gradient(135deg, #047857 0%, #065f46 50%, #0f172a 100%); border-radius: 20px; border: 3.5px solid #ffffff; box-shadow: 0 16px 36px rgba(0,0,0,0.18), inset 0 -6px 0 rgba(0,0,0,0.15); padding: 24px 28px; color: #ffffff; margin-bottom: 28px; position: relative; overflow: hidden;">
-                    <!-- Nền trang trí mờ -->
-                    <div style="position:absolute; right:-20px; bottom:-30px; font-size:160px; opacity:0.06; pointer-events:none; user-select:none;">💎</div>
-                    <div style="position:absolute; right:120px; top:-40px; font-size:110px; opacity:0.04; pointer-events:none; user-select:none;">👑</div>
+                <!-- 🌟 CARD THÔNG TIN BẢN QUYỀN: CHUẨN GAMIFIED 3D CARD (KHÔNG BỌC HỘP THỪA) -->
+                <div style="background: #ffffff; border-radius: 24px; border: 3px solid #fbbf24; box-shadow: 0 16px 36px rgba(245, 158, 11, 0.12), 0 0 0 1px rgba(251, 191, 36, 0.2); padding: 28px 28px 24px; margin-bottom: 24px; position: relative;">
+                    <!-- Badge Nổi 3D Nóc Thẻ -->
+                    <div style="position: absolute; top: -14px; left: 28px; background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%); color: #ffffff; font-weight: 900; font-size: 11.5px; padding: 4px 16px; border-radius: 999px; border: 2.5px solid #ffffff; box-shadow: 0 4px 12px rgba(245, 158, 11, 0.35); display: inline-flex; align-items: center; gap: 6px; letter-spacing: 0.5px;">
+                        <span>👑</span> GÓI BẢN QUYỀN ĐANG KÍCH HOẠT
+                    </div>
 
-                    <div style="display: flex; justify-content: space-between; align-items: flex-start; flex-wrap: wrap; gap: 16px; margin-bottom: 22px;">
-                        <div>
-                            <div style="display: flex; align-items: center; gap: 10px; flex-wrap: wrap; margin-bottom: 8px;">
-                                <span style="background: #34d399; color: #064e3b; font-weight: 900; font-size: 11px; padding: 3px 10px; border-radius: 999px; text-transform: uppercase; letter-spacing: 0.5px; display: inline-flex; align-items: center; gap: 5px;">
-                                    <span style="width: 7px; height: 7px; background: #059669; border-radius: 50%; display: inline-block;"></span>
-                                    GÓI ĐANG HOẠT ĐỘNG
-                                </span>
-                                @if($activeTeacherOrder)
-                                    <span style="background: rgba(255,255,255,0.18); border: 1px solid rgba(255,255,255,0.3); color: #ecfdf5; font-size: 11px; font-weight: 800; padding: 3px 10px; border-radius: 999px;">
-                                        Đơn hàng: #{{ $activeTeacherOrder->code }}
-                                    </span>
-                                @endif
-                                <span style="background: rgba(255,255,255,0.12); color: #a7f3d0; font-size: 11px; font-weight: 700; padding: 3px 8px; border-radius: 6px;">
-                                    {{ $activeTeacherOrder ? '💳 Đăng ký trực tuyến (' . $activeTeacherOrder->payment_method_label . ')' : '🛡️ Cấp đặc cách bởi Ban Quản Trị' }}
-                                </span>
+                    <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 16px; margin-bottom: 20px; padding-bottom: 18px; border-bottom: 1px dashed #fde68a;">
+                        <div style="display: flex; align-items: center; gap: 16px;">
+                            <!-- Orb Biểu Tượng 3D Vàng Hoàng Gia -->
+                            <div style="width: 56px; height: 56px; border-radius: 18px; background: linear-gradient(135deg, #fef3c7, #fde68a); border: 2.5px solid #fbbf24; box-shadow: 0 6px 16px rgba(245, 158, 11, 0.25); display: grid; place-items: center; font-size: 28px; flex-shrink: 0;">
+                                👑
                             </div>
-
-                            <h3 style="font-size: 24px; font-weight: 900; color: #ffffff; display: flex; align-items: center; gap: 10px; text-shadow: 0 2px 4px rgba(0,0,0,0.2);">
-                                <span>👑</span> {{ $activeTeacherOrder ? $activeTeacherOrder->package_name : 'Gói Bản Quyền Giảng Dạy Đặc Cách' }}
-                            </h3>
-                            <p style="font-size: 13px; color: #a7f3d0; margin-top: 4px;">
-                                @if($activeTeacherOrder && $activeTeacherOrder->package)
-                                    {{ $activeTeacherOrder->package->description ?? 'Bản quyền giáo viên chuyên nghiệp hỗ trợ giảng dạy & luyện thi IC3 GS6' }}
-                                @else
-                                    Tài khoản được Ban Quản Trị kích hoạt đặc cách với đầy đủ quyền quản lý lớp học và ngân hàng đề thi.
-                                @endif
-                            </p>
+                            <div>
+                                <div style="display: flex; align-items: center; gap: 10px; flex-wrap: wrap;">
+                                    <h3 style="font-size: 22px; font-weight: 900; color: #1e1b4b; margin: 0; line-height: 1.2;">
+                                        {{ $activeTeacherOrder ? $activeTeacherOrder->package_name : 'Gói Tiêu Chuẩn (Standard)' }}
+                                    </h3>
+                                    <span style="background: #dcfce7; border: 1.5px solid #86efac; color: #15803d; font-weight: 800; font-size: 11.5px; padding: 2.5px 11px; border-radius: 999px; display: inline-flex; align-items: center; gap: 5px; white-space: nowrap;">
+                                        <span style="width: 6px; height: 6px; background: #16a34a; border-radius: 50%;"></span>
+                                        Đang kích hoạt
+                                    </span>
+                                    @if($activeTeacherOrder)
+                                        <span style="background: #f1f5f9; border: 1px solid #e2e8f0; color: #475569; font-size: 11.5px; font-weight: 800; padding: 2.5px 9px; border-radius: 6px; white-space: nowrap;">
+                                            #{{ $activeTeacherOrder->code }}
+                                        </span>
+                                    @endif
+                                </div>
+                            </div>
                         </div>
 
-                        <!-- Action Buttons trong Card -->
-                        <div style="display: flex; gap: 10px; align-items: center;">
-                            <a href="{{ route('pricing.index') }}" style="display: inline-flex; align-items: center; gap: 6px; padding: 10px 18px; border-radius: 12px; background: linear-gradient(135deg, #f59e0b, #d97706); color: #fff; font-weight: 900; font-size: 12.5px; text-decoration: none; box-shadow: 0 4px 12px rgba(0,0,0,0.25); transition: transform 0.15s;">
-                                <span>✨</span> Nâng Cấp Gói
-                            </a>
-                            <a href="{{ route('programs') }}" style="display: inline-flex; align-items: center; gap: 6px; padding: 10px 16px; border-radius: 12px; background: rgba(255,255,255,0.15); border: 1px solid rgba(255,255,255,0.3); color: #fff; font-weight: 800; font-size: 12.5px; text-decoration: none;">
-                                <span>🎮</span> Cổng Luyện Thi
+                        <!-- Nút Nâng Cấp Tactile 3D Chuẩn Bảng Giá -->
+                        <div>
+                            <a href="{{ route('pricing.index') }}" style="display: inline-flex; align-items: center; gap: 8px; background: linear-gradient(180deg, #ffc933 0%, #ff8e1c 100%); color: #4a2700; font-size: 13.5px; font-weight: 1000; padding: 10px 22px; border-radius: 999px; border: 2.5px solid #ffffff; text-decoration: none; box-shadow: 0 4px 0 #b35600, 0 6px 15px rgba(255, 142, 28, 0.4); transition: all 0.15s; white-space: nowrap;">
+                                <span>✨</span> Nâng Cấp / Gia Hạn Gói
                             </a>
                         </div>
                     </div>
 
-                    <!-- 3 PODS NĂNG LƯỢNG QUOTA & PHÂN QUYỀN (ENERGY PODS) -->
+                    <!-- 3 PODS NĂNG LƯỢNG ĐA SẮC MÀU (BỎ VIỀN QUÁ DÀY, GỌN GÀNG, SANG TRỌNG) -->
                     <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 16px;">
-                        <!-- Pod 1: Sĩ số học sinh -->
-                        <div style="background: rgba(0,0,0,0.22); border: 1px solid rgba(255,255,255,0.18); border-radius: 14px; padding: 16px;">
-                            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
-                                <span style="font-size: 11.5px; font-weight: 800; color: #a7f3d0; text-transform: uppercase;">👥 SĨ SỐ HỌC SINH</span>
-                                <span style="font-size: 13.5px; font-weight: 900; color: #34d399;">
-                                    {{ $usedStudents }} / {{ $maxStudents ?: '∞' }}
-                                </span>
+                        <!-- Pod 1: Sĩ số học sinh (Emerald) -->
+                        <div style="background: linear-gradient(135deg, #f0fdf4 0%, #ecfdf5 100%); border: 1.5px solid #a7f3d0; border-radius: 18px; padding: 18px 20px; box-shadow: 0 4px 14px rgba(16, 185, 129, 0.08);">
+                            <div style="font-size: 11.5px; font-weight: 900; color: #065f46; text-transform: uppercase; margin-bottom: 6px; letter-spacing: 0.3px;">
+                                👥 SĨ SỐ HỌC SINH
                             </div>
-                            <div style="height: 8px; background: rgba(255,255,255,0.2); border-radius: 99px; overflow: hidden; margin-bottom: 8px;">
-                                @php
-                                    $quotaPct = $maxStudents > 0 ? min(100, round(($usedStudents / $maxStudents) * 100)) : 100;
-                                @endphp
-                                <div style="height: 100%; width: {{ $quotaPct }}%; background: #34d399; border-radius: 99px; transition: width 0.4s ease;"></div>
+                            <div style="font-size: 24px; font-weight: 900; color: #059669; margin-bottom: 8px; white-space: nowrap;">
+                                {{ $usedStudents }} <span style="font-size: 14px; font-weight: 800; color: #047857;">/ {{ $maxStudents ?: '∞' }} HS</span>
                             </div>
-                            <div style="display: flex; justify-content: space-between; font-size: 11px; color: #d1fae5;">
-                                <span>Đã dùng: <b>{{ $quotaPct }}%</b></span>
-                                <span>Còn trống: <b>{{ $remainingSlots > 10000 ? 'Không giới hạn' : $remainingSlots . ' suất' }}</b></span>
+                            @php
+                                $quotaPct = $maxStudents > 0 ? min(100, round(($usedStudents / $maxStudents) * 100)) : 100;
+                            @endphp
+                            <div style="height: 8px; background: #d1fae5; border-radius: 999px; overflow: hidden; margin-bottom: 8px;">
+                                <div style="height: 100%; width: {{ $quotaPct }}%; background: linear-gradient(90deg, #10b981, #059669); border-radius: 999px;"></div>
+                            </div>
+                            <div style="font-size: 12px; color: #047857; font-weight: 700; white-space: nowrap;">
+                                Còn trống: <b style="color: #065f46; font-size: 13px;">{{ $remainingSlots > 10000 ? 'Không giới hạn' : $remainingSlots . ' suất' }}</b>
                             </div>
                         </div>
 
-                        <!-- Pod 2: Khối lớp giảng dạy -->
-                        <div style="background: rgba(0,0,0,0.22); border: 1px solid rgba(255,255,255,0.18); border-radius: 14px; padding: 16px;">
-                            <div style="font-size: 11.5px; font-weight: 800; color: #a7f3d0; text-transform: uppercase; margin-bottom: 8px;">
+                        <!-- Pod 2: Khối lớp giảng dạy (Sky Blue) -->
+                        <div style="background: linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 100%); border: 1.5px solid #bae6fd; border-radius: 18px; padding: 18px 20px; box-shadow: 0 4px 14px rgba(2, 132, 199, 0.08);">
+                            <div style="font-size: 11.5px; font-weight: 900; color: #0369a1; text-transform: uppercase; margin-bottom: 10px; letter-spacing: 0.3px;">
                                 🔑 KHỐI ĐƯỢC PHÂN QUYỀN
                             </div>
-                            <div style="display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 6px;">
+                            <div style="display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 8px;">
                                 @forelse($teacherLevels as $tl)
-                                    <span style="background: rgba(255,255,255,0.25); border: 1px solid rgba(255,255,255,0.35); color: #ffffff; padding: 2px 8px; border-radius: 6px; font-weight: 900; font-size: 12px;">
-                                        Khối {{ $tl->grade }} ({{ $tl->name }})
+                                    <span style="background: linear-gradient(135deg, #0284c7, #0369a1); color: #ffffff; border: 1.5px solid #ffffff; box-shadow: 0 3px 8px rgba(2, 132, 199, 0.25); border-radius: 8px; padding: 4px 12px; font-weight: 900; font-size: 13px; white-space: nowrap;">
+                                        Khối {{ $tl->grade }}
                                     </span>
                                 @empty
-                                    <span style="color: #fecaca; font-size: 12px; font-weight: 700;">(Chưa phân khối lớp nào)</span>
+                                    <span style="color: #64748b; font-size: 12.5px; font-weight: 700;">(Chưa phân khối)</span>
                                 @endforelse
                             </div>
-                            <div style="font-size: 11px; color: #a7f3d0;">
-                                Toàn quyền tạo học sinh, chấm bài & xem báo cáo
+                            <div style="font-size: 11.5px; color: #0284c7; font-weight: 700;">
+                                Đã mở khóa học sinh & báo cáo
                             </div>
                         </div>
 
-                        <!-- Pod 3: Thời hạn sử dụng -->
-                        <div style="background: rgba(0,0,0,0.22); border: 1px solid rgba(255,255,255,0.18); border-radius: 14px; padding: 16px;">
-                            <div style="font-size: 11.5px; font-weight: 800; color: #a7f3d0; text-transform: uppercase; margin-bottom: 8px;">
+                        <!-- Pod 3: Thời hạn bản quyền (Violet Amber) -->
+                        <div style="background: linear-gradient(135deg, #faf5ff 0%, #f3e8ff 100%); border: 1.5px solid #e9d5ff; border-radius: 18px; padding: 18px 20px; box-shadow: 0 4px 14px rgba(124, 58, 237, 0.08);">
+                            <div style="font-size: 11.5px; font-weight: 900; color: #6b21a8; text-transform: uppercase; margin-bottom: 6px; letter-spacing: 0.3px;">
                                 📅 THỜI HẠN BẢN QUYỀN
                             </div>
-                            <div style="font-size: 16px; font-weight: 900; color: #ffffff; margin-bottom: 6px;">
-                                {{ $expiresAt ? $expiresAt->format('d/m/Y') : 'Vĩnh viễn / Không giới hạn' }}
+                            <div style="font-size: 22px; font-weight: 900; color: #581c87; margin-bottom: 8px; white-space: nowrap;">
+                                {{ $expiresAt ? $expiresAt->format('d/m/Y') : 'Vĩnh viễn' }}
                             </div>
-                            <div style="font-size: 11px; color: #a7f3d0;">
+                            <div>
                                 @if($expiresAt)
                                     @if($expiresAt->isPast())
-                                        <span style="color: #f87171; font-weight: 800;">⚠️ Đã hết hạn</span> — vui lòng gia hạn gói!
+                                        <span style="background: #fef2f2; border: 1.5px solid #fca5a5; color: #b91c1c; font-weight: 900; font-size: 12px; padding: 3px 12px; border-radius: 999px; white-space: nowrap;">
+                                            ⚠️ Đã hết hạn
+                                        </span>
                                     @else
-                                        <span>🟢 Còn hiệu lực: <b>{{ (int) now()->diffInDays($expiresAt, false) }} ngày</b></span>
+                                        <span style="background: #ffffff; border: 1.5px solid #c084fc; color: #7e22ce; font-weight: 900; font-size: 12px; padding: 3px 12px; border-radius: 999px; box-shadow: 0 2px 6px rgba(192, 132, 252, 0.2); white-space: nowrap;">
+                                            🟢 Còn {{ (int) now()->diffInDays($expiresAt, false) }} ngày
+                                        </span>
                                     @endif
                                 @else
-                                    <span>🟢 Hiệu lực trọn đời</span>
+                                    <span style="background: #ffffff; border: 1.5px solid #c084fc; color: #7e22ce; font-weight: 900; font-size: 12px; padding: 3px 12px; border-radius: 999px; white-space: nowrap;">
+                                        🟢 Không giới hạn
+                                    </span>
                                 @endif
                             </div>
                         </div>
-                    </div>
-
-                    <!-- Ghi chú thông minh -->
-                    <div style="margin-top: 18px; padding-top: 14px; border-top: 1px solid rgba(255,255,255,0.15); display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 10px; font-size: 12px; color: #d1fae5;">
-                        <div style="display: flex; align-items: center; gap: 6px;">
-                            <span>💡</span>
-                            <span>Hệ thống hỗ trợ cả <b>đơn thuê trực tuyến</b> lẫn <b>cấp quyền đặc cách từ Admin</b>. Mọi cập nhật hạn mức sẽ tự động đồng bộ ngay lập tức.</span>
-                        </div>
-                        <span style="color: #6ee7b7; font-weight: 800;">
-                            Tài khoản: {{ auth()->user()->name }} ({{ auth()->user()->email }})
-                        </span>
                     </div>
                 </div>
 
-                <!-- 📜 CARD 2: BẢNG LỊCH SỬ ĐƠN HÀNG THUÊ GÓI (LƯỚI EXCEL ĐẬM NÉT) -->
-                <div class="card" style="border-radius: 16px; border: 2px solid #94a3b8; box-shadow: 0 4px 16px rgba(0,0,0,0.06); padding: 22px; background: #ffffff;">
+                <!-- 📜 CARD 2: BẢNG LỊCH SỬ ĐƠN HÀNG (CARD NỔI RIÊNG, KHÔNG BỌC THỪA, TABLE KHÔNG BỊ VỠ) -->
+                <div style="border-radius: 22px; border: 1.5px solid #e2e8f0; box-shadow: 0 8px 24px rgba(0,0,0,0.04); padding: 22px 24px; background: #ffffff;">
                     <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 18px; flex-wrap: wrap; gap: 12px;">
                         <div>
-                            <h3 style="font-size: 16px; font-weight: 900; color: #0f172a; display: flex; align-items: center; gap: 8px;">
-                                <span>📜</span> Lịch Sử Đơn Thuê Gói Của Thầy/Cô
+                            <h3 style="font-size: 17px; font-weight: 900; color: #0f172a; display: flex; align-items: center; gap: 8px; margin: 0;">
+                                <span>📜</span> Lịch Sử Thuê Gói
                             </h3>
-                            <p style="font-size: 12.5px; color: #64748b; margin-top: 2px;">
-                                Danh sách toàn bộ các giao dịch đăng ký gói bản quyền trực tuyến và trạng thái thanh toán
-                            </p>
                         </div>
                         <div style="display: flex; align-items: center; gap: 10px;">
-                            <span style="font-size: 12.5px; font-weight: 800; color: #3b82f6; background: #eff6ff; padding: 4px 10px; border-radius: 8px; border: 1px solid #bfdbfe;">
+                            <span style="font-size: 12px; font-weight: 900; color: #1d4ed8; background: linear-gradient(135deg, #eff6ff, #dbeafe); padding: 4px 14px; border-radius: 999px; border: 1px solid #bfdbfe; box-shadow: 0 2px 4px rgba(59, 130, 246, 0.1);">
                                 Tổng cộng: {{ $packageOrders->count() }} đơn hàng
                             </span>
                         </div>
@@ -3699,83 +3681,87 @@
                             </a>
                         </div>
                     @else
-                        <!-- Lưới Table Excel Đậm Nét, Căn Giữa Tiêu Đề & Các Ô Cần Thiết -->
-                        <div class="excel-table-wrap" style="overflow-x: auto; border: 2px solid #94a3b8; border-radius: 12px; box-shadow: 0 2px 8px rgba(0,0,0,0.05);">
-                            <table class="modal-roster-table" style="width: 100%; border-collapse: collapse; text-align: left; font-size: 13px;">
+                        <!-- Lưới Table Chuẩn SaaS, Không Bị Ngắt Dòng Rối Mắt, Bỏ Border Dọc Thừa -->
+                        <div style="overflow-x: auto; border: 1px solid #e2e8f0; border-radius: 14px; box-shadow: 0 1px 3px rgba(0,0,0,0.03);">
+                            <table style="width: 100%; border-collapse: collapse; text-align: left; font-size: 13px; min-width: 900px;">
                                 <thead>
-                                    <tr style="background: linear-gradient(180deg, #f1f5f9, #e2e8f0); border-bottom: 2.5px solid #64748b;">
-                                        <th style="padding: 11px 12px; font-size: 12px; font-weight: 900; color: #1e293b; text-align: center; width: 45px; border-right: 1.5px solid #cbd5e1;">#</th>
-                                        <th style="padding: 11px 14px; font-size: 12px; font-weight: 900; color: #1e293b; text-align: center; border-right: 1.5px solid #cbd5e1;">MÃ ĐƠN</th>
-                                        <th style="padding: 11px 16px; font-size: 12px; font-weight: 900; color: #1e293b; text-align: left; border-right: 1.5px solid #cbd5e1;">TÊN GÓI BẢN QUYỀN</th>
-                                        <th style="padding: 11px 14px; font-size: 12px; font-weight: 900; color: #1e293b; text-align: center; border-right: 1.5px solid #cbd5e1;">SỐ TIỀN</th>
-                                        <th style="padding: 11px 12px; font-size: 12px; font-weight: 900; color: #1e293b; text-align: center; border-right: 1.5px solid #cbd5e1;">THỜI HẠN</th>
-                                        <th style="padding: 11px 12px; font-size: 12px; font-weight: 900; color: #1e293b; text-align: center; border-right: 1.5px solid #cbd5e1;">SĨ SỐ CẤP</th>
-                                        <th style="padding: 11px 12px; font-size: 12px; font-weight: 900; color: #1e293b; text-align: center; border-right: 1.5px solid #cbd5e1;">THANH TOÁN</th>
-                                        <th style="padding: 11px 14px; font-size: 12px; font-weight: 900; color: #1e293b; text-align: center; border-right: 1.5px solid #cbd5e1;">TRẠNG THÁI</th>
-                                        <th style="padding: 11px 14px; font-size: 12px; font-weight: 900; color: #1e293b; text-align: center; border-right: 1.5px solid #cbd5e1;">NGÀY TẠO</th>
-                                        <th style="padding: 11px 12px; font-size: 12px; font-weight: 900; color: #1e293b; text-align: center;">THAO TÁC</th>
+                                    <tr style="background: #f8fafc; border-bottom: 2px solid #e2e8f0;">
+                                        <th style="padding: 12px 14px; font-size: 12px; font-weight: 900; color: #475569; text-align: center; width: 45px; white-space: nowrap;">#</th>
+                                        <th style="padding: 12px 16px; font-size: 12px; font-weight: 900; color: #475569; text-align: center; white-space: nowrap;">MÃ ĐƠN</th>
+                                        <th style="padding: 12px 18px; font-size: 12px; font-weight: 900; color: #475569; text-align: left;">TÊN GÓI BẢN QUYỀN</th>
+                                        <th style="padding: 12px 16px; font-size: 12px; font-weight: 900; color: #475569; text-align: center; white-space: nowrap;">SỐ TIỀN</th>
+                                        <th style="padding: 12px 14px; font-size: 12px; font-weight: 900; color: #475569; text-align: center; white-space: nowrap;">THỜI HẠN</th>
+                                        <th style="padding: 12px 14px; font-size: 12px; font-weight: 900; color: #475569; text-align: center; white-space: nowrap;">SĨ SỐ CẤP</th>
+                                        <th style="padding: 12px 14px; font-size: 12px; font-weight: 900; color: #475569; text-align: center; white-space: nowrap;">THANH TOÁN</th>
+                                        <th style="padding: 12px 16px; font-size: 12px; font-weight: 900; color: #475569; text-align: center; white-space: nowrap;">TRẠNG THÁI</th>
+                                        <th style="padding: 12px 16px; font-size: 12px; font-weight: 900; color: #475569; text-align: center; white-space: nowrap;">NGÀY TẠO</th>
+                                        <th style="padding: 12px 14px; font-size: 12px; font-weight: 900; color: #475569; text-align: center; white-space: nowrap;">THAO TÁC</th>
                                     </tr>
                                 </thead>
                                 <tbody>
                                     @foreach($packageOrders as $index => $o)
-                                        <tr style="border-bottom: 1.5px solid #cbd5e1; background: {{ $loop->even ? '#f8fafc' : '#ffffff' }}; transition: background 0.15s;">
-                                            <td style="padding: 12px 10px; text-align: center; font-weight: 800; color: #64748b; border-right: 1.5px solid #cbd5e1;">
+                                        <tr style="border-bottom: 1px solid #f1f5f9; background: {{ $loop->even ? '#fcfcfd' : '#ffffff' }}; transition: background 0.15s;">
+                                            <td style="padding: 14px 12px; text-align: center; font-weight: 800; color: #94a3b8; white-space: nowrap;">
                                                 {{ $index + 1 }}
                                             </td>
-                                            <td style="padding: 12px 14px; text-align: center; border-right: 1.5px solid #cbd5e1;">
-                                                <span style="font-family: 'SF Mono', Consolas, monospace; font-weight: 800; font-size: 12px; color: #0f172a; background: #e2e8f0; padding: 3px 8px; border-radius: 6px; border: 1px solid #cbd5e1;">
+                                            <td style="padding: 14px 16px; text-align: center; white-space: nowrap;">
+                                                <span style="font-family: 'SF Mono', Consolas, monospace; font-weight: 800; font-size: 12px; color: #1e293b; background: #f1f5f9; padding: 4px 10px; border-radius: 6px; border: 1px solid #e2e8f0; display: inline-block; white-space: nowrap;">
                                                     #{{ $o->code }}
                                                 </span>
                                             </td>
-                                            <td style="padding: 12px 16px; border-right: 1.5px solid #cbd5e1;">
+                                            <td style="padding: 14px 18px;">
                                                 <div style="font-weight: 800; color: #0f172a; font-size: 13.5px;">
                                                     {{ $o->package_name }}
                                                 </div>
                                                 <div style="font-size: 11.5px; color: #64748b; margin-top: 2px;">
-                                                    {{ $o->package?->levels_list_text ?? 'Áp dụng toàn bộ khối' }}
+                                                    @if($o->package && $o->package->levels && $o->package->levels->isNotEmpty())
+                                                        Khối: {{ $o->package->levels->pluck('grade')->map(fn($g) => 'Khối ' . $g)->join(', ') }}
+                                                    @else
+                                                        Áp dụng toàn bộ khối
+                                                    @endif
                                                 </div>
                                             </td>
-                                            <td style="padding: 12px 14px; text-align: center; border-right: 1.5px solid #cbd5e1;">
-                                                <span style="font-weight: 900; color: #0284c7; font-size: 13.5px;">
+                                            <td style="padding: 14px 16px; text-align: center; white-space: nowrap;">
+                                                <span style="font-weight: 900; color: #0284c7; font-size: 14px; white-space: nowrap;">
                                                     {{ $o->formatted_price }}
                                                 </span>
                                             </td>
-                                            <td style="padding: 12px 12px; text-align: center; font-weight: 700; color: #334155; border-right: 1.5px solid #cbd5e1;">
+                                            <td style="padding: 14px 14px; text-align: center; font-weight: 700; color: #334155; white-space: nowrap;">
                                                 {{ $o->duration_days }} ngày
                                             </td>
-                                            <td style="padding: 12px 12px; text-align: center; font-weight: 700; color: #334155; border-right: 1.5px solid #cbd5e1;">
+                                            <td style="padding: 14px 14px; text-align: center; font-weight: 700; color: #334155; white-space: nowrap;">
                                                 {{ $o->max_students > 0 ? $o->max_students . ' HS' : 'Không giới hạn' }}
                                             </td>
-                                            <td style="padding: 12px 12px; text-align: center; border-right: 1.5px solid #cbd5e1;">
-                                                <span style="font-size: 11.5px; font-weight: 800; color: #475569; background: #f1f5f9; padding: 2px 7px; border-radius: 5px; border: 1px solid #cbd5e1;">
+                                            <td style="padding: 14px 14px; text-align: center; white-space: nowrap;">
+                                                <span style="font-size: 11.5px; font-weight: 800; color: #475569; background: #f8fafc; padding: 3px 8px; border-radius: 6px; border: 1px solid #e2e8f0; white-space: nowrap;">
                                                     {{ $o->payment_method_label }}
                                                 </span>
                                             </td>
-                                            <td style="padding: 12px 14px; text-align: center; border-right: 1.5px solid #cbd5e1;">
+                                            <td style="padding: 14px 16px; text-align: center; white-space: nowrap;">
                                                 @if($o->isPending())
-                                                    <span style="display: inline-flex; align-items: center; gap: 4px; padding: 3px 10px; border-radius: 999px; font-size: 11.5px; font-weight: 800; background: #fef3c7; color: #b45309; border: 1px solid #fde68a;">
+                                                    <span style="display: inline-flex; align-items: center; gap: 4px; padding: 4px 12px; border-radius: 999px; font-size: 11.5px; font-weight: 800; background: #fef3c7; color: #b45309; border: 1px solid #fde68a; white-space: nowrap;">
                                                         ⏳ Chờ duyệt
                                                     </span>
                                                 @elseif($o->isActive())
-                                                    <span style="display: inline-flex; align-items: center; gap: 4px; padding: 3px 10px; border-radius: 999px; font-size: 11.5px; font-weight: 800; background: #dcfce7; color: #15803d; border: 1px solid #bbf7d0;">
+                                                    <span style="display: inline-flex; align-items: center; gap: 4px; padding: 4px 12px; border-radius: 999px; font-size: 11.5px; font-weight: 800; background: #dcfce7; color: #15803d; border: 1px solid #bbf7d0; white-space: nowrap;">
                                                         🟢 Đã kích hoạt
                                                     </span>
                                                 @else
-                                                    <span style="display: inline-flex; align-items: center; gap: 4px; padding: 3px 10px; border-radius: 999px; font-size: 11.5px; font-weight: 800; background: #fee2e2; color: #b91c1c; border: 1px solid #fecaca;">
+                                                    <span style="display: inline-flex; align-items: center; gap: 4px; padding: 4px 12px; border-radius: 999px; font-size: 11.5px; font-weight: 800; background: #fee2e2; color: #b91c1c; border: 1px solid #fecaca; white-space: nowrap;">
                                                         🔴 Từ chối
                                                     </span>
                                                 @endif
                                             </td>
-                                            <td style="padding: 12px 14px; text-align: center; font-size: 12px; color: #64748b; font-weight: 600; border-right: 1.5px solid #cbd5e1;">
+                                            <td style="padding: 14px 16px; text-align: center; font-size: 12px; color: #64748b; font-weight: 600; white-space: nowrap;">
                                                 {{ $o->created_at->format('d/m/Y H:i') }}
                                             </td>
-                                            <td style="padding: 12px 12px; text-align: center;">
+                                            <td style="padding: 14px 14px; text-align: center; white-space: nowrap;">
                                                 @if($o->isPending())
-                                                    <a href="{{ route('pricing.order.checkout', $o) }}" class="btn-excel" style="padding: 4px 10px; font-size: 11.5px; text-decoration: none; display: inline-flex; align-items: center; gap: 4px;" title="Xem mã QR để thanh toán">
-                                                        <span>📱</span> Mã QR
+                                                    <a href="{{ route('pricing.order.checkout', $o) }}" class="btn-excel" style="padding: 5px 12px; font-size: 11.5px; text-decoration: none; display: inline-flex; align-items: center; gap: 4px; white-space: nowrap;" title="Xem mã QR để thanh toán">
+                                                        <span>📱</span> Quét mã QR
                                                     </a>
                                                 @elseif($o->isActive())
-                                                    <span style="color: #059669; font-weight: 800; font-size: 11.5px; display: inline-flex; align-items: center; gap: 3px;">
+                                                    <span style="color: #059669; font-weight: 800; font-size: 12px; display: inline-flex; align-items: center; gap: 4px; white-space: nowrap;">
                                                         <span>✓</span> Đang dùng
                                                     </span>
                                                 @else
@@ -6703,6 +6689,7 @@
     }
 
     function pollAdminChat() {
+        if (document.hidden) return;
         fetch(`/quan-tri/tin-nhan/realtime-poll?last_id=${lastPolledMsgId}&active_id=${currentChatMsgId || 0}`)
             .then(res => res.json())
             .then(data => {
@@ -6860,7 +6847,7 @@
     }
 
     if (!adminChatPollingTimer) {
-        adminChatPollingTimer = setInterval(pollAdminChat, 3000);
+        adminChatPollingTimer = setInterval(pollAdminChat, 5000);
     }
 
     // =========================================================================
@@ -7125,6 +7112,12 @@
 
         // ⚡ Mở rộng 100% chiều rộng màn hình khi mở Tab Chat Messenger
         document.body.classList.toggle('tab-chat-active', actualPaneId === 'tab-chat');
+
+        // ⚡ Tự động ẩn Banner Giáo viên toàn cục khi vào Tab Quản lý Bản quyền để tránh trùng lặp thông tin
+        const teacherGlobalBanner = document.getElementById('teacher-global-banner');
+        if (teacherGlobalBanner) {
+            teacherGlobalBanner.style.display = (actualPaneId === 'tab-teacher-packages') ? 'none' : 'flex';
+        }
 
         document.querySelectorAll('.admin-tab-pane').forEach(p => p.style.display = 'none');
         document.querySelectorAll('.main-tab-btn').forEach(b => b.classList.remove('active'));
@@ -8402,6 +8395,542 @@
     window.addEventListener('hashchange', restoreAdminActiveTab);
     restoreAdminActiveTab();
 </script>
+
+@if($isTeacher)
+<!-- ========================================================= -->
+<!-- 💬 FLOATING LIVE CHAT WIDGET DÀNH CHO GIÁO VIÊN TRÊN TRANG QUẢN TRỊ -->
+<!-- ========================================================= -->
+<style>
+    /* Nút nổi kích hoạt Chat ở góc phải dưới */
+    .teacher-chat-toggle-btn {
+        position: fixed;
+        bottom: 24px;
+        right: 24px;
+        z-index: 99999;
+        display: inline-flex;
+        align-items: center;
+        gap: 10px;
+        padding: 10px 18px 10px 14px;
+        background: linear-gradient(135deg, #0284c7 0%, #0369a1 100%);
+        color: #ffffff;
+        border: 2.5px solid #ffffff;
+        border-radius: 999px;
+        box-shadow: 0 10px 25px rgba(2, 132, 199, 0.35), inset 0 -3px 0 rgba(0, 0, 0, 0.2);
+        cursor: pointer;
+        font-family: inherit;
+        font-size: 13.5px;
+        font-weight: 800;
+        transition: all 0.25s cubic-bezier(0.34, 1.56, 0.64, 1);
+        outline: none;
+    }
+    .teacher-chat-toggle-btn:hover {
+        transform: translateY(-3px) scale(1.03);
+        box-shadow: 0 14px 30px rgba(2, 132, 199, 0.45), inset 0 -3px 0 rgba(0, 0, 0, 0.2);
+        background: linear-gradient(135deg, #0ea5e9 0%, #0284c7 100%);
+    }
+    .teacher-chat-toggle-btn:active {
+        transform: translateY(1px) scale(0.98);
+        box-shadow: 0 6px 14px rgba(2, 132, 199, 0.3);
+    }
+    .teacher-chat-toggle-btn .chat-icon-wrap {
+        width: 34px;
+        height: 34px;
+        border-radius: 50%;
+        background: rgba(255, 255, 255, 0.2);
+        display: grid;
+        place-items: center;
+        font-size: 18px;
+    }
+    .teacher-chat-toggle-btn .chat-pulse-dot {
+        width: 10px;
+        height: 10px;
+        border-radius: 50%;
+        background: #22c55e;
+        border: 2px solid #ffffff;
+        position: absolute;
+        top: 4px;
+        left: 36px;
+        animation: chatPulse 2s infinite;
+    }
+    @keyframes chatPulse {
+        0% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(34, 197, 94, 0.7); }
+        70% { transform: scale(1); box-shadow: 0 0 0 8px rgba(34, 197, 94, 0); }
+        100% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(34, 197, 94, 0); }
+    }
+
+    /* Khung Chat Gamified 3D Box */
+    .teacher-chat-box {
+        position: fixed;
+        bottom: 84px;
+        right: 24px;
+        width: 380px;
+        max-width: calc(100vw - 32px);
+        height: 520px;
+        max-height: calc(100vh - 120px);
+        background: #ffffff;
+        border-radius: 20px;
+        border: 3px solid #e0f2fe;
+        box-shadow: 0 20px 45px rgba(15, 23, 42, 0.18), 0 4px 12px rgba(2, 132, 199, 0.12);
+        z-index: 99999;
+        display: flex;
+        flex-direction: column;
+        overflow: hidden;
+        animation: chatSlideUp 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+        font-family: inherit;
+    }
+    @keyframes chatSlideUp {
+        from { opacity: 0; transform: translateY(20px) scale(0.96); }
+        to { opacity: 1; transform: translateY(0) scale(1); }
+    }
+
+    /* Header */
+    .teacher-chat-header {
+        background: linear-gradient(135deg, #0284c7 0%, #0369a1 100%);
+        color: #ffffff;
+        padding: 14px 16px;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        border-bottom: 2px solid rgba(255, 255, 255, 0.15);
+    }
+    .teacher-chat-admin-info {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+    }
+    .teacher-chat-admin-avatar {
+        width: 38px;
+        height: 38px;
+        border-radius: 12px;
+        background: #ffffff;
+        border: 2px solid #bae6fd;
+        display: grid;
+        place-items: center;
+        font-size: 20px;
+        position: relative;
+    }
+    .teacher-chat-admin-avatar .online-badge {
+        position: absolute;
+        bottom: -2px;
+        right: -2px;
+        width: 10px;
+        height: 10px;
+        border-radius: 50%;
+        background: #22c55e;
+        border: 2px solid #ffffff;
+    }
+    .teacher-chat-close-btn {
+        width: 28px;
+        height: 28px;
+        border-radius: 8px;
+        background: rgba(255, 255, 255, 0.2);
+        color: #ffffff;
+        border: none;
+        font-size: 13px;
+        font-weight: 800;
+        cursor: pointer;
+        display: grid;
+        place-items: center;
+        transition: all 0.2s;
+    }
+    .teacher-chat-close-btn:hover {
+        background: rgba(255, 255, 255, 0.35);
+        transform: scale(1.05);
+    }
+
+    /* Badge Thông tin Giáo viên đã xác thực */
+    .teacher-chat-auth-badge {
+        background: #f8fafc;
+        padding: 8px 14px;
+        border-bottom: 1px solid #e2e8f0;
+        font-size: 11.5px;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 8px;
+    }
+
+    /* Khung nội dung tin nhắn */
+    .teacher-chat-body {
+        flex: 1;
+        overflow-y: auto;
+        padding: 14px;
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+        background: rgba(240, 249, 255, 0.3);
+    }
+    .teacher-chat-msg {
+        max-width: 85%;
+        padding: 10px 14px;
+        border-radius: 16px;
+        font-size: 12.5px;
+        line-height: 1.5;
+        position: relative;
+        word-break: break-word;
+    }
+    .teacher-chat-msg-bot {
+        align-self: flex-start;
+        background: #ffffff;
+        color: #1e293b;
+        border: 1.5px solid #e2e8f0;
+        border-bottom-left-radius: 4px;
+        box-shadow: 0 2px 6px rgba(0, 0, 0, 0.04);
+    }
+    .teacher-chat-msg-admin {
+        align-self: flex-start;
+        background: #f0fdf4;
+        color: #166534;
+        border: 1.5px solid #bbf7d0;
+        border-bottom-left-radius: 4px;
+        box-shadow: 0 2px 6px rgba(34, 197, 94, 0.08);
+    }
+    .teacher-chat-msg-user {
+        align-self: flex-end;
+        background: linear-gradient(135deg, #0284c7 0%, #0369a1 100%);
+        color: #ffffff;
+        border-bottom-right-radius: 4px;
+        box-shadow: 0 4px 10px rgba(2, 132, 199, 0.25);
+    }
+    .teacher-chat-msg-time {
+        font-size: 10px;
+        opacity: 0.75;
+        margin-top: 4px;
+        text-align: right;
+    }
+
+    /* Gợi ý nhanh Quick Tags */
+    .teacher-chat-quick-tags {
+        padding: 6px 12px 2px;
+        display: flex;
+        gap: 6px;
+        overflow-x: auto;
+        white-space: nowrap;
+        background: #ffffff;
+        scrollbar-width: none;
+    }
+    .teacher-chat-quick-tags::-webkit-scrollbar { display: none; }
+    .teacher-quick-tag {
+        font-size: 11px;
+        font-weight: 700;
+        color: #0284c7;
+        background: #f0f9ff;
+        border: 1px solid #bae6fd;
+        border-radius: 999px;
+        padding: 4px 10px;
+        cursor: pointer;
+        transition: all 0.15s;
+    }
+    .teacher-quick-tag:hover {
+        background: #0284c7;
+        color: #ffffff;
+        border-color: #0284c7;
+    }
+
+    /* Footer Nhập Tin Nhắn */
+    .teacher-chat-footer {
+        padding: 10px 12px;
+        background: #ffffff;
+        border-top: 1.5px solid #e2e8f0;
+    }
+    .teacher-chat-input-row {
+        display: flex;
+        gap: 8px;
+        align-items: flex-end;
+    }
+    .teacher-chat-textarea {
+        flex: 1;
+        border: 1.5px solid #cbd5e1;
+        border-radius: 12px;
+        padding: 8px 12px;
+        font-size: 12.5px;
+        font-family: inherit;
+        outline: none;
+        resize: none;
+        max-height: 80px;
+        transition: border-color 0.2s;
+        line-height: 1.4;
+    }
+    .teacher-chat-textarea:focus {
+        border-color: #0284c7;
+        box-shadow: 0 0 0 3px rgba(2, 132, 199, 0.15);
+    }
+    .teacher-chat-send-btn {
+        padding: 9px 14px;
+        background: linear-gradient(135deg, #0284c7 0%, #0369a1 100%);
+        color: #ffffff;
+        border: none;
+        border-radius: 12px;
+        font-weight: 800;
+        font-size: 12.5px;
+        cursor: pointer;
+        display: inline-flex;
+        align-items: center;
+        gap: 4px;
+        transition: all 0.2s;
+        box-shadow: 0 4px 10px rgba(2, 132, 199, 0.25);
+        flex-shrink: 0;
+    }
+    .teacher-chat-send-btn:hover {
+        background: linear-gradient(135deg, #0ea5e9 0%, #0284c7 100%);
+        transform: translateY(-1px);
+    }
+    .teacher-chat-send-btn:disabled {
+        opacity: 0.6;
+        cursor: not-allowed;
+    }
+</style>
+
+<div id="teacher-live-chat-wrapper">
+    <!-- Nút Nổi Kích Hoạt -->
+    <button type="button" id="teacher-chat-toggle-btn" class="teacher-chat-toggle-btn" onclick="toggleTeacherLiveChat()" title="Chat trực tiếp với Ban Quản Trị">
+        <span class="chat-pulse-dot"></span>
+        <div class="chat-icon-wrap">💬</div>
+        <span id="teacher-chat-toggle-text">Chat Với Admin</span>
+    </button>
+
+    <!-- Cửa Sổ Live Chat -->
+    <div id="teacher-chat-box" class="teacher-chat-box" style="display: none;">
+        <!-- Header -->
+        <div class="teacher-chat-header">
+            <div class="teacher-chat-admin-info">
+                <div class="teacher-chat-admin-avatar">
+                    👑
+                    <span class="online-badge"></span>
+                </div>
+                <div>
+                    <div style="font-weight: 900; font-size: 13.5px; line-height: 1.2;">Hỗ Trợ Giáo Viên</div>
+                    <div style="font-size: 10.5px; opacity: 0.9; display: flex; align-items: center; gap: 4px;">
+                        <span>🟢 Ban Quản Trị trực tuyến</span>
+                    </div>
+                </div>
+            </div>
+            <button type="button" class="teacher-chat-close-btn" onclick="toggleTeacherLiveChat()" title="Thu nhỏ">✕</button>
+        </div>
+
+        <!-- Thông tin giáo viên đã xác thực -->
+        <div class="teacher-chat-auth-badge">
+            <div style="display: flex; align-items: center; gap: 6px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">
+                <span style="font-size: 13px;">👨‍🏫</span>
+                <strong style="color: #0f172a; font-size: 12px;">{{ auth()->user()->name }}</strong>
+                <span style="background: #e0f2fe; color: #0284c7; padding: 1px 7px; border-radius: 999px; font-weight: 800; font-size: 10px;">Giáo viên</span>
+            </div>
+            <span style="color: #64748b; font-size: 11px; flex-shrink: 0;">{{ auth()->user()->phone ?? auth()->user()->email }}</span>
+        </div>
+
+        <!-- Khung danh sách tin nhắn -->
+        <div class="teacher-chat-body" id="teacher-chat-messages-body">
+            <div class="teacher-chat-msg teacher-chat-msg-bot">
+                👋 Xin chào Thầy/Cô <b>{{ auth()->user()->name }}</b>! Ban Quản Trị luôn sẵn sàng hỗ trợ Thầy/Cô về việc cấp thêm số lượng học sinh, mở khối lớp hoặc giải đáp thắc mắc giảng dạy. Thầy/Cô hãy gửi yêu cầu bên dưới nhé!
+            </div>
+        </div>
+
+        <!-- Quick Tags -->
+        <div class="teacher-chat-quick-tags">
+            <button type="button" class="teacher-quick-tag" onclick="insertTeacherQuickMsg('Kính gửi BQT, tôi muốn gửi yêu cầu cấp thêm số lượng học sinh cho lớp.')">➕ Cấp thêm sĩ số</button>
+            <button type="button" class="teacher-quick-tag" onclick="insertTeacherQuickMsg('Kính gửi BQT, tôi muốn đăng ký mở thêm khối lớp mới.')">📚 Mở khối lớp</button>
+            <button type="button" class="teacher-quick-tag" onclick="insertTeacherQuickMsg('Kính gửi BQT, nhờ hỗ trợ kiểm tra gói bản quyền của tôi.')">🔑 Kiểm tra gói</button>
+        </div>
+
+        <!-- Footer Gửi Tin Nhắn -->
+        <form class="teacher-chat-footer" onsubmit="submitTeacherChat(event)">
+            <div class="teacher-chat-input-row">
+                <textarea id="teacher-chat-input" class="teacher-chat-textarea" rows="2" placeholder="Nhập yêu cầu hoặc câu hỏi gửi Admin..." required></textarea>
+                <button type="submit" id="teacher-chat-send-btn" class="teacher-chat-send-btn" title="Gửi tin nhắn">
+                    <span>🚀</span> Gửi
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<script>
+    // =====================================================================
+    // 💬 LOGIC LIVE CHAT DÀNH CHO GIÁO VIÊN TRONG DASHBOARD
+    // =====================================================================
+    let teacherChatActiveId = localStorage.getItem('mos_teacher_support_id') || null;
+    let teacherLastAdminReply = null;
+    let teacherPollInterval = null;
+
+    function toggleTeacherLiveChat() {
+        const box = document.getElementById('teacher-chat-box');
+        if (!box) return;
+        const isHidden = box.style.display === 'none';
+        box.style.display = isHidden ? 'flex' : 'none';
+        if (isHidden) {
+            const input = document.getElementById('teacher-chat-input');
+            if (input) setTimeout(() => input.focus(), 150);
+            scrollTeacherChatToBottom();
+            if (teacherChatActiveId && !teacherPollInterval) {
+                teacherPollInterval = setInterval(pollTeacherSupportReply, 3000);
+            }
+        }
+    }
+
+    function openTeacherSupportChat(initialText = '') {
+        const box = document.getElementById('teacher-chat-box');
+        if (box) box.style.display = 'flex';
+        const input = document.getElementById('teacher-chat-input');
+        if (input) {
+            if (initialText) {
+                input.value = initialText;
+            }
+            setTimeout(() => input.focus(), 150);
+        }
+        scrollTeacherChatToBottom();
+        if (teacherChatActiveId && !teacherPollInterval) {
+            teacherPollInterval = setInterval(pollTeacherSupportReply, 3000);
+        }
+    }
+
+    function insertTeacherQuickMsg(text) {
+        const input = document.getElementById('teacher-chat-input');
+        if (input) {
+            input.value = text;
+            input.focus();
+        }
+    }
+
+    function scrollTeacherChatToBottom() {
+        const body = document.getElementById('teacher-chat-messages-body');
+        if (body) body.scrollTop = body.scrollHeight;
+    }
+
+    function playTeacherNotificationSound() {
+        try {
+            const AudioContext = window.AudioContext || window.webkitAudioContext;
+            if (!AudioContext) return;
+            const ctx = new AudioContext();
+            const osc = ctx.createOscillator();
+            const gain = ctx.createGain();
+            osc.type = 'sine';
+            osc.frequency.setValueAtTime(880, ctx.currentTime);
+            gain.gain.setValueAtTime(0.18, ctx.currentTime);
+            gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.4);
+            osc.connect(gain);
+            gain.connect(ctx.destination);
+            osc.start(ctx.currentTime);
+            osc.stop(ctx.currentTime + 0.4);
+        } catch(e) {}
+    }
+
+    async function submitTeacherChat(e) {
+        e.preventDefault();
+        const input = document.getElementById('teacher-chat-input');
+        const btn = document.getElementById('teacher-chat-send-btn');
+        const message = (input ? input.value : '').trim();
+        if (!message) return;
+
+        const token = document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || '{{ csrf_token() }}';
+        
+        btn.disabled = true;
+        btn.innerHTML = '<span>⏳</span> Đang gửi...';
+
+        try {
+            const res = await fetch('/ho-tro/gui-tin-nhan', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRF-TOKEN': token,
+                    'Accept': 'application/json'
+                },
+                body: JSON.stringify({
+                    name: '{{ addslashes(auth()->user()->name) }}',
+                    contact: '{{ auth()->user()->phone ?? auth()->user()->email }}',
+                    email: '{{ auth()->user()->email }}',
+                    phone: '{{ auth()->user()->phone }}',
+                    message: message,
+                    parent_id: teacherChatActiveId || 0
+                })
+            });
+
+            const data = await res.json();
+            btn.disabled = false;
+            btn.innerHTML = '<span>🚀</span> Gửi';
+
+            if (data.ok) {
+                // Thêm bubble tin nhắn của giáo viên
+                const body = document.getElementById('teacher-chat-messages-body');
+                if (body) {
+                    const userMsgDiv = document.createElement('div');
+                    userMsgDiv.className = 'teacher-chat-msg teacher-chat-msg-user';
+                    userMsgDiv.innerHTML = `<div>${escapeHtml(message)}</div><div class="teacher-chat-msg-time">${data.time || 'Vừa xong'}</div>`;
+                    body.appendChild(userMsgDiv);
+
+                    // Thêm thông báo đã gửi Telegram tới Admin
+                    const botReplyDiv = document.createElement('div');
+                    botReplyDiv.className = 'teacher-chat-msg teacher-chat-msg-bot';
+                    botReplyDiv.innerHTML = `✅ <b>Đã gửi tin nhắn tới Ban Quản Trị!</b> Hệ thống đã thông báo đến Admin qua Telegram. Admin sẽ phản hồi trực tiếp tại đây trong ít phút ạ!`;
+                    body.appendChild(botReplyDiv);
+
+                    scrollTeacherChatToBottom();
+                }
+
+                input.value = '';
+
+                if (data.message_id) {
+                    teacherChatActiveId = data.message_id;
+                    localStorage.setItem('mos_teacher_support_id', teacherChatActiveId);
+                    if (!teacherPollInterval) {
+                        teacherPollInterval = setInterval(pollTeacherSupportReply, 3000);
+                    }
+                }
+            } else {
+                alert(data.message || 'Có lỗi khi gửi tin nhắn. Vui lòng thử lại!');
+            }
+        } catch (err) {
+            btn.disabled = false;
+            btn.innerHTML = '<span>🚀</span> Gửi';
+            alert('Có lỗi mạng khi gửi tin nhắn. Thầy/Cô vui lòng kiểm tra kết nối!');
+        }
+    }
+
+    async function pollTeacherSupportReply() {
+        if (!teacherChatActiveId) return;
+        try {
+            const res = await fetch(`/ho-tro/tin-nhan/kiem-tra?id=${teacherChatActiveId}`);
+            if (!res.ok) return;
+            const data = await res.json();
+            if (data.ok && data.admin_reply && data.admin_reply !== teacherLastAdminReply) {
+                teacherLastAdminReply = data.admin_reply;
+                playTeacherNotificationSound();
+
+                const body = document.getElementById('teacher-chat-messages-body');
+                if (body) {
+                    const adminDiv = document.createElement('div');
+                    adminDiv.className = 'teacher-chat-msg teacher-chat-msg-admin';
+                    adminDiv.innerHTML = `<div><b>👑 Ban Quản Trị:</b> ${escapeHtml(data.admin_reply)}</div><div class="teacher-chat-msg-time">${data.replied_at || 'Vừa xong'}</div>`;
+                    body.appendChild(adminDiv);
+                    scrollTeacherChatToBottom();
+                }
+
+                // Mở khung chat nếu đang đóng để giáo viên đọc được
+                const box = document.getElementById('teacher-chat-box');
+                if (box && box.style.display === 'none') {
+                    box.style.display = 'flex';
+                }
+            }
+        } catch (e) {}
+    }
+
+    function escapeHtml(str) {
+        return str.replace(/[&<>"']/g, function(m) {
+            return {
+                '&': '&amp;',
+                '<': '&lt;',
+                '>': '&gt;',
+                '"': '&quot;',
+                "'": '&#039;'
+            }[m];
+        });
+    }
+
+    // Khởi động polling nếu đã có phiên chat trước đó
+    if (teacherChatActiveId) {
+        teacherPollInterval = setInterval(pollTeacherSupportReply, 4000);
+    }
+</script>
+@endif
 
 </body>
 </html>

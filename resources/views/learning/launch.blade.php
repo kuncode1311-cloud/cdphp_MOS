@@ -130,6 +130,16 @@
             box-shadow: 0 0 12px rgba(56, 189, 248, 0.3);
         }
 
+        .hud-timer-badge.untimed-badge {
+            border-color: #10b981;
+            color: #6ee7b7;
+            box-shadow: 0 0 12px rgba(16, 185, 129, 0.25);
+            font-size: 12.5px;
+            font-weight: 850;
+            padding: 6px 14px;
+            white-space: nowrap;
+        }
+
         .btn-ctrl {
             width: 38px;
             height: 38px;
@@ -1182,10 +1192,17 @@
         </div>
 
         <div class="bar-right">
-            <div class="hud-timer-badge">
-                <span>⏱️</span>
-                <span id="timer-display">20:00</span>
-            </div>
+            @if(($practiceTest->duration_minutes ?? 0) > 0)
+                <div class="hud-timer-badge" id="hud-timer-badge" title="Thời gian làm bài còn lại">
+                    <span>⏱️</span>
+                    <span id="timer-display">{{ sprintf('%02d:00', $practiceTest->duration_minutes) }}</span>
+                </div>
+            @else
+                <div class="hud-timer-badge untimed-badge" id="hud-timer-badge" title="Bài luyện tập rèn luyện kỹ năng — Không giới hạn thời gian (Thong thả suy nghĩ)">
+                    <span>⏱️</span>
+                    <span id="timer-display">Không giới hạn</span>
+                </div>
+            @endif
             <button class="btn-ctrl" id="btn-sound" title="Bật/Tắt Âm thanh">🔊</button>
             <button class="btn-ctrl" id="btn-fullscreen" title="Toàn màn hình">⛶</button>
         </div>
@@ -1309,7 +1326,9 @@
         let isSubmitted = false;
         let soundEnabled = true;
         let startTime = Date.now();
-        let timerSeconds = {{ ($practiceTest->duration_minutes ?: 20) * 60 }};
+        const durationLimitMinutes = {{ (int) ($practiceTest->duration_minutes ?? 0) }};
+        const hasTimeLimit = durationLimitMinutes > 0;
+        let timerSeconds = durationLimitMinutes * 60;
         let timerInterval = null;
 
         // Phát hiện chế độ Admin Preview
@@ -1393,6 +1412,14 @@
         function startTimer() {
             if (typeof isIframePreview !== 'undefined' && isIframePreview) return;
             const display = document.getElementById('timer-display');
+
+            // Nếu bài thi KHÔNG giới hạn thời gian (duration_minutes = 0)
+            if (!hasTimeLimit) {
+                if (display) display.textContent = 'Không giới hạn';
+                return; // Không đếm ngược, không giới hạn, không tự nộp bài!
+            }
+
+            // Nếu bài thi CÓ giới hạn thời gian thực tế
             timerInterval = setInterval(() => {
                 if (isSubmitted) {
                     clearInterval(timerInterval);
@@ -2500,6 +2527,31 @@
                 else if (event.data?.action === 'admin-reset') window.adminResetAnswer();
             });
         }
+
+        // 🛡️ XỬ LÝ AN TOÀN KHI RỜI PHÒNG THI (BẤM NÚT THOÁT HOẶC BACK LỊCH SỬ TRÌNH DUYỆT)
+        const btnExit = document.getElementById('btn-exit');
+        if (btnExit) {
+            btnExit.addEventListener('click', function(e) {
+                if (isSubmitted || isReviewMode) return;
+                const answeredCount = Object.keys(userSelections).length;
+                if (answeredCount > 0) {
+                    if (!confirm('Em có chắc chắn muốn dừng làm bài và quay lại không? Các câu trả lời chưa nộp sẽ không được lưu lại.')) {
+                        e.preventDefault();
+                        return false;
+                    }
+                }
+            });
+        }
+
+        // Cảnh báo khi người dùng vô tình bấm nút Back của trình duyệt hoặc tải lại trang khi đang làm dở
+        window.addEventListener('beforeunload', function(e) {
+            if (isSubmitted || isReviewMode) return;
+            if (Object.keys(userSelections).length > 0) {
+                e.preventDefault();
+                e.returnValue = 'Em đang làm dở bài thi, em có chắc muốn rời đi không?';
+                return e.returnValue;
+            }
+        });
     </script>
 </body>
 </html>

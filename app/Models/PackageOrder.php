@@ -157,12 +157,12 @@ class PackageOrder extends Model
     public function getPaymentMethodLabelAttribute(): string
     {
         return match (strtolower((string) $this->payment_method)) {
-            'payos' => 'PayOS (QR)',
-            'bank_transfer', 'bank' => 'Chuyển khoản',
-            'manual', 'admin' => 'Admin cấp',
+            'payos' => 'Chuyển khoản QR',
+            'bank_transfer', 'bank' => 'Chuyển khoản ngân hàng',
+            'manual', 'admin' => 'Quản trị viên cấp',
             'momo' => 'Ví MoMo',
-            'vnpay' => 'VNPay',
-            default => !empty($this->payment_method) ? strtoupper($this->payment_method) : 'Chuyển khoản',
+            'vnpay' => 'Ví VNPAY',
+            default => !empty($this->payment_method) ? 'Chuyển khoản' : 'Chuyển khoản',
         };
     }
 

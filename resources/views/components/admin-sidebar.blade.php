@@ -278,6 +278,9 @@
                         <span class="sub-icon">📜</span> <span class="nav-text">Lịch Sử Thuê Gói</span>
                     </a>
                 @endif
+                <a href="javascript:void(0)" class="nav-sub-item" onclick="if(typeof openTeacherSupportChat === 'function'){ openTeacherSupportChat(); } else { alert('Vui lòng kết nối Hotline/Zalo: 0345.151.438'); }" title="Chat trực tiếp với Ban Quản Trị">
+                    <span class="sub-icon">💬</span> <span class="nav-text">Hỗ Trợ & Live Chat</span>
+                </a>
             </div>
         </div>
         @endif
@@ -755,9 +758,10 @@
         }
     }
 
-    // Polling định kỳ mỗi 3.5s để đồng bộ số lượng tức thì
-    if (!window._adminBadgePollTimer) {
+    // Polling định kỳ mỗi 8s để đồng bộ số lượng tức thì (bỏ qua nếu đã có polling chat trên Dashboard hoặc tab đang ẩn)
+    if (!window._adminBadgePollTimer && !document.getElementById('chat-conversation-list')) {
         window._adminBadgePollTimer = setInterval(function() {
+            if (document.hidden) return;
             fetch('/quan-tri/tin-nhan/realtime-poll?last_id=0&active_id=0')
                 .then(res => res.json())
                 .then(data => {
@@ -766,6 +770,6 @@
                     }
                 })
                 .catch(() => {});
-        }, 3500);
+        }, 8000);
     }
 </script>

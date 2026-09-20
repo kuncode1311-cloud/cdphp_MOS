@@ -2780,8 +2780,8 @@
                             </select>
                         </div>
                         <div class="field-unit">
-                            <label class="field-label">⏱️ Thời gian (Phút)</label>
-                            <input type="number" name="duration_minutes" class="form-input" value="20">
+                            <label class="field-label">⏱️ Thời gian (Phút) <small style="font-weight:normal; color:#64748b;">(0 = Không giới hạn)</small></label>
+                            <input type="number" name="duration_minutes" class="form-input" value="0" min="0" placeholder="0 = Không giới hạn">
                         </div>
                     </div>
                     <div style="margin-top:12px; padding:10px 12px; background:#f8fafc; border:1px solid #cbd5e1; border-radius:8px; display:flex; flex-direction:column; gap:8px;">
@@ -2830,8 +2830,8 @@
                             </select>
                         </div>
                         <div class="field-unit">
-                            <label class="field-label">⏱️ Thời gian (Phút)</label>
-                            <input type="number" name="duration_minutes" class="form-input" value="{{ $selectedTest->duration_minutes ?? 20 }}">
+                            <label class="field-label">⏱️ Thời gian (Phút) <small style="font-weight:normal; color:#64748b;">(0 = Không giới hạn)</small></label>
+                            <input type="number" name="duration_minutes" class="form-input" value="{{ $selectedTest->duration_minutes ?? 0 }}" min="0" placeholder="0 = Không giới hạn">
                         </div>
                     </div>
                     
