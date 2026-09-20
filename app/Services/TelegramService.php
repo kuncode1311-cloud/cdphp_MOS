@@ -43,24 +43,16 @@ class TelegramService
     }
 
     /**
-     * Danh sách Chat ID được cấp quyền Quản trị viên
+     * Danh sách Chat ID được cấp quyền Quản trị viên (Chỉ lấy đúng Chat ID được cấu hình)
      */
     public function getAdminChatIds(): array
     {
         $raw = (string) $this->adminChatId;
-        $ids = [];
-        if (! empty($raw)) {
-            $ids = array_filter(array_map('trim', explode(',', $raw)));
+        if (empty($raw)) {
+            return [];
         }
 
-        // Bổ sung các ID admin mặc định đã biết nếu chưa có trong danh sách
-        $knownAdminIds = ['8952266086', '8732001731'];
-        foreach ($knownAdminIds as $knownId) {
-            if (! in_array($knownId, $ids, true)) {
-                $ids[] = $knownId;
-            }
-        }
-
+        $ids = array_filter(array_map('trim', explode(',', $raw)));
         return array_values(array_unique($ids));
     }
 
