@@ -58,43 +58,43 @@
 
 ## 👥 3. Tài Khoản Thử Nghiệm (Demo Accounts)
 
-Mật khẩu chung cho tất cả các tài khoản là: **`password`**
+> **Mật khẩu chung cho tất cả tài khoản: `123456`**
 
-| Vai trò | Email đăng nhập | Mật khẩu | Phạm vi trải nghiệm |
+| Vai trò | Đăng nhập (login) | Mật khẩu | Phạm vi trải nghiệm |
 | :--- | :--- | :--- | :--- |
-| 🛡️ **Quản Trị Viên** | `admin@ic3.test` | `password` | Toàn quyền quản trị, Question Studio, cấu hình Telegram, bảng giá |
-| 👩‍🏫 **Giáo Viên** | `teacher@ic3.test` | `password` | Quản lý lớp 3A1, xem biểu đồ radar học sinh, mua/nâng cấp gói |
-| 👦 **Học Sinh** | `student@ic3.test` | `password` | Vào học, thi thử 1000 điểm, tích sao, chơi game cử chỉ AI |
-| 👨‍👩‍👦 **Phụ Huynh** | `parent@ic3.test` | `password` | Dashboard theo dõi con, nhận cảnh báo phần kiến thức con làm sai |
+| 🛡️ **Quản Trị Viên** | `admin@ic3.test` hoặc `admin` | `123456` | Toàn quyền quản trị, Question Studio, cấu hình Telegram, bảng giá |
+| 👩‍🏫 **Giáo Viên** | `teacher@ic3.test` hoặc `teacher` | `123456` | Quản lý lớp 3A1, biểu đồ Radar học sinh, mua/nâng cấp gói |
+| 👦 **Học Sinh** | `HS001` *(mã học sinh)* | `123456` | Vào học, thi thử 1000 điểm, tích sao, chơi game cử chỉ AI |
+| 👦 **Học Sinh 2** | `HS002` | `123456` | Học sinh Bảo Nam - lớp 3A1 |
+| 👦 **Học Sinh 3** | `HS003` | `123456` | Học sinh Minh Khôi - lớp 3A1 |
+| 👨‍👩‍👦 **Phụ Huynh** | Đăng nhập GV → chọn **Góc Phụ Huynh** | - | Dashboard theo dõi con, biểu đồ tiến độ, cảnh báo kiến thức yếu |
+
+> 💡 **Hệ thống hỗ trợ đăng nhập linh hoạt**: Nhập `email`, `mã học sinh (HS001)`, hoặc tên bí danh (`admin`, `teacher`).
 
 ---
 
 ## 🛠️ 4. Hướng Dẫn Cài Đặt & Chạy Trên Máy Cục Bộ (Localhost)
 
 ### Yêu cầu môi trường:
-- Khuyên dùng **Laragon** (hoặc XAMPP) trên Windows.
-- PHP >= 8.3
-- MySQL >= 8.0
-- Composer & Node.js (>= 20.x)
+- Khuyên dùng **Laragon** (hoặc XAMPP) trên Windows
+- PHP >= 8.3 | MySQL >= 8.0 | Composer | Node.js (>= 20.x)
 
-### Các bước cài đặt chi tiết:
+### Các bước cài đặt:
 
 ```bash
-# 1. Tải mã nguồn về máy
+# 1. Clone mã nguồn về máy
 git clone https://github.com/kuncode1311-cloud/cdphp_MOS.git
 cd cdphp_MOS
 
-# 2. Cài đặt thư viện Backend & Frontend
+# 2. Cài thư viện Backend & Frontend
 composer install
 npm install
 
-# 3. Tạo file cấu hình môi trường .env
+# 3. Tạo file cấu hình môi trường
 cp .env.example .env
-
-# 4. Tạo khóa bảo mật ứng dụng
 php artisan key:generate
 
-# 5. Cấu hình Database trong file .env (nếu dùng Laragon thì mặc định đã chuẩn):
+# 4. Cấu hình Database trong .env (mặc định Laragon đã chuẩn):
 # DB_CONNECTION=mysql
 # DB_HOST=127.0.0.1
 # DB_PORT=3306
@@ -102,20 +102,34 @@ php artisan key:generate
 # DB_USERNAME=root
 # DB_PASSWORD=
 
-# 6. Chạy tạo bảng và nạp toàn bộ dữ liệu mẫu (Đề thi, khối lớp, tài khoản):
-php artisan migrate --seed
+# 5. Tạo database "MOS" rồi import dữ liệu mẫu đầy đủ (30 users, 35 bài luyện, 509 câu hỏi...)
+php artisan mos:import-db
 
-# 7. Tạo liên kết lưu trữ ảnh/tài liệu:
+# HOẶC dùng MySQL CLI:
+# mysql -u root MOS < database/mos.sql
+
+# 6. Tạo liên kết lưu trữ tài nguyên
 php artisan storage:link
 
-# 8. Biên dịch giao diện:
-npm run build
-
-# 9. Khởi động máy chủ:
+# 7. Khởi động server
 php artisan serve
 ```
 
-👉 Mở trình duyệt và truy cập: **`http://127.0.0.1:8000`**
+👉 Mở trình duyệt: **`http://localhost/MOS/public`** (Laragon) hoặc **`http://127.0.0.1:8000`** (artisan serve)
+
+### 📦 Nội dung CSDL mẫu đã bao gồm:
+
+| Bảng | Số lượng | Mô tả |
+| :--- | :--- | :--- |
+| `users` | 30 | Admin (1) + GV (3) + HS (26) |
+| `levels` | 3 | Khối 3, 4, 5 |
+| `topics` | 21 | 7 chủ đề × 3 khối |
+| `practice_tests` | 35 | Bài luyện IC3 sẵn có |
+| `questions` | 509 | Ngân hàng câu hỏi đầy đủ |
+| `test_attempts` | 257 | Lịch sử thi thử có sẵn để demo |
+| `game_transactions` | 152 | Giao dịch Sao Vàng / Giờ chơi |
+| `packages` | 4 | Gói bản quyền Giáo viên |
+
 
 ---
 
