@@ -48,10 +48,11 @@
 - Tạo mã QR thanh toán động chuẩn **VietQR** có chứa mã đơn hàng và số tiền chính xác.
 - Bắt Webhook tự động 24/7 từ **PayOS**: Ngay khi quét mã chuyển khoản thành công, hệ thống tự động duyệt kích hoạt gói bản quyền cho Giáo viên trong 3 giây mà không cần thao tác thủ công.
 
-### 📲 5. Bot Quản Trị Telegram 2 Chiều (`@trikun_cdphp_bot`)
+### 📲 5. Bot Quản Trị Telegram 2 Chiều & Bảo Mật Chat ID (`@trikun_cdphp_bot`)
 - Tự động bắn thông báo về điện thoại Quản trị viên ngay khi có đơn thuê gói mới hoặc có câu hỏi tư vấn từ khách hàng.
 - Cho phép Admin **Duyệt kích hoạt đơn / Hủy đơn** chỉ bằng 1 nút bấm trực tiếp trên giao diện Telegram (Inline Buttons).
 - Tra cứu nhanh doanh thu và danh sách đơn chờ duyệt qua lệnh bot (`/doanhthu`, `/choduyet`).
+- **Phân quyền Chat ID Whitelist nghiêm ngặt**: Chỉ duy nhất tài khoản Admin được cấp quyền (`TELEGRAM_ADMIN_CHAT_ID`) mới được truy cập dữ liệu quản trị, ngăn chặn tuyệt đối người ngoài xem thông tin nội bộ.
 
 ---
 
