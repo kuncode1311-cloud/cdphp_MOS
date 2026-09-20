@@ -242,7 +242,7 @@
     .adventure-world-wrapper {
         min-height: calc(100vh - 86px);
         padding: 14px 14px 60px;
-        background: url('/images/adventure-world-bg.jpg') center/cover no-repeat fixed;
+        background: url('{{ asset('images/adventure-world-bg.jpg') }}') center/cover no-repeat fixed;
         display: flex;
         flex-direction: column;
         align-items: center;
@@ -922,11 +922,12 @@
         position: relative;
         width: 100%;
         min-height: 500px;
-        background: url('/images/leaderboard/fantasy-arena-bg.jpg') center 15% / cover no-repeat;
+        background: url('{{ asset('images/leaderboard/fantasy-arena-bg.jpg') }}') center 15% / cover no-repeat;
         display: flex;
         flex-direction: column;
         justify-content: space-between;
         padding: 12px 16px 0;
+        overflow: visible;
     }
     .hero-stage-viewport::before {
         content: '';
@@ -953,24 +954,25 @@
         gap: 8px;
     }
     .sky-btn-menu {
-        width: 36px;
-        height: 36px;
-        border-radius: 10px;
-        background: rgba(6, 18, 48, 0.72);
+        width: 44px;
+        height: 44px;
+        border-radius: 12px;
+        background: rgba(6, 18, 48, 0.82);
         backdrop-filter: blur(10px);
         -webkit-backdrop-filter: blur(10px);
-        border: 1.5px solid rgba(56, 189, 248, 0.45);
+        border: 2px solid rgba(56, 189, 248, 0.55);
         color: #ffffff;
-        font-size: 17px;
+        font-size: 20px;
         display: flex;
         align-items: center;
         justify-content: center;
         cursor: pointer;
-        box-shadow: 0 3px 10px rgba(0,0,0,0.35);
+        box-shadow: 0 4px 14px rgba(0,0,0,0.4);
         transition: all 0.15s;
+        flex-shrink: 0;
     }
     .sky-btn-menu:hover {
-        background: rgba(29, 114, 254, 0.8);
+        background: rgba(29, 114, 254, 0.85);
         border-color: #60a5fa;
         transform: translateY(-1px);
     }
@@ -978,19 +980,19 @@
         display: inline-flex;
         align-items: center;
         gap: 4px;
-        background: rgba(5, 15, 40, 0.72);
+        background: rgba(5, 15, 40, 0.82);
         backdrop-filter: blur(10px);
         -webkit-backdrop-filter: blur(10px);
-        border: 1.5px solid rgba(56, 189, 248, 0.4);
+        border: 2px solid rgba(56, 189, 248, 0.5);
         border-radius: 999px;
-        padding: 3px 5px;
-        box-shadow: 0 4px 14px rgba(0, 0, 0, 0.3);
+        padding: 4px 6px;
+        box-shadow: 0 4px 16px rgba(0, 0, 0, 0.35);
     }
     .arena-grade-pill {
-        padding: 5px 13px;
+        padding: 6px 15px;
         border-radius: 999px;
         font-family: 'Fredoka', cursive, sans-serif;
-        font-size: 12.5px;
+        font-size: 13.5px;
         font-weight: 700;
         color: #94a3b8;
         background: transparent;
@@ -1000,45 +1002,46 @@
         align-items: center;
         gap: 5px;
         transition: all 0.18s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        white-space: nowrap;
     }
     .arena-grade-pill:hover {
         color: #ffffff;
-        background: rgba(255, 255, 255, 0.12);
+        background: rgba(255, 255, 255, 0.14);
     }
     .arena-grade-pill.pill-active {
         color: #ffffff;
         background: linear-gradient(180deg, #1d72fe 0%, #0c50b8 100%);
         border-color: #60a5fa;
-        box-shadow: 0 0 14px rgba(29, 114, 254, 0.8), inset 0 1px 0 rgba(255,255,255,0.4);
+        box-shadow: 0 0 16px rgba(29, 114, 254, 0.85), inset 0 1px 0 rgba(255,255,255,0.4);
         transform: translateY(-1px);
     }
-    .arena-grade-pill .pill-icon { font-size: 13px; }
+    .arena-grade-pill .pill-icon { font-size: 14px; }
 
     /* Timer capsule (right) */
     .sky-hud-right { display: flex; align-items: center; }
     .sky-timer-capsule {
         display: inline-flex;
         align-items: center;
-        gap: 9px;
-        background: rgba(5, 15, 40, 0.8);
-        backdrop-filter: blur(10px);
-        -webkit-backdrop-filter: blur(10px);
-        border: 1.5px solid rgba(56, 189, 248, 0.5);
+        gap: 10px;
+        background: rgba(5, 15, 40, 0.88);
+        backdrop-filter: blur(12px);
+        -webkit-backdrop-filter: blur(12px);
+        border: 2px solid rgba(56, 189, 248, 0.6);
         border-radius: 999px;
-        padding: 4px 16px 4px 6px;
-        box-shadow: 0 4px 14px rgba(0,0,0,0.35);
+        padding: 6px 18px 6px 8px;
+        box-shadow: 0 5px 18px rgba(0,0,0,0.4);
         color: #ffffff;
     }
     .timer-clock-badge {
-        width: 28px;
-        height: 28px;
+        width: 34px;
+        height: 34px;
         border-radius: 50%;
-        background: rgba(56, 189, 248, 0.2);
-        border: 1.5px solid #38bdf8;
+        background: rgba(56, 189, 248, 0.25);
+        border: 2px solid #38bdf8;
         display: flex;
         align-items: center;
         justify-content: center;
-        font-size: 14px;
+        font-size: 16px;
         animation: pulseClock 2s infinite ease-in-out;
     }
     @keyframes pulseClock {
@@ -1047,17 +1050,19 @@
     }
     .timer-text-group { display: flex; flex-direction: column; line-height: 1.15; }
     .timer-header-label {
-        font-size: 9px;
+        font-size: 10px;
         font-weight: 850;
         color: #7dd3fc;
         letter-spacing: 0.8px;
+        text-transform: uppercase;
     }
     .timer-countdown-val {
         font-family: 'Fredoka', cursive, sans-serif;
-        font-size: 13px;
-        font-weight: 700;
+        font-size: 16px;
+        font-weight: 800;
         color: #fef08a;
-        text-shadow: 0 0 8px rgba(254, 240, 138, 0.7);
+        text-shadow: 0 0 10px rgba(254, 240, 138, 0.8);
+        letter-spacing: 0.3px;
     }
 
     /* 1B. SCENERY PROPS */
@@ -1131,7 +1136,7 @@
         margin: 1px 0;
     }
 
-    /* 1C. TITLE CREST */
+    /* 1C. TITLE CREST — nâng lên cao để tận dụng khoảng trống bầu trời, không ép xuống nhân vật */
     .hero-title-crest {
         display: flex;
         flex-direction: column;
@@ -1139,15 +1144,15 @@
         text-align: center;
         position: relative;
         z-index: 15;
-        margin: -10px auto 0;
+        margin: -50px auto 0;
         width: min(600px, 100%);
     }
     .crest-wings-image {
-        width: 260px;
+        width: 250px;
         max-width: 90%;
         height: auto;
         filter: drop-shadow(0 8px 18px rgba(245, 158, 11, 0.6));
-        margin-bottom: -38px;
+        margin-bottom: -40px;
         pointer-events: none;
         position: relative;
         z-index: 1;
@@ -1162,7 +1167,7 @@
     }
     .crest-title-ic3 {
         font-family: 'Fredoka', cursive, sans-serif;
-        font-size: clamp(20px, 2.8vw, 32px);
+        font-size: clamp(20px, 2.6vw, 30px);
         font-weight: 900;
         color: #ffffff;
         text-shadow:
@@ -1179,11 +1184,11 @@
         border-radius: 999px;
         padding: 3px 26px;
         box-shadow: 0 3px 12px rgba(180, 83, 9, 0.5), inset 0 1px 0 rgba(255,255,255,0.7);
-        margin-top: 3px;
+        margin-top: 2px;
     }
     .crest-gold-ribbon span {
         font-family: 'Fredoka', cursive, sans-serif;
-        font-size: 13.5px;
+        font-size: 13px;
         font-weight: 900;
         color: #78350f;
         text-shadow: 0 1px 0 rgba(255,255,255,0.6);
@@ -1195,11 +1200,11 @@
         border: 1.5px solid rgba(125, 211, 252, 0.5);
         border-radius: 999px;
         padding: 2px 14px;
-        font-size: 10.5px;
+        font-size: 10px;
         font-weight: 750;
         color: #e0f2fe;
         box-shadow: 0 2px 6px rgba(0,0,0,0.3);
-        margin-top: 3px;
+        margin-top: 2px;
     }
 
     /* 1D. PODIUMS TRIO */
@@ -1210,7 +1215,7 @@
         align-items: flex-end;
         width: 100%;
         max-width: 900px;
-        margin: 8px auto 0;
+        margin: 12px auto 0;
         position: relative;
         z-index: 12;
     }
@@ -1229,82 +1234,84 @@
         align-items: center;
         position: relative;
         z-index: 3;
+        /* Floating bob animation cho tất cả nhân vật */
+        animation: spriteFloat 3s ease-in-out infinite;
     }
+    /* Mỗi cột có delay khác nhau để nhìn sống động */
+    .pillar-silver .pillar-hero-figure { animation-delay: 0.4s; }
+    .pillar-gold   .pillar-hero-figure { animation-delay: 0s; }
+    .pillar-bronze .pillar-hero-figure { animation-delay: 0.8s; }
+
+    @keyframes spriteFloat {
+        0%, 100% { transform: translateY(0px); }
+        45%      { transform: translateY(-6px); }
+        55%      { transform: translateY(-6px); }
+    }
+    /* Khi hover: dừng float và scale lên */
+    .podium-pillar:hover .pillar-hero-figure {
+        animation-play-state: paused;
+    }
+
     .hero-avatar-sprite {
         width: auto;
         display: block;
-        /* mix-blend-mode: multiply removes white bg in browsers that support it */
-        mix-blend-mode: multiply;
-        transition: transform 0.2s ease;
         object-fit: contain;
+        image-rendering: -webkit-optimize-contrast;
+        image-rendering: crisp-edges;
     }
+    /* Kích thước nhân vật cân đối chuẩn tỉ lệ vàng, sắc nét trong vắt */
     .sprite-gold {
-        height: 175px;
-        filter: drop-shadow(0 12px 24px rgba(0,0,0,0.5));
-        transform: translateY(12px);
+        height: 192px;
+        filter: drop-shadow(0 14px 22px rgba(0,0,0,0.5));
     }
     .sprite-silver {
-        height: 150px;
-        filter: drop-shadow(0 10px 20px rgba(0,0,0,0.45));
-        transform: translateY(10px);
+        height: 175px;
+        filter: drop-shadow(0 12px 18px rgba(0,0,0,0.45));
     }
     .sprite-bronze {
-        height: 148px;
-        filter: drop-shadow(0 10px 20px rgba(0,0,0,0.45));
-        transform: translateY(10px);
+        height: 172px;
+        filter: drop-shadow(0 12px 18px rgba(0,0,0,0.45));
     }
     .podium-pillar:hover .hero-avatar-sprite {
-        transform: translateY(4px) scale(1.04);
+        transform: scale(1.05);
+        transition: transform 0.2s ease;
     }
 
-    /* Champion orbital crown & halo */
+    /* Champion orbital crown & halo — vương miện hiển thị trọn vẹn, không bị logo che */
     .champion-hero-figure { position: relative; }
     .champion-crown-orbit {
         position: absolute;
-        top: -14px;
+        top: -8px;
         left: 50%;
         transform: translateX(-50%);
-        z-index: 12;
+        z-index: 20;           /* vương miện sắc nét, hiển thị trọn vẹn 100% */
         pointer-events: none;
         animation: crownFloat 2.5s infinite ease-in-out;
+        animation-delay: 0s;
     }
     @keyframes crownFloat {
         0%, 100% { transform: translateX(-50%) translateY(0); }
-        50% { transform: translateX(-50%) translateY(-6px); }
+        50%       { transform: translateX(-50%) translateY(-4px); }
     }
     .orbit-crown-img {
-        width: 42px;
+        width: 48px;
         height: auto;
-        filter: drop-shadow(0 4px 10px rgba(180, 83, 9, 0.9));
+        filter: drop-shadow(0 4px 12px rgba(180, 83, 9, 0.95)) drop-shadow(0 0 16px rgba(251,191,36,0.7));
     }
     .champion-crown-orbit .sparkle {
         position: absolute;
-        font-size: 12px;
+        font-size: 13px;
         animation: sparkleSpin 2s infinite ease-in-out;
     }
     @keyframes sparkleSpin {
-        0%, 100% { opacity: 0.4; transform: scale(0.8) rotate(0deg); }
-        50% { opacity: 1; transform: scale(1.2) rotate(15deg); }
+        0%, 100% { opacity: 0.5; transform: scale(0.8) rotate(0deg); }
+        50%       { opacity: 1;   transform: scale(1.3) rotate(20deg); }
     }
-    .sp-1 { top: -4px; left: -8px; }
-    .sp-2 { top: 2px; right: -8px; animation-delay: 1s; }
+    .sp-1 { top: -4px; left: -9px; }
+    .sp-2 { top: 3px; right: -9px; animation-delay: 1s; }
 
     .champion-halo-ray {
-        position: absolute;
-        top: 14px;
-        left: 50%;
-        transform: translateX(-50%);
-        width: 200px;
-        height: 200px;
-        background: radial-gradient(circle, rgba(251, 191, 36, 0.5) 0%, rgba(245, 158, 11, 0.18) 55%, transparent 72%);
-        border-radius: 50%;
-        pointer-events: none;
-        z-index: 1;
-        animation: pulseHalo 3s infinite ease-in-out;
-    }
-    @keyframes pulseHalo {
-        0%, 100% { opacity: 0.8; transform: translateX(-50%) scale(1); }
-        50% { opacity: 1; transform: translateX(-50%) scale(1.06); }
+        display: none; /* Ẩn lớp phủ gradient vàng gây mờ đục nhân vật Quán quân */
     }
 
     /* Number badge above pedestal */
@@ -1525,147 +1532,218 @@
         text-transform: uppercase;
     }
 
-    /* 2. RANK 4-10 STRIP */
+    /* ===== SPRITE GLOW WRAPPER (hiệu ứng ánh sáng xung quanh nhân vật) ===== */
+    .sprite-glow-wrap {
+        position: relative;
+        display: inline-flex;
+        align-items: flex-end;
+        justify-content: center;
+    }
+    /* Glow vàng kim — Quán Quân: Tinh tế, sắc nét, trong trẻo, không bị mờ đục hay phủ sương */
+    .sprite-glow-gold {
+        filter: drop-shadow(0 0 10px rgba(254, 240, 138, 0.75))
+                drop-shadow(0 4px 14px rgba(245, 158, 11, 0.4));
+        animation: championGlow 2.5s ease-in-out infinite alternate;
+    }
+    @keyframes championGlow {
+        0%   { filter: drop-shadow(0 0 8px rgba(254, 240, 138, 0.65)) drop-shadow(0 4px 10px rgba(245, 158, 11, 0.35)); }
+        100% { filter: drop-shadow(0 0 14px rgba(253, 224, 71, 0.9)) drop-shadow(0 6px 16px rgba(245, 158, 11, 0.5)); }
+    }
+    /* Glow bạc — Á Quân */
+    .sprite-glow-silver {
+        filter: drop-shadow(0 0 16px rgba(148, 163, 184, 0.9))
+                drop-shadow(0 0 32px rgba(203, 213, 225, 0.6));
+        animation: silverGlow 2.5s ease-in-out infinite alternate;
+    }
+    @keyframes silverGlow {
+        0%   { filter: drop-shadow(0 0 12px rgba(148,163,184,0.8)) drop-shadow(0 0 24px rgba(203,213,225,0.5)); }
+        100% { filter: drop-shadow(0 0 22px rgba(226,232,240,1.0)) drop-shadow(0 0 44px rgba(148,163,184,0.75)); }
+    }
+    /* Glow đồng — Hạng Ba */
+    .sprite-glow-bronze {
+        filter: drop-shadow(0 0 16px rgba(251, 146, 60, 0.9))
+                drop-shadow(0 0 30px rgba(234, 88, 12, 0.6));
+        animation: bronzeGlow 2.8s ease-in-out infinite alternate;
+    }
+    @keyframes bronzeGlow {
+        0%   { filter: drop-shadow(0 0 10px rgba(251,146,60,0.8)) drop-shadow(0 0 22px rgba(234,88,12,0.5)); }
+        100% { filter: drop-shadow(0 0 22px rgba(253,186,116,1.0)) drop-shadow(0 0 44px rgba(251,146,60,0.75)); }
+    }
+
+    /* === MY-RANK-CHIP: thay tag-me-dot không che avatar === */
+    .my-rank-chip {
+        display: inline-flex;
+        align-items: center;
+        gap: 3px;
+        font-size: 10px;
+        font-weight: 800;
+        color: #ffffff;
+        background: linear-gradient(90deg, #dc2626, #b91c1c);
+        border-radius: 999px;
+        padding: 2px 7px;
+        border: 1px solid rgba(255,255,255,0.5);
+        margin-top: 2px;
+        box-shadow: 0 0 8px rgba(220,38,38,0.6);
+        line-height: 1.4;
+        letter-spacing: 0.2px;
+    }
+    .my-rank-chip.chip-champ {
+        background: linear-gradient(90deg, #d97706, #b45309);
+        box-shadow: 0 0 10px rgba(245,158,11,0.8);
+        animation: chipPulse 2s ease-in-out infinite alternate;
+    }
+    @keyframes chipPulse {
+        0%   { box-shadow: 0 0 8px rgba(245,158,11,0.7); }
+        100% { box-shadow: 0 0 18px rgba(253,224,71,1.0); }
+    }
+
+    /* 2. RANK 4-10 STRIP — 7 CỘT, KHÔNG SCROLL */
     .hero-chaser-dock {
         background: linear-gradient(180deg, #081c40 0%, #040f22 100%);
         border-top: 2.5px solid #00d0f5;
-        padding: 7px 14px 9px;
+        padding: 10px 16px 12px;
         width: 100%;
         position: relative;
         z-index: 20;
-        box-shadow: inset 0 2px 12px rgba(0, 210, 245, 0.12);
+        box-shadow: inset 0 2px 14px rgba(0, 210, 245, 0.14);
     }
     .chaser-dock-header {
         display: flex;
         align-items: center;
         justify-content: space-between;
-        margin-bottom: 7px;
+        margin-bottom: 10px;
     }
     .chaser-dock-title {
         display: flex;
         align-items: center;
-        gap: 5px;
+        gap: 6px;
         font-family: 'Fredoka', cursive, sans-serif;
-        font-size: 12px;
+        font-size: 13.5px;
         font-weight: 800;
         color: #00e5ff;
         letter-spacing: 0.5px;
         text-transform: uppercase;
-        text-shadow: 0 0 10px rgba(0, 229, 255, 0.55);
+        text-shadow: 0 0 12px rgba(0, 229, 255, 0.6);
     }
-    .chaser-bolt-glow {
-        color: #facc15;
-        font-size: 14px;
-        filter: drop-shadow(0 0 6px #facc15);
-    }
+    .chaser-bolt-glow { color: #facc15; font-size: 16px; filter: drop-shadow(0 0 7px #facc15); }
     .chaser-dock-link {
-        font-size: 11px;
+        font-size: 12px;
         font-weight: 700;
         color: #38bdf8;
         text-decoration: none;
         display: inline-flex;
         align-items: center;
         gap: 4px;
-        transition: color 0.15s;
+        padding: 5px 12px;
+        border-radius: 999px;
+        border: 1.5px solid rgba(56, 189, 248, 0.4);
+        background: rgba(56, 189, 248, 0.1);
+        transition: all 0.15s;
+        white-space: nowrap;
     }
-    .chaser-dock-link:hover { color: #7dd3fc; }
+    .chaser-dock-link:hover { color: #fff; background: rgba(56,189,248,0.25); border-color: #38bdf8; }
 
+    /* Row 7 cột: không scroll, chia đều */
     .chaser-dock-cards-row {
         display: grid;
         grid-template-columns: repeat(7, 1fr);
-        gap: 7px;
+        gap: 8px;
+        align-items: stretch;
     }
-    .chaser-item-pill {
+
+    /* Thẻ học sinh (class mới: chaser-item-card) */
+    .chaser-item-card {
         background: rgba(255, 255, 255, 0.07);
-        border: 1px solid rgba(255, 255, 255, 0.13);
-        border-radius: 11px;
-        padding: 5px 7px;
+        border: 1.5px solid rgba(255, 255, 255, 0.14);
+        border-radius: 14px;
+        padding: 10px 8px 10px;
         display: flex;
+        flex-direction: column;
         align-items: center;
-        gap: 5px;
-        transition: transform 0.15s, background 0.15s, border-color 0.15s;
-        min-width: 0;
+        justify-content: flex-start;
+        gap: 6px;
+        text-align: center;
         cursor: default;
+        transition: transform 0.15s, background 0.15s, border-color 0.15s, box-shadow 0.15s;
+        position: relative;
+        border-top: 3px solid var(--rank-color, #38bdf8);
     }
-    .chaser-item-pill:hover {
-        transform: translateY(-2px);
+    .chaser-item-card:hover {
+        transform: translateY(-3px);
         background: rgba(255, 255, 255, 0.13);
-        border-color: #38bdf8;
+        border-color: var(--rank-color, #38bdf8);
+        box-shadow: 0 6px 18px rgba(0,0,0,0.3), 0 0 12px rgba(56,189,248,0.2);
     }
-    .chaser-item-pill.item-is-me {
-        background: rgba(245, 158, 11, 0.25) !important;
+    .chaser-item-card.card-is-me {
+        background: rgba(245, 158, 11, 0.22) !important;
         border-color: #fbbf24 !important;
-        box-shadow: 0 0 12px rgba(245, 158, 11, 0.5) !important;
+        box-shadow: 0 0 16px rgba(245,158,11,0.5) !important;
     }
-    .chaser-item-pill.item-is-me .item-name { color: #fef08a !important; }
-    .item-rank-num {
-        width: 19px;
-        height: 19px;
+    .chaser-item-card.card-is-me .chaser-name { color: #fef08a !important; }
+
+    /* Badge số thứ tự — canh giữa, màu theo --rank-color */
+    .chaser-rank-badge {
+        width: 26px;
+        height: 26px;
         border-radius: 50%;
+        background: var(--rank-color, #38bdf8);
+        color: #ffffff;
+        font-family: 'Fredoka', cursive, sans-serif;
+        font-size: 13px;
+        font-weight: 900;
         display: flex;
         align-items: center;
         justify-content: center;
-        font-family: 'Fredoka', cursive, sans-serif;
-        font-size: 9.5px;
-        font-weight: 900;
-        color: #ffffff;
-        border: 1px solid rgba(255,255,255,0.5);
+        line-height: 1;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.4), 0 0 10px color-mix(in srgb, var(--rank-color, #38bdf8) 60%, transparent);
         flex-shrink: 0;
     }
-    .badge-cyan { background: linear-gradient(135deg, #0284c7, #0369a1); }
-    .badge-pink { background: linear-gradient(135deg, #ec4899, #be185d); }
-    .item-avatar-col { position: relative; flex-shrink: 0; }
-    .item-avatar-img {
-        width: 30px;
-        height: 30px;
+    .chaser-avatar-wrap { position: relative; }
+    .chaser-avatar-img {
+        width: 40px;
+        height: 40px;
         border-radius: 50%;
-        border: 1.5px solid #ffffff;
+        border: 2.5px solid rgba(255, 255, 255, 0.75);
         object-fit: cover;
-        box-shadow: 0 2px 5px rgba(0,0,0,0.3);
+        box-shadow: 0 3px 10px rgba(0,0,0,0.45);
+        display: block;
     }
-    .item-mini-ribbon {
-        position: absolute;
-        bottom: -4px;
-        right: -4px;
-        font-size: 10px;
-        line-height: 1;
-        filter: drop-shadow(0 1px 2px rgba(0,0,0,0.5));
-    }
-    .item-info-col {
+    .chaser-info {
         display: flex;
         flex-direction: column;
+        align-items: center;
+        gap: 1px;
         min-width: 0;
-        flex: 1;
+        width: 100%;
     }
-    .item-name {
-        font-size: 10.5px;
+    .chaser-name {
+        font-family: 'Fredoka', cursive, sans-serif;
+        font-size: 12.5px;
         font-weight: 800;
         color: #ffffff;
         white-space: nowrap;
         overflow: hidden;
         text-overflow: ellipsis;
+        max-width: 100%;
         line-height: 1.2;
     }
-    .item-class {
-        font-size: 9px;
+    .chaser-class {
+        font-size: 10px;
         font-weight: 600;
         color: #94a3b8;
         white-space: nowrap;
         overflow: hidden;
         text-overflow: ellipsis;
+        max-width: 100%;
     }
-    .item-score {
-        display: inline-flex;
-        align-items: center;
-        gap: 2px;
+    .chaser-score {
         font-family: 'Fredoka', cursive, sans-serif;
-        font-size: 10px;
+        font-size: 11.5px;
         font-weight: 700;
         color: #fef08a;
-        margin-top: 1px;
+        white-space: nowrap;
     }
-    .item-score .score-star { font-size: 9px; }
-    .chaser-empty-row { color: #94a3b8; font-size: 12px; padding: 8px 0; text-align: center; }
+    .chaser-empty-row { color: #94a3b8; font-size: 13px; padding: 12px 0; text-align: center; grid-column: 1/-1; }
 
     /* 3. PLAYER FOOTER HUD */
     .hero-player-footer-hud {
@@ -1742,33 +1820,105 @@
     }
 
     /* 4. RESPONSIVE */
+    @media (max-width: 1100px) {
+        .chaser-dock-cards-row { gap: 6px; }
+        .chaser-item-card { padding: 8px 5px 8px; }
+        .chaser-name { font-size: 11px; }
+        .chaser-avatar-img { width: 34px; height: 34px; }
+    }
     @media (max-width: 992px) {
         .hero-stage-viewport { min-height: 460px; }
+        .hero-title-crest { margin: -30px auto 0; }
         .podiums-arena-trio { grid-template-columns: 1fr 1.1fr 1fr; gap: 8px; }
-        .sprite-gold { height: 148px; }
-        .sprite-silver { height: 128px; }
-        .sprite-bronze { height: 125px; }
-        .chaser-dock-cards-row {
-            display: flex;
-            overflow-x: auto;
-            scroll-snap-type: x mandatory;
-            gap: 7px;
-            padding-bottom: 4px;
-        }
-        .chaser-item-pill {
-            min-width: 130px;
-            scroll-snap-align: start;
-        }
+        .sprite-gold   { height: 165px; }
+        .sprite-silver { height: 140px; }
+        .sprite-bronze { height: 138px; }
+        /* Chaser vẫn 7 cột nhưng nhỏ hơn */
+        .chaser-dock-cards-row { gap: 5px; }
+        .chaser-item-card { padding: 7px 4px 8px; }
+        .chaser-name { font-size: 10.5px; }
+        .chaser-score { font-size: 10.5px; }
+        .chaser-avatar-img { width: 30px; height: 30px; }
+        .chaser-rank-badge { width: 22px; height: 22px; font-size: 11px; }
     }
     @media (max-width: 640px) {
-        .sky-floating-hud { flex-direction: column; align-items: stretch; gap: 7px; }
+        .hero-title-crest { margin: 4px auto 0; }
+        .sky-floating-hud { flex-wrap: wrap; gap: 8px; }
+        .sky-grade-pill-group { flex-wrap: wrap; }
         .hero-player-footer-hud { flex-direction: column; align-items: stretch; text-align: center; gap: 7px; }
         .footer-hud-left, .footer-hud-center, .footer-hud-right { justify-content: center; }
         .scenery-prop { display: none; }
         .crest-title-ic3 { font-size: 18px; }
+        /* Mobile: chaser xuống 2 hàng scroll */
+        .chaser-dock-cards-row { grid-template-columns: repeat(4, 1fr); }
+        .sprite-gold   { height: 130px; }
+        .sprite-silver { height: 110px; }
+        .sprite-bronze { height: 108px; }
     }
     @media (prefers-reduced-motion: reduce) {
-        .champion-crown-orbit, .champion-halo-ray, .prop-right, .timer-clock-badge { animation: none !important; }
+        .champion-crown-orbit, .champion-halo-ray, .prop-right, .timer-clock-badge,
+        .sprite-glow-gold, .sprite-glow-silver, .sprite-glow-bronze,
+        .my-rank-chip, .pillar-hero-figure { animation: none !important; }
+    }
+
+    /* ===== LOADING OVERLAY IC3 (hiển thị ở giữa khi đổi khối lọc) ===== */
+    .lb-loading-overlay {
+        position: absolute;
+        inset: 0;
+        z-index: 999;
+        background: rgba(4, 12, 35, 0.72);
+        backdrop-filter: blur(3px);
+        -webkit-backdrop-filter: blur(3px);
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        gap: 16px;
+        border-radius: inherit;
+        animation: overlayFadeIn 0.15s ease;
+    }
+    @keyframes overlayFadeIn {
+        from { opacity: 0; }
+        to   { opacity: 1; }
+    }
+    .lb-loading-ring {
+        width: 58px;
+        height: 58px;
+        border-radius: 50%;
+        border: 4px solid rgba(56, 189, 248, 0.25);
+        border-top-color: #38bdf8;
+        border-right-color: #fbbf24;
+        animation: ic3SpinRing 0.85s linear infinite;
+        box-shadow: 0 0 24px rgba(56,189,248,0.5);
+    }
+    @keyframes ic3SpinRing {
+        to { transform: rotate(360deg); }
+    }
+    .lb-loading-text {
+        font-family: 'Fredoka', cursive, sans-serif;
+        font-size: 14px;
+        font-weight: 800;
+        color: #7dd3fc;
+        letter-spacing: 1.5px;
+        text-transform: uppercase;
+        text-shadow: 0 0 12px rgba(56,189,248,0.8);
+        animation: loadTextBlink 1.4s ease-in-out infinite alternate;
+    }
+    @keyframes loadTextBlink {
+        from { opacity: 0.6; }
+        to   { opacity: 1.0; }
+    }
+
+    /* Fade-in nhẹ khi nội dung mới được inject */
+    @keyframes leaderboardSpinAnim {
+        to { transform: rotate(360deg); }
+    }
+    .leaderboard-dynamic-fade-in {
+        animation: lbFadeIn 0.3s ease forwards;
+    }
+    @keyframes lbFadeIn {
+        from { opacity: 0.5; transform: translateY(6px); }
+        to   { opacity: 1;   transform: translateY(0); }
     }
 
 /* =========================================================================
@@ -1935,12 +2085,22 @@
             pill.classList.toggle('pill-active', isActive);
         });
 
-        // Hiệu ứng mờ nhẹ khi tải
-        const container = document.getElementById('leaderboard-dynamic-container');
-        if (container) {
-            container.style.transition = 'opacity 0.15s ease';
-            container.style.opacity = '0.45';
+        // ✨ IC3 LOADING OVERLAY — hiển thị ở giữa màn, đẹp và đúng chỗ
+        const oldOverlay = document.getElementById('lb-loading-overlay');
+        if (oldOverlay) oldOverlay.remove();
+
+        const overlay = document.createElement('div');
+        overlay.id = 'lb-loading-overlay';
+        overlay.className = 'lb-loading-overlay';
+        overlay.innerHTML = `
+            <div class="lb-loading-ring"></div>
+            <span class="lb-loading-text">IC3 Đang tải...</span>
+        `;
+        // Đảm bảo wrapper có position relative
+        if (getComputedStyle(wrapper).position === 'static') {
+            wrapper.style.position = 'relative';
         }
+        wrapper.appendChild(overlay);
 
         try {
             const url = `{{ route('achievements') }}?grade=${encodeURIComponent(grade)}`;
@@ -1967,9 +2127,15 @@
             }
         } catch (err) {
             console.error('Lỗi tải bảng xếp hạng:', err);
-            if (container) container.style.opacity = '1';
+            // Xóa overlay khi lỗi
+            const overlayEl = document.getElementById('lb-loading-overlay');
+            if (overlayEl) overlayEl.remove();
         } finally {
             isLeaderboardLoading = false;
+            // Overlay đã bị xóa khi innerHTML được thay (wrapper.innerHTML = data.html)
+            // nhưng xóa thêm lần nữa để đảm bảo
+            const overlayEl = document.getElementById('lb-loading-overlay');
+            if (overlayEl) overlayEl.remove();
         }
     }
 

@@ -257,7 +257,7 @@
     .adventure-world-wrapper {
         min-height: calc(100vh - 86px);
         padding: 24px 20px 60px;
-        background: url('/images/adventure-world-bg.jpg') center/cover no-repeat fixed;
+        background: url('{{ asset('images/adventure-world-bg.jpg') }}') center/cover no-repeat fixed;
         display: flex;
         flex-direction: column;
         align-items: center;
@@ -279,7 +279,7 @@
     .hero-bg-art {
         position: absolute;
         inset: 0;
-        background: url('/images/ic3-quest-hero.png') right center / cover no-repeat;
+        background: url('{{ asset('images/ic3-quest-hero.png') }}') right center / cover no-repeat;
         z-index: 1;
     }
     .hero-copy {

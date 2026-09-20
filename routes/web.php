@@ -42,12 +42,16 @@ Route::post('/dang-xuat', [AuthController::class, 'destroy'])
 // --- 2. CỔNG HỌC SINH & LUYỆN TẬP (LEARNING PORTAL) ---
 Route::middleware('auth')->group(function () {
     Route::get('/', [LearningController::class, 'home'])->name('home');
+    Route::redirect('/hoc_tap', '/hoc-tap');
     Route::get('/hoc-tap', [LearningController::class, 'programs'])->name('programs');
+    Route::redirect('/thanh_tich', '/thanh-tich');
     Route::get('/thanh-tich', [LearningController::class, 'achievements'])->name('achievements');
+    Route::redirect('/tro_choi', '/tro-choi');
     Route::get('/tro-choi', [LearningController::class, 'games'])->name('games');
     Route::post('/tro-choi/doi-goi', [LearningController::class, 'exchangeGamePackage'])->name('games.exchange');
     Route::get('/tro-choi/thoi-gian', [LearningController::class, 'getGameTime'])->name('games.time');
     Route::post('/tro-choi/tieu-hao-thoi-gian', [LearningController::class, 'consumeGameTime'])->name('games.consume');
+    Route::redirect('/phu_huynh', '/phu-huynh');
     Route::get('/phu-huynh', [LearningController::class, 'parentDashboard'])
         ->middleware('student')
         ->name('parent.dashboard');

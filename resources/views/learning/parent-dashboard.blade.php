@@ -268,8 +268,8 @@
             </div>
         </div>
 
-        <!-- Line Canvas Full Width (Tăng chiều cao lên 285px để đồ thị uốn lượn cực thoáng) -->
-        <div style="position: relative; height: 285px; width: 100%;">
+        <!-- Line Canvas Full Width (Tăng chiều cao lên 330px và trần 1150đ để toàn bộ huy hiệu điểm số cực kỳ thông thoáng, không bao giờ bị cắt/che mép trên) -->
+        <div style="position: relative; height: 330px; width: 100%;">
             <canvas id="scoreProgressionChart"></canvas>
         </div>
 
@@ -497,7 +497,7 @@
     <!-- ========================================================================= -->
     <!-- ROW 5: LỊCH SỬ BÀI LÀM GẦN ĐÂY (FULL WIDTH 100% RỘNG RÃI, THOÁNG MÁT)    -->
     <!-- ========================================================================= -->
-    <div style="background: #ffffff; border-radius: 20px; padding: 20px 24px; border: 1.5px solid #e2e8f0; box-shadow: 0 1px 3px rgba(0,0,0,0.03); margin-bottom: 24px;">
+    <div id="parentHistorySection" style="background: #ffffff; border-radius: 20px; padding: 20px 24px; border: 1.5px solid #e2e8f0; box-shadow: 0 1px 3px rgba(0,0,0,0.03); margin-bottom: 24px;">
         <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 14px; flex-wrap: wrap; gap: 10px;">
             <div style="display: flex; align-items: center; gap: 10px;">
                 <div style="width: 38px; height: 38px; border-radius: 10px; background: linear-gradient(135deg, #3b82f6, #2563eb); display: grid; place-items: center; font-size: 18px; color: #fff; box-shadow: 0 3px 8px rgba(37, 99, 235, 0.25);">
@@ -641,7 +641,7 @@ document.addEventListener('DOMContentLoaded', function () {
             }
         }
 
-        // Plugin vẽ Huy Hiệu Pill Nổi Bật cho từng điểm số với Thuật Toán Tránh Chạm Vạch & Chống Tràn Mép
+        // Plugin vẽ Huy Hiệu Pill Nổi Bật cho từng điểm số với Thuật Toán So Le Thông Minh & Chống Cắt Mép Tuyệt Đối
         const pointDataLabelsPlugin = {
             id: 'pointDataLabelsPlugin',
             afterDatasetsDraw(chart) {
@@ -651,6 +651,27 @@ document.addEventListener('DOMContentLoaded', function () {
                 if (!meta || meta.hidden) return;
 
                 const passY = (passMeta && passMeta.data && passMeta.data.length) ? passMeta.data[0].y : null;
+
+                // Thuật toán so le 2 tầng (Alternate Staggering): đảm bảo các điểm kề nhau không bao giờ bị đè chữ
+                const isBelowList = [];
+                meta.data.forEach((point, index) => {
+                    const score = chart.data.datasets[0].data[index];
+                    let isBelow = false;
+
+                    // Mốc điểm thấp (<500đ) đáy đồ thị rất chật, luôn ưu tiên đặt phía TRÊN
+                    if (score < 500) {
+                        isBelow = false;
+                    } else if (index > 0) {
+                        const prevPoint = meta.data[index - 1];
+                        const dx = Math.abs(point.x - prevPoint.x);
+                        // Nếu 2 điểm gần nhau theo trục ngang (< 75px, nguy cơ chạm hoặc đè viền badge)
+                        if (dx < 75) {
+                            // Đảo tầng so le liên tục: một điểm ở trên, một điểm ở dưới
+                            isBelow = !isBelowList[index - 1];
+                        }
+                    }
+                    isBelowList.push(isBelow);
+                });
 
                 meta.data.forEach((point, index) => {
                     const score = chart.data.datasets[0].data[index];
@@ -665,20 +686,27 @@ document.addEventListener('DOMContentLoaded', function () {
                     const pillW = textWidth + 14;
                     const pillH = 22;
 
-                    // Mặc định đặt huy hiệu ở TRÊN điểm tròn
-                    let pillY = point.y - 28;
+                    // Vị trí mặc định dựa trên mảng so le chống đè
+                    const isBelow = isBelowList[index];
+                    let pillY = isBelow ? (point.y + 12) : (point.y - 27);
+
+                    // Chống tràn mép trên canvas: tuyệt đối không bị che mép (cắt badge)
+                    if (pillY < chartArea.top + 4) {
+                        pillY = point.y + 12;
+                    }
+                    // Chống tràn mép dưới canvas
+                    if (pillY + pillH > chartArea.bottom - 4) {
+                        pillY = point.y - 27;
+                    }
 
                     // Thuật toán kiểm tra va chạm với vạch chuẩn đỏ 700đ:
                     if (passY !== null) {
-                        // Nếu khoảng cách giữa badge và vạch đỏ < 12px
                         const badgeCenterY = pillY + pillH / 2;
                         if (Math.abs(badgeCenterY - passY) < 14) {
                             if (point.y < passY) {
-                                // Điểm ở phía trên vạch đỏ -> đẩy badge cao lên trên nữa
-                                pillY = passY - pillH - 6;
+                                pillY = Math.max(chartArea.top + 4, passY - pillH - 6);
                             } else {
-                                // Điểm ở phía dưới vạch đỏ -> đặt badge phía dưới điểm tròn
-                                pillY = point.y + 12;
+                                pillY = Math.min(chartArea.bottom - pillH - 4, passY + 8);
                             }
                         }
                     }
@@ -690,7 +718,7 @@ document.addEventListener('DOMContentLoaded', function () {
                     pillX = Math.max(minX, Math.min(maxX, pillX));
 
                     // Đổ bóng nhẹ sang trọng
-                    ctx.shadowColor = 'rgba(15, 23, 42, 0.12)';
+                    ctx.shadowColor = 'rgba(15, 23, 42, 0.15)';
                     ctx.shadowBlur = 6;
                     ctx.shadowOffsetY = 2;
 
@@ -733,7 +761,7 @@ document.addEventListener('DOMContentLoaded', function () {
                 const tw = ctx.measureText(text).width;
                 const badgeW = tw + 14;
                 const badgeH = 20;
-                // Đặt badge ở mép phải chartArea (có padding 70px thoải mái)
+                // Đặt badge ở mép phải chartArea (có padding 85px thoải mái)
                 const badgeX = chartArea.right - badgeW - 2;
                 const badgeY = y - badgeH / 2;
 
@@ -794,10 +822,10 @@ document.addEventListener('DOMContentLoaded', function () {
                 maintainAspectRatio: false,
                 layout: {
                     padding: {
-                        top: 25,
+                        top: 28,
                         bottom: 8,
                         left: 15,
-                        right: 80 // Tạo khoảng trống 80px bên phải để nhãn Mốc chuẩn 700đ và điểm cuối không bị chạm mép!
+                        right: 85 // Tạo khoảng trống 85px bên phải để nhãn Mốc chuẩn 700đ và điểm cuối không bị chạm mép!
                     }
                 },
                 animation: { duration: 350 },
@@ -836,13 +864,22 @@ document.addEventListener('DOMContentLoaded', function () {
                 scales: {
                     y: {
                         min: 0,
-                        max: 1000,
+                        max: 1150, // Nâng trần lên 1150 để điểm 1000đ có thêm ~40px không gian phía trên, huy hiệu điểm số luôn nằm trọn vẹn, không bị cắt mép
                         ticks: { 
                             stepSize: 250, 
+                            callback: function(value) {
+                                if (value > 1000) return ''; // Giữ chuẩn hiển thị mốc điểm 0, 250, 500, 750, 1000 của IC3
+                                return value;
+                            },
                             font: { weight: 'bold', size: 11 },
                             color: '#64748b'
                         },
-                        grid: { color: '#f1f5f9' }
+                        grid: { 
+                            color: function(context) {
+                                if (context.tick && context.tick.value > 1000) return 'transparent';
+                                return '#f1f5f9';
+                            }
+                        }
                     },
                     x: {
                         ticks: { 
@@ -1145,8 +1182,13 @@ document.addEventListener('DOMContentLoaded', function () {
             // Re-append theo thứ tự sắp xếp và đánh số #
             visibleRows.forEach((r, idx) => {
                 tbody.appendChild(r);
-                const firstCell = r.querySelector('td:first-child');
-                if (firstCell) firstCell.textContent = idx + 1;
+                const badge = r.querySelector('.row-index-badge');
+                if (badge) {
+                    badge.textContent = idx + 1;
+                } else {
+                    const firstCell = r.querySelector('td:first-child');
+                    if (firstCell) firstCell.textContent = idx + 1;
+                }
             });
         }
 

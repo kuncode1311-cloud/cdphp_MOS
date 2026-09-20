@@ -53,4 +53,5 @@ Thumbs.db
 /storage/legacy_backup/
 /storage/backups/
 /storage/*.json
+*_dump.txt
 
