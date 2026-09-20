@@ -75,16 +75,21 @@ class LearningController extends Controller
     /**
      * Màn hình Bảng thành tích học tập & Lịch sử điểm số của học sinh hiện tại
      */
-    public function achievements(): View
+    public function achievements(Request $request): View|JsonResponse
     {
-        $user = request()->user() ?? auth()->user();
+        $user = $request->user() ?? auth()->user();
         $tz = config('learning.display_timezone', 'Asia/Ho_Chi_Minh');
 
-        // Lấy bài làm trong tuần này (tính từ 00:00 Thứ Hai đầu tuần hiện tại)
-        $startOfWeek = now($tz)->startOfWeek()->setTimezone('UTC');
+        // Lấy mốc thời gian bắt đầu vòng thi đua từ cấu hình GameSetting
+        $startOfLeaderboard = GameSetting::getLeaderboardResetStart();
+        $resetPeriod = GameSetting::getLeaderboardResetPeriod();
+        $nextReset = GameSetting::getLeaderboardNextReset();
+        $nextResetTimestamp = $nextReset ? $nextReset->timestamp : null;
+
+        // Lấy bài làm trong vòng thi đua hiện tại
         $weeklyAttempts = $user->attempts()
             ->with('practiceTest.topic.level')
-            ->where('completed_at', '>=', $startOfWeek)
+            ->where('completed_at', '>=', $startOfLeaderboard)
             ->get();
 
         $allAttempts = $user->attempts()->with('practiceTest.topic.level')->get();
@@ -96,14 +101,14 @@ class LearningController extends Controller
         $gameTimeSeconds = (int) ($user->game_time_seconds ?? 0);
         $packages = $this->getGamePackages();
 
-        // Top 3 bài thi cao điểm nhất tuần này của riêng bé
+        // Top 3 bài thi cao điểm nhất đợt này của riêng bé
         $topWeeklyAttempts = $weeklyAttempts->sortByDesc('score')->take(3);
 
         // Khối lớp của học sinh hiện tại và bộ lọc khối được chọn
         $studentGrade = (int) ($user->classroom?->grade ?? $user->accessibleLevels->first()?->grade ?? 4);
-        $selectedGrade = request()->get('grade', (string) $studentGrade);
+        $selectedGrade = (string) $request->get('grade', (string) $studentGrade);
 
-        // Bảng xếp hạng thi đua đua top tuần này
+        // Bảng xếp hạng thi đua đua top vòng này
         $studentsQuery = User::where('role', 'student')->with(['classroom', 'accessibleLevels']);
         if ($selectedGrade !== 'all') {
             $gradeInt = (int) $selectedGrade;
@@ -113,8 +118,8 @@ class LearningController extends Controller
             });
         }
 
-        $leaderboardStudents = $studentsQuery->with(['attempts' => function ($q) use ($startOfWeek) {
-            $q->where('completed_at', '>=', $startOfWeek);
+        $leaderboardStudents = $studentsQuery->with(['attempts' => function ($q) use ($startOfLeaderboard) {
+            $q->where('completed_at', '>=', $startOfLeaderboard);
         }])->get();
 
         $leaderboard = $leaderboardStudents->map(function ($s) use ($user) {
@@ -157,6 +162,28 @@ class LearningController extends Controller
         $podiumStudents = $leaderboard->take(3);
         $rankingList = $leaderboard->slice(3, 7);
 
+        // ⚡ NẾU LÀ YÊU CẦU AJAX ĐỔI TAB KHỐI LỚP ➔ TRẢ VỀ JSON RENDER MƯỢT MÀ KHÔNG RELOAD TRANG
+        if ($request->ajax() || $request->wantsJson()) {
+            return response()->json([
+                'success' => true,
+                'selectedGrade' => $selectedGrade,
+                'myRank' => $myRank,
+                'nextResetTimestamp' => $nextResetTimestamp,
+                'html' => view('learning.partials.leaderboard-content', compact(
+                    'studentGrade',
+                    'selectedGrade',
+                    'leaderboard',
+                    'podiumStudents',
+                    'rankingList',
+                    'myRank',
+                    'weeklyScore',
+                    'weeklyAttempts',
+                    'resetPeriod',
+                    'nextResetTimestamp'
+                ))->render(),
+            ]);
+        }
+
         return view('learning.achievements', compact(
             'weeklyAttempts',
             'topWeeklyAttempts',
@@ -171,7 +198,9 @@ class LearningController extends Controller
             'leaderboard',
             'podiumStudents',
             'rankingList',
-            'myRank'
+            'myRank',
+            'resetPeriod',
+            'nextResetTimestamp'
         ));
     }
 

@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\Admin\StoreUserRequest;
 use App\Http\Requests\Admin\UpdateUserRequest;
 use App\Models\User;
+use App\Services\SubscriptionService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 
@@ -61,7 +62,7 @@ class UserController extends Controller
     /**
      * Cập nhật thông tin tài khoản (Họ tên, mã học sinh, mật khẩu mới, lớp, cấp độ học, gói thuê bao)
      */
-    public function update(UpdateUserRequest $request, User $user): JsonResponse|RedirectResponse
+    public function update(UpdateUserRequest $request, User $user, SubscriptionService $subscriptionService): JsonResponse|RedirectResponse
     {
         $currentUser = $request->user();
         $data = $request->validated();
@@ -84,6 +85,21 @@ class UserController extends Controller
         // Cập nhật danh sách Khối học cho Giáo viên (chỉ Admin)
         if ($teacherLevelIds !== null && $user->isTeacher() && $currentUser->isAdmin()) {
             $user->teacherLevels()->sync($teacherLevelIds);
+        }
+
+        // 🔄 Tự động tạo bản ghi điều chỉnh (Adjustment Order) nếu Admin tăng sĩ số cho Giáo viên
+        if ($user->isTeacher() && $currentUser->isAdmin() && isset($data['max_students'])) {
+            $newMax = (int) $data['max_students'];
+            $oldMax = (int) $user->max_students;
+            if ($newMax > $oldMax && $oldMax > 0) {
+                $extra = $newMax - $oldMax;
+                $subscriptionService->createAdjustmentOrder(
+                    $user,
+                    $extra,
+                    "Admin {$currentUser->name} cấp thêm trong Quản lý người dùng",
+                    $currentUser
+                );
+            }
         }
 
         $user->update($data);

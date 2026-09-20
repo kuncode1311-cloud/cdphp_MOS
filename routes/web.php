@@ -116,10 +116,12 @@ Route::prefix('quan-tri')->name('admin.')->middleware(['auth', 'admin'])->group(
     Route::get('/xuat-bao-cao', [AdminController::class, 'exportCsv'])->name('attempts.export');
     Route::delete('/attempts/{attempt}', [AdminController::class, 'destroyAttempt'])->name('attempts.destroy');
 
-    // Cài đặt cấu hình Khu trò chơi & Tỷ lệ đổi Sao
+    // Cài đặt cấu hình Khu trò chơi, Tỷ lệ đổi Sao & Bảng xếp hạng thi đua
     Route::get('/tro-choi/cai-dat', [GameSettingController::class, 'index'])->name('games.settings');
     Route::match(['post', 'put'], '/tro-choi/cai-dat', [GameSettingController::class, 'update'])->name('games.settings.update');
     Route::post('/tro-choi/dieu-chinh-sao', [GameSettingController::class, 'adjustStars'])->name('games.adjust-stars');
+    Route::post('/tro-choi/bang-xep-hang/cai-dat', [GameSettingController::class, 'updateLeaderboardSettings'])->name('games.leaderboard.settings');
+    Route::post('/tro-choi/bang-xep-hang/reset', [GameSettingController::class, 'resetLeaderboard'])->name('games.leaderboard.reset');
 
     // IC3 QUESTION STUDIO - Quản trị Bộ đề & Soạn thảo câu hỏi trọn gói
     Route::get('/bo-de-cau-hoi', [QuestionController::class, 'index'])->name('questions.studio');

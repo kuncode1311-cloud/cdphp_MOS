@@ -51,6 +51,11 @@ class GameSettingController extends Controller
             ->orderBy('name')
             ->get();
 
+        $leaderboardPeriod = GameSetting::getLeaderboardResetPeriod();
+        $leaderboardStart = GameSetting::getLeaderboardResetStart();
+        $leaderboardNext = GameSetting::getLeaderboardNextReset();
+        $leaderboardLastReset = GameSetting::get('leaderboard_last_reset_at');
+
         return view('admin.games.settings', compact(
             'settings',
             'totalStarsBalance',
@@ -58,7 +63,11 @@ class GameSettingController extends Controller
             'totalExchanges',
             'totalStudentsWithTime',
             'recentTransactions',
-            'students'
+            'students',
+            'leaderboardPeriod',
+            'leaderboardStart',
+            'leaderboardNext',
+            'leaderboardLastReset'
         ));
     }
 
@@ -123,5 +132,36 @@ class GameSettingController extends Controller
         }
 
         return back()->with('ok', "Đã điều chỉnh Sao cho học sinh '{$student->name}' thành công!");
+    }
+
+    /**
+     * Cập nhật chu kỳ reset Bảng xếp hạng thi đua
+     */
+    public function updateLeaderboardSettings(Request $request): RedirectResponse
+    {
+        abort_unless($request->user()?->isAdmin(), 403, 'Chức năng này chỉ dành riêng cho Quản trị viên (Admin).');
+
+        $validated = $request->validate([
+            'leaderboard_reset_period' => 'required|in:weekly,monthly,manual',
+        ]);
+
+        GameSetting::set('leaderboard_reset_period', $validated['leaderboard_reset_period'], 'Chu kỳ reset Bảng xếp hạng thi đua');
+
+        return back()->with('ok', 'Đã cập nhật chu kỳ reset Bảng xếp hạng thành công!');
+    }
+
+    /**
+     * Bắt đầu vòng thi đua mới ngay lập tức (Reset Bảng xếp hạng)
+     */
+    public function resetLeaderboard(Request $request): RedirectResponse
+    {
+        abort_unless($request->user()?->isAdmin(), 403, 'Chức năng này chỉ dành riêng cho Quản trị viên (Admin).');
+
+        $tz = config('learning.display_timezone', 'Asia/Ho_Chi_Minh');
+        $now = now($tz);
+
+        GameSetting::set('leaderboard_last_reset_at', $now->toDateTimeString(), 'Thời điểm bắt đầu vòng thi đua mới');
+
+        return back()->with('ok', 'Đã bắt đầu vòng thi đua mới thành công! Bảng xếp hạng sẽ tính điểm bài làm từ thời điểm này (' . $now->format('H:i d/m/Y') . ').');
     }
 }

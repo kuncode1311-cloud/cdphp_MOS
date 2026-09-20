@@ -54,4 +54,59 @@ class GameSetting extends Model
     {
         return static::pluck('value', 'key')->all();
     }
+
+    /**
+     * Lấy chu kỳ reset bảng xếp hạng: 'weekly' (hàng tuần), 'monthly' (hàng tháng), 'manual' (thủ công)
+     */
+    public static function getLeaderboardResetPeriod(): string
+    {
+        return (string) static::get('leaderboard_reset_period', 'weekly');
+    }
+
+    /**
+     * Lấy mốc thời gian bắt đầu của đợt thi đua hiện tại (UTC để truy vấn Database)
+     */
+    public static function getLeaderboardResetStart(): \Carbon\Carbon
+    {
+        $tz = config('learning.display_timezone', 'Asia/Ho_Chi_Minh');
+        $now = now($tz);
+        $period = static::getLeaderboardResetPeriod();
+        $lastResetStr = static::get('leaderboard_last_reset_at');
+        $lastReset = $lastResetStr ? \Carbon\Carbon::parse($lastResetStr, $tz) : null;
+
+        if ($period === 'monthly') {
+            $defaultStart = $now->copy()->startOfMonth();
+        } elseif ($period === 'manual') {
+            $defaultStart = $lastReset ?? $now->copy()->startOfWeek();
+        } else {
+            $defaultStart = $now->copy()->startOfWeek();
+        }
+
+        // Nếu có mốc reset thủ công gần hơn mốc mặc định thì ưu tiên mốc thủ công
+        if ($lastReset && $lastReset->greaterThan($defaultStart)) {
+            $start = $lastReset;
+        } else {
+            $start = $defaultStart;
+        }
+
+        return $start->setTimezone('UTC');
+    }
+
+    /**
+     * Lấy thời điểm reset tiếp theo (để hiển thị đồng hồ đếm ngược kết thúc vòng đua)
+     */
+    public static function getLeaderboardNextReset(): ?\Carbon\Carbon
+    {
+        $tz = config('learning.display_timezone', 'Asia/Ho_Chi_Minh');
+        $now = now($tz);
+        $period = static::getLeaderboardResetPeriod();
+
+        if ($period === 'monthly') {
+            return $now->copy()->addMonth()->startOfMonth();
+        } elseif ($period === 'manual') {
+            return null;
+        } else {
+            return $now->copy()->addWeek()->startOfWeek();
+        }
+    }
 }

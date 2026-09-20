@@ -137,7 +137,7 @@
         <!-- ===================================================================
              👑 BẢNG XẾP HẠNG HIỆP SĨ NHÍ — ĐUA TOP TOÀN KHỐI TUẦN NÀY
              =================================================================== -->
-        <div class="game-container-card leaderboard-card-section">
+        <div class="game-container-card leaderboard-card-section" id="leaderboard-card-section">
             <div class="section-top-header">
                 <div class="section-title-wrap">
                     <div class="section-icon-badge" style="background: linear-gradient(135deg, #3b82f6, #1d4ed8);">
@@ -145,235 +145,24 @@
                     </div>
                     <div>
                         <h3 class="section-title">BẢNG VÀNG THI ĐUA — ĐUA TOP TUẦN NÀY</h3>
-                        <p class="section-subtitle">Bảng xếp hạng cập nhật điểm thi tuần này theo từng khối lớp (Reset vào 00:00 Thứ Hai)</p>
+                        <p class="section-subtitle">
+                            Bảng xếp hạng cập nhật điểm thi đua theo từng khối lớp
+                            @if(($resetPeriod ?? 'weekly') === 'monthly')
+                                (Reset vào 00:00 Ngày 01 hàng tháng)
+                            @elseif(($resetPeriod ?? 'weekly') === 'manual')
+                                (Chu kỳ thi đua theo quyết định của Ban Quản Trị)
+                            @else
+                                (Reset tự động vào 00:00 Thứ Hai hàng tuần)
+                            @endif
+                        </p>
                     </div>
-                </div>
-
-                <!-- Tabs chọn Khối lớp thông minh chuẩn game pill -->
-                <div class="grade-filter-tabs">
-                    @foreach([3 => 'Khối 3', 4 => 'Khối 4', 5 => 'Khối 5', 'all' => 'Toàn trường'] as $gKey => $gLabel)
-                        <a href="{{ request()->fullUrlWithQuery(['grade' => $gKey]) }}" 
-                           class="grade-filter-pill {{ (string)$selectedGrade === (string)$gKey ? 'pill-active' : '' }}">
-                            {{ $gLabel }}
-                        </a>
-                    @endforeach
                 </div>
             </div>
 
-            <!-- Thanh ghim vị trí thi đua của bé (My Rank Banner) -->
-            <div class="my-rank-banner">
-                <div class="my-rank-left">
-                    <div class="my-rank-circle">
-                        <span>#{{ $myRank['rank'] ?? '?' }}</span>
-                    </div>
-                    <div>
-                        <span class="my-rank-label">VỊ TRÍ CỦA BẠN TRÊN BẢNG XẾP HẠNG</span>
-                        <div class="my-rank-name">
-                            <b>{{ auth()->user()->name }}</b>
-                            <span class="my-rank-stats">
-                                • Đạt <b>{{ number_format($myRank['weekly_score'] ?? $weeklyScore) }}</b> điểm tuần này ({{ $myRank['tests_count'] ?? $weeklyAttempts->count() }} bài)
-                            </span>
-                        </div>
-                    </div>
-                </div>
-                <div class="my-rank-motivation">
-                    @if(isset($myRank['rank']) && $myRank['rank'] == 1)
-                        👑 Xuất sắc! Bé đang giữ ngôi vị Quán quân Tuần! 🎉
-                    @elseif(isset($myRank['rank']) && $myRank['rank'] <= 3)
-                        🔥 Bé đang đứng trong TOP 3 xuất sắc nhất! Tiếp tục bứt phá nhé!
-                    @else
-                        ⚡ Làm thêm bài luyện chuẩn để thăng hạng vào TOP 3 nhé!
-                    @endif
-                </div>
+            <!-- Khung bao bọc nội dung Bảng vàng thi đua hỗ trợ AJAX Realtime -->
+            <div id="leaderboard-ajax-wrapper" style="position: relative; min-height: 280px;">
+                @include('learning.partials.leaderboard-content')
             </div>
-
-            <!-- BỤC VINH QUANG 3D OLYMPIC PODIUM (Top 1, 2, 3) -->
-            @php
-                $first = $podiumStudents->firstWhere('rank', 1);
-                $second = $podiumStudents->firstWhere('rank', 2);
-                $third = $podiumStudents->firstWhere('rank', 3);
-            @endphp
-
-            @if($podiumStudents->isNotEmpty())
-                <div class="olympic-podium-wrap">
-                    
-                    <!-- BẬC 2: Á QUÂN (BÊN TRÁI) -->
-                    <div class="podium-col col-second {{ $second && $second['is_me'] ? 'col-me' : '' }}">
-                        @if($second)
-                            <div class="podium-card-top card-silver">
-                                <div class="rank-badge-pill pill-silver">
-                                    <span>🥈 Á QUÂN</span>
-                                </div>
-                                <div class="podium-avatar avatar-silver">
-                                    {{ mb_substr($second['name'], 0, 1) }}
-                                </div>
-                                <b class="podium-name">
-                                    {{ $second['name'] }}
-                                    @if($second['is_me']) <span class="tag-me">BẠN</span> @endif
-                                </b>
-                                <span class="podium-class">🏫 {{ $second['classroom_name'] }}</span>
-                                <div class="podium-score score-silver">
-                                    {{ number_format($second['weekly_score']) }} <small>điểm</small>
-                                </div>
-                                <div class="podium-footer-meta">
-                                    <span>🎯 {{ $second['passed_count'] }} bài đạt</span>
-                                    <span>⭐ {{ number_format($second['reward_stars']) }}</span>
-                                </div>
-                            </div>
-                            <div class="podium-step-block step-silver">
-                                <div class="step-face-front">
-                                    <span class="step-num">2</span>
-                                    <small class="step-title">Á QUÂN</small>
-                                </div>
-                            </div>
-                        @else
-                            <div class="podium-card-top card-placeholder">
-                                <div class="placeholder-icon">🚀</div>
-                                <b class="placeholder-text">Đang chờ bạn tiếp theo!</b>
-                                <span class="placeholder-hint">Luyện thi để chiếm bục Á Quân</span>
-                            </div>
-                            <div class="podium-step-block step-silver">
-                                <div class="step-face-front">
-                                    <span class="step-num">2</span>
-                                </div>
-                            </div>
-                        @endif
-                    </div>
-
-                    <!-- BẬC 1: QUÁN QUÂN (Ở GIỮA - CAO NHẤT & TỎA SÁNG) -->
-                    <div class="podium-col col-first {{ $first && $first['is_me'] ? 'col-me' : '' }}">
-                        @if($first)
-                            <div class="podium-card-top card-gold">
-                                <div class="crown-orb">👑</div>
-                                <div class="rank-badge-pill pill-gold">
-                                    <span>🥇 QUÁN QUÂN</span>
-                                </div>
-                                <div class="podium-avatar avatar-gold">
-                                    {{ mb_substr($first['name'], 0, 1) }}
-                                </div>
-                                <b class="podium-name" style="font-size: 16px;">
-                                    {{ $first['name'] }}
-                                    @if($first['is_me']) <span class="tag-me">BẠN</span> @endif
-                                </b>
-                                <span class="podium-class">🏫 {{ $first['classroom_name'] }}</span>
-                                <div class="podium-score score-gold">
-                                    {{ number_format($first['weekly_score']) }} <small>điểm</small>
-                                </div>
-                                <div class="podium-footer-meta meta-gold">
-                                    <span>🎯 {{ $first['passed_count'] }} bài đạt</span>
-                                    <span>⭐ {{ number_format($first['reward_stars']) }}</span>
-                                </div>
-                            </div>
-                            <div class="podium-step-block step-gold">
-                                <div class="step-face-front">
-                                    <span class="step-num">1</span>
-                                    <small class="step-title">QUÁN QUÂN</small>
-                                </div>
-                            </div>
-                        @else
-                            <div class="podium-card-top card-placeholder">
-                                <div class="placeholder-icon">👑</div>
-                                <b class="placeholder-text">Đang chờ Quán Quân!</b>
-                                <span class="placeholder-hint">Làm bài đạt điểm cao để giữ ngôi đầu</span>
-                            </div>
-                            <div class="podium-step-block step-gold">
-                                <div class="step-face-front">
-                                    <span class="step-num">1</span>
-                                </div>
-                            </div>
-                        @endif
-                    </div>
-
-                    <!-- BẬC 3: HẠNG BA (BÊN PHẢI) -->
-                    <div class="podium-col col-third {{ $third && $third['is_me'] ? 'col-me' : '' }}">
-                        @if($third)
-                            <div class="podium-card-top card-bronze">
-                                <div class="rank-badge-pill pill-bronze">
-                                    <span>🥉 HẠNG BA</span>
-                                </div>
-                                <div class="podium-avatar avatar-bronze">
-                                    {{ mb_substr($third['name'], 0, 1) }}
-                                </div>
-                                <b class="podium-name">
-                                    {{ $third['name'] }}
-                                    @if($third['is_me']) <span class="tag-me">BẠN</span> @endif
-                                </b>
-                                <span class="podium-class">🏫 {{ $third['classroom_name'] }}</span>
-                                <div class="podium-score score-bronze">
-                                    {{ number_format($third['weekly_score']) }} <small>điểm</small>
-                                </div>
-                                <div class="podium-footer-meta">
-                                    <span>🎯 {{ $third['passed_count'] }} bài đạt</span>
-                                    <span>⭐ {{ number_format($third['reward_stars']) }}</span>
-                                </div>
-                            </div>
-                            <div class="podium-step-block step-bronze">
-                                <div class="step-face-front">
-                                    <span class="step-num">3</span>
-                                    <small class="step-title">HẠNG BA</small>
-                                </div>
-                            </div>
-                        @else
-                            <div class="podium-card-top card-placeholder">
-                                <div class="placeholder-icon">⚡</div>
-                                <b class="placeholder-text">Đang chờ bạn tiếp theo!</b>
-                                <span class="placeholder-hint">Luyện thi để chiếm bục Hạng Ba</span>
-                            </div>
-                            <div class="podium-step-block step-bronze">
-                                <div class="step-face-front">
-                                    <span class="step-num">3</span>
-                                </div>
-                            </div>
-                        @endif
-                    </div>
-
-                </div>
-            @endif
-
-            <!-- BẢNG DANH SÁCH TOP TIẾP THEO (HẠNG 4 – 10) GỌN GÀNG, ĐẸP MẮT -->
-            @if($rankingList->isNotEmpty())
-                <div class="next-ranks-section">
-                    <div class="next-ranks-header">
-                        <span>⚡ TOP HIỆP SĨ TIẾP THEO (HẠNG 4 – 10)</span>
-                    </div>
-                    <div class="next-ranks-grid">
-                        @foreach($rankingList as $st)
-                            <div class="rank-row-item {{ $st['is_me'] ? 'row-is-me' : '' }}">
-                                <div class="rank-row-left">
-                                    <div class="rank-badge-num">
-                                        #{{ $st['rank'] }}
-                                    </div>
-                                    <div class="rank-row-avatar">
-                                        {{ mb_substr($st['name'], 0, 1) }}
-                                    </div>
-                                    <div class="rank-row-info">
-                                        <div class="rank-row-title">
-                                            <b>{{ $st['name'] }}</b>
-                                            @if($st['is_me'])
-                                                <span class="tag-me">BẠN</span>
-                                            @endif
-                                            <span class="class-chip">{{ $st['classroom_name'] }}</span>
-                                        </div>
-                                        <div class="rank-row-sub">
-                                            <span>🎯 Đạt chuẩn {{ $st['passed_count'] }}/{{ $st['tests_count'] }} bài</span>
-                                            <span>•</span>
-                                            <span>⭐ {{ number_format($st['reward_stars']) }} Sao</span>
-                                        </div>
-                                    </div>
-                                </div>
-
-                                <div class="rank-row-right">
-                                    <div class="rank-row-score">
-                                        <b>{{ number_format($st['weekly_score']) }}</b>
-                                        <small>điểm</small>
-                                    </div>
-                                </div>
-                            </div>
-                        @endforeach
-                    </div>
-                </div>
-            @endif
-
         </div>
 
         <!-- ===================================================================
@@ -847,32 +636,100 @@
         text-align: center;
     }
 
-    /* Grade Switcher Tabs */
+    /* Leaderboard Controls & Switcher */
+    .leaderboard-controls-row {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 14px;
+        margin-bottom: 20px;
+        flex-wrap: wrap;
+    }
+
+    /* Grade Switcher Tabs 3D */
     .grade-filter-tabs {
         display: inline-flex;
         background: #f1f5f9;
         padding: 5px;
-        border-radius: 16px;
-        gap: 5px;
-        border: 2px solid #e2e8f0;
+        border-radius: 18px;
+        gap: 6px;
+        border: 2.5px solid #e2e8f0;
+        box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.05);
     }
     .grade-filter-pill {
         padding: 8px 18px;
-        border-radius: 12px;
+        border-radius: 13px;
         font-family: 'Fredoka', cursive, sans-serif;
-        font-size: 14px;
+        font-size: 13.5px;
         font-weight: 700;
         text-decoration: none;
         color: #475569;
+        background: transparent;
+        border: 2px solid transparent;
+        cursor: pointer;
+        outline: none;
+        display: inline-flex;
+        align-items: center;
+        gap: 5px;
         transition: all 0.15s ease;
     }
     .grade-filter-pill:hover {
         color: #1e3a8a;
+        background: rgba(255, 255, 255, 0.7);
+    }
+    .grade-filter-pill:active {
+        transform: translateY(2px);
     }
     .grade-filter-pill.pill-active {
         background: linear-gradient(180deg, #3b82f6 0%, #1d4ed8 100%);
         color: #ffffff;
-        box-shadow: 0 3px 0 #1e40af, 0 4px 10px rgba(37, 99, 235, 0.25);
+        border-color: #60a5fa;
+        box-shadow: 0 4px 0 #1e40af, 0 6px 14px rgba(37, 99, 235, 0.3);
+        transform: translateY(-1px);
+    }
+
+    /* Capsule đếm ngược kết thúc vòng đua */
+    .leaderboard-timer-capsule {
+        display: inline-flex;
+        align-items: center;
+        gap: 7px;
+        padding: 8px 16px;
+        background: linear-gradient(135deg, #fffbeb 0%, #fef3c7 100%);
+        border: 2px solid #fde68a;
+        border-radius: 999px;
+        font-size: 12.5px;
+        box-shadow: 0 3px 8px rgba(245, 158, 11, 0.15);
+    }
+    .leaderboard-timer-capsule .timer-icon {
+        font-size: 15px;
+        animation: pulseClock 2s infinite ease-in-out;
+    }
+    @keyframes pulseClock {
+        0%, 100% { transform: scale(1); }
+        50% { transform: scale(1.18); }
+    }
+    .leaderboard-timer-capsule .timer-label {
+        color: #92400e;
+        font-weight: 700;
+    }
+    .leaderboard-timer-capsule .timer-countdown {
+        color: #b45309;
+        font-family: 'Fredoka', cursive, sans-serif;
+        font-size: 13.5px;
+        letter-spacing: 0.5px;
+    }
+
+    /* Animation mượt mà khi load AJAX */
+    @keyframes leaderboardFadeIn {
+        from { opacity: 0; transform: translateY(8px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
+    .leaderboard-dynamic-fade-in {
+        animation: leaderboardFadeIn 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+    .rank-top3-glow {
+        box-shadow: 0 0 14px rgba(245, 158, 11, 0.6) !important;
+        border-color: #fbbf24 !important;
     }
 
     /* My Rank Banner */
@@ -1511,5 +1368,111 @@
             btn.innerHTML = originalHtml;
         }
     }
+
+    // =========================================================================
+    // ⚡ CHUYỂN ĐỔI TAB KHỐI LỚP BẢNG VÀNG REAL-TIME AJAX (KHÔNG RELOAD TRANG)
+    // =========================================================================
+    let isLeaderboardLoading = false;
+    let leaderboardCountdownInterval = null;
+
+    async function switchLeaderboardGrade(grade) {
+        if (isLeaderboardLoading) return;
+        const wrapper = document.getElementById('leaderboard-ajax-wrapper');
+        if (!wrapper) return;
+
+        isLeaderboardLoading = true;
+
+        // Cập nhật giao diện tab ngay lập tức (instant visual feedback)
+        document.querySelectorAll('.grade-filter-pill').forEach(pill => {
+            const isActive = pill.getAttribute('data-grade') === String(grade);
+            pill.classList.toggle('pill-active', isActive);
+        });
+
+        // Hiệu ứng mờ nhẹ khi tải
+        const container = document.getElementById('leaderboard-dynamic-container');
+        if (container) {
+            container.style.transition = 'opacity 0.15s ease';
+            container.style.opacity = '0.45';
+        }
+
+        try {
+            const url = `{{ route('achievements') }}?grade=${encodeURIComponent(grade)}`;
+            const res = await fetch(url, {
+                headers: {
+                    'X-Requested-With': 'XMLHttpRequest',
+                    'Accept': 'application/json'
+                }
+            });
+
+            if (!res.ok) throw new Error('Không thể tải bảng xếp hạng');
+            const data = await res.json();
+
+            if (data.success && data.html) {
+                wrapper.innerHTML = data.html;
+
+                // Cập nhật URL trên thanh địa chỉ mà không reload trang
+                const cleanUrl = new URL(window.location.href);
+                cleanUrl.searchParams.set('grade', grade);
+                window.history.replaceState({ grade: grade }, '', cleanUrl.toString());
+
+                // Khởi động lại đồng hồ đếm ngược
+                initLeaderboardTimer();
+            }
+        } catch (err) {
+            console.error('Lỗi tải bảng xếp hạng:', err);
+            if (container) container.style.opacity = '1';
+        } finally {
+            isLeaderboardLoading = false;
+        }
+    }
+
+    // =========================================================================
+    // ⏱️ ĐỒNG HỒ ĐẾM NGƯỢC THỜI GIAN KẾT THÚC VÒNG THI ĐUA
+    // =========================================================================
+    function initLeaderboardTimer() {
+        if (leaderboardCountdownInterval) {
+            clearInterval(leaderboardCountdownInterval);
+            leaderboardCountdownInterval = null;
+        }
+
+        const capsule = document.getElementById('leaderboard-timer-capsule');
+        const textEl = document.getElementById('live-countdown-text');
+        if (!capsule || !textEl) return;
+
+        const targetTs = parseInt(capsule.getAttribute('data-next-reset'), 10);
+        if (!targetTs || isNaN(targetTs)) return;
+
+        function updateCountdown() {
+            const nowSec = Math.floor(Date.now() / 1000);
+            let diff = targetTs - nowSec;
+
+            if (diff <= 0) {
+                textEl.innerText = 'Đang reset vòng mới...';
+                return;
+            }
+
+            const days = Math.floor(diff / 86400);
+            diff %= 86400;
+            const hours = Math.floor(diff / 3600);
+            diff %= 3600;
+            const minutes = Math.floor(diff / 60);
+            const seconds = diff % 60;
+
+            if (days > 0) {
+                textEl.innerText = `${days} ngày ${hours}h ${minutes}p`;
+            } else if (hours > 0) {
+                textEl.innerText = `${hours} giờ ${minutes}p ${seconds}s`;
+            } else {
+                textEl.innerText = `${minutes} phút ${seconds}s`;
+            }
+        }
+
+        updateCountdown();
+        leaderboardCountdownInterval = setInterval(updateCountdown, 1000);
+    }
+
+    document.addEventListener('DOMContentLoaded', () => {
+        initLeaderboardTimer();
+    });
 </script>
 @endsection

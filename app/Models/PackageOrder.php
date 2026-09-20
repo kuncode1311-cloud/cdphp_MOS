@@ -34,14 +34,20 @@ class PackageOrder extends Model
     public const STATUS_ACTIVE = 'active';
     public const STATUS_REJECTED = 'rejected';
 
+    public const TYPE_SUBSCRIPTION = 'subscription';
+    public const TYPE_QUOTA_ADD = 'quota_add';
+
     protected $fillable = [
         'code',
         'user_id',
         'package_id',
+        'parent_id',
         'package_name',
         'price',
         'duration_days',
         'max_students',
+        'levels_snapshot',
+        'order_type',
         'status',
         'payment_method',
         'notes',
@@ -54,11 +60,53 @@ class PackageOrder extends Model
     protected function casts(): array
     {
         return [
+            'parent_id' => 'integer',
             'price' => 'integer',
             'duration_days' => 'integer',
             'max_students' => 'integer',
             'activated_at' => 'datetime',
         ];
+    }
+
+    /**
+     * Lấy danh sách khối lớp hiển thị (Ưu tiên ảnh chụp lúc mua, fallback theo gói hiện tại)
+     */
+    public function getDisplayLevelsAttribute(): string
+    {
+        if (! empty($this->levels_snapshot)) {
+            return $this->levels_snapshot;
+        }
+
+        if ($this->package && $this->package->relationLoaded('levels')) {
+            $names = $this->package->levels->pluck('name')->all();
+            return ! empty($names) ? implode(', ', $names) : 'Toàn bộ khối';
+        }
+
+        return $this->package?->levels()->pluck('name')->join(', ') ?: 'Toàn bộ khối';
+    }
+
+    /**
+     * Mối quan hệ: Đơn hàng gốc của đơn điều chỉnh này (Đơn Cha)
+     */
+    public function parentOrder(): BelongsTo
+    {
+        return $this->belongsTo(self::class, 'parent_id');
+    }
+
+    /**
+     * Mối quan hệ: Các đơn điều chỉnh / cấp bù thuộc về đơn hàng này (Các Đơn Con)
+     */
+    public function adjustments(): \Illuminate\Database\Eloquent\Relations\HasMany
+    {
+        return $this->hasMany(self::class, 'parent_id');
+    }
+
+    /**
+     * Kiểm tra xem đơn hàng này có phải là đơn điều chỉnh / cấp thêm không
+     */
+    public function isAdjustment(): bool
+    {
+        return $this->order_type === self::TYPE_QUOTA_ADD || ! empty($this->parent_id);
     }
 
     /**

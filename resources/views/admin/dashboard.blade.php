@@ -3681,6 +3681,28 @@
                             </a>
                         </div>
                     @else
+                        @php
+                            $pendingOrder = $packageOrders->firstWhere('status', 'pending');
+                        @endphp
+                        @if($pendingOrder)
+                            <div style="background: linear-gradient(135deg, #fffbeb 0%, #fef3c7 100%); border: 1.5px solid #fde68a; border-radius: 12px; padding: 12px 18px; margin-bottom: 16px; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 10px;">
+                                <div style="display: flex; align-items: center; gap: 10px;">
+                                    <span style="font-size: 20px;">⏳</span>
+                                    <div>
+                                        <div style="font-weight: 800; font-size: 13px; color: #92400e;">
+                                            Đơn hàng #{{ $pendingOrder->code }} ({{ $pendingOrder->package_name }}) đang chờ kích hoạt
+                                        </div>
+                                        <div style="font-size: 11.5px; color: #b45309;">
+                                            Hệ thống đang đối soát ngân hàng. Thầy/Cô có thể bấm "Nhắn Admin Duyệt Ngay" để được kích hoạt trong ít phút!
+                                        </div>
+                                    </div>
+                                </div>
+                                <button type="button" onclick="openTeacherSupportChat('Kính gửi Ban Quản Trị, tôi vừa chuyển khoản cho đơn hàng #{{ $pendingOrder->code }}. Nhờ Ban Quản Trị kiểm tra và duyệt kích hoạt giúp tôi với ạ!')" style="padding: 6px 14px; font-size: 12px; font-weight: 800; color: #ffffff; background: #d97706; border: none; border-radius: 8px; cursor: pointer; display: inline-flex; align-items: center; gap: 4px; box-shadow: 0 2px 4px rgba(217, 119, 6, 0.2);">
+                                    <span>💬</span> Nhắn Admin Duyệt Ngay
+                                </button>
+                            </div>
+                        @endif
+
                         <!-- Lưới Table Chuẩn SaaS, Không Bị Ngắt Dòng Rối Mắt, Bỏ Border Dọc Thừa -->
                         <div style="overflow-x: auto; border: 1px solid #e2e8f0; border-radius: 14px; box-shadow: 0 1px 3px rgba(0,0,0,0.03);">
                             <table style="width: 100%; border-collapse: collapse; text-align: left; font-size: 13px; min-width: 900px;">
@@ -3705,16 +3727,29 @@
                                                 {{ $index + 1 }}
                                             </td>
                                             <td style="padding: 14px 16px; text-align: center; white-space: nowrap;">
-                                                <span style="font-family: 'SF Mono', Consolas, monospace; font-weight: 800; font-size: 12px; color: #1e293b; background: #f1f5f9; padding: 4px 10px; border-radius: 6px; border: 1px solid #e2e8f0; display: inline-block; white-space: nowrap;">
-                                                    #{{ $o->code }}
-                                                </span>
+                                                @if($o->isAdjustment())
+                                                    <span style="font-family: 'SF Mono', Consolas, monospace; font-weight: 800; font-size: 12px; color: #b45309; background: #fef3c7; padding: 4px 10px; border-radius: 6px; border: 1px solid #fde68a; display: inline-block; white-space: nowrap;" title="Đơn cấp thêm / điều chỉnh">
+                                                        #{{ $o->code }}
+                                                    </span>
+                                                @else
+                                                    <span style="font-family: 'SF Mono', Consolas, monospace; font-weight: 800; font-size: 12px; color: #1e293b; background: #f1f5f9; padding: 4px 10px; border-radius: 6px; border: 1px solid #e2e8f0; display: inline-block; white-space: nowrap;">
+                                                        #{{ $o->code }}
+                                                    </span>
+                                                @endif
                                             </td>
                                             <td style="padding: 14px 18px;">
-                                                <div style="font-weight: 800; color: #0f172a; font-size: 13.5px;">
-                                                    {{ $o->package_name }}
+                                                <div style="font-weight: 800; color: #0f172a; font-size: 13.5px; display: flex; align-items: center; gap: 6px;">
+                                                    @if($o->isAdjustment())
+                                                        <span>🎁</span>
+                                                    @endif
+                                                    <span>{{ $o->package_name }}</span>
                                                 </div>
                                                 <div style="font-size: 11.5px; color: #64748b; margin-top: 2px;">
-                                                    @if($o->package && $o->package->levels && $o->package->levels->isNotEmpty())
+                                                    @if($o->isAdjustment() && $o->parentOrder)
+                                                        <span style="color: #0284c7;">Thuộc đơn gốc: <b>#{{ $o->parentOrder->code }}</b></span>
+                                                    @elseif(! empty($o->levels_snapshot))
+                                                        Khối: {{ $o->levels_snapshot }}
+                                                    @elseif($o->package && $o->package->levels && $o->package->levels->isNotEmpty())
                                                         Khối: {{ $o->package->levels->pluck('grade')->map(fn($g) => 'Khối ' . $g)->join(', ') }}
                                                     @else
                                                         Áp dụng toàn bộ khối
@@ -3727,10 +3762,18 @@
                                                 </span>
                                             </td>
                                             <td style="padding: 14px 14px; text-align: center; font-weight: 700; color: #334155; white-space: nowrap;">
-                                                {{ $o->duration_days }} ngày
+                                                @if($o->isAdjustment())
+                                                    <span style="font-size: 11.5px; color: #059669; background: #ecfdf5; padding: 3px 8px; border-radius: 6px; border: 1px solid #a7f3d0;">Kèm gói chính</span>
+                                                @else
+                                                    {{ $o->duration_days }} ngày
+                                                @endif
                                             </td>
                                             <td style="padding: 14px 14px; text-align: center; font-weight: 700; color: #334155; white-space: nowrap;">
-                                                {{ $o->max_students > 0 ? $o->max_students . ' HS' : 'Không giới hạn' }}
+                                                @if($o->isAdjustment())
+                                                    <span style="color: #0284c7; font-weight: 900;">+{{ $o->max_students }} HS</span>
+                                                @else
+                                                    {{ $o->max_students > 0 ? $o->max_students . ' HS' : 'Không giới hạn' }}
+                                                @endif
                                             </td>
                                             <td style="padding: 14px 14px; text-align: center; white-space: nowrap;">
                                                 <span style="font-size: 11.5px; font-weight: 800; color: #475569; background: #f8fafc; padding: 3px 8px; border-radius: 6px; border: 1px solid #e2e8f0; white-space: nowrap;">
@@ -3757,9 +3800,14 @@
                                             </td>
                                             <td style="padding: 14px 14px; text-align: center; white-space: nowrap;">
                                                 @if($o->isPending())
-                                                    <a href="{{ route('pricing.order.checkout', $o) }}" class="btn-excel" style="padding: 5px 12px; font-size: 11.5px; text-decoration: none; display: inline-flex; align-items: center; gap: 4px; white-space: nowrap;" title="Xem mã QR để thanh toán">
-                                                        <span>📱</span> Quét mã QR
-                                                    </a>
+                                                    <div style="display: flex; align-items: center; justify-content: center; gap: 6px;">
+                                                        <a href="{{ route('pricing.order.checkout', $o) }}" class="btn-excel" style="padding: 5px 10px; font-size: 11.5px; text-decoration: none; display: inline-flex; align-items: center; gap: 4px; white-space: nowrap;" title="Xem mã QR để thanh toán">
+                                                            <span>📱</span> Quét QR
+                                                        </a>
+                                                        <button type="button" onclick="openTeacherSupportChat('Kính gửi Ban Quản Trị, tôi vừa chuyển khoản cho đơn hàng #{{ $o->code }}. Nhờ Ban Quản Trị kiểm tra và duyệt kích hoạt giúp tôi với ạ!')" style="padding: 5px 10px; font-size: 11.5px; font-weight: 800; color: #d97706; background: #fef3c7; border: 1px solid #fde68a; border-radius: 6px; cursor: pointer; display: inline-flex; align-items: center; gap: 4px; white-space: nowrap; transition: all 0.2s;" onmouseover="this.style.background='#fde68a'" onmouseout="this.style.background='#fef3c7'" title="Nhắn Ban Quản Trị kích hoạt ngay">
+                                                            <span>⚡</span> Nhắn Duyệt
+                                                        </button>
+                                                    </div>
                                                 @elseif($o->isActive())
                                                     <span style="color: #059669; font-weight: 800; font-size: 12px; display: inline-flex; align-items: center; gap: 4px; white-space: nowrap;">
                                                         <span>✓</span> Đang dùng
@@ -8401,55 +8449,45 @@
 <!-- 💬 FLOATING LIVE CHAT WIDGET DÀNH CHO GIÁO VIÊN TRÊN TRANG QUẢN TRỊ -->
 <!-- ========================================================= -->
 <style>
-    /* Nút nổi kích hoạt Chat ở góc phải dưới */
+    /* Nút nổi tròn gọn gàng kích hoạt Chat ở góc phải dưới (chuẩn chatbot) */
     .teacher-chat-toggle-btn {
         position: fixed;
         bottom: 24px;
         right: 24px;
         z-index: 99999;
-        display: inline-flex;
-        align-items: center;
-        gap: 10px;
-        padding: 10px 18px 10px 14px;
+        width: 54px;
+        height: 54px;
+        border-radius: 50%;
         background: linear-gradient(135deg, #0284c7 0%, #0369a1 100%);
         color: #ffffff;
-        border: 2.5px solid #ffffff;
-        border-radius: 999px;
-        box-shadow: 0 10px 25px rgba(2, 132, 199, 0.35), inset 0 -3px 0 rgba(0, 0, 0, 0.2);
+        border: 3px solid #ffffff;
+        box-shadow: 0 10px 25px rgba(2, 132, 199, 0.4), inset 0 -3px 0 rgba(0, 0, 0, 0.2);
         cursor: pointer;
-        font-family: inherit;
-        font-size: 13.5px;
-        font-weight: 800;
+        display: grid;
+        place-items: center;
+        font-size: 24px;
         transition: all 0.25s cubic-bezier(0.34, 1.56, 0.64, 1);
         outline: none;
+        padding: 0;
     }
     .teacher-chat-toggle-btn:hover {
-        transform: translateY(-3px) scale(1.03);
-        box-shadow: 0 14px 30px rgba(2, 132, 199, 0.45), inset 0 -3px 0 rgba(0, 0, 0, 0.2);
+        transform: translateY(-3px) scale(1.08);
+        box-shadow: 0 14px 30px rgba(2, 132, 199, 0.5), inset 0 -3px 0 rgba(0, 0, 0, 0.2);
         background: linear-gradient(135deg, #0ea5e9 0%, #0284c7 100%);
     }
     .teacher-chat-toggle-btn:active {
-        transform: translateY(1px) scale(0.98);
+        transform: translateY(1px) scale(0.95);
         box-shadow: 0 6px 14px rgba(2, 132, 199, 0.3);
     }
-    .teacher-chat-toggle-btn .chat-icon-wrap {
-        width: 34px;
-        height: 34px;
-        border-radius: 50%;
-        background: rgba(255, 255, 255, 0.2);
-        display: grid;
-        place-items: center;
-        font-size: 18px;
-    }
     .teacher-chat-toggle-btn .chat-pulse-dot {
-        width: 10px;
-        height: 10px;
+        width: 12px;
+        height: 12px;
         border-radius: 50%;
         background: #22c55e;
         border: 2px solid #ffffff;
         position: absolute;
-        top: 4px;
-        left: 36px;
+        top: -1px;
+        right: -1px;
         animation: chatPulse 2s infinite;
     }
     @keyframes chatPulse {
@@ -8682,11 +8720,10 @@
 </style>
 
 <div id="teacher-live-chat-wrapper">
-    <!-- Nút Nổi Kích Hoạt -->
+    <!-- Nút Nổi Tròn Kích Hoạt Chatbot Gọn Gàng -->
     <button type="button" id="teacher-chat-toggle-btn" class="teacher-chat-toggle-btn" onclick="toggleTeacherLiveChat()" title="Chat trực tiếp với Ban Quản Trị">
         <span class="chat-pulse-dot"></span>
-        <div class="chat-icon-wrap">💬</div>
-        <span id="teacher-chat-toggle-text">Chat Với Admin</span>
+        <span>💬</span>
     </button>
 
     <!-- Cửa Sổ Live Chat -->

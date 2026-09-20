@@ -341,6 +341,62 @@
                         </div>
                     </form>
                 </div>
+
+                <!-- Cấu hình Bảng Xếp Hạng & Chu Kỳ Reset -->
+                <div class="card" style="margin-top: 24px; border-top: 4px solid #3b82f6;">
+                    <div class="card-head">
+                        <h2 class="card-title"><span>👑</span> Quản Trị Bảng Xếp Hạng & Vòng Đua</h2>
+                        <span style="font-size:12px; color:var(--text-muted); font-weight:700;">Thi đua toàn trường</span>
+                    </div>
+
+                    <!-- 1. Cấu hình Chu kỳ Reset -->
+                    <form method="post" action="{{ route('admin.games.leaderboard.settings') }}" style="margin-bottom: 18px;">
+                        @csrf
+                        <div class="form-unit">
+                            <label class="form-label">⏱️ Chu kỳ Reset Bảng Xếp Hạng</label>
+                            <select name="leaderboard_reset_period" class="form-select" onchange="this.form.submit()">
+                                <option value="weekly" {{ ($leaderboardPeriod ?? 'weekly') === 'weekly' ? 'selected' : '' }}>
+                                    📅 Hàng tuần (Tự động reset vào 00:00 Thứ Hai)
+                                </option>
+                                <option value="monthly" {{ ($leaderboardPeriod ?? '') === 'monthly' ? 'selected' : '' }}>
+                                    🗓️ Hàng tháng (Tự động reset vào 00:00 Ngày 01 hàng tháng)
+                                </option>
+                                <option value="manual" {{ ($leaderboardPeriod ?? '') === 'manual' ? 'selected' : '' }}>
+                                    ✋ Thủ công (Chỉ reset khi Quản trị viên bấm nút)
+                                </option>
+                            </select>
+                            <small style="color:var(--text-muted); font-size:11.5px; display:block; margin-top:4px;">
+                                Thay đổi có hiệu lực ngay lập tức. Điểm thi đua của học sinh sẽ được tính từ mốc bắt đầu của chu kỳ này.
+                            </small>
+                        </div>
+                    </form>
+
+                    <!-- Thông số vòng đua hiện tại -->
+                    <div style="background:#f8fafc; border:1.5px solid #e2e8f0; border-radius:12px; padding:14px 16px; margin-bottom:18px; display:flex; flex-direction:column; gap:8px; font-size:13px;">
+                        <div style="display:flex; justify-content:space-between;">
+                            <span style="color:var(--text-muted);">Mốc bắt đầu tính điểm:</span>
+                            <b style="color:#0f172a;">{{ $leaderboardStart ? $leaderboardStart->setTimezone(config('learning.display_timezone', 'Asia/Ho_Chi_Minh'))->format('H:i d/m/Y') : 'Chưa thiết lập' }}</b>
+                        </div>
+                        <div style="display:flex; justify-content:space-between;">
+                            <span style="color:var(--text-muted);">Lần reset gần nhất:</span>
+                            <span style="color:#2563eb; font-weight:700;">{{ $leaderboardLastReset ? \Carbon\Carbon::parse($leaderboardLastReset)->format('H:i d/m/Y') : 'Theo chu kỳ mặc định' }}</span>
+                        </div>
+                        @if($leaderboardNext)
+                            <div style="display:flex; justify-content:space-between;">
+                                <span style="color:var(--text-muted);">Đợt reset tự động kế tiếp:</span>
+                                <b style="color:#059669;">{{ $leaderboardNext->format('H:i d/m/Y') }}</b>
+                            </div>
+                        @endif
+                    </div>
+
+                    <!-- 2. Nút bấm Reset Ngay -->
+                    <form method="post" action="{{ route('admin.games.leaderboard.reset') }}" onsubmit="return confirm('⚡ CẢNH BÁO QUẢN TRỊ:\n\nBạn có chắc chắn muốn BẮT ĐẦU VÒNG THI ĐUA MỚI ngay bây giờ?\n\nMốc tính điểm bài thi của học sinh trên Bảng Vàng sẽ được tính lại từ thời điểm này. Điểm tích lũy và Sao thưởng của học sinh vẫn được bảo toàn an toàn.')">
+                        @csrf
+                        <button type="submit" class="btn-action" style="width:100%; padding:13px; background:linear-gradient(135deg, #f59e0b, #d97706); border:2px solid #fbbf24; border-radius:12px; color:#fff; font-weight:800; font-size:13.5px; cursor:pointer; box-shadow:0 4px 12px rgba(245, 158, 11, 0.25); display:flex; align-items:center; justify-content:center; gap:8px;">
+                            <span>⚡</span> Bắt Đầu Vòng Đua Mới (Reset Bảng Xếp Hạng Ngay)
+                        </button>
+                    </form>
+                </div>
             </div>
 
             <!-- Cột Phải: Thưởng nóng & Tra cứu lịch sử -->

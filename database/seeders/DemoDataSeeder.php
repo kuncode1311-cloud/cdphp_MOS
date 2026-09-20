@@ -101,36 +101,44 @@ class DemoDataSeeder extends Seeder
         if ($level4) $testsByGrade[4] = PracticeTest::whereHas('topic', fn ($q) => $q->where('level_id', $level4->id))->with('topic')->get();
         if ($level5) $testsByGrade[5] = PracticeTest::whereHas('topic', fn ($q) => $q->where('level_id', $level5->id))->with('topic')->get();
 
-        // 5. Tạo dữ liệu bài làm thi đua tuần này cho từng học sinh
+        // 5. Tạo dữ liệu bài làm thi đua đợt hiện tại cho từng học sinh
+        $leaderboardStart = \App\Models\GameSetting::getLeaderboardResetStart();
+        $startVn = $leaderboardStart->copy()->setTimezone($tz);
+        $daysDiff = max(1, (int) $now->diffInDays($startVn));
+
         foreach ($allStudents as $stIdx => $st) {
             $grade = $st->classroom?->grade ?? 4;
             $tests = $testsByGrade[$grade] ?? collect();
             if ($tests->isEmpty()) continue;
 
-            // Xóa attempts cũ của tuần này nếu có để seed lại đều đẹp
-            $st->attempts()->where('completed_at', '>=', $startOfWeek)->delete();
+            // Xóa attempts cũ của vòng hiện tại nếu có để seed lại đều đẹp
+            $st->attempts()->where('completed_at', '>=', $leaderboardStart)->delete();
 
-            // Số bài thi trong tuần: từ 1 đến 5 bài (tạo thứ hạng chênh lệch phong phú)
-            $attemptCount = match ($stIdx % 5) {
-                0 => 5, // Top 1
-                1 => 4, // Top 2
-                2 => 3, // Top 3
+            // Số bài thi trong vòng này: từ 2 đến 5 bài (tạo thứ hạng phong phú cho Top 1, 2, 3 và Top 4-10)
+            $attemptCount = match ($stIdx % 6) {
+                0 => 4, // Top Quán quân
+                1 => 3, // Á quân
+                2 => 3, // Hạng ba
                 3 => 2,
+                4 => 2,
                 default => 1,
             };
 
-            $totalEarnedThisWeek = 0;
+            $totalEarnedThisPeriod = 0;
 
             for ($i = 0; $i < $attemptCount; $i++) {
                 $test = $tests->get($i % $tests->count());
-                // Điểm số ngẫu nhiên có trật tự
+                // Điểm số ngẫu nhiên phong phú
                 $scorePool = [1000, 950, 900, 850, 800, 750, 700];
-                $score = $scorePool[($stIdx + $i) % count($scorePool)];
+                $score = $scorePool[($stIdx * 2 + $i) % count($scorePool)];
                 $totalQ = 10;
                 $correctQ = (int) round($score / 1000 * $totalQ);
-                $duration = rand(180, 520);
-                $daysAgo = rand(0, min(5, max(1, (int) $now->diffInDays($startOfWeek))));
-                $completedAt = $now->copy()->subDays($daysAgo)->subHours(rand(1, 10))->subMinutes(rand(5, 55));
+                $duration = rand(150, 480);
+                $daysAgo = rand(0, min($daysDiff, 3));
+                $completedAt = $now->copy()->subDays($daysAgo)->subHours(rand(1, 12))->subMinutes(rand(5, 55));
+                if ($completedAt->lessThan($startVn)) {
+                    $completedAt = $now->copy()->subHours(rand(1, 6));
+                }
 
                 $st->attempts()->create([
                     'practice_test_id' => $test->id,
@@ -138,15 +146,15 @@ class DemoDataSeeder extends Seeder
                     'correct_answers' => $correctQ,
                     'total_questions' => $totalQ,
                     'duration_seconds' => $duration,
-                    'completed_at' => $completedAt,
+                    'completed_at' => $completedAt->setTimezone('UTC'),
                 ]);
 
-                $totalEarnedThisWeek += $score;
+                $totalEarnedThisPeriod += $score;
             }
 
             // Cập nhật reward_stars và game_time_seconds
-            $rewardStars = $totalEarnedThisWeek + rand(200, 800);
-            $gameTime = rand(1, 5) * 60; // 1 - 5 phút
+            $rewardStars = $totalEarnedThisPeriod + rand(300, 1200);
+            $gameTime = rand(2, 6) * 60; // 2 - 6 phút
 
             $st->reward_stars = $rewardStars;
             $st->game_time_seconds = $gameTime;
@@ -155,9 +163,9 @@ class DemoDataSeeder extends Seeder
             // Ghi nhật ký giao dịch mẫu
             $st->gameTransactions()->create([
                 'type' => 'earn',
-                'stars_change' => $totalEarnedThisWeek,
+                'stars_change' => $totalEarnedThisPeriod,
                 'time_seconds_change' => 0,
-                'description' => "Hoàn thành {$attemptCount} bài luyện thi IC3 tuần này",
+                'description' => "Hoàn thành {$attemptCount} bài luyện thi IC3 vòng này",
                 'created_at' => $now->copy()->subHours(2),
             ]);
 
