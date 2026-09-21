@@ -46,6 +46,12 @@ Thumbs.db
 /scratch/
 /scripts/
 /capture_screenshots.js
+/capture_*.js
+/build_*.js
+/report_*.js
+/sanitize_data.js
+/sync_file.js
+/*.ps1
 /create_erd_image.js
 /CHAY_BOT_TELEGRAM.bat
 
