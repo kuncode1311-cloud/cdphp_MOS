@@ -88,6 +88,17 @@ class LearningController extends Controller
         $nextReset = GameSetting::getLeaderboardNextReset();
         $nextResetTimestamp = $nextReset ? $nextReset->timestamp : null;
 
+        // Tránh tình trạng đầu tuần mới (sáng Thứ Hai) chưa kịp có học sinh làm bài khiến Bảng Vàng bị trống Á Quân & Hạng Ba:
+        // Nếu số bài làm trong vòng thi đua hiện tại còn quá ít (< 5 bài), tự động mở rộng mốc tính về 7 ngày gần nhất (rolling 7 days)
+        // để luôn vinh danh những học sinh xuất sắc nhất.
+        $recentAttemptsCount = \App\Models\TestAttempt::where('completed_at', '>=', $startOfLeaderboard)->count();
+        if ($recentAttemptsCount < 5) {
+            $rollingFallback = now($tz)->subDays(7)->setTimezone('UTC');
+            if ($startOfLeaderboard->greaterThan($rollingFallback)) {
+                $startOfLeaderboard = $rollingFallback;
+            }
+        }
+
         // Lấy bài làm trong vòng thi đua hiện tại
         $weeklyAttempts = $user->attempts()
             ->with('practiceTest.topic.level')

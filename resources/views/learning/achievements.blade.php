@@ -2171,12 +2171,15 @@
             const minutes = Math.floor(diff / 60);
             const seconds = diff % 60;
 
+            const secPad = seconds < 10 ? '0' + seconds : seconds;
+            const minPad = minutes < 10 ? '0' + minutes : minutes;
+
             if (days > 0) {
-                textEl.innerText = `${days} ngày ${hours}h ${minutes}p`;
+                textEl.innerText = `${days} ngày ${hours}h ${minPad}p ${secPad}s`;
             } else if (hours > 0) {
-                textEl.innerText = `${hours} giờ ${minutes}p ${seconds}s`;
+                textEl.innerText = `${hours} giờ ${minPad}p ${secPad}s`;
             } else {
-                textEl.innerText = `${minutes} phút ${seconds}s`;
+                textEl.innerText = `${minPad} phút ${secPad}s`;
             }
         }
 
