@@ -13,32 +13,6 @@
     <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@600;700;800&family=Nunito:wght@600;700;800;900&display=swap" rel="stylesheet">
     @vite(['resources/css/app.css', 'resources/css/game-theme.css', 'resources/js/app.js'])
     <style>
-        /* 🌌 HÌNH NỀN CỐ ĐỊNH PHẦN CỨNG TOÀN DỰ ÁN (CHỐNG GIẬT LAG & CHỐNG FLASH KHI CHUYỂN TRANG) */
-        body.app-body {
-            background-color: #0c233d !important;
-            margin: 0;
-            overflow-x: hidden;
-        }
-        .game-persistent-bg {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100vw;
-            height: 100vh;
-            z-index: 0;
-            background: #0c233d url('{{ asset("images/adventure-world-bg.jpg") }}') center center / cover no-repeat;
-            pointer-events: none;
-            will-change: transform;
-            transform: translateZ(0);
-        }
-        .app-sidebar, .app-main, #vip-topbar, .main-content-flow {
-            position: relative;
-            z-index: 1;
-        }
-        .adventure-world-wrapper {
-            background: transparent !important;
-        }
-
         #magic-canvas {
             position: fixed;
             top: 0;
@@ -516,8 +490,6 @@
     </style>
 </head>
 <body class="app-body">
-    <!-- Nền Game Cố Định Phần Cứng Toàn Dự Án: Tăng tốc GPU, chống giật và không bao giờ phải load lại khi đổi trang -->
-    <div class="game-persistent-bg" aria-hidden="true"></div>
     <canvas id="magic-canvas" aria-hidden="true"></canvas>
 
     <!-- Sidebar bên trái gọn gàng -->

@@ -242,7 +242,7 @@
     .adventure-world-wrapper {
         min-height: calc(100vh - 86px);
         padding: 14px 14px 60px;
-        background: transparent;
+        background: url('{{ asset('images/adventure-world-bg.jpg') }}') center/cover no-repeat fixed;
         display: flex;
         flex-direction: column;
         align-items: center;
