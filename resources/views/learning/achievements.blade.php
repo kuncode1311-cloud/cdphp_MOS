@@ -2034,6 +2034,9 @@
                 currentGameTime = data.game_time_seconds;
 
                 // Update UI elements
+                if (typeof window.updateGlobalStarWallet === 'function') {
+                    window.updateGlobalStarWallet(currentStars);
+                }
                 const headerStarsEl = document.getElementById('header-reward-stars');
                 const shopStarsEl = document.getElementById('shop-wallet-stars');
                 const gameTimeEl = document.getElementById('header-game-time');

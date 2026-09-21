@@ -153,6 +153,15 @@
             font-weight: 1000;
             color: #ffe658;
             text-shadow: 0 2px 4px rgba(0,0,0,0.4);
+            transition: all 0.2s ease;
+        }
+        .star-wallet-card.star-wallet-pulse {
+            animation: starWalletPulse 0.5s ease-in-out;
+        }
+        @keyframes starWalletPulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.12); filter: drop-shadow(0 0 10px #fde047); }
+            100% { transform: scale(1); }
         }
 
         .vip-icon-btn {
@@ -629,7 +638,7 @@
                     @else
                         <div class="star-wallet-card" data-open-star-modal title="Bấm để xem hướng dẫn Ví Sao Thưởng">
                             <small>Ví Sao Thưởng</small>
-                            <b>⭐ {{ number_format(auth()->user()->reward_stars ?? 0) }}</b>
+                            <b id="topbar-reward-stars">⭐ {{ number_format(auth()->user()->reward_stars ?? 0) }}</b>
                         </div>
                     @endif
                 @else
@@ -726,10 +735,19 @@
             }
         }
 
-        // Auto restore user sidebar preference
-        if (window.innerWidth > 760 && localStorage.getItem('user_sidebar_collapsed') === '1') {
-            document.body.classList.add('sidebar-collapsed');
-        }
+        // Hàm toàn cục cập nhật tức thì Ví Sao Thưởng trên Topbar kèm hiệu ứng rung lắc
+        window.updateGlobalStarWallet = function(stars) {
+            const el = document.getElementById('topbar-reward-stars');
+            if (el) {
+                el.innerText = '⭐ ' + Number(stars).toLocaleString('vi-VN');
+                const card = el.closest('.star-wallet-card');
+                if (card) {
+                    card.classList.remove('star-wallet-pulse');
+                    void card.offsetWidth; // trigger reflow
+                    card.classList.add('star-wallet-pulse');
+                }
+            }
+        };
     </script>
 </body>
 </html>

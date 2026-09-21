@@ -500,10 +500,18 @@
                 currentGameTime = data.game_time_seconds;
 
                 // Cập nhật giao diện đồng bộ
-                document.getElementById('display-stars').innerText = currentStars.toLocaleString('vi-VN');
+                if (typeof window.updateGlobalStarWallet === 'function') {
+                    window.updateGlobalStarWallet(currentStars);
+                }
+                const displayStarsEl = document.getElementById('display-stars');
+                if (displayStarsEl) {
+                    displayStarsEl.innerText = currentStars.toLocaleString('vi-VN');
+                }
                 const displayTime = document.getElementById('display-time');
-                displayTime.innerText = formatTime(currentGameTime);
-                displayTime.style.color = '#0284c7';
+                if (displayTime) {
+                    displayTime.innerText = formatTime(currentGameTime);
+                    displayTime.style.color = '#0284c7';
+                }
 
                 // Mở khóa nút chơi game
                 const gameLink = document.getElementById('game-main-link');
