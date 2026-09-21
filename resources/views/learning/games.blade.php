@@ -298,7 +298,7 @@
     .adventure-world-wrapper {
         min-height: calc(100vh - 86px);
         padding: 28px 20px 70px;
-        background: url('{{ asset('images/adventure-world-bg.jpg') }}') center/cover no-repeat fixed;
+        background: transparent;
         display: flex;
         flex-direction: column;
         align-items: center;

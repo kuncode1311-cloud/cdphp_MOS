@@ -13,6 +13,32 @@
     <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@600;700;800&family=Nunito:wght@600;700;800;900&display=swap" rel="stylesheet">
     @vite(['resources/css/app.css', 'resources/css/game-theme.css', 'resources/js/app.js'])
     <style>
+        /* 🌌 HÌNH NỀN CỐ ĐỊNH PHẦN CỨNG TOÀN DỰ ÁN (CHỐNG GIẬT LAG & CHỐNG FLASH KHI CHUYỂN TRANG) */
+        body.app-body {
+            background-color: #0c233d !important;
+            margin: 0;
+            overflow-x: hidden;
+        }
+        .game-persistent-bg {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            z-index: 0;
+            background: #0c233d url('{{ asset("images/adventure-world-bg.jpg") }}') center center / cover no-repeat;
+            pointer-events: none;
+            will-change: transform;
+            transform: translateZ(0);
+        }
+        .app-sidebar, .app-main, #vip-topbar, .main-content-flow {
+            position: relative;
+            z-index: 1;
+        }
+        .adventure-world-wrapper {
+            background: transparent !important;
+        }
+
         #magic-canvas {
             position: fixed;
             top: 0;
@@ -490,6 +516,8 @@
     </style>
 </head>
 <body class="app-body">
+    <!-- Nền Game Cố Định Phần Cứng Toàn Dự Án: Tăng tốc GPU, chống giật và không bao giờ phải load lại khi đổi trang -->
+    <div class="game-persistent-bg" aria-hidden="true"></div>
     <canvas id="magic-canvas" aria-hidden="true"></canvas>
 
     <!-- Sidebar bên trái gọn gàng -->
@@ -748,64 +776,6 @@
                 }
             }
         };
-
-        // 🚀 CÔNG NGHỆ INSTANT HOVER PREFETCH: Tải trước trang khi di chuột/chạm để chuyển trang tức thì (0ms)
-        const prefetchedUrls = new Set();
-        function prefetchInternalUrl(url) {
-            if (!url || prefetchedUrls.has(url)) return;
-            try {
-                const u = new URL(url, window.location.origin);
-                if (u.origin !== window.location.origin) return;
-                if (u.pathname.endsWith('.pdf') || u.pathname.endsWith('.docx') || u.pathname.includes('/logout')) return;
-                prefetchedUrls.add(url);
-
-                const link = document.createElement('link');
-                link.rel = 'prefetch';
-                link.href = url;
-                link.as = 'document';
-                document.head.appendChild(link);
-            } catch (e) {}
-        }
-
-        document.addEventListener('mouseover', function(e) {
-            const a = e.target.closest('a');
-            if (a && a.href && a.href.startsWith(window.location.origin)) {
-                prefetchInternalUrl(a.href);
-            }
-        }, { passive: true });
-
-        document.addEventListener('touchstart', function(e) {
-            const a = e.target.closest('a');
-            if (a && a.href && a.href.startsWith(window.location.origin)) {
-                prefetchInternalUrl(a.href);
-            }
-        }, { passive: true });
-
-        // 🖼️ TỰ ĐỘNG LƯU CACHE CÁC ẢNH NẶNG TRONG BỘ NHỚ (Chống giật/đơ khi chuyển trang)
-        window.addEventListener('load', function() {
-            const heavyImages = [
-                '{{ asset("images/adventure-world-bg.jpg") }}',
-                '{{ asset("images/leaderboard/fantasy-arena-bg.jpg") }}',
-                '{{ asset("images/leaderboard/crest-banner-3d.png") }}',
-                '{{ asset("images/leaderboard/crown-3d.png") }}',
-                '{{ asset("images/leaderboard/hero-champion.png") }}',
-                '{{ asset("images/leaderboard/hero-runnerup.png") }}',
-                '{{ asset("images/leaderboard/hero-thirdplace.png") }}',
-                '{{ asset("images/student-avatar.jpg") }}',
-                '{{ asset("images/ic3-quest-logo.png") }}'
-            ];
-            const preloadImages = () => {
-                heavyImages.forEach(src => {
-                    const img = new Image();
-                    img.src = src;
-                });
-            };
-            if ('requestIdleCallback' in window) {
-                requestIdleCallback(preloadImages);
-            } else {
-                setTimeout(preloadImages, 800);
-            }
-        });
     </script>
 </body>
 </html>
