@@ -2560,16 +2560,16 @@
                         <div class="excel-table-wrap">
                             <table id="users-data-table" class="modal-roster-table" style="width:100% !important; max-width:100% !important; table-layout: fixed; min-width: 800px;">
                                 <colgroup>
-                                    <col style="width: 24%;">
-                                    <col style="width: 9%;">
+                                    <col style="width: 30%;">
+                                    <col style="width: 10%;">
                                     <col style="width: 11%;">
-                                    <col style="width: 22%;">
-                                    <col style="width: 6%;">
-                                    <col style="width: 28%;">
+                                    <col style="width: 19%;">
+                                    <col style="width: 9%;">
+                                    <col style="width: 21%;">
                                 </colgroup>
                                 <thead>
                                     <tr>
-                                        <th>NGƯỜI DÙNG</th>
+                                        <th class="col-user" style="text-align:left; padding-left:16px;">NGƯỜI DÙNG</th>
                                         <th style="text-align:center;">VAI TRÒ</th>
                                         <th style="text-align:center;">TRẠNG THÁI</th>
                                         <th style="text-align:center;">GIÁO VIÊN / GÓI & KHỐI</th>
@@ -2586,10 +2586,24 @@
                                             $userPendingOrder = $isPending ? $u->packageOrders->firstWhere('status', 'pending') : null;
                                         @endphp
                                         <tr class="user-row-item {{ $isSuspended ? 'user-row-suspended' : '' }}" data-role="{{ $uRoleStr }}" data-user-id="{{ $u->id }}">
-                                            <td>
-                                                <div style="display:flex; align-items:center; gap:8px; min-width:0;">
-                                                    <div class="avatar-box-wrap">
-                                                        <div style="width:32px; height:32px; border-radius:8px; display:grid; place-items:center; font-weight:900; font-size:12px; color:#fff; background: {{ $isSuspended ? '#94a3b8' : ($isPending ? 'linear-gradient(135deg, #f59e0b, #d97706)' : ($u->isAdmin() ? 'linear-gradient(135deg, #ef4444, #f59e0b)' : ($u->isTeacher() ? 'linear-gradient(135deg, #10b981, #06b6d4)' : 'linear-gradient(135deg, #6366f1, #8b5cf6)'))) }}; flex-shrink:0;">
+                                            <td class="col-user" style="vertical-align:middle; padding:10px 16px; text-align:left;">
+                                                <div style="display:flex; align-items:center; gap:10px; min-width:0;">
+                                                    <div class="avatar-box-wrap"
+                                                         style="cursor:pointer; transition:transform 0.15s ease;"
+                                                         onmouseover="this.style.transform='scale(1.08)'"
+                                                         onmouseout="this.style.transform='scale(1)'"
+                                                         onclick="openStudentProfileModal(this)"
+                                                         data-id="{{ $u->id }}"
+                                                         data-name="{{ $u->name }}"
+                                                         data-email="{{ $u->email }}"
+                                                         data-code="{{ $u->student_code ?? '' }}"
+                                                         data-status="{{ $u->status ?? 'active' }}"
+                                                         data-created="{{ $u->created_date_vn }}"
+                                                         data-attempts="{{ $u->attempts_count ?? $u->attempts()->count() }}"
+                                                         data-levels='@json($u->accessibleLevels->map(fn($l) => ["grade" => $l->grade, "name" => $l->name]))'
+                                                         data-teacher="{{ $u->teacher?->name ?? 'Quản trị viên' }}"
+                                                         title="Bấm để xem hồ sơ chi tiết của {{ $u->name }}">
+                                                        <div style="width:36px; height:36px; border-radius:9px; display:grid; place-items:center; font-weight:900; font-size:13px; color:#fff; background: {{ $isSuspended ? '#94a3b8' : ($isPending ? 'linear-gradient(135deg, #f59e0b, #d97706)' : ($u->isAdmin() ? 'linear-gradient(135deg, #ef4444, #f59e0b)' : ($u->isTeacher() ? 'linear-gradient(135deg, #10b981, #06b6d4)' : 'linear-gradient(135deg, #6366f1, #8b5cf6)'))) }}; box-shadow:0 2px 6px rgba(99,102,241,0.25); flex-shrink:0;">
                                                             {{ mb_strtoupper(mb_substr($u->name, 0, 1)) }}
                                                         </div>
                                                         @if($isSuspended)
@@ -2600,118 +2614,127 @@
                                                             <span class="avatar-online-badge" title="Tài khoản đang hoạt động / Online"></span>
                                                         @endif
                                                     </div>
-                                                    <div style="min-width:0; overflow:hidden;">
-                                                        <b style="color:{{ $isSuspended ? '#64748b' : '#0f172a' }}; font-size:13px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; display:block;">
-                                                            {{ $u->name }}
-                                                            @if($isSuspended)
-                                                                <span style="font-size:10.5px; color:#ef4444; font-weight:750; margin-left:4px;">(Đã khóa)</span>
-                                                            @elseif($isPending)
-                                                                <span style="font-size:10.5px; color:#b45309; font-weight:750; margin-left:4px;">(Chờ duyệt)</span>
-                                                            @endif
-                                                        </b>
-                                                        <div style="font-size:11px; color:#64748b; margin-top:2px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">
-                                                            {{ $u->email }}
+                                                    <div style="min-width:0; flex:1; text-align:left;">
+                                                        <div style="display:flex; align-items:center; gap:6px; flex-wrap:wrap;">
+                                                            <b style="color:{{ $isSuspended ? '#64748b' : '#0f172a' }}; font-size:13.5px; font-weight:800; cursor:pointer;"
+                                                               onclick="openStudentProfileModal(this.closest('td').querySelector('.avatar-box-wrap'))"
+                                                               title="Bấm xem hồ sơ {{ $u->name }}">
+                                                                {{ $u->name }}
+                                                            </b>
                                                             @if($u->student_code)
-                                                                · <span class="pill-badge pill-code" style="font-size:9px; padding:1px 4px;">{{ $u->student_code }}</span>
+                                                                <span class="pill-badge pill-code" style="font-size:10px; padding:1px 6px; font-weight:800; border-radius:5px; background:#e0e7ff; color:#4338ca; border:1px solid #c7d2fe;">{{ $u->student_code }}</span>
                                                             @endif
-                                                            · 📅 {{ $u->created_date_vn }}
+                                                            @if($isSuspended)
+                                                                <span style="font-size:10px; color:#ef4444; font-weight:800; background:#fef2f2; padding:1px 5px; border-radius:4px; border:1px solid #fca5a5;">(Đã khóa)</span>
+                                                            @elseif($isPending)
+                                                                <span style="font-size:10px; color:#b45309; font-weight:800; background:#fffbeb; padding:1px 5px; border-radius:4px; border:1px solid #fde68a;">(Chờ duyệt)</span>
+                                                            @endif
+                                                        </div>
+                                                        <div style="font-size:11px; color:#64748b; margin-top:3px; display:flex; align-items:center; gap:6px; flex-wrap:wrap;">
+                                                            <span style="color:#475569; font-weight:500;" title="{{ $u->email }}">{{ $u->email }}</span>
+                                                            <span style="color:#cbd5e1;">•</span>
+                                                            <span style="color:#64748b; white-space:nowrap; font-weight:600;">📅 {{ $u->created_date_vn }}</span>
                                                         </div>
                                                     </div>
                                                 </div>
                                             </td>
-                                            <td>
+                                            <td style="text-align:center; vertical-align:middle;">
                                                 @if($u->isAdmin())
-                                                    <span class="pill-badge pill-role-admin" style="font-size:10.5px; padding:2px 6px;">👑 Admin</span>
+                                                    <span class="pill-badge pill-role-admin" style="font-size:11px; padding:3px 8px; font-weight:800; display:inline-flex; align-items:center; gap:4px;">👑 Admin</span>
                                                 @elseif($u->isTeacher())
-                                                    <span class="pill-badge pill-role-teacher" style="font-size:10.5px; padding:2px 6px;">👩‍🏫 Giáo viên</span>
+                                                    <span class="pill-badge pill-role-teacher" style="font-size:11px; padding:3px 8px; font-weight:800; display:inline-flex; align-items:center; gap:4px;">👩‍🏫 Giáo viên</span>
                                                 @else
-                                                    <span class="pill-badge pill-role-student" style="font-size:10.5px; padding:2px 6px;">👨‍🎓 Học sinh</span>
+                                                    <span class="pill-badge pill-role-student" style="font-size:11px; padding:3px 8px; font-weight:800; display:inline-flex; align-items:center; gap:4px;">👨‍🎓 Học sinh</span>
                                                 @endif
                                             </td>
-                                            <td style="text-align:center;" class="user-status-cell">
+                                            <td style="text-align:center; vertical-align:middle;" class="user-status-cell">
                                                 @if($isSuspended)
-                                                    <button type="button" class="pill-badge pill-fail" style="cursor:pointer; padding:3px 7px; font-size:10.5px; border-radius:7px; border:1.5px solid #fca5a5;" onclick="toggleStudentStatusAjax({{ $u->id }}, 'active', '{{ addslashes($u->name) }}')" title="Bấm để mở khóa kích hoạt lại tài khoản">
-                                                        🔒 Khóa
+                                                    <button type="button" class="pill-badge pill-fail" style="cursor:pointer; padding:4px 10px; font-size:11px; font-weight:800; border-radius:8px; border:1.5px solid #fca5a5; display:inline-flex; align-items:center; gap:4px;" onclick="toggleStudentStatusAjax({{ $u->id }}, 'active', '{{ addslashes($u->name) }}')" title="Bấm để mở khóa kích hoạt lại tài khoản">
+                                                        🔒 Tạm khóa
                                                     </button>
                                                 @elseif($isPending)
-                                                    <span class="pill-badge" style="background:#fef3c7; color:#b45309; border:1.5px solid #fde68a; font-weight:800; padding:3px 7px; font-size:10.5px;" title="Tài khoản mới đăng ký, đang chờ thanh toán đơn hàng">
+                                                    <span class="pill-badge" style="background:#fef3c7; color:#b45309; border:1.5px solid #fde68a; font-weight:800; padding:4px 10px; font-size:11px; display:inline-flex; align-items:center; gap:4px;" title="Tài khoản mới đăng ký, đang chờ thanh toán đơn hàng">
                                                         ⏳ Chờ kích hoạt
                                                     </span>
                                                 @else
-                                                    <button type="button" class="pill-badge pill-pass" style="cursor:pointer; padding:3px 7px; font-size:10.5px; border-radius:7px; border:1.5px solid #86efac;" onclick="toggleStudentStatusAjax({{ $u->id }}, 'suspended', '{{ addslashes($u->name) }}')" title="Bấm để tạm khóa tài khoản này">
-                                                        <span class="status-dot-online"></span> {{ $u->isTeacher() ? 'Hoạt động' : 'Đang học' }}
+                                                    <button type="button" class="pill-badge pill-pass" style="cursor:pointer; padding:4px 10px; font-size:11px; font-weight:800; border-radius:8px; border:1.5px solid #86efac; display:inline-flex; align-items:center; gap:5px;" onclick="toggleStudentStatusAjax({{ $u->id }}, 'suspended', '{{ addslashes($u->name) }}')" title="Bấm để tạm khóa tài khoản này">
+                                                        <span class="status-dot-online" style="width:7px; height:7px; background:#10b981; border-radius:50%; display:inline-block; box-shadow:0 0 0 2px rgba(16,185,129,0.2);"></span> {{ $u->isTeacher() ? 'Hoạt động' : 'Đang học' }}
                                                     </button>
                                                 @endif
                                             </td>
-                                            <td>
-                                                @if($u->isTeacher())
-                                                    @if($isPending)
-                                                        @if($userPendingOrder)
-                                                            <div style="font-size:11.5px; font-weight:800; color:#b45309; margin-bottom:2px;">
-                                                                📦 Đơn: #{{ $userPendingOrder->code }}
-                                                            </div>
-                                                            <div style="font-size:11px; color:#475569;">
-                                                                Gói: <b>{{ $userPendingOrder->package_name }}</b>
-                                                            </div>
-                                                            <div style="font-size:10.5px; font-weight:800; color:#d97706; margin-top:1px;">
-                                                                💰 {{ number_format($userPendingOrder->price) }} đ (Chờ duyệt)
-                                                            </div>
+                                            <td style="text-align:center; vertical-align:middle;">
+                                                <div style="display:flex; flex-direction:column; align-items:center; justify-content:center; gap:3px;">
+                                                    @if($u->isTeacher())
+                                                        @if($isPending)
+                                                            @if($userPendingOrder)
+                                                                <div style="font-size:11.5px; font-weight:800; color:#b45309;">
+                                                                    📦 Đơn: #{{ $userPendingOrder->code }}
+                                                                </div>
+                                                                <div style="font-size:11px; color:#475569;">
+                                                                    Gói: <b>{{ $userPendingOrder->package_name }}</b>
+                                                                </div>
+                                                                <div style="font-size:10.5px; font-weight:800; color:#d97706;">
+                                                                    💰 {{ number_format($userPendingOrder->price) }} đ (Chờ duyệt)
+                                                                </div>
+                                                            @else
+                                                                <span style="font-size:10.5px; color:#b45309; font-weight:700;">Chưa kích hoạt đơn</span>
+                                                            @endif
                                                         @else
-                                                            <span style="font-size:10.5px; color:#b45309; font-weight:700;">Chưa kích hoạt đơn</span>
+                                                            @php
+                                                                $daysLeft = $u->expires_at ? (int) ceil(now()->diffInDays($u->expires_at, false)) : null;
+                                                            @endphp
+                                                            <div style="display:flex; gap:3px; flex-wrap:wrap; justify-content:center;">
+                                                                @forelse($u->teacherLevels as $tl)
+                                                                    <span class="pill-badge pill-grade" style="font-size:9.5px; padding:1.5px 5px; background:#dcfce7; color:#166534;">Khối {{ $tl->grade }}</span>
+                                                                @empty
+                                                                    <span style="font-size:10px; color:#ef4444; font-weight:750;">🔒 Chưa cấp Khối</span>
+                                                                @endforelse
+                                                            </div>
+                                                            <div style="font-size:11px; color:#1e293b; font-weight:750;">
+                                                                👥 Quota: <b>{{ $u->students_count ?? $u->students()->count() }}</b>/{{ $u->max_students ?: '∞' }} HS
+                                                            </div>
+                                                            @if($u->expires_at)
+                                                                <div style="font-size:10.5px; font-weight:750; color: {{ $daysLeft < 0 ? '#dc2626' : ($daysLeft <= 30 ? '#d97706' : '#059669') }};">
+                                                                    📅 {{ $u->expires_at->format('d/m/Y') }} ({{ $daysLeft < 0 ? 'Hết hạn ' . abs($daysLeft) . ' ngày' : 'Còn ' . $daysLeft . ' ngày' }})
+                                                                </div>
+                                                            @else
+                                                                <div style="font-size:10.5px; color:#059669; font-weight:700;">
+                                                                    ♾️ Vĩnh viễn
+                                                                </div>
+                                                            @endif
                                                         @endif
-                                                    @else
-                                                        @php
-                                                            $daysLeft = $u->expires_at ? (int) ceil(now()->diffInDays($u->expires_at, false)) : null;
-                                                        @endphp
-                                                        <div style="display:flex; gap:3px; flex-wrap:wrap; margin-bottom: 2px;">
-                                                            @forelse($u->teacherLevels as $tl)
-                                                                <span class="pill-badge pill-grade" style="font-size:9.5px; padding:1.5px 5px; background:#dcfce7; color:#166534;">Khối {{ $tl->grade }}</span>
+                                                    @elseif($u->isStudent())
+                                                        @if($u->teacher)
+                                                            <div style="font-size:11.5px; font-weight:750; color:#059669; text-align:center;" title="Giáo viên phụ trách">👩‍🏫 {{ $u->teacher->name }}</div>
+                                                        @endif
+                                                        <div style="display:flex; gap:3px; flex-wrap:wrap; justify-content:center;">
+                                                            @forelse($u->accessibleLevels as $lvl)
+                                                                <span class="pill-badge pill-grade" style="font-size:10px; padding:2px 6px;">Khối {{ $lvl->grade }}</span>
                                                             @empty
-                                                                <span style="font-size:10px; color:#ef4444; font-weight:750;">🔒 Chưa cấp Khối</span>
+                                                                <span style="font-size:10px; color:#ef4444; font-weight:750;">🔒 Chưa mở</span>
                                                             @endforelse
                                                         </div>
-                                                        <div style="font-size:11px; color:#1e293b; font-weight:750;">
-                                                            👥 Quota: <b>{{ $u->students_count ?? $u->students()->count() }}</b>/{{ $u->max_students ?: '∞' }} HS
-                                                        </div>
-                                                        @if($u->expires_at)
-                                                            <div style="font-size:10.5px; margin-top:1px; font-weight:750; color: {{ $daysLeft < 0 ? '#dc2626' : ($daysLeft <= 30 ? '#d97706' : '#059669') }};">
-                                                                📅 {{ $u->expires_at->format('d/m/Y') }} ({{ $daysLeft < 0 ? 'Hết hạn ' . abs($daysLeft) . ' ngày' : 'Còn ' . $daysLeft . ' ngày' }})
-                                                            </div>
-                                                        @else
-                                                            <div style="font-size:10.5px; color:#059669; font-weight:700; margin-top:1px;">
-                                                                ♾️ Vĩnh viễn
-                                                            </div>
-                                                        @endif
+                                                    @else
+                                                        <span style="color:#64748b; font-weight:700; font-size:11.5px;">👑 Toàn quyền hệ thống</span>
                                                     @endif
-                                                @elseif($u->isStudent())
-                                                    @if($u->teacher)
-                                                        <div style="font-size:11px; font-weight:750; color:#059669; margin-bottom:2px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">👩‍🏫 {{ $u->teacher->name }}</div>
-                                                    @endif
-                                                    <div style="display:flex; gap:3px; flex-wrap:wrap;">
-                                                        @forelse($u->accessibleLevels as $lvl)
-                                                            <span class="pill-badge pill-grade" style="font-size:9.5px; padding:1px 5px;">Khối {{ $lvl->grade }}</span>
-                                                        @empty
-                                                            <span style="font-size:10px; color:#ef4444; font-weight:750;">🔒 Chưa mở</span>
-                                                        @endforelse
-                                                    </div>
-                                                @else
-                                                    <span style="color:#64748b; font-weight:700; font-size:11px;">Toàn quyền hệ thống</span>
-                                                @endif
+                                                </div>
                                             </td>
-                                            <td>
+                                            <td style="text-align:center; vertical-align:middle;">
                                                 @if($u->isStudent())
-                                                    <span class="pill-badge pill-time" style="font-size:10.5px; padding:2px 6px;">📝 {{ $u->attempts_count ?? $u->attempts()->count() }} lượt</span>
+                                                    <span class="pill-badge pill-time" style="font-size:11px; padding:3px 8px; font-weight:750; display:inline-flex; align-items:center; justify-content:center; gap:4px;">
+                                                        📝 {{ $u->attempts_count ?? $u->attempts()->count() }} lượt
+                                                    </span>
                                                 @else
-                                                    <span style="color:#94a3b8; font-size:11.5px;">—</span>
+                                                    <span style="color:#94a3b8; font-size:12px; font-weight:600;">—</span>
                                                 @endif
                                             </td>
-                                            <td style="text-align:right;">
-                                                <div class="action-btn-group" style="justify-content:flex-end; gap:3px; flex-wrap:nowrap;">
+                                            <td style="text-align:center; vertical-align:middle;">
+                                                <div class="action-btn-group" style="justify-content:center; align-items:center; gap:4px; flex-wrap:nowrap;">
                                                     @if($u->isTeacher())
                                                         @if($isPending && $userPendingOrder)
                                                             <form method="POST" action="{{ route('admin.orders.activate', $userPendingOrder) }}" onsubmit="return confirm('Duyệt kích hoạt đơn #{{ $userPendingOrder->code }} và mở tài khoản cho giáo viên {{ addslashes($u->name) }}?');" style="display:inline;">
                                                                 @csrf
-                                                                <button type="submit" class="btn-action-grant" style="background:linear-gradient(135deg, #10b981, #059669); color:#fff; border:none; box-shadow:0 2px 6px rgba(16,185,129,0.3); padding:3px 7px;" title="Duyệt đơn thanh toán và kích hoạt tài khoản Giáo viên này">
+                                                                <button type="submit" class="btn-action-grant" style="background:linear-gradient(135deg, #10b981, #059669); color:#fff; border:none; box-shadow:0 2px 6px rgba(16,185,129,0.3); padding:4px 8px;" title="Duyệt đơn thanh toán và kích hoạt tài khoản Giáo viên này">
                                                                     <span>⚡</span> Duyệt
                                                                 </button>
                                                             </form>
@@ -2742,7 +2765,7 @@
                                                             <span>🔑</span> Khối
                                                         </button>
                                                     @elseif($u->isTeacher() && ! $isPending)
-                                                        <button type="button" class="btn-action-grant" style="background:#059669;" onclick='openGrantTeacherModal(@json($u), @json($u->teacherLevels->pluck("id")), {{ (int)$u->max_students }}, "{{ $u->expires_at?->format("Y-m-d") ?? "" }}", "{{ $u->status ?? "active" }}")' title="Cấp gói & Phân quyền Khối học cho Giáo viên">
+                                                        <button type="button" class="btn-action-grant" style="background:#059669; color:#ffffff;" onclick='openGrantTeacherModal(@json($u), @json($u->teacherLevels->pluck("id")), {{ (int)$u->max_students }}, "{{ $u->expires_at?->format("Y-m-d") ?? "" }}", "{{ $u->status ?? "active" }}")' title="Cấp gói & Phân quyền Khối học cho Giáo viên">
                                                             <span>👑</span> Gói
                                                         </button>
                                                     @endif
@@ -2752,7 +2775,7 @@
                                                             <span>🗑️</span> Xóa
                                                         </button>
                                                     @elseif(auth()->user()->is($u))
-                                                        <span class="badge-current-user" style="font-size:9.5px; padding:2px 5px;">✓ Đang dùng</span>
+                                                        <span class="badge-current-user" style="font-size:10px; padding:3px 6px;">✓ Đang dùng</span>
                                                     @endif
                                                 </div>
                                             </td>

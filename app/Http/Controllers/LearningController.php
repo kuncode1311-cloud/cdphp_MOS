@@ -58,9 +58,7 @@ class LearningController extends Controller
             return redirect()->route('admin.dashboard');
         }
 
-        $program = Cache::remember('learning_program_tree', 1800, function () {
-            return Program::with(['levels.topics.tests'])->firstOrFail();
-        });
+        $program = Program::with(['levels.topics.tests'])->firstOrFail();
 
         return view('learning.home', compact('program'));
     }
@@ -70,9 +68,7 @@ class LearningController extends Controller
      */
     public function programs(): View
     {
-        $program = Cache::remember('learning_program_tree', 1800, function () {
-            return Program::with(['levels.topics.tests'])->firstOrFail();
-        });
+        $program = Program::with(['levels.topics.tests'])->firstOrFail();
 
         return view('learning.programs', compact('program'));
     }
