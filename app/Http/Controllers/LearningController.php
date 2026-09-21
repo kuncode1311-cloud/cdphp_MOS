@@ -11,6 +11,7 @@ use App\Services\ParentLearningAnalyticsService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\View\View;
 
 /**
@@ -57,7 +58,9 @@ class LearningController extends Controller
             return redirect()->route('admin.dashboard');
         }
 
-        $program = Program::with(['levels.topics.tests'])->firstOrFail();
+        $program = Cache::remember('learning_program_tree', 1800, function () {
+            return Program::with(['levels.topics.tests'])->firstOrFail();
+        });
 
         return view('learning.home', compact('program'));
     }
@@ -67,7 +70,9 @@ class LearningController extends Controller
      */
     public function programs(): View
     {
-        $program = Program::with(['levels.topics.tests'])->firstOrFail();
+        $program = Cache::remember('learning_program_tree', 1800, function () {
+            return Program::with(['levels.topics.tests'])->firstOrFail();
+        });
 
         return view('learning.programs', compact('program'));
     }
@@ -127,49 +132,84 @@ class LearningController extends Controller
         $selectedGrade = (string) $request->get('grade', (string) $studentGrade);
 
         // Bảng xếp hạng thi đua đua top vòng này
-        $studentsQuery = User::where('role', 'student')->with(['classroom', 'accessibleLevels']);
-        if ($selectedGrade !== 'all') {
-            $gradeInt = (int) $selectedGrade;
-            $studentsQuery->where(function ($q) use ($gradeInt) {
-                $q->whereHas('classroom', fn ($c) => $c->where('grade', $gradeInt))
-                  ->orWhereHas('accessibleLevels', fn ($l) => $l->where('grade', $gradeInt));
-            });
+        // Bảng xếp hạng thi đua đua top vòng này (Tối ưu Cache 45s để tránh quét DB hàng trăm lượt học sinh liên tục)
+        $cacheKey = "lb_students_{$selectedGrade}_{$startOfLeaderboard->timestamp}_{$scoreMode}_{$minPassScore}";
+        $rawLeaderboard = Cache::remember($cacheKey, 45, function () use ($selectedGrade, $startOfLeaderboard, $scoreMode, $minPassScore) {
+            $studentsQuery = User::where('role', 'student')->with(['classroom', 'accessibleLevels']);
+            if ($selectedGrade !== 'all') {
+                $gradeInt = (int) $selectedGrade;
+                $studentsQuery->where(function ($q) use ($gradeInt) {
+                    $q->whereHas('classroom', fn ($c) => $c->where('grade', $gradeInt))
+                      ->orWhereHas('accessibleLevels', fn ($l) => $l->where('grade', $gradeInt));
+                });
+            }
+
+            $leaderboardStudents = $studentsQuery->with(['attempts' => function ($q) use ($startOfLeaderboard) {
+                $q->where('completed_at', '>=', $startOfLeaderboard);
+            }])->get();
+
+            return $leaderboardStudents->map(function ($s) use ($scoreMode, $minPassScore) {
+                $weeklyAtts = $s->attempts;
+                $passedAttempts = $weeklyAtts->filter(fn ($a) => $a->score >= $minPassScore);
+                $countedAttempts = $scoreMode === 'passed_only' ? $passedAttempts : $weeklyAtts;
+
+                $totalScore = (int) $countedAttempts->sum('score');
+                $passedCount = (int) $passedAttempts->count();
+                $testsCount = (int) $weeklyAtts->count();
+                $bestScore = (int) ($weeklyAtts->max('score') ?? 0);
+
+                return [
+                    'id' => $s->id,
+                    'name' => $s->name,
+                    'student_code' => $s->student_code,
+                    'classroom_name' => $s->classroom?->name ?? ('Khối ' . ($s->accessibleLevels->first()?->grade ?? 4)),
+                    'grade' => (int) ($s->classroom?->grade ?? $s->accessibleLevels->first()?->grade ?? 4),
+                    'weekly_score' => $totalScore,
+                    'passed_count' => $passedCount,
+                    'tests_count' => $testsCount,
+                    'best_score' => $bestScore,
+                    'reward_stars' => (int) ($s->reward_stars ?? 0),
+                ];
+            })->filter(fn ($item) => $item['tests_count'] > 0)
+              ->sortByDesc(fn ($item) => [
+                  $item['weekly_score'],
+                  $item['passed_count'],
+                  $item['tests_count'],
+                  $item['best_score'],
+              ])->values()->all();
+        });
+
+        $myFound = false;
+        $leaderboard = collect($rawLeaderboard)->map(function ($item) use ($user, &$myFound) {
+            $isMe = ($item['id'] === $user->id);
+            if ($isMe) {
+                $myFound = true;
+            }
+            $item['is_me'] = $isMe;
+            return $item;
+        });
+
+        if (! $myFound) {
+            $leaderboard->push([
+                'id' => $user->id,
+                'name' => $user->name,
+                'student_code' => $user->student_code,
+                'classroom_name' => $user->classroom?->name ?? ('Khối ' . ($user->accessibleLevels->first()?->grade ?? 4)),
+                'grade' => (int) ($user->classroom?->grade ?? $user->accessibleLevels->first()?->grade ?? 4),
+                'weekly_score' => $weeklyScore,
+                'passed_count' => $weeklyPassed,
+                'tests_count' => $weeklyAttempts->count(),
+                'best_score' => (int) ($weeklyAttempts->max('score') ?? 0),
+                'reward_stars' => (int) ($user->reward_stars ?? 0),
+                'is_me' => true,
+            ]);
+            $leaderboard = $leaderboard->sortByDesc(fn ($item) => [
+                $item['weekly_score'],
+                $item['passed_count'],
+                $item['tests_count'],
+                $item['best_score'],
+            ])->values();
         }
-
-        $leaderboardStudents = $studentsQuery->with(['attempts' => function ($q) use ($startOfLeaderboard) {
-            $q->where('completed_at', '>=', $startOfLeaderboard);
-        }])->get();
-
-        $leaderboard = $leaderboardStudents->map(function ($s) use ($user, $scoreMode, $minPassScore) {
-            $weeklyAtts = $s->attempts;
-            $passedAttempts = $weeklyAtts->filter(fn ($a) => $a->score >= $minPassScore);
-            $countedAttempts = $scoreMode === 'passed_only' ? $passedAttempts : $weeklyAtts;
-
-            $totalScore = (int) $countedAttempts->sum('score');
-            $passedCount = (int) $passedAttempts->count();
-            $testsCount = (int) $weeklyAtts->count();
-            $bestScore = (int) ($weeklyAtts->max('score') ?? 0);
-
-            return [
-                'id' => $s->id,
-                'name' => $s->name,
-                'student_code' => $s->student_code,
-                'classroom_name' => $s->classroom?->name ?? ('Khối ' . ($s->accessibleLevels->first()?->grade ?? 4)),
-                'grade' => (int) ($s->classroom?->grade ?? $s->accessibleLevels->first()?->grade ?? 4),
-                'weekly_score' => $totalScore,
-                'passed_count' => $passedCount,
-                'tests_count' => $testsCount,
-                'best_score' => $bestScore,
-                'reward_stars' => (int) ($s->reward_stars ?? 0),
-                'is_me' => $s->id === $user->id,
-            ];
-        })->filter(fn ($item) => $item['tests_count'] > 0 || $item['is_me'])
-          ->sortByDesc(fn ($item) => [
-              $item['weekly_score'],
-              $item['passed_count'],
-              $item['tests_count'],
-              $item['best_score'],
-          ])->values();
 
         $myRank = null;
         $leaderboard = $leaderboard->map(function ($item, $index) use (&$myRank) {

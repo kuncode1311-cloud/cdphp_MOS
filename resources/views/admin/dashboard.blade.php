@@ -768,20 +768,36 @@
             border-right: none !important;
         }
 
-        /* Cột số thứ tự # - Chuẩn số hàng của Excel */
-        tbody td:first-child,
-        thead th:first-child,
-        .modal-roster-table td:first-child,
-        .modal-roster-table th:first-child {
+        /* Cột số thứ tự # - Chuẩn số hàng của Excel (áp dụng cho cột col-stt) */
+        tbody td.col-stt,
+        thead th.col-stt,
+        .modal-roster-table td.col-stt,
+        .modal-roster-table th.col-stt {
             text-align: center !important;
-            background: #e2e8f0;
+            background: #e2e8f0 !important;
             font-weight: 900;
             color: #334155;
             border-right: 2px solid #64748b !important;
         }
-        tbody tr:hover td:first-child {
+        tbody tr:hover td.col-stt {
             background: #bae6fd !important;
             color: #0369a1 !important;
+        }
+
+        /* Định dạng riêng cho cột Người dùng: Căn trái tự nhiên, không bị áp đặt style cột số thứ tự */
+        .col-user,
+        #users-data-table td.col-user,
+        #users-data-table th.col-user,
+        #users-data-table td:first-child {
+            text-align: left !important;
+            background: transparent;
+            border-right: 1.5px solid #cbd5e1 !important;
+        }
+        #users-data-table thead th.col-user,
+        #users-data-table thead th:first-child {
+            background: #e2e8f0 !important;
+            border-right: 1.5px solid #94a3b8 !important;
+            text-align: left !important;
         }
 
         /* Căn giữa tiện ích cho các ô */
@@ -892,7 +908,7 @@
             display: inline-flex;
             align-items: center;
             gap: 5px;
-            justify-content: flex-end;
+            justify-content: center;
             flex-wrap: nowrap;
         }
         .btn-action-edit, .btn-action-grant, .btn-action-view, .btn-action-delete {
@@ -1915,7 +1931,7 @@
                             </colgroup>
                             <thead>
                                 <tr>
-                                    <th style="text-align:center;">#</th>
+                                    <th class="col-stt" style="text-align:center;">#</th>
                                     <th>HỌC SINH</th>
                                     <th style="text-align:center;">{{ $isTeacher ? 'KHỐI HỌC' : 'GIÁO VIÊN / KHỐI' }}</th>
                                     <th>BÀI LUYỆN / CHỦ ĐỀ</th>
@@ -1945,7 +1961,7 @@
                                         data-status="{{ $statusKey }}"
                                         data-search="{{ mb_strtolower(($a->user?->name ?? '') . ' ' . ($a->user?->student_code ?? '') . ' ' . ($a->practiceTest?->name ?? '') . ' ' . ($a->practiceTest?->topic?->name ?? '')) }}">
                                         
-                                        <td style="color:#94a3b8; font-weight:700; text-align:center;">{{ $idx + 1 }}</td>
+                                        <td class="col-stt" style="color:#94a3b8; font-weight:700; text-align:center;">{{ $idx + 1 }}</td>
                                         <td>
                                             <div style="display:flex; align-items:center; gap:8px; min-width:0;">
                                                 <div style="width:30px; height:30px; border-radius:8px; display:grid; place-items:center; font-weight:900; font-size:11.5px; color:#fff; background:linear-gradient(135deg, #6366f1, #8b5cf6); flex-shrink:0;">
@@ -2400,8 +2416,8 @@
                                 </colgroup>
                                 <thead>
                                     <tr>
-                                        <th style="text-align:center;">#</th>
-                                        <th>HỌC SINH</th>
+                                        <th class="col-stt" style="text-align:center;">#</th>
+                                        <th class="col-user" style="text-align:left; padding-left:14px;">HỌC SINH</th>
                                         <th style="text-align:center;">TRẠNG THÁI</th>
                                         <th style="text-align:center;">KHỐI ĐƯỢC CẤP</th>
                                         <th style="text-align:center;">LƯỢT THI</th>
@@ -2415,8 +2431,8 @@
                                             $isSuspended = ($u->status === 'suspended');
                                         @endphp
                                         <tr class="user-row-item {{ $isSuspended ? 'user-row-suspended' : '' }}" data-role="{{ $uRoleStr }}" data-user-id="{{ $u->id }}">
-                                            <td style="color:#94a3b8; font-weight:700; text-align:center;">{{ $loop->iteration }}</td>
-                                            <td>
+                                            <td class="col-stt" style="color:#94a3b8; font-weight:700; text-align:center;">{{ $loop->iteration }}</td>
+                                            <td class="col-user" style="text-align:left; padding-left:14px; vertical-align:middle;">
                                                 <div style="display:flex; align-items:center; gap:10px; min-width:0;">
                                                     <div class="avatar-box-wrap" 
                                                          style="cursor:pointer; transition:transform 0.15s ease;" 

@@ -748,6 +748,64 @@
                 }
             }
         };
+
+        // 🚀 CÔNG NGHỆ INSTANT HOVER PREFETCH: Tải trước trang khi di chuột/chạm để chuyển trang tức thì (0ms)
+        const prefetchedUrls = new Set();
+        function prefetchInternalUrl(url) {
+            if (!url || prefetchedUrls.has(url)) return;
+            try {
+                const u = new URL(url, window.location.origin);
+                if (u.origin !== window.location.origin) return;
+                if (u.pathname.endsWith('.pdf') || u.pathname.endsWith('.docx') || u.pathname.includes('/logout')) return;
+                prefetchedUrls.add(url);
+
+                const link = document.createElement('link');
+                link.rel = 'prefetch';
+                link.href = url;
+                link.as = 'document';
+                document.head.appendChild(link);
+            } catch (e) {}
+        }
+
+        document.addEventListener('mouseover', function(e) {
+            const a = e.target.closest('a');
+            if (a && a.href && a.href.startsWith(window.location.origin)) {
+                prefetchInternalUrl(a.href);
+            }
+        }, { passive: true });
+
+        document.addEventListener('touchstart', function(e) {
+            const a = e.target.closest('a');
+            if (a && a.href && a.href.startsWith(window.location.origin)) {
+                prefetchInternalUrl(a.href);
+            }
+        }, { passive: true });
+
+        // 🖼️ TỰ ĐỘNG LƯU CACHE CÁC ẢNH NẶNG TRONG BỘ NHỚ (Chống giật/đơ khi chuyển trang)
+        window.addEventListener('load', function() {
+            const heavyImages = [
+                '{{ asset("images/adventure-world-bg.jpg") }}',
+                '{{ asset("images/leaderboard/fantasy-arena-bg.jpg") }}',
+                '{{ asset("images/leaderboard/crest-banner-3d.png") }}',
+                '{{ asset("images/leaderboard/crown-3d.png") }}',
+                '{{ asset("images/leaderboard/hero-champion.png") }}',
+                '{{ asset("images/leaderboard/hero-runnerup.png") }}',
+                '{{ asset("images/leaderboard/hero-thirdplace.png") }}',
+                '{{ asset("images/student-avatar.jpg") }}',
+                '{{ asset("images/ic3-quest-logo.png") }}'
+            ];
+            const preloadImages = () => {
+                heavyImages.forEach(src => {
+                    const img = new Image();
+                    img.src = src;
+                });
+            };
+            if ('requestIdleCallback' in window) {
+                requestIdleCallback(preloadImages);
+            } else {
+                setTimeout(preloadImages, 800);
+            }
+        });
     </script>
 </body>
 </html>

@@ -2074,13 +2074,12 @@
     // =========================================================================
     let isLeaderboardLoading = false;
     let leaderboardCountdownInterval = null;
+    const gradeHtmlCache = {};
 
     async function switchLeaderboardGrade(grade) {
         if (isLeaderboardLoading) return;
         const wrapper = document.getElementById('leaderboard-ajax-wrapper');
         if (!wrapper) return;
-
-        isLeaderboardLoading = true;
 
         // Cập nhật giao diện tab ngay lập tức (instant visual feedback)
         document.querySelectorAll('.arena-grade-pill').forEach(pill => {
@@ -2088,7 +2087,19 @@
             pill.classList.toggle('pill-active', isActive);
         });
 
-        // ✨ IC3 LOADING OVERLAY — hiển thị ở giữa màn, đẹp và đúng chỗ
+        // ⚡ NẾU ĐÃ LƯU CACHE ➔ HIỂN THỊ NGAY TỨC THÌ 0MS (TRẢI NGHIỆM SIÊU MƯỢT)
+        if (gradeHtmlCache[grade]) {
+            wrapper.innerHTML = gradeHtmlCache[grade];
+            const cleanUrl = new URL(window.location.href);
+            cleanUrl.searchParams.set('grade', grade);
+            window.history.replaceState({ grade: grade }, '', cleanUrl.toString());
+            initLeaderboardTimer();
+            return;
+        }
+
+        isLeaderboardLoading = true;
+
+        // ✨ IC3 LOADING OVERLAY — hiển thị ở giữa màn khi chưa có cache
         const oldOverlay = document.getElementById('lb-loading-overlay');
         if (oldOverlay) oldOverlay.remove();
 
@@ -2099,7 +2110,6 @@
             <div class="lb-loading-ring"></div>
             <span class="lb-loading-text">IC3 Đang tải...</span>
         `;
-        // Đảm bảo wrapper có position relative
         if (getComputedStyle(wrapper).position === 'static') {
             wrapper.style.position = 'relative';
         }
@@ -2118,6 +2128,8 @@
             const data = await res.json();
 
             if (data.success && data.html) {
+                // Lưu vào cache bộ nhớ client
+                gradeHtmlCache[grade] = data.html;
                 wrapper.innerHTML = data.html;
 
                 // Cập nhật URL trên thanh địa chỉ mà không reload trang
@@ -2130,15 +2142,10 @@
             }
         } catch (err) {
             console.error('Lỗi tải bảng xếp hạng:', err);
-            // Xóa overlay khi lỗi
             const overlayEl = document.getElementById('lb-loading-overlay');
             if (overlayEl) overlayEl.remove();
         } finally {
             isLeaderboardLoading = false;
-            // Overlay đã bị xóa khi innerHTML được thay (wrapper.innerHTML = data.html)
-            // nhưng xóa thêm lần nữa để đảm bảo
-            const overlayEl = document.getElementById('lb-loading-overlay');
-            if (overlayEl) overlayEl.remove();
         }
     }
 
@@ -2191,6 +2198,10 @@
     }
 
     document.addEventListener('DOMContentLoaded', () => {
+        const wrapper = document.getElementById('leaderboard-ajax-wrapper');
+        if (wrapper) {
+            gradeHtmlCache['{{ $selectedGrade }}'] = wrapper.innerHTML;
+        }
         initLeaderboardTimer();
     });
 </script>
