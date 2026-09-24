@@ -959,6 +959,191 @@
             box-shadow: 0 2px 0 #047857;
         }
 
+        /* ====== Modal Đổi Email Inline ====== */
+        .email-modal-backdrop {
+            position: fixed;
+            inset: 0;
+            background: rgba(10, 25, 47, 0.82);
+            backdrop-filter: blur(8px);
+            -webkit-backdrop-filter: blur(8px);
+            z-index: 99999999;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            padding: 16px;
+        }
+        .email-modal-backdrop.open {
+            display: flex !important;
+        }
+        .email-modal-box {
+            background: #ffffff;
+            border-radius: 20px;
+            width: min(420px, 94vw);
+            padding: 0;
+            box-shadow: 0 28px 60px rgba(0,0,0,0.42), 0 0 0 1.5px rgba(255,255,255,0.2);
+            overflow: hidden;
+            transform: scale(0.92) translateY(16px);
+            transition: transform 0.25s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+        .email-modal-backdrop.open .email-modal-box {
+            transform: scale(1) translateY(0);
+        }
+        .email-modal-header {
+            background: linear-gradient(135deg, #0369a1 0%, #0284c7 60%, #38bdf8 100%);
+            padding: 18px 20px 14px;
+            text-align: center;
+            color: #fff;
+            position: relative;
+        }
+        .email-modal-header h3 {
+            font-size: 17px;
+            font-weight: 900;
+            margin: 0 0 4px;
+            text-shadow: 0 1px 3px rgba(0,0,0,0.2);
+        }
+        .email-modal-header p {
+            font-size: 12px;
+            color: #bae6fd;
+            font-weight: 600;
+            margin: 0;
+        }
+        .email-modal-header .em-icon {
+            font-size: 32px;
+            margin-bottom: 6px;
+            display: block;
+        }
+        .email-modal-close {
+            position: absolute;
+            top: 10px;
+            right: 12px;
+            width: 28px;
+            height: 28px;
+            border-radius: 50%;
+            background: rgba(255,255,255,0.2);
+            border: 1.5px solid rgba(255,255,255,0.4);
+            color: #fff;
+            font-size: 14px;
+            font-weight: 900;
+            cursor: pointer;
+            display: grid;
+            place-items: center;
+            transition: all 0.15s;
+        }
+        .email-modal-close:hover {
+            background: #ef4444;
+            border-color: #f87171;
+        }
+        .email-modal-body {
+            padding: 18px 20px 20px;
+        }
+        .email-modal-label {
+            display: block;
+            font-size: 12px;
+            font-weight: 800;
+            color: #0369a1;
+            margin-bottom: 6px;
+            letter-spacing: 0.2px;
+        }
+        .email-modal-input {
+            width: 100%;
+            height: 42px;
+            padding: 0 12px;
+            border-radius: 11px;
+            border: 2px solid #bae6fd;
+            font-family: inherit;
+            font-size: 14px;
+            font-weight: 700;
+            color: #0f172a;
+            background: #f0f9ff;
+            outline: none;
+            transition: all 0.18s;
+            box-sizing: border-box;
+        }
+        .email-modal-input:focus {
+            border-color: #0284c7;
+            background: #ffffff;
+            box-shadow: 0 0 0 3px rgba(2, 132, 199, 0.2);
+        }
+        .email-modal-hint {
+            font-size: 11px;
+            color: #64748b;
+            margin-top: 6px;
+            font-weight: 600;
+        }
+        .email-modal-alert {
+            margin-top: 8px;
+            padding: 7px 10px;
+            border-radius: 8px;
+            font-size: 12.5px;
+            font-weight: 800;
+            display: none;
+        }
+        .email-modal-alert.error {
+            display: block;
+            background: #fee2e2;
+            border: 1.5px solid #fca5a5;
+            color: #991b1b;
+        }
+        .email-modal-alert.success {
+            display: block;
+            background: #dcfce7;
+            border: 1.5px solid #86efac;
+            color: #166534;
+        }
+        .email-modal-actions {
+            display: flex;
+            gap: 10px;
+            margin-top: 16px;
+        }
+        .email-modal-btn-cancel {
+            flex: 1;
+            height: 40px;
+            border-radius: 10px;
+            border: 2px solid #e2e8f0;
+            background: #f8fafc;
+            color: #475569;
+            font-family: inherit;
+            font-size: 13.5px;
+            font-weight: 800;
+            cursor: pointer;
+            transition: all 0.15s;
+        }
+        .email-modal-btn-cancel:hover {
+            background: #e2e8f0;
+        }
+        .email-modal-btn-save {
+            flex: 2;
+            height: 40px;
+            border-radius: 10px;
+            border: 2px solid #38bdf8;
+            background: linear-gradient(180deg, #0284c7 0%, #0369a1 100%);
+            color: #fff;
+            font-family: inherit;
+            font-size: 13.5px;
+            font-weight: 900;
+            cursor: pointer;
+            box-shadow: 0 4px 0 #075985;
+            transition: all 0.15s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+        }
+        .email-modal-btn-save:hover:not(:disabled) {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 0 #075985;
+        }
+        .email-modal-btn-save:active:not(:disabled) {
+            transform: translateY(2px);
+            box-shadow: 0 2px 0 #075985;
+        }
+        .email-modal-btn-save:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
+        }
+
         .app-sidebar {
             transition: width 0.22s cubic-bezier(0.4, 0, 0.2, 1), transform 0.25s ease, padding 0.22s ease !important;
         }
@@ -1463,6 +1648,35 @@
     </div>
     @endauth
 
+    @auth
+    <!-- Modal Đổi Email Inline Đẹp (Thay thế prompt() xấu) -->
+    <div id="email-update-modal" class="email-modal-backdrop" aria-hidden="true">
+        <div class="email-modal-box">
+            <div class="email-modal-header">
+                <button type="button" class="email-modal-close" onclick="closeEmailModal()" title="Đóng">✕</button>
+                <span class="em-icon">📧</span>
+                <h3>Cập nhật Email nhận OTP</h3>
+                <p>Email này sẽ được dùng để xác minh bảo mật khi đổi mật khẩu</p>
+            </div>
+            <div class="email-modal-body">
+                <label for="email-modal-input-field" class="email-modal-label">📮 Địa chỉ Email mới (Gmail / Outlook):</label>
+                <input type="email" id="email-modal-input-field" class="email-modal-input"
+                    placeholder="vd: name@gmail.com"
+                    autocomplete="email"
+                    spellcheck="false">
+                <div class="email-modal-hint">💡 Nhập email thật để nhận mã OTP xác thực khi bạn muốn đổi mật khẩu.</div>
+                <div id="email-modal-alert" class="email-modal-alert"></div>
+                <div class="email-modal-actions">
+                    <button type="button" class="email-modal-btn-cancel" onclick="closeEmailModal()">Hủy bỏ</button>
+                    <button type="button" id="email-modal-btn-save" class="email-modal-btn-save" onclick="submitEmailUpdate()">
+                        <span>✅</span> Lưu Email Mới
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+    @endauth
+
     <script>
         function toggleUserSidebar() {
             if (window.innerWidth <= 760) {
@@ -1690,12 +1904,60 @@
         };
 
         // Cập nhật địa chỉ email thật của người dùng
+        // ======= Modal Đổi Email Inline (Không dùng prompt() xấu) =======
         window.promptUpdateEmail = function() {
             const currentEmail = document.getElementById('user-email-text')?.textContent.trim() || '';
-            const newEmail = prompt('Nhập địa chỉ Email thật của bạn (ví dụ Gmail / Outlook) để nhận mã xác thực OTP:', currentEmail);
-            if (!newEmail || newEmail.trim() === '' || newEmail.trim() === currentEmail) {
+            const inputEl = document.getElementById('email-modal-input-field');
+            const alertEl = document.getElementById('email-modal-alert');
+            if (inputEl) inputEl.value = currentEmail;
+            if (alertEl) { alertEl.className = 'email-modal-alert'; alertEl.textContent = ''; }
+
+            const modal = document.getElementById('email-update-modal');
+            if (modal) {
+                modal.classList.add('open');
+                modal.removeAttribute('aria-hidden');
+                setTimeout(() => inputEl && inputEl.focus(), 180);
+            }
+        };
+
+        window.closeEmailModal = function() {
+            const modal = document.getElementById('email-update-modal');
+            if (modal) {
+                modal.classList.remove('open');
+                modal.setAttribute('aria-hidden', 'true');
+            }
+        };
+
+        window.submitEmailUpdate = function() {
+            const inputEl = document.getElementById('email-modal-input-field');
+            const alertEl = document.getElementById('email-modal-alert');
+            const btnSave = document.getElementById('email-modal-btn-save');
+            const currentEmail = document.getElementById('user-email-text')?.textContent.trim() || '';
+
+            const newEmail = inputEl ? inputEl.value.trim() : '';
+
+            // Kiểm tra cơ bản
+            if (!newEmail) {
+                alertEl.className = 'email-modal-alert error';
+                alertEl.textContent = '⚠️ Vui lòng nhập địa chỉ email.';
+                inputEl && inputEl.focus();
                 return;
             }
+            if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(newEmail)) {
+                alertEl.className = 'email-modal-alert error';
+                alertEl.textContent = '⚠️ Địa chỉ email không đúng định dạng (ví dụ: name@gmail.com).';
+                inputEl && inputEl.focus();
+                return;
+            }
+            if (newEmail === currentEmail) {
+                alertEl.className = 'email-modal-alert error';
+                alertEl.textContent = '⚠️ Email mới trùng với email hiện tại, không cần cập nhật.';
+                return;
+            }
+
+            // Gửi lên server
+            btnSave.disabled = true;
+            btnSave.innerHTML = '<span>⏳</span> Đang lưu...';
 
             fetch("{{ route('profile.update-email') }}", {
                 method: 'POST',
@@ -1704,7 +1966,7 @@
                     'Content-Type': 'application/json',
                     'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || '{{ csrf_token() }}'
                 },
-                body: JSON.stringify({ email: newEmail.trim() })
+                body: JSON.stringify({ email: newEmail })
             })
             .then(async res => {
                 const data = await res.json();
@@ -1715,16 +1977,31 @@
             })
             .then(data => {
                 const updated = data.email;
+                // Cập nhật UI ngay tức thì
                 const el1 = document.getElementById('user-email-text');
                 if (el1) el1.textContent = updated;
                 const el2 = document.getElementById('security-hint-email');
                 if (el2) el2.textContent = updated;
-                alert('✓ ' + data.message);
+
+                // Hiện thông báo thành công trong modal rồi tự đóng
+                alertEl.className = 'email-modal-alert success';
+                alertEl.textContent = '✓ ' + data.message;
+                btnSave.innerHTML = '<span>✅</span> Đã lưu!';
+
+                setTimeout(() => window.closeEmailModal(), 1800);
             })
             .catch(err => {
-                alert('✕ ' + err.message);
+                alertEl.className = 'email-modal-alert error';
+                alertEl.textContent = '✕ ' + err.message;
+                btnSave.disabled = false;
+                btnSave.innerHTML = '<span>✅</span> Lưu Email Mới';
             });
         };
+
+        // Đóng modal đổi email khi bấm ra ngoài
+        document.getElementById('email-update-modal')?.addEventListener('click', function(e) {
+            if (e.target === this) window.closeEmailModal();
+        });
 
         document.addEventListener('keydown', e => {
             if (e.key === 'Escape') {
