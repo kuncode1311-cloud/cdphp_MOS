@@ -1144,6 +1144,136 @@
             box-shadow: none;
         }
 
+        /* ====== Toast Thành Công Đổi Mật Khẩu ====== */
+        .pwd-success-toast {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%) scale(0.8);
+            z-index: 999999999;
+            background: #ffffff;
+            border-radius: 24px;
+            padding: 0;
+            width: min(380px, 90vw);
+            box-shadow: 0 32px 80px rgba(0,0,0,0.45), 0 0 0 1.5px rgba(16,185,129,0.3);
+            overflow: hidden;
+            opacity: 0;
+            pointer-events: none;
+            transition: all 0.35s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+        .pwd-success-toast.show {
+            opacity: 1;
+            pointer-events: auto;
+            transform: translate(-50%, -50%) scale(1);
+        }
+        .pwd-toast-backdrop {
+            position: fixed;
+            inset: 0;
+            background: rgba(0,0,0,0.55);
+            backdrop-filter: blur(6px);
+            z-index: 999999998;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.3s ease;
+        }
+        .pwd-toast-backdrop.show {
+            opacity: 1;
+            pointer-events: auto;
+        }
+        .pwd-toast-header {
+            background: linear-gradient(135deg, #059669 0%, #10b981 60%, #34d399 100%);
+            padding: 28px 20px 20px;
+            text-align: center;
+            position: relative;
+        }
+        .pwd-toast-icon {
+            width: 68px;
+            height: 68px;
+            background: rgba(255,255,255,0.2);
+            border: 3px solid rgba(255,255,255,0.5);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 32px;
+            margin: 0 auto 10px;
+            animation: toastIconPop 0.5s cubic-bezier(0.175,0.885,0.32,1.275) 0.2s both;
+        }
+        @keyframes toastIconPop {
+            from { transform: scale(0); opacity: 0; }
+            to   { transform: scale(1); opacity: 1; }
+        }
+        .pwd-toast-title {
+            font-size: 20px;
+            font-weight: 900;
+            color: #ffffff;
+            margin: 0 0 4px;
+            text-shadow: 0 2px 4px rgba(0,0,0,0.15);
+        }
+        .pwd-toast-subtitle {
+            font-size: 13px;
+            color: rgba(255,255,255,0.85);
+            font-weight: 600;
+            margin: 0;
+        }
+        .pwd-toast-body {
+            padding: 20px 24px 24px;
+            text-align: center;
+        }
+        .pwd-toast-msg {
+            font-size: 13.5px;
+            color: #334155;
+            font-weight: 600;
+            line-height: 1.6;
+            margin-bottom: 16px;
+        }
+        .pwd-toast-countdown {
+            font-size: 12px;
+            color: #64748b;
+            font-weight: 700;
+            margin-bottom: 14px;
+        }
+        .pwd-toast-progress {
+            height: 4px;
+            background: #e2e8f0;
+            border-radius: 99px;
+            overflow: hidden;
+            margin-bottom: 16px;
+        }
+        .pwd-toast-progress-bar {
+            height: 100%;
+            background: linear-gradient(90deg, #059669, #10b981);
+            border-radius: 99px;
+            width: 100%;
+            transition: width linear;
+        }
+        .pwd-toast-btn-home {
+            width: 100%;
+            height: 44px;
+            border-radius: 12px;
+            border: 2px solid #34d399;
+            background: linear-gradient(180deg, #10b981 0%, #059669 100%);
+            color: #fff;
+            font-family: inherit;
+            font-size: 14.5px;
+            font-weight: 900;
+            cursor: pointer;
+            box-shadow: 0 4px 0 #047857;
+            transition: all 0.15s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+        .pwd-toast-btn-home:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 0 #047857;
+        }
+        .pwd-toast-btn-home:active {
+            transform: translateY(2px);
+            box-shadow: 0 2px 0 #047857;
+        }
+
         .app-sidebar {
             transition: width 0.22s cubic-bezier(0.4, 0, 0.2, 1), transform 0.25s ease, padding 0.22s ease !important;
         }
@@ -1649,6 +1779,28 @@
     @endauth
 
     @auth
+    <!-- Toast Thành Công Đổi Mật Khẩu -->
+    <div id="pwd-success-backdrop" class="pwd-toast-backdrop"></div>
+    <div id="pwd-success-toast" class="pwd-success-toast" role="dialog" aria-modal="true">
+        <div class="pwd-toast-header">
+            <div class="pwd-toast-icon">✅</div>
+            <h3 class="pwd-toast-title">Mật Khẩu Đổi Thành Công!</h3>
+            <p class="pwd-toast-subtitle">Tài khoản của bạn đã được bảo mật cập nhật</p>
+        </div>
+        <div class="pwd-toast-body">
+            <p class="pwd-toast-msg">🎉 Chúc mừng! Mật khẩu mới đã được lưu thành công.<br>Bạn sẽ được chuyển về <b>Trang chủ</b> ngay.</p>
+            <div class="pwd-toast-countdown" id="pwd-toast-countdown">Chuyển trang sau <b>3</b> giây...</div>
+            <div class="pwd-toast-progress">
+                <div class="pwd-toast-progress-bar" id="pwd-toast-bar"></div>
+            </div>
+            <button type="button" class="pwd-toast-btn-home" onclick="window.location.href='{{ route('home') }}'">
+                🏠 Về Trang Chủ Ngay
+            </button>
+        </div>
+    </div>
+    @endauth
+
+    @auth
     <!-- Modal Đổi Email Inline Đẹp (Thay thế prompt() xấu) -->
     <div id="email-update-modal" class="email-modal-backdrop" aria-hidden="true">
         <div class="email-modal-box">
@@ -1880,23 +2032,43 @@
                 return data;
             })
             .then(data => {
-                alertBox.className = 'profile-alert success';
-                alertBox.textContent = '✓ ' + (data.message || 'Chúc mừng bạn! Mật khẩu đã được đổi thành công!');
-                form.reset();
+                // Đóng modal profile
+                window.closeUserProfileModal && window.closeUserProfileModal();
                 if (otpCountdownTimer) clearInterval(otpCountdownTimer);
-                const otpBtn = document.getElementById('btn-request-otp');
-                if (otpBtn) {
-                    otpBtn.disabled = false;
-                    otpBtn.innerHTML = '<span>📨</span> Nhận OTP';
+
+                // Hiện Toast thành công đẹp
+                const toast = document.getElementById('pwd-success-toast');
+                const toastBd = document.getElementById('pwd-success-backdrop');
+                const countdownEl = document.getElementById('pwd-toast-countdown');
+                const barEl = document.getElementById('pwd-toast-bar');
+
+                if (toast && toastBd) {
+                    toast.classList.add('show');
+                    toastBd.classList.add('show');
+
+                    // Đếm ngược 3 giây với thanh tiến độ
+                    let remaining = 3;
+                    if (countdownEl) countdownEl.innerHTML = 'Chuyển trang sau <b>' + remaining + '</b> giây...';
+                    if (barEl) { barEl.style.transition = 'none'; barEl.style.width = '100%'; }
+                    setTimeout(() => { if (barEl) { barEl.style.transition = 'width 3s linear'; barEl.style.width = '0%'; } }, 50);
+
+                    const tick = setInterval(() => {
+                        remaining--;
+                        if (remaining > 0) {
+                            if (countdownEl) countdownEl.innerHTML = 'Chuyển trang sau <b>' + remaining + '</b> giây...';
+                        } else {
+                            clearInterval(tick);
+                            window.location.href = '{{ route('home') }}';
+                        }
+                    }, 1000);
+                } else {
+                    // Fallback nếu không có toast
+                    setTimeout(() => { window.location.href = '{{ route('home') }}'; }, 1200);
                 }
-                const timerText = document.getElementById('otp-timer-text');
-                if (timerText) timerText.style.display = 'none';
             })
             .catch(err => {
                 alertBox.className = 'profile-alert error';
                 alertBox.textContent = '✕ ' + err.message;
-            })
-            .finally(() => {
                 btn.disabled = false;
                 btn.style.opacity = '1';
                 btn.innerHTML = originalBtnHtml;
