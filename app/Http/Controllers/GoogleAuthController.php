@@ -61,12 +61,12 @@ class GoogleAuthController extends Controller
         // 1. Tìm tài khoản theo google_id
         $user = User::where('google_id', $googleId)->first();
 
-        // 2. Nếu chưa có google_id, tìm theo email để tự động liên kết
+        // 2. Nếu chưa có google_id, tìm theo email để liên kết
         if (! $user) {
             $user = User::where('email', $email)->first();
 
             if ($user) {
-                // Tài khoản đã có sẵn (tạo từ trước bằng email) -> liên kết thêm google_id & avatar
+                // Tài khoản đã có sẵn trong hệ thống -> liên kết thêm google_id & avatar
                 $user->update([
                     'google_id' => $googleId,
                     'avatar' => $user->avatar ?: $avatar,
@@ -74,24 +74,17 @@ class GoogleAuthController extends Controller
             }
         }
 
-        // 3. Nếu vẫn chưa có tài khoản nào -> Tự động đăng ký mới với vai trò Học sinh
+        // 3. Kiểm tra bảo mật: Nếu email chưa từng được cấp tài khoản -> Chặn truy cập
         if (! $user) {
-            $user = User::create([
-                'name' => $name,
-                'email' => $email,
-                'google_id' => $googleId,
-                'avatar' => $avatar,
-                'password' => Hash::make(Str::random(32)), // Mật khẩu ngẫu nhiên an toàn
-                'role' => UserRole::Student->value,
-                'status' => 'active',
-                'reward_stars' => 10,       // Quà tặng khởi đầu: 10 sao vàng
-                'game_time_seconds' => 600, // Quà tặng khởi đầu: 10 phút chơi game giải trí
+            Log::warning("Đăng nhập Google bị từ chối do email chưa có trong hệ thống: {$email}");
+            return redirect()->route('login')->withErrors([
+                'login' => "Email ({$email}) chưa có trong hệ thống hoặc chưa được kích hoạt. Vui lòng liên hệ Thầy/Cô hoặc đăng ký gói để được cấp tài khoản!",
             ]);
-        } else {
-            // Cập nhật lại avatar mới nhất nếu tài khoản chưa có avatar
-            if (empty($user->avatar) && !empty($avatar)) {
-                $user->update(['avatar' => $avatar]);
-            }
+        }
+
+        // Cập nhật avatar từ Google nếu tài khoản chưa có ảnh đại diện
+        if (empty($user->avatar) && ! empty($avatar)) {
+            $user->update(['avatar' => $avatar]);
         }
 
         // 4. Kiểm tra trạng thái tài khoản (chờ duyệt, tạm khóa, hết hạn)

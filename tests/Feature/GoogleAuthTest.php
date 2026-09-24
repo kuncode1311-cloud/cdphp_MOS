@@ -30,13 +30,13 @@ class GoogleAuthTest extends TestCase
         $this->assertStringContainsString('client_id=' . config('services.google.client_id'), $targetUrl);
     }
 
-    public function test_google_callback_creates_new_student_user_and_logs_in(): void
+    public function test_google_callback_rejects_unregistered_email_and_does_not_create_user(): void
     {
         $abstractUser = Mockery::mock(SocialiteUser::class);
         $abstractUser->shouldReceive('getId')->andReturn('google-unique-id-999');
-        $abstractUser->shouldReceive('getEmail')->andReturn('google_student@gmail.com');
-        $abstractUser->shouldReceive('getName')->andReturn('Em Bé Google');
-        $abstractUser->shouldReceive('getNickname')->andReturn('bbe');
+        $abstractUser->shouldReceive('getEmail')->andReturn('google_unregistered@gmail.com');
+        $abstractUser->shouldReceive('getName')->andReturn('Người Lạ Google');
+        $abstractUser->shouldReceive('getNickname')->andReturn('stranger');
         $abstractUser->shouldReceive('getAvatar')->andReturn('https://google.com/avatar.jpg');
 
         $provider = Mockery::mock('Laravel\Socialite\Two\GoogleProvider');
@@ -46,17 +46,11 @@ class GoogleAuthTest extends TestCase
 
         $response = $this->get(route('auth.google.callback'));
 
-        $response->assertRedirect(route('home'));
+        $response->assertRedirect(route('login'));
+        $response->assertSessionHasErrors(['login']);
 
-        $this->assertAuthenticated();
-
-        $user = User::where('google_id', 'google-unique-id-999')->first();
-        $this->assertNotNull($user);
-        $this->assertEquals('Em Bé Google', $user->name);
-        $this->assertEquals('google_student@gmail.com', $user->email);
-        $this->assertEquals(UserRole::Student->value, $user->role);
-        $this->assertEquals(10, $user->reward_stars);
-        $this->assertEquals(600, $user->game_time_seconds);
+        $this->assertGuest();
+        $this->assertDatabaseMissing('users', ['email' => 'google_unregistered@gmail.com']);
     }
 
     public function test_google_callback_links_to_existing_user_by_email(): void
