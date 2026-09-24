@@ -5,8 +5,13 @@
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
     <meta name="google" content="notranslate">
     <meta name="csrf-token" content="{{ csrf_token() }}">
-    <title>{{ $practiceTest->name }} — {{ $practiceTest->topic->name }} (Khối {{ $practiceTest->topic->level->grade }})</title>
-    <meta name="description" content="Đấu trường thử thách số thông minh IC3 GS6 — {{ $practiceTest->topic->name }}">
+    @php
+        $effectiveLevel = $practiceTest->level ?? $practiceTest->topic?->level;
+        $gradeNumber = $effectiveLevel?->grade ?? 3;
+        $categoryName = $practiceTest->is_mock ? 'Đề Thi Thử IC3 GS6' : ($practiceTest->topic?->name ?? 'Luyện Tập');
+    @endphp
+    <title>{{ $practiceTest->name }} — {{ $categoryName }} (Khối {{ $gradeNumber }})</title>
+    <meta name="description" content="Đấu trường thử thách số thông minh IC3 GS6 — {{ $practiceTest->name }}">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@500;600;700;800&family=Nunito:wght@600;700;800;900;1000&display=swap" rel="stylesheet">
@@ -971,6 +976,75 @@
             display: inline-flex !important;
         }
 
+        /* 🎯 Chế độ Xem Thử Đơn Lẻ 1 Câu Hỏi (Single Preview Mode: CHỈ 1 KHUNG DUY NHẤT - KHÔNG BORDER LỒNG NHAU) */
+        body.is-single-preview {
+            background: #061021 !important;
+            margin: 0 !important;
+            padding: 0 !important;
+            overflow: hidden !important;
+        }
+        body.is-single-preview .arena-topbar,
+        body.is-single-preview .review-mode-bar,
+        body.is-single-preview .checkpoint-row,
+        body.is-single-preview #checkpoint-container,
+        body.is-single-preview #cp-scroll-wrap,
+        body.is-single-preview .quest-number-label,
+        body.is-single-preview #btn-prev,
+        body.is-single-preview #btn-next,
+        body.is-single-preview #btn-submit-main,
+        body.is-single-preview #btn-preview-check-footer,
+        body.is-single-preview .footer-left,
+        body.is-single-preview .footer-right {
+            display: none !important;
+        }
+        body.is-single-preview .arena-container {
+            width: 100% !important;
+            max-width: 100% !important;
+            height: 100vh !important;
+            max-height: 100vh !important;
+            margin: 0 !important;
+            padding: 0 !important;
+            border: none !important;
+            border-radius: 0 !important;
+            box-shadow: none !important;
+            background: transparent !important;
+            gap: 0 !important;
+        }
+        body.is-single-preview .quest-card {
+            width: 100% !important;
+            height: 100% !important;
+            border: none !important;
+            border-radius: 0 !important;
+            box-shadow: none !important;
+            background: transparent !important;
+            animation: none !important;
+        }
+        body.is-single-preview .quest-header {
+            padding: 12px 24px 10px !important;
+            background: rgba(15, 39, 74, 0.7) !important;
+            border-bottom: 1.5px solid rgba(0, 242, 254, 0.25) !important;
+        }
+        body.is-single-preview .quest-body {
+            padding: 20px 32px !important;
+            max-width: 980px !important;
+            width: 100% !important;
+            margin: 0 auto !important;
+            flex: 1 !important;
+            min-height: 0 !important;
+            display: flex !important;
+            flex-direction: column !important;
+            justify-content: center !important;
+        }
+        body.is-single-preview .quest-footer {
+            background: transparent !important;
+            border-top: none !important;
+            padding: 8px 20px 16px !important;
+        }
+        body.is-single-preview .footer-center {
+            width: 100% !important;
+            justify-content: center !important;
+        }
+
         /* Footer & Navigation Controls */
         .quest-footer {
             flex-shrink: 0;
@@ -1176,11 +1250,11 @@
     <!-- Top Game Navigation Bar -->
     <header class="arena-topbar">
         <div class="bar-left">
-            <a href="{{ route('tests.show', $practiceTest->slug) }}" class="btn-exit" id="btn-exit">
+            <a href="{{ request('preview') ? route('admin.mock-tests.index', ['grade' => $gradeNumber]) : ($practiceTest->is_mock ? route('levels.show', $effectiveLevel) : route('tests.show', $practiceTest->slug)) }}" class="btn-exit" id="btn-exit">
                 ◀ Thoát
             </a>
             <div class="stage-pill-info">
-                Khối {{ $practiceTest->topic->level->grade }} &bull; {{ $practiceTest->topic->name }}
+                Khối {{ $gradeNumber }} &bull; {{ $categoryName }}
             </div>
         </div>
 
@@ -1332,7 +1406,8 @@
         let timerInterval = null;
 
         // Phát hiện chế độ Admin Preview
-        const isIframePreview = (window.self !== window.top) || new URLSearchParams(window.location.search).has('preview');
+        const urlParams = new URLSearchParams(window.location.search);
+        const isIframePreview = (window.self !== window.top) || urlParams.has('preview');
         if (isIframePreview) {
             document.body.classList.add('is-iframe-preview');
             if (Object.keys(adminAnswerKeys).length > 0) {
@@ -1340,11 +1415,24 @@
             }
         }
 
-        // Đọc tham số câu hỏi từ URL (?q=X)
-        const urlParams = new URLSearchParams(window.location.search);
-        const paramQ = parseInt(urlParams.get('q'), 10);
-        if (!isNaN(paramQ) && paramQ >= 1 && paramQ <= rawQuestions.length) {
-            currentIndex = paramQ - 1;
+        // Bật chế độ xem đơn lẻ 1 câu hỏi (Single Question Preview)
+        const isSinglePreview = urlParams.get('single') === '1';
+        if (isSinglePreview) {
+            document.body.classList.add('is-single-preview');
+        }
+
+        // Đọc tham số câu hỏi từ URL (?qId=X hoặc ?q=X)
+        const paramQId = parseInt(urlParams.get('qId'), 10);
+        if (!isNaN(paramQId)) {
+            const foundIdx = rawQuestions.findIndex(q => q.id === paramQId);
+            if (foundIdx !== -1) {
+                currentIndex = foundIdx;
+            }
+        } else {
+            const paramQ = parseInt(urlParams.get('q'), 10);
+            if (!isNaN(paramQ) && paramQ >= 1 && paramQ <= rawQuestions.length) {
+                currentIndex = paramQ - 1;
+            }
         }
 
         // Web Audio Synthesizer
@@ -2545,6 +2633,12 @@
 
         // Cảnh báo khi người dùng vô tình bấm nút Back của trình duyệt hoặc tải lại trang khi đang làm dở
         window.addEventListener('beforeunload', function(e) {
+            // Tuyệt đối không kích hoạt cảnh báo khi đang ở chế độ xem thử (Preview) hoặc nhúng trong iframe
+            if ((typeof isIframePreview !== 'undefined' && isIframePreview) || 
+                (typeof isSinglePreview !== 'undefined' && isSinglePreview) || 
+                window.self !== window.top) {
+                return;
+            }
             if (isSubmitted || isReviewMode) return;
             if (Object.keys(userSelections).length > 0) {
                 e.preventDefault();

@@ -29,7 +29,6 @@ class SavePracticeTestRequest extends FormRequest
             'duration_minutes' => ['nullable', 'integer', 'min:0', 'max:300'],
             'pass_score' => ['nullable', 'integer', 'between:0,1000'],
             'max_score' => ['nullable', 'integer', 'min:1', 'max:1000'],
-            'difficulty' => ['required', 'in:Cơ bản,Trung bình,Nâng cao'],
             'position' => ['nullable', 'integer', 'min:0'],
             'is_published' => ['nullable', 'boolean'],
             'shuffle_questions' => ['nullable', 'boolean'],
@@ -52,7 +51,6 @@ class SavePracticeTestRequest extends FormRequest
         return [
             'topic_id.required' => 'Vui lòng chọn chủ đề cho bài luyện.',
             'name.required' => 'Vui lòng nhập tên bài luyện tập.',
-            'difficulty.required' => 'Vui lòng chọn mức độ khó.',
         ];
     }
 }

@@ -47,4 +47,10 @@ return [
         'admin_chat_id' => env('TELEGRAM_ADMIN_CHAT_ID', '8952266086'),
     ],
 
+    'google' => [
+        'client_id' => env('GOOGLE_CLIENT_ID'),
+        'client_secret' => env('GOOGLE_CLIENT_SECRET'),
+        'redirect' => env('GOOGLE_REDIRECT_URI', env('APP_URL', 'https://mos.app') . '/auth/google/callback'),
+    ],
+
 ];

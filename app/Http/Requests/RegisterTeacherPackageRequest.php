@@ -28,13 +28,13 @@ class RegisterTeacherPackageRequest extends FormRequest
     public function messages(): array
     {
         return [
-            'name.required' => 'Vui lòng nhập họ và tên của Thầy/Cô.',
+            'name.required' => 'Vui lòng nhập họ và tên của bạn hoặc Thầy/Cô.',
             'email.required' => 'Vui lòng nhập địa chỉ email đăng nhập.',
             'email.email' => 'Địa chỉ email không đúng định dạng.',
-            'email.unique' => 'Email này đã tồn tại trong hệ thống. Thầy/Cô vui lòng đăng nhập hoặc dùng email khác.',
+            'email.unique' => 'Email này đã tồn tại trong hệ thống. Vui lòng đăng nhập hoặc dùng email khác.',
             'password.required' => 'Vui lòng đặt mật khẩu bảo vệ tài khoản.',
             'password.min' => 'Mật khẩu phải có ít nhất 6 ký tự.',
-            'phone.required' => 'Vui lòng cung cấp số điện thoại liên hệ (Zalo).',
+            'phone.required' => 'Vui lòng cung cấp số điện thoại liên hệ / Zalo.',
             'phone.regex' => 'Số điện thoại không hợp lệ (vui lòng nhập 10 chữ số, ví dụ 0912345678).',
         ];
     }

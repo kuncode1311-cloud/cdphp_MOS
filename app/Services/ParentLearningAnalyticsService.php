@@ -3,10 +3,12 @@
 namespace App\Services;
 
 use App\Models\PracticeTest;
+use App\Models\StudentMistake;
 use App\Models\User;
 use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Support\Collection as SupportCollection;
+use Illuminate\Support\Str;
 
 /**
  * Dịch vụ Phân Tích Học Tập Dành Cho Phụ Huynh (Parent Learning Analytics Service)
@@ -524,6 +526,41 @@ class ParentLearningAnalyticsService
                     ];
                 }
             }
+        }
+
+        // Bổ sung các câu hỏi con bị làm sai nhiều lần từ bảng student_mistakes
+        $frequentMistakes = StudentMistake::where('user_id', $student->id)
+            ->where('status', 'unresolved')
+            ->where('wrong_count', '>=', 2)
+            ->with(['question.practiceTest.topic.level'])
+            ->orderByDesc('wrong_count')
+            ->take(5)
+            ->get();
+
+        foreach ($frequentMistakes as $mistake) {
+            $q = $mistake->question;
+            if (! $q) continue;
+            $t = $q->practiceTest;
+            $careItems[] = [
+                'level'          => 3,
+                'badge'          => "🔴 Sai {$mistake->wrong_count} lần",
+                'color'          => '#ef4444',
+                'testName'       => $t?->name ?? 'Câu hỏi trắc nghiệm',
+                'topicName'      => $t?->topic?->name ?? 'Tổng hợp',
+                'levelName'      => $t?->topic?->level?->name ?? '',
+                'what'           => "Câu hỏi: " . Str::limit($q->title, 60),
+                'why'            => "Con đã làm sai câu này {$mistake->wrong_count} lần. Phụ huynh nên cùng con xem lại khái niệm này trong Sổ tay câu sai nhé.",
+                'latestScore'    => 0,
+                'maxScore'       => 1000,
+                'passScore'      => 700,
+                'missingPoints'  => 0,
+                'correctAnswers' => 0,
+                'totalQuestions' => 1,
+                'accuracy'       => 0,
+                'attemptCount'   => $mistake->wrong_count,
+                'actionText'     => 'Cùng con xem lại câu này',
+                'actionUrl'      => route('mistakes.index'),
+            ];
         }
 
         // Sắp xếp ưu tiên: Level 3 → Level 2 → Level 1

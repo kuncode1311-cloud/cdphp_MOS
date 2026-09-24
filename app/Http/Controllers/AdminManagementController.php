@@ -483,7 +483,6 @@ class AdminManagementController extends Controller
             'duration_minutes' => 'nullable|integer|min:0',
             'pass_score' => 'nullable|integer|between:0,1000',
             'max_score' => 'nullable|integer|min:1',
-            'difficulty' => 'required|in:Cơ bản,Trung bình,Nâng cao',
             'position' => 'nullable|integer|min:0',
             'is_published' => 'nullable|boolean',
         ]) + ['is_published' => $request->boolean('is_published')];

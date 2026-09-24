@@ -3,7 +3,7 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Bảng Giá Bản Quyền IC3 GS6 & Spark Quest — Dành Cho Giáo Viên & Nhà Trường</title>
+    <title id="page-title">Bảng Giá Bản Quyền IC3 Spark & GS6 — Dành Cho Học Sinh & Giáo Viên</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:ital,wght@0,400;0,500;0,600;0,700;0,800;1,600&family=Fredoka:wght@600;700&display=swap" rel="stylesheet">
@@ -34,6 +34,8 @@
             color: #0f172a;
             line-height: 1.5;
             min-height: 100vh;
+            display: flex;
+            flex-direction: column;
             -webkit-font-smoothing: antialiased;
         }
 
@@ -224,6 +226,141 @@
             max-width: 1200px;
             margin: 0 auto;
             padding: 0 20px 60px;
+            flex: 1;
+            width: 100%;
+            min-height: 520px;
+        }
+
+        .pricing-footer {
+            margin-top: auto;
+            padding: 24px 20px;
+            text-align: center;
+            border-top: 1px solid var(--border);
+            background: #ffffff;
+            color: var(--text-muted);
+            font-size: 13px;
+            font-weight: 600;
+        }
+
+        /* 🔀 Bộ Chuyển Đổi Tab Đối Tượng 3D Gamified (Học Sinh & Giáo Viên) */
+        .pricing-tabs-wrapper {
+            display: flex;
+            justify-content: center;
+            margin: 0 auto 32px;
+            position: relative;
+            z-index: 10;
+        }
+
+        .pricing-tabs-pill {
+            background: #ffffff;
+            border: 3.5px solid #ffffff;
+            border-radius: 999px;
+            padding: 6px;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            box-shadow: 0 16px 36px rgba(15, 23, 42, 0.12), inset 0 2px 4px rgba(0, 0, 0, 0.04);
+            max-width: 100%;
+        }
+
+        .tab-pill-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 12px;
+            padding: 12px 28px;
+            border-radius: 999px;
+            border: none;
+            background: transparent;
+            color: #64748b;
+            cursor: pointer;
+            transition: all 0.28s cubic-bezier(0.34, 1.56, 0.64, 1);
+            font-family: inherit;
+            position: relative;
+            outline: none;
+            user-select: none;
+        }
+
+        .tab-pill-btn:hover:not(.active) {
+            color: #1e293b;
+            background: #f1f5f9;
+            transform: translateY(-1px);
+        }
+
+        .tab-pill-btn.active {
+            background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%);
+            color: #ffffff;
+            box-shadow: 0 10px 22px rgba(37, 99, 235, 0.35), inset 0 -3px 0 rgba(0, 0, 0, 0.18);
+            transform: translateY(-2px);
+        }
+
+        .tab-pill-btn.active.tab-teacher {
+            background: linear-gradient(135deg, #0d9488 0%, #0f766e 100%);
+            box-shadow: 0 10px 22px rgba(13, 148, 136, 0.35), inset 0 -3px 0 rgba(0, 0, 0, 0.18);
+        }
+
+        .tab-pill-icon {
+            font-size: 22px;
+            line-height: 1;
+            filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.15));
+            transition: transform 0.25s ease;
+        }
+
+        .tab-pill-btn:hover .tab-pill-icon,
+        .tab-pill-btn.active .tab-pill-icon {
+            transform: scale(1.15) rotate(-5deg);
+        }
+
+        .tab-pill-text-wrap {
+            text-align: left;
+            line-height: 1.25;
+        }
+
+        .tab-pill-title {
+            display: block;
+            font-weight: 800;
+            font-size: 15px;
+            letter-spacing: -0.2px;
+        }
+
+        .tab-pill-subtitle {
+            display: block;
+            font-size: 11.5px;
+            font-weight: 600;
+            opacity: 0.85;
+            margin-top: 1px;
+        }
+
+        .tab-pill-tag {
+            font-size: 10px;
+            font-weight: 800;
+            text-transform: uppercase;
+            padding: 3px 9px;
+            border-radius: 999px;
+            background: #e2e8f0;
+            color: #475569;
+            letter-spacing: 0.5px;
+            transition: all 0.25s ease;
+        }
+
+        .tab-pill-btn.active .tab-pill-tag {
+            background: rgba(255, 255, 255, 0.25);
+            color: #ffffff;
+            border: 1px solid rgba(255, 255, 255, 0.4);
+        }
+
+        @media (max-width: 768px) {
+            .pricing-tabs-pill {
+                flex-direction: column;
+                border-radius: 20px;
+                width: 100%;
+                gap: 6px;
+            }
+            .tab-pill-btn {
+                width: 100%;
+                justify-content: center;
+                border-radius: 14px;
+                padding: 10px 16px;
+            }
         }
 
         .pricing-cards-grid {
@@ -231,7 +368,11 @@
             grid-template-columns: repeat(3, 1fr);
             gap: 26px;
             align-items: stretch;
-            padding-top: 16px;
+            padding-top: 8px;
+        }
+
+        .pricing-cards-grid.tab-hidden {
+            display: none !important;
         }
 
         /* 🎨 Thẻ 3D Card Đa Sắc Màu - Nổi Khối Tinh Tế, Khoa Học */
@@ -1953,10 +2094,18 @@
             border-top: 1px solid #e2e8f0;
         }
 
-        .chat-footer form {
+        .chat-footer form#live-chat-form {
             display: flex;
             flex-direction: column;
             gap: 8px;
+        }
+
+        .chat-footer form#live-chat-quick-form {
+            display: flex !important;
+            flex-direction: row !important;
+            align-items: center !important;
+            gap: 8px !important;
+            width: 100% !important;
         }
 
         .chat-input-compact {
@@ -1987,6 +2136,35 @@
 
         .btn-send-chat:hover {
             background: #0072db;
+        }
+
+        .btn-send-chat-quick {
+            width: 38px !important;
+            min-width: 38px !important;
+            height: 38px !important;
+            border-radius: 50% !important;
+            border: none !important;
+            background: linear-gradient(135deg, #0084ff, #0066ff) !important;
+            color: #ffffff !important;
+            display: inline-flex !important;
+            align-items: center !important;
+            justify-content: center !important;
+            font-size: 16px !important;
+            cursor: pointer !important;
+            padding: 0 !important;
+            margin: 0 !important;
+            flex-shrink: 0 !important;
+            transition: all 0.15s ease !important;
+            box-shadow: 0 3px 8px rgba(0, 132, 255, 0.35) !important;
+        }
+
+        .btn-send-chat-quick:hover {
+            transform: translateY(-1px) !important;
+            box-shadow: 0 5px 12px rgba(0, 132, 255, 0.45) !important;
+        }
+
+        .btn-send-chat-quick:active {
+            transform: translateY(1px) !important;
         }
 
                 /* Footer */
@@ -4111,7 +4289,7 @@
             <img src="{{ asset('images/ic3-quest-logo.png') }}" alt="IC3 Quest Logo" class="brand-logo-img">
             <div class="brand-text">
                 <h2>IC3 QUEST</h2>
-                <small>BẢN QUYỀN GIÁO VIÊN & NHÀ TRƯỜNG</small>
+                <small id="navbar-brand-sub">BẢN QUYỀN HỌC SINH TỰ LUYỆN</small>
             </div>
         </a>
 
@@ -4149,10 +4327,10 @@
     <!-- Hero Header -->
     <header class="pricing-hero">
         <div class="hero-pill">
-            <span>✨</span> BẢN QUYỀN CHUẨN QUỐC TẾ CHO GIÁO VIÊN & NHÀ TRƯỜNG
+            <span id="hero-pill-icon">✨</span> <span id="hero-pill-text">BẢN QUYỀN LUYỆN THI IC3 SPARK CHO HỌC SINH TIỂU HỌC</span>
         </div>
-        <h1>Chọn Gói Bản Quyền Đồng Hành Cùng Lớp Học</h1>
-        <p>Cấp tài khoản giáo viên quản lý lớp, mở khóa toàn bộ ngân hàng đề thi chuẩn IC3 GS6 quốc tế, chấm điểm và xếp loại học sinh tự động.</p>
+        <h1 id="hero-title">Khám Phá Thế Giới Số — Chinh Phục Điểm 1000 IC3</h1>
+        <p id="hero-desc">Mở khóa toàn bộ ngân hàng đề thi chuẩn IC3 GS6 quốc tế, tự luyện bài tập mô phỏng sinh động, tích Sao đổi giờ chơi mini-game giáo dục.</p>
     </header>
 
     <!-- Main Pricing Cards Grid -->
@@ -4169,135 +4347,46 @@
             </div>
         @endif
 
-        <div class="pricing-cards-grid">
-            @forelse($packages as $pkg)
-                @php
-                    $slug = strtolower($pkg->slug ?? '');
-                    
-                    // 🎨 BẢNG MÀU 6 THEME ĐA SẮC MÀU TUẦN HOÀN CHUẨN IC3 ADVENTURE
-                    // Dù Admin thêm bao nhiêu gói (4, 5, 6, 7...), các card tiếp theo đều tự động có màu sắc và icon riêng biệt
-                    $paletteThemes = [
-                        0 => ['tier' => 'tier-starter',  'icon' => '🚀', 'badge' => '🚀 Trải Nghiệm Khám Phá',       'btn_icon' => '🚀', 'name' => 'Xanh Ngọc Lục Bảo'],
-                        1 => ['tier' => 'tier-standard', 'icon' => '👑', 'badge' => '👑 Phổ Biến Nhất ⭐',            'btn_icon' => '👑', 'name' => 'Tím Hoàng Gia VIP'],
-                        2 => ['tier' => 'tier-pro',      'icon' => '🏫', 'badge' => '🔥 Siêu Tiết Kiệm Toàn Trường',  'btn_icon' => '🔥', 'name' => 'Cam Hổ Phách'],
-                        3 => ['tier' => 'tier-cyan',     'icon' => '💎', 'badge' => '💎 Gói Chuyên Sâu Quốc Tế',     'btn_icon' => '💎', 'name' => 'Xanh Biển Sky Blue'],
-                        4 => ['tier' => 'tier-rose',     'icon' => '🎯', 'badge' => '🎯 Gói Luyện Thi Bứt Phá',      'btn_icon' => '🎯', 'name' => 'Đỏ San Hô Ruby'],
-                        5 => ['tier' => 'tier-fuchsia',  'icon' => '🏆', 'badge' => '🏆 Gói Bản Quyền Toàn Diện',    'btn_icon' => '🏆', 'name' => 'Tím Hồng Fuchsia'],
-                    ];
-
-                    // Ưu tiên khớp theo từ khóa slug hoặc tự động xoay vòng theo thứ tự
-                    if (str_contains($slug, 'starter') || str_contains($slug, 'khoi-dau')) {
-                        $selectedTheme = $paletteThemes[0];
-                    } elseif (str_contains($slug, 'standard') || str_contains($slug, 'tieu-chuan')) {
-                        $selectedTheme = $paletteThemes[1];
-                    } elseif (str_contains($slug, 'pro') || str_contains($slug, 'truong-hoc')) {
-                        $selectedTheme = $paletteThemes[2];
-                    } else {
-                        $selectedTheme = $paletteThemes[$loop->index % count($paletteThemes)];
-                    }
-
-                    $tierClass = $selectedTheme['tier'];
-                    $btnIcon = $selectedTheme['btn_icon'];
-
-                    // 💡 Tính năng thông minh: Nếu Admin nhập emoji trong trường Badge hoặc Tên gói, tự động trích xuất làm Orb icon!
-                    $detectedEmoji = null;
-                    if (!empty($pkg->badge) && preg_match('/[\x{1F300}-\x{1F9FF}\x{2600}-\x{26FF}\x{2700}-\x{27BF}]/u', $pkg->badge, $m)) {
-                        $detectedEmoji = $m[0];
-                    } elseif (preg_match('/[\x{1F300}-\x{1F9FF}\x{2600}-\x{26FF}\x{2700}-\x{27BF}]/u', $pkg->name, $m)) {
-                        $detectedEmoji = $m[0];
-                    }
-
-                    $orbIcon = $detectedEmoji ?: $selectedTheme['icon'];
-                    $badgeText = $pkg->badge ?: $selectedTheme['badge'];
-                @endphp
-
-                <div class="plan-card {{ $tierClass }}">
-                    <div class="featured-tag">{{ $badgeText }}</div>
-
-                    <div>
-                        <!-- Orb Icon 3D Nổi Khối Chuẩn Adventure -->
-                        <div class="plan-orb-wrapper">
-                            <div class="plan-icon-orb">
-                                <span class="plan-icon-emoji">{{ $orbIcon }}</span>
-                            </div>
-                        </div>
-
-                        <div class="plan-header">
-                            @php
-                                $friendlyPkgName = preg_replace('/\s*\((Starter|Standard|Pro School)\)\s*/i', '', $pkg->name);
-                            @endphp
-                            <h3 class="plan-name">{{ $friendlyPkgName }}</h3>
-                            <p class="plan-desc">{{ $pkg->description }}</p>
-                        </div>
-
-                        <div class="plan-price-wrap">
-                            @if($pkg->original_price && $pkg->original_price > $pkg->price)
-                                <div class="plan-original-price">{{ $pkg->formatted_original_price }}</div>
-                            @else
-                                <div class="plan-original-price" style="visibility:hidden;">0 đ</div>
-                            @endif
-                            <div class="plan-price-main">
-                                <span class="price-val">{{ $pkg->formatted_price }}</span>
-                            </div>
-                            <span class="price-duration">/ {{ $pkg->duration_text }}</span>
-                        </div>
-
-                        <!-- Core Specs (Pod 3D Đa Sắc Màu Chuẩn IC3 Adventure) -->
-                        <div class="plan-specs">
-                            <div class="spec-item spec-students">
-                                <div class="spec-label"><i>👥</i> Sĩ số quản lý:</div>
-                                <div class="spec-value">{{ $pkg->max_students_text }}</div>
-                            </div>
-                            <div class="spec-item spec-levels">
-                                <div class="spec-label"><i>🔑</i> Khối lớp:</div>
-                                <div class="spec-value">{{ $pkg->short_levels_text }}</div>
-                            </div>
-                            <div class="spec-item spec-duration">
-                                <div class="spec-label"><i>📅</i> Thời hạn:</div>
-                                <div class="spec-value">{{ $pkg->duration_days }} ngày</div>
-                            </div>
-                        </div>
-
-                        <!-- Features -->
-                        <ul class="features-list">
-                            @if(!empty($pkg->features) && is_array($pkg->features))
-                                @foreach($pkg->features as $feature)
-                                    <li>
-                                        <span class="check-icon">✓</span>
-                                        <span>{{ $feature }}</span>
-                                    </li>
-                                @endforeach
-                            @else
-                                <li><span class="check-icon">✓</span> Đầy đủ ngân hàng đề thi IC3 GS6</li>
-                                <li><span class="check-icon">✓</span> Tự động chấm điểm chuẩn quốc tế</li>
-                                <li><span class="check-icon">✓</span> Báo cáo tiến độ học sinh</li>
-                            @endif
-                        </ul>
+        <!-- 🔀 BỘ CHUYỂN ĐỔI TAB 3D GAMIFIED CHUẨN ĐẸP -->
+        <div class="pricing-tabs-wrapper">
+            <div class="pricing-tabs-pill">
+                <button type="button" class="tab-pill-btn active" id="tab-btn-student" onclick="switchPricingTab('student')">
+                    <span class="tab-pill-icon">🎒</span>
+                    <div class="tab-pill-text-wrap">
+                        <span class="tab-pill-title">Học Sinh & Phụ Huynh</span>
+                        <span class="tab-pill-subtitle">Tự luyện thi tại nhà</span>
                     </div>
-
-                    <!-- Action Button (Nút Bấm 3D Xúc Giác Cực Đẹp) -->
-                    <div class="plan-cta-wrap">
-                        @auth
-                            @if(auth()->user()->isStudent())
-                                <button type="button" class="btn-select-plan" style="background:#f1f5f9; color:#94a3b8; border:2px solid #cbd5e1; cursor:not-allowed; box-shadow:none;" disabled title="Gói này dành riêng cho Giáo viên">
-                                    🔒 Dành riêng cho Giáo viên
-                                </button>
-                            @else
-                                <button type="button" class="btn-select-plan" onclick="openOrderModal({{ json_encode($pkg) }}, true)">
-                                    {{ $btnIcon }} Thuê Gói Này <b>→</b>
-                                </button>
-                            @endif
-                        @else
-                            <!-- Dành cho Khách chưa có tài khoản -->
-                            <button type="button" class="btn-select-plan" onclick="openOrderModal({{ json_encode($pkg) }}, false)">
-                                {{ $btnIcon }} Đăng Ký Tài Khoản <b>→</b>
-                            </button>
-                        @endauth
+                    <span class="tab-pill-tag">Phổ biến 🔥</span>
+                </button>
+                <button type="button" class="tab-pill-btn tab-teacher" id="tab-btn-teacher" onclick="switchPricingTab('teacher')">
+                    <span class="tab-pill-icon">🏫</span>
+                    <div class="tab-pill-text-wrap">
+                        <span class="tab-pill-title">Thầy/Cô & Nhà Trường</span>
+                        <span class="tab-pill-subtitle">Quản lý lớp & trường</span>
                     </div>
-                </div>
+                    <span class="tab-pill-tag">Quản lý lớp</span>
+                </button>
+            </div>
+        </div>
+
+        <!-- 🎒 LƯỚI GÓI HỌC SINH TỰ LUYỆN -->
+        <div class="pricing-cards-grid" id="grid-student-packages">
+            @forelse($studentPackages ?? [] as $pkg)
+                @include('pricing.partials.plan-card', ['pkg' => $pkg])
             @empty
                 <div style="grid-column: 1 / -1; text-align: center; padding: 40px; background: #ffffff; border-radius: 16px; border: 1px dashed #cbd5e1;">
-                    <p style="color: #64748b; font-size: 14px;">Hiện chưa có gói dịch vụ nào mở bán.</p>
+                    <p style="color: #64748b; font-size: 14px;">Hiện chưa có gói học sinh tự luyện nào mở bán.</p>
+                </div>
+            @endforelse
+        </div>
+
+        <!-- 🏫 LƯỚI GÓI GIÁO VIÊN & NHÀ TRƯỜNG -->
+        <div class="pricing-cards-grid tab-hidden" id="grid-teacher-packages">
+            @forelse($teacherPackages ?? ($packages ?? []) as $pkg)
+                @include('pricing.partials.plan-card', ['pkg' => $pkg])
+            @empty
+                <div style="grid-column: 1 / -1; text-align: center; padding: 40px; background: #ffffff; border-radius: 16px; border: 1px dashed #cbd5e1;">
+                    <p style="color: #64748b; font-size: 14px;">Hiện chưa có gói giáo viên nào mở bán.</p>
                 </div>
             @endforelse
         </div>
@@ -4325,7 +4414,7 @@
                         <div class="summary-meta-item">
                             <div class="meta-icon-badge meta-icon-students">👥</div>
                             <div class="meta-content">
-                                <span class="meta-label">Sĩ số quản lý</span>
+                                <span class="meta-label" id="modal-label-students">Sĩ số quản lý</span>
                                 <span class="meta-value" id="modal-pkg-students">100 học sinh</span>
                             </div>
                         </div>
@@ -4353,7 +4442,7 @@
                     </div>
                     <div class="guarantee-item">
                         <span class="guarantee-icon">🛡️</span>
-                        <span>Bảo mật dữ liệu học sinh & quản lý theo lớp</span>
+                        <span id="modal-guarantee-security">Bảo mật dữ liệu học sinh & quản lý theo lớp</span>
                     </div>
                     <div class="guarantee-item">
                         <span class="guarantee-icon">💬</span>
@@ -4390,11 +4479,11 @@
                     </div>
                     @endauth
 
-                    <!-- BƯỚC 1: THÔNG TIN GIÁO VIÊN NHẬN BẢN QUYỀN -->
+                    <!-- BƯỚC 1: THÔNG TIN GIÁO VIÊN / HỌC SINH -->
                     <div class="form-section-banner">
                         <div class="form-section-title-wrap">
                             <span class="step-num-pill">1</span>
-                            <span>Thông Tin Thầy/Cô Nhận Bản Quyền</span>
+                            <span id="modal-section1-title">Thông Tin Thầy/Cô Nhận Bản Quyền</span>
                         </div>
                     </div>
 
@@ -4402,7 +4491,7 @@
                         <!-- Họ và tên -->
                         <div class="form-field">
                             <div class="form-label-row">
-                                <label class="form-label" for="input-name">
+                                <label class="form-label" for="input-name" id="label-input-name">
                                     👤 Họ và tên Giáo viên <span class="required-star">*</span>
                                 </label>
                                 <span class="field-error" id="err-name">⚠ Vui lòng nhập họ tên</span>
@@ -4444,7 +4533,7 @@
                         <div class="form-grid-2">
                             <div class="form-field">
                                 <div class="form-label-row">
-                                    <label class="form-label" for="input-phone">
+                                    <label class="form-label" for="input-phone" id="label-input-phone">
                                         📱 Số điện thoại liên hệ (Zalo) <span class="required-star">*</span>
                                     </label>
                                     <span class="field-error" id="err-phone">⚠ Cần 10 chữ số</span>
@@ -4456,7 +4545,7 @@
                             </div>
                             <div class="form-field">
                                 <div class="form-label-row">
-                                    <label class="form-label" for="input-school">
+                                    <label class="form-label" for="input-school" id="label-input-school">
                                         🏫 Trường học / Đơn vị
                                     </label>
                                 </div>
@@ -4651,7 +4740,7 @@
     <!-- 💬 FLOATING MESSENGER-STYLE LIVE CHAT WIDGET -->
     <button type="button" class="live-chat-toggle" onclick="toggleLiveChat()" aria-label="Tư vấn trực tuyến">
         <span class="online-dot"></span>
-        <span>💬 Tư Vấn Giáo Viên</span>
+        <span id="live-chat-toggle-text">💬 Tư Vấn Học Sinh & Phụ Huynh</span>
     </button>
 
     <div id="live-chat-box" class="live-chat-box">
@@ -4659,7 +4748,7 @@
             <div class="chat-header-profile">
                 <div class="chat-avatar">IC3</div>
                 <div class="chat-title">
-                    <h4>Hỗ Trợ Giáo Viên IC3 Quest</h4>
+                    <h4 id="chat-title-heading">Hỗ Trợ Học Sinh & Phụ Huynh</h4>
                     <small>🟢 Trực tuyến · Phản hồi nhanh qua Zalo</small>
                 </div>
             </div>
@@ -4667,26 +4756,41 @@
         </div>
 
         <div class="chat-body" id="chat-messages-body">
-            <div class="chat-msg chat-msg-bot">
-                👋 Xin chào Quý Thầy/Cô! Em là chuyên viên tư vấn IC3 Quest. Thầy/Cô cần hỗ trợ gói bản quyền, cấu hình trường học hay hướng dẫn sử dụng có thể để lại tin nhắn ngay tại đây ạ!
+            <div class="chat-msg chat-msg-bot" id="chat-bot-welcome">
+                👋 Xin chào Bạn & Quý Phụ huynh! Em là chuyên viên tư vấn IC3 Quest. Anh/Chị hoặc con cần tư vấn gói tự luyện, hướng dẫn kích hoạt hay bài thi có thể nhắn ngay tại đây ạ!
             </div>
         </div>
 
         <div class="chat-footer">
+            <!-- 1. Form điền thông tin lần đầu (chỉ hiện khi chưa có phiên chat) -->
             <form id="live-chat-form" onsubmit="submitSupportChat(event)">
-                <input type="text" id="chat-sender-name" class="chat-input-compact" placeholder="Họ và tên của Thầy/Cô (*)" required>
+                <input type="text" id="chat-sender-name" class="chat-input-compact" placeholder="Họ và tên người cần tư vấn (*)" required>
                 <input type="text" id="chat-sender-contact" class="chat-input-compact" placeholder="Số điện thoại hoặc Zalo liên hệ (*)" required>
-                <textarea id="chat-sender-message" class="chat-input-compact" rows="2" placeholder="Thầy/Cô cần tư vấn gói nào hoặc có câu hỏi gì ạ? (*)" required></textarea>
+                <textarea id="chat-sender-message" class="chat-input-compact" rows="2" placeholder="Nội dung cần hỗ trợ hoặc tư vấn gói nào ạ? (*)" required></textarea>
                 <button type="submit" id="chat-submit-btn" class="btn-send-chat">
                     🚀 Gửi Yêu Cầu Tư Vấn
                 </button>
             </form>
+
+            <!-- 2. Thanh Chat Nhắn Tin Liền Mạch (Hiện khi ĐÃ CÓ PHIÊN) -->
+            <div id="live-chat-active-composer" style="display: none; width: 100%;">
+                <div style="display: flex; align-items: center; justify-content: space-between; font-size: 11.5px; color: #475569; background: #f1f5f9; padding: 4px 10px; border-radius: 8px; border: 1px solid #e2e8f0; margin-bottom: 6px;">
+                    <span>👤 <b id="chat-active-user-name">Khách</b> (<span id="chat-active-user-phone"></span>)</span>
+                    <button type="button" onclick="toggleEditSenderInfo()" style="background: none; border: none; color: #2563eb; font-size: 11px; font-weight: 700; cursor: pointer; text-decoration: underline; padding: 0;">Đổi SĐT</button>
+                </div>
+                <form id="live-chat-quick-form" onsubmit="submitQuickSupportChat(event)" style="display: flex !important; flex-direction: row !important; align-items: center !important; gap: 8px !important; width: 100% !important;">
+                    <input type="text" id="chat-quick-input" placeholder="Nhập tin nhắn... (nhấn Enter để gửi)" autocomplete="off" style="flex: 1; min-width: 0; height: 38px; margin: 0; padding: 6px 14px; font-size: 13px; border-radius: 20px; border: 1.5px solid #cbd5e1; outline: none; background: #ffffff; color: #0f172a; box-shadow: inset 0 1px 2px rgba(0,0,0,0.04);">
+                    <button type="submit" id="chat-quick-submit-btn" class="btn-send-chat-quick" title="Gửi tin nhắn (Enter)">
+                        ➤
+                    </button>
+                </form>
+            </div>
         </div>
     </div>
 
     <!-- Footer -->
     <footer class="pricing-footer">
-        <p>Hệ Thống Luyện Thi Kỹ Năng Số Chuẩn Quốc Tế IC3 GS6 & Spark Quest © 2026. Hỗ trợ Giáo viên: 0345.151.438</p>
+        <p>Hệ Thống Luyện Thi Kỹ Năng Số Chuẩn Quốc Tế IC3 GS6 & Spark Quest © 2026. Hotline & Zalo Hỗ Trợ Phụ Huynh, Học Sinh & Giáo Viên: 0345.151.438</p>
     </footer>
 
     <script>
@@ -4722,10 +4826,70 @@
             }
         }
 
+        // =====================================================================
+        // 🔀 CHUYỂN ĐỔI TAB ĐỐI TƯỢNG (HỌC SINH / GIÁO VIÊN)
+        // =====================================================================
+        let currentActiveTab = 'student';
+
+        function switchPricingTab(tab) {
+            currentActiveTab = tab;
+            const btnStudent = document.getElementById('tab-btn-student');
+            const btnTeacher = document.getElementById('tab-btn-teacher');
+            const gridStudent = document.getElementById('grid-student-packages');
+            const gridTeacher = document.getElementById('grid-teacher-packages');
+
+            const pillIcon = document.getElementById('hero-pill-icon');
+            const pillText = document.getElementById('hero-pill-text');
+            const heroTitle = document.getElementById('hero-title');
+            const heroDesc = document.getElementById('hero-desc');
+
+            const navSub = document.getElementById('navbar-brand-sub');
+            const chatToggleText = document.getElementById('live-chat-toggle-text');
+            const chatHeading = document.getElementById('chat-title-heading');
+            const chatWelcome = document.getElementById('chat-bot-welcome');
+            const pageTitle = document.getElementById('page-title');
+
+            if (tab === 'student') {
+                if (btnStudent) btnStudent.classList.add('active');
+                if (btnTeacher) btnTeacher.classList.remove('active');
+                if (gridStudent) gridStudent.classList.remove('tab-hidden');
+                if (gridTeacher) gridTeacher.classList.add('tab-hidden');
+
+                if (pillIcon) pillIcon.innerText = '✨';
+                if (pillText) pillText.innerText = 'BẢN QUYỀN LUYỆN THI IC3 SPARK CHO HỌC SINH TIỂU HỌC';
+                if (heroTitle) heroTitle.innerText = 'Khám Phá Thế Giới Số — Chinh Phục Điểm 1000 IC3';
+                if (heroDesc) heroDesc.innerText = 'Mở khóa toàn bộ ngân hàng đề thi chuẩn IC3 GS6 quốc tế, tự luyện bài tập mô phỏng sinh động, tích Sao đổi giờ chơi mini-game giáo dục.';
+
+                if (navSub) navSub.innerText = 'BẢN QUYỀN HỌC SINH TỰ LUYỆN';
+                if (chatToggleText) chatToggleText.innerText = '💬 Tư Vấn Học Sinh & Phụ Huynh';
+                if (chatHeading) chatHeading.innerText = 'Hỗ Trợ Học Sinh & Phụ Huynh';
+                if (chatWelcome) chatWelcome.innerText = '👋 Xin chào Bạn & Quý Phụ huynh! Em là chuyên viên tư vấn IC3 Quest. Anh/Chị hoặc con cần tư vấn gói tự luyện, hướng dẫn kích hoạt hay bài thi có thể nhắn ngay tại đây ạ!';
+                if (pageTitle) pageTitle.innerText = 'Bảng Giá Bản Quyền IC3 Spark — Dành Cho Học Sinh & Phụ Huynh';
+            } else {
+                if (btnStudent) btnStudent.classList.remove('active');
+                if (btnTeacher) btnTeacher.classList.add('active');
+                if (gridStudent) gridStudent.classList.add('tab-hidden');
+                if (gridTeacher) gridTeacher.classList.remove('tab-hidden');
+
+                if (pillIcon) pillIcon.innerText = '🏫';
+                if (pillText) pillText.innerText = 'BẢN QUYỀN CHUẨN QUỐC TẾ CHO GIÁO VIÊN & NHÀ TRƯỜNG';
+                if (heroTitle) heroTitle.innerText = 'Chọn Gói Bản Quyền Đồng Hành Cùng Lớp Học';
+                if (heroDesc) heroDesc.innerText = 'Cấp tài khoản giáo viên quản lý lớp, mở khóa toàn bộ ngân hàng đề thi chuẩn IC3 GS6 quốc tế, chấm điểm và xếp loại học sinh tự động.';
+
+                if (navSub) navSub.innerText = 'BẢN QUYỀN GIÁO VIÊN & NHÀ TRƯỜNG';
+                if (chatToggleText) chatToggleText.innerText = '💬 Tư Vấn Giáo Viên';
+                if (chatHeading) chatHeading.innerText = 'Hỗ Trợ Giáo Viên IC3 Quest';
+                if (chatWelcome) chatWelcome.innerText = '👋 Xin chào Quý Thầy/Cô! Em là chuyên viên tư vấn IC3 Quest. Thầy/Cô cần hỗ trợ gói bản quyền, cấu hình trường học hay hướng dẫn sử dụng có thể để lại tin nhắn ngay tại đây ạ!';
+                if (pageTitle) pageTitle.innerText = 'Bảng Giá Bản Quyền IC3 GS6 & Spark Quest — Dành Cho Giáo Viên & Nhà Trường';
+            }
+        }
+
         function openOrderModal(pkg, isLoggedIn) {
             currentPkgData = pkg;
             currentIsLoggedIn = isLoggedIn;
             isCreateNewAccountMode = false;
+
+            const isStudent = (pkg.target_audience === 'student');
 
             // Làm sạch tên gói
             let friendlyName = pkg.name || '';
@@ -4733,22 +4897,63 @@
             document.getElementById('modal-pkg-name').innerText = friendlyName || pkg.name;
 
             document.getElementById('modal-pkg-duration').innerText = pkg.duration_days + ' ngày';
-            document.getElementById('modal-pkg-students').innerText = pkg.max_students > 0 ? (pkg.max_students + ' học sinh') : 'Không giới hạn học sinh';
+
+            const studentsSpec = isStudent ? '1 Học sinh tự luyện' : (pkg.max_students > 0 ? (pkg.max_students + ' học sinh') : 'Không giới hạn học sinh');
+            document.getElementById('modal-pkg-students').innerText = studentsSpec;
 
             const priceFormatted = new Intl.NumberFormat('vi-VN').format(pkg.price) + ' đ';
             document.getElementById('modal-pkg-price').innerText = priceFormatted;
 
-            const badgeText = pkg.badge ? pkg.badge.toUpperCase() : 'BẢN QUYỀN GIÁO VIÊN';
-            document.getElementById('modal-pkg-badge').innerText = '👑 ' + badgeText;
+            const badgeIcon = isStudent ? '🎒 ' : '👑 ';
+            const defaultBadge = isStudent ? 'GÓI TỰ LUYỆN HỌC SINH' : 'BẢN QUYỀN GIÁO VIÊN';
+            const badgeText = pkg.badge ? pkg.badge.toUpperCase() : defaultBadge;
+            document.getElementById('modal-pkg-badge').innerText = badgeIcon + badgeText;
 
             const form = document.getElementById('order-form');
             const banner = document.getElementById('logged-user-banner');
             const passStar = document.getElementById('password-required-star');
             const passInput = document.getElementById('input-password');
+            const sec1Title = document.getElementById('modal-section1-title');
+            const labelName = document.getElementById('label-input-name');
+            const labelPhone = document.getElementById('label-input-phone');
+            const labelSchool = document.getElementById('label-input-school');
+            const inputName = document.getElementById('input-name');
+            const inputSchool = document.getElementById('input-school');
+            const inputPhone = document.getElementById('input-phone');
+
+            const labelStudents = document.getElementById('modal-label-students');
+            const guaranteeSecurity = document.getElementById('modal-guarantee-security');
+            const inputEmail = document.getElementById('input-email');
+
+            if (isStudent) {
+                if (labelStudents) labelStudents.innerText = 'Đối tượng sử dụng';
+                if (guaranteeSecurity) guaranteeSecurity.innerText = 'Tài khoản độc lập, học tại nhà không cần qua trường';
+                if (inputEmail) inputEmail.placeholder = 'hocsinh@gmail.com hoặc email phụ huynh';
+                if (sec1Title) sec1Title.innerText = 'Thông Tin Học Sinh & Phụ Huynh';
+                if (labelName) labelName.innerHTML = '👤 Họ và tên Học sinh <span class="required-star">*</span>';
+                if (inputName) inputName.placeholder = 'Ví dụ: Nguyễn Gia Huy (Học sinh)';
+                if (labelPhone) labelPhone.innerHTML = '📱 SĐT Phụ huynh (nhận Zalo & hỗ trợ) <span class="required-star">*</span>';
+                if (inputPhone) inputPhone.placeholder = 'Ví dụ: 0912 345 678 (Zalo phụ huynh)';
+                if (labelSchool) labelSchool.innerText = '🏫 Trường học / Lớp (không bắt buộc)';
+                if (inputSchool) inputSchool.placeholder = 'Ví dụ: Lớp 3A1 - TH Lê Quý Đôn';
+            } else {
+                if (labelStudents) labelStudents.innerText = 'Sĩ số quản lý';
+                if (guaranteeSecurity) guaranteeSecurity.innerText = 'Bảo mật dữ liệu học sinh & quản lý theo lớp';
+                if (inputEmail) inputEmail.placeholder = 'giaovien@gmail.com';
+                if (sec1Title) sec1Title.innerText = 'Thông Tin Thầy/Cô Nhận Bản Quyền';
+                if (labelName) labelName.innerHTML = '👤 Họ và tên Giáo viên <span class="required-star">*</span>';
+                if (inputName) inputName.placeholder = 'Ví dụ: Thầy Trần Quang Huy / Cô Nguyễn Mai Linh';
+                if (labelPhone) labelPhone.innerHTML = '📱 Số điện thoại liên hệ (Zalo) <span class="required-star">*</span>';
+                if (inputPhone) inputPhone.placeholder = 'Ví dụ: 0912 345 678';
+                if (labelSchool) labelSchool.innerText = '🏫 Trường học / Đơn vị';
+                if (inputSchool) inputSchool.placeholder = 'Ví dụ: TH Lê Quý Đôn';
+            }
 
             if (isLoggedIn) {
-                document.getElementById('modal-heading').innerText = 'Xác Nhận Đăng Ký Thuê Gói Bản Quyền';
-                document.getElementById('modal-subheading').innerText = 'Kiểm tra thông tin tài khoản và hoàn tất thanh toán để gia hạn hoặc kích hoạt gói.';
+                const headingText = isStudent ? 'Xác Nhận Đăng Ký Gói Tự Luyện' : 'Xác Nhận Đăng Ký Thuê Gói Bản Quyền';
+                const subText = isStudent ? 'Kiểm tra thông tin tài khoản và quét mã QR để mở khóa bài luyện ngay.' : 'Kiểm tra thông tin tài khoản và hoàn tất thanh toán để gia hạn hoặc kích hoạt gói.';
+                document.getElementById('modal-heading').innerText = headingText;
+                document.getElementById('modal-subheading').innerText = subText;
                 if (banner) banner.style.display = 'flex';
                 if (passStar) passStar.style.display = 'none';
                 if (passInput) {
@@ -4765,8 +4970,10 @@
                 if (schoolIn) schoolIn.value = authUserSchool;
                 form.action = '/bang-gia/thue-goi/' + pkg.slug;
             } else {
-                document.getElementById('modal-heading').innerText = 'Đăng Ký Nhận Tài Khoản Giáo Viên';
-                document.getElementById('modal-subheading').innerText = 'Điền thông tin giáo viên để hệ thống cấp tài khoản và hướng dẫn thanh toán.';
+                const headingText = isStudent ? 'Đăng Ký Tài Khoản Học Sinh' : 'Đăng Ký Nhận Tài Khoản Giáo Viên';
+                const subText = isStudent ? 'Điền thông tin học sinh & phụ huynh để hệ thống cấp tài khoản và kích hoạt gói.' : 'Điền thông tin giáo viên để hệ thống cấp tài khoản và hướng dẫn thanh toán.';
+                document.getElementById('modal-heading').innerText = headingText;
+                document.getElementById('modal-subheading').innerText = subText;
                 if (banner) banner.style.display = 'none';
                 if (passStar) passStar.style.display = 'inline';
                 if (passInput) {
@@ -4803,6 +5010,7 @@
             const passStar = document.getElementById('password-required-star');
             const passInput = document.getElementById('input-password');
             const form = document.getElementById('order-form');
+            const isStudent = currentPkgData ? (currentPkgData.target_audience === 'student') : false;
 
             if (isCreateNewAccountMode) {
                 if (btn) btn.innerText = 'Dùng tài khoản đang đăng nhập';
@@ -4816,8 +5024,8 @@
                 document.getElementById('input-phone').value = '';
                 document.getElementById('input-school').value = '';
                 form.action = '/bang-gia/dang-ky-va-thue-goi/' + currentPkgData.slug;
-                document.getElementById('modal-heading').innerText = 'Đăng Ký Tài Khoản Giáo Viên Mới';
-                document.getElementById('modal-subheading').innerText = 'Tạo tài khoản riêng biệt mới cho Giáo viên này.';
+                document.getElementById('modal-heading').innerText = isStudent ? 'Đăng Ký Tài Khoản Học Sinh Mới' : 'Đăng Ký Tài Khoản Giáo Viên Mới';
+                document.getElementById('modal-subheading').innerText = isStudent ? 'Tạo tài khoản riêng biệt mới cho Học sinh này.' : 'Tạo tài khoản riêng biệt mới cho Giáo viên này.';
             } else {
                 if (btn) btn.innerText = 'Đăng ký mới';
                 if (passStar) passStar.style.display = 'none';
@@ -4830,8 +5038,8 @@
                 document.getElementById('input-phone').value = authUserPhone;
                 document.getElementById('input-school').value = authUserSchool;
                 form.action = '/bang-gia/thue-goi/' + currentPkgData.slug;
-                document.getElementById('modal-heading').innerText = 'Xác Nhận Đăng Ký Thuê Gói Bản Quyền';
-                document.getElementById('modal-subheading').innerText = 'Kiểm tra thông tin tài khoản và hoàn tất thanh toán để gia hạn hoặc kích hoạt gói.';
+                document.getElementById('modal-heading').innerText = isStudent ? 'Xác Nhận Đăng Ký Gói Tự Luyện' : 'Xác Nhận Đăng Ký Thuê Gói Bản Quyền';
+                document.getElementById('modal-subheading').innerText = isStudent ? 'Kiểm tra thông tin tài khoản và quét mã QR để mở khóa bài luyện ngay.' : 'Kiểm tra thông tin tài khoản và hoàn tất thanh toán để gia hạn hoặc kích hoạt gói.';
             }
             updateSubmitButtonText();
         }
@@ -5153,7 +5361,104 @@
         /* Live Chat logic */
         function toggleLiveChat() {
             const chatBox = document.getElementById('live-chat-box');
+            if (!chatBox) return;
             chatBox.classList.toggle('open');
+            if (chatBox.classList.contains('open')) {
+                const body = document.getElementById('chat-messages-body');
+                if (body) body.scrollTop = body.scrollHeight;
+                if (activeTeacherChatId) {
+                    pollTeacherChatReply();
+                }
+                const quickInput = document.getElementById('chat-quick-input');
+                if (quickInput && document.getElementById('live-chat-active-composer')?.style.display !== 'none') {
+                    setTimeout(() => quickInput.focus(), 200);
+                }
+            }
+        }
+
+        function escapeSupportHtml(str) {
+            if (!str) return '';
+            return String(str)
+                .replace(/&/g, '&amp;')
+                .replace(/</g, '&lt;')
+                .replace(/>/g, '&gt;')
+                .replace(/"/g, '&quot;')
+                .replace(/'/g, '&#039;');
+        }
+
+        function renderClientConversation(history) {
+            const body = document.getElementById('chat-messages-body');
+            if (!body) return;
+
+            // Xóa các tin nhắn cũ đã render (giữ lại tin chào mừng mặc định)
+            const oldItems = body.querySelectorAll('.chat-history-item');
+            oldItems.forEach(el => el.remove());
+
+            if (!Array.isArray(history) || history.length === 0) return;
+
+            history.forEach(item => {
+                const isUser = item.sender === 'user';
+                const bubble = document.createElement('div');
+                bubble.className = `chat-msg ${isUser ? 'chat-msg-user' : 'chat-msg-bot'} chat-history-item`;
+                
+                const safeText = escapeSupportHtml(item.text || '');
+                const timeStr = item.created_at ? `<span style="font-size: 10px; opacity: 0.75; font-weight: normal; margin-left: 6px;">${escapeSupportHtml(item.created_at)}</span>` : '';
+
+                if (isUser) {
+                    bubble.innerHTML = `
+                        <div style="word-break: break-word; white-space: pre-line;">${safeText}</div>
+                        ${item.created_at ? `<div style="font-size: 9.5px; opacity: 0.8; text-align: right; margin-top: 3px;">${escapeSupportHtml(item.created_at)}</div>` : ''}
+                    `;
+                } else {
+                    bubble.style.background = 'linear-gradient(135deg, #eff6ff, #dbeafe)';
+                    bubble.style.color = '#1e3a8a';
+                    bubble.style.border = '1px solid #bfdbfe';
+                    bubble.style.borderRadius = '16px 16px 16px 4px';
+                    bubble.style.boxShadow = '0 2px 8px rgba(37,99,235,0.08)';
+
+                    bubble.innerHTML = `
+                        <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 3px; font-weight: 800; font-size: 11.5px; color: #1d4ed8;">
+                            <span>👨‍💼 Ban Quản Trị IC3 Quest</span>
+                            ${timeStr}
+                        </div>
+                        <div style="font-size: 13px; line-height: 1.45; color: #0f172a; white-space: pre-line; word-break: break-word;">${safeText}</div>
+                    `;
+                }
+
+                body.appendChild(bubble);
+            });
+
+            body.scrollTop = body.scrollHeight;
+        }
+
+        function switchToActiveComposer(name, phone) {
+            const form = document.getElementById('live-chat-form');
+            const composer = document.getElementById('live-chat-active-composer');
+            const nameEl = document.getElementById('chat-active-user-name');
+            const phoneEl = document.getElementById('chat-active-user-phone');
+
+            if (nameEl && name) nameEl.textContent = name;
+            if (phoneEl && phone) phoneEl.textContent = phone;
+
+            if (form) form.style.display = 'none';
+            if (composer) composer.style.display = 'block';
+
+            const quickInput = document.getElementById('chat-quick-input');
+            if (quickInput) quickInput.focus();
+        }
+
+        function toggleEditSenderInfo() {
+            const form = document.getElementById('live-chat-form');
+            const composer = document.getElementById('live-chat-active-composer');
+            if (!form || !composer) return;
+
+            if (form.style.display === 'none') {
+                form.style.display = 'block';
+                composer.style.display = 'none';
+            } else {
+                form.style.display = 'none';
+                composer.style.display = 'block';
+            }
         }
 
         function submitSupportChat(e) {
@@ -5169,6 +5474,8 @@
             btn.disabled = true;
             btn.innerText = 'Đang gửi...';
 
+            const currentActiveId = activeTeacherChatId || localStorage.getItem('mos_active_support_id') || null;
+
             fetch('/ho-tro/gui-tin-nhan', {
                 method: 'POST',
                 headers: {
@@ -5179,32 +5486,20 @@
                 body: JSON.stringify({
                     name: name,
                     contact: contact,
-                    message: message
+                    phone: contact,
+                    message: message,
+                    parent_id: currentActiveId ? parseInt(currentActiveId) : null
                 })
             })
             .then(res => res.json())
             .then(data => {
                 btn.disabled = false;
-                btn.innerText = '🚀 Gửi Tới Ban Quản Trị';
+                btn.innerText = '🚀 Gửi Yêu Cầu Tư Vấn';
 
-                const body = document.getElementById('chat-messages-body');
-                
-                // Add user message bubble
-                const userBubble = document.createElement('div');
-                userBubble.className = 'chat-msg chat-msg-user';
-                userBubble.innerText = message;
-                body.appendChild(userBubble);
-
-                // Add response bubble
-                const botBubble = document.createElement('div');
-                botBubble.className = 'chat-msg chat-msg-bot';
-                botBubble.style.background = '#ecfdf5';
-                botBubble.style.color = '#065f46';
-                botBubble.style.borderColor = '#a7f3d0';
-                botBubble.innerHTML = '✅ <b>Đã gửi tin nhắn tới Telegram Quản trị viên!</b> Em đã nhận thông tin của Thầy/Cô và sẽ liên hệ phản hồi qua SĐT/Telegram trong ít phút ạ!';
-                body.appendChild(botBubble);
-
-                body.scrollTop = body.scrollHeight;
+                try {
+                    localStorage.setItem('mos_chat_name', name);
+                    localStorage.setItem('mos_chat_contact', contact);
+                } catch(e) {}
 
                 if (data.message_id) {
                     activeTeacherChatId = data.message_id;
@@ -5214,20 +5509,125 @@
                     }
                 }
 
-                // Reset message field
+                // Render cuộc trò chuyện liền mạch ngay lập tức
+                if (data.conversation_history && data.conversation_history.length > 0) {
+                    lastConversationHistoryJson = JSON.stringify(data.conversation_history);
+                    renderClientConversation(data.conversation_history);
+                } else {
+                    const body = document.getElementById('chat-messages-body');
+                    const userBubble = document.createElement('div');
+                    userBubble.className = 'chat-msg chat-msg-user chat-history-item';
+                    userBubble.innerHTML = `<div style="word-break: break-word; white-space: pre-line;">${escapeSupportHtml(message)}</div>`;
+                    body.appendChild(userBubble);
+                    body.scrollTop = body.scrollHeight;
+                }
+
+                // Tự động chuyển ngay sang thanh soạn tin nhắn 1 dòng
+                switchToActiveComposer(name, contact);
+
+                // Reset nội dung ô nhập
                 document.getElementById('chat-sender-message').value = '';
             })
             .catch(err => {
                 btn.disabled = false;
-                btn.innerText = '🚀 Gửi Tới Ban Quản Trị';
-                alert('Có lỗi xảy ra khi gửi tin nhắn. Thầy/Cô vui lòng thử lại hoặc gọi hotline!');
+                btn.innerText = '🚀 Gửi Yêu Cầu Tư Vấn';
+                alert('Có lỗi xảy ra khi gửi tin nhắn. Quý khách vui lòng thử lại hoặc gọi hotline!');
             });
         }
+
+        function submitQuickSupportChat(e) {
+            if (e && e.preventDefault) e.preventDefault();
+            const input = document.getElementById('chat-quick-input');
+            const message = (input ? input.value : '').trim();
+            if (!message) return;
+
+            // Xóa trắng ngay lập tức và giữ con trỏ gõ tiếp không bị gián đoạn
+            input.value = '';
+            input.focus();
+
+            // Hiển thị bong bóng người dùng ngay lập tức (Optimistic UI - 0ms mượt mà như Zalo/Messenger)
+            const body = document.getElementById('chat-messages-body');
+            const nowTime = new Date().toLocaleTimeString('vi-VN', { hour: '2-digit', minute: '2-digit' });
+            if (body) {
+                const userBubble = document.createElement('div');
+                userBubble.className = 'chat-msg chat-msg-user chat-history-item';
+                userBubble.innerHTML = `
+                    <div style="word-break: break-word; white-space: pre-line;">${escapeSupportHtml(message)}</div>
+                    <div style="font-size: 9.5px; opacity: 0.8; text-align: right; margin-top: 3px;">${nowTime}</div>
+                `;
+                body.appendChild(userBubble);
+                body.scrollTop = body.scrollHeight;
+            }
+
+            const name = localStorage.getItem('mos_chat_name') || document.getElementById('chat-sender-name')?.value.trim() || 'Khách';
+            const contact = localStorage.getItem('mos_chat_contact') || document.getElementById('chat-sender-contact')?.value.trim() || '';
+            const token = document.querySelector('meta[name="csrf-token"]')?.getAttribute('content');
+            const currentActiveId = activeTeacherChatId || localStorage.getItem('mos_active_support_id') || null;
+
+            fetch('/ho-tro/gui-tin-nhan', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRF-TOKEN': token,
+                    'Accept': 'application/json'
+                },
+                body: JSON.stringify({
+                    name: name,
+                    contact: contact,
+                    phone: contact,
+                    message: message,
+                    parent_id: currentActiveId ? parseInt(currentActiveId) : null
+                })
+            })
+            .then(res => res.json())
+            .then(data => {
+                if (data.message_id) {
+                    activeTeacherChatId = data.message_id;
+                    localStorage.setItem('mos_active_support_id', activeTeacherChatId);
+                    if (!teacherPollingTimer) {
+                        teacherPollingTimer = setInterval(pollTeacherChatReply, 2500);
+                    }
+                }
+
+                if (data.conversation_history && data.conversation_history.length > 0) {
+                    lastConversationHistoryJson = JSON.stringify(data.conversation_history);
+                    renderClientConversation(data.conversation_history);
+                }
+            })
+            .catch(err => {
+                console.error('Error sending message:', err);
+            });
+        }
+
+        // Lắng nghe sự kiện nhấn Enter để gửi ngay lập tức trên cả ô chat nhanh và form
+        document.addEventListener('DOMContentLoaded', function() {
+            const quickInput = document.getElementById('chat-quick-input');
+            if (quickInput) {
+                quickInput.addEventListener('keydown', function(e) {
+                    if (e.key === 'Enter' && !e.shiftKey) {
+                        e.preventDefault();
+                        submitQuickSupportChat(e);
+                    }
+                });
+            }
+
+            const msgField = document.getElementById('chat-sender-message');
+            if (msgField) {
+                msgField.addEventListener('keydown', function(e) {
+                    if (e.key === 'Enter' && !e.shiftKey) {
+                        e.preventDefault();
+                        submitSupportChat(e);
+                    }
+                });
+            }
+        });
 
         // =====================================================================
         // ⚡ REAL-TIME POLLING CHO KHÁCH HÀNG (NHẬN PHẢN HỒI TỪ ADMIN TỨC THÌ)
         // =====================================================================
         let activeTeacherChatId = localStorage.getItem('mos_active_support_id') || null;
+        let lastConversationHistoryJson = null;
+        let lastAdminTurnsCount = -1;
         let lastDisplayedAdminReply = null;
         let teacherPollingTimer = null;
 
@@ -5255,7 +5655,29 @@
                 const res = await fetch(`/ho-tro/tin-nhan/kiem-tra?id=${activeTeacherChatId}`);
                 if (!res.ok) return;
                 const data = await res.json();
-                if (data.ok && data.admin_reply && data.admin_reply !== lastDisplayedAdminReply) {
+                if (!data.ok) return;
+
+                if (data.sender_name || data.contact) {
+                    const nameEl = document.getElementById('chat-active-user-name');
+                    const phoneEl = document.getElementById('chat-active-user-phone');
+                    if (nameEl && data.sender_name) nameEl.textContent = data.sender_name;
+                    if (phoneEl && data.contact) phoneEl.textContent = data.contact;
+                }
+
+                // Nếu có lịch sử hội thoại nhiều lượt
+                if (data.conversation_history && Array.isArray(data.conversation_history) && data.conversation_history.length > 0) {
+                    const serialized = JSON.stringify(data.conversation_history);
+                    if (serialized !== lastConversationHistoryJson) {
+                        const adminTurns = data.conversation_history.filter(t => t.sender === 'admin').length;
+                        if (lastAdminTurnsCount >= 0 && adminTurns > lastAdminTurnsCount) {
+                            playTeacherChime();
+                        }
+                        lastAdminTurnsCount = adminTurns;
+                        lastConversationHistoryJson = serialized;
+                        renderClientConversation(data.conversation_history);
+                    }
+                } else if (data.admin_reply && data.admin_reply !== lastDisplayedAdminReply) {
+                    // Fallback cho bản ghi cũ
                     lastDisplayedAdminReply = data.admin_reply;
                     playTeacherChime();
 
@@ -5265,7 +5687,7 @@
                         if (!replyContainer) {
                             replyContainer = document.createElement('div');
                             replyContainer.id = 'admin-reply-bubble-' + activeTeacherChatId;
-                            replyContainer.className = 'chat-msg chat-msg-bot';
+                            replyContainer.className = 'chat-msg chat-msg-bot chat-history-item';
                             replyContainer.style.background = 'linear-gradient(135deg, #eff6ff, #dbeafe)';
                             replyContainer.style.color = '#1e3a8a';
                             replyContainer.style.border = '1px solid #bfdbfe';
@@ -5274,9 +5696,9 @@
                         }
 
                         const timeStr = data.replied_at || 'Vừa xong';
-                        const safeContent = data.admin_reply.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+                        const safeContent = escapeSupportHtml(data.admin_reply);
                         replyContainer.innerHTML = `
-                            <div style="display:flex; align-items:center; gap:6px; margin-bottom:4px; font-weight:800; font-size:12px; color:#1d4ed8;">
+                            <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:4px; font-weight:800; font-size:12px; color:#1d4ed8;">
                                 <span>👨‍💼 Ban Quản Trị IC3 Quest</span>
                                 <span style="font-size:10.5px; opacity:0.75; font-weight:normal;">${timeStr}</span>
                             </div>
@@ -5288,9 +5710,27 @@
             } catch(e) {}
         }
 
-        if (activeTeacherChatId) {
-            teacherPollingTimer = setInterval(pollTeacherChatReply, 2500);
-        }
+        // Tự động khôi phục phiên chat và chuyển sang ô nhập 1 dòng khi đã có phiên
+        (function initLiveChatSenderInfo() {
+            try {
+                const savedName = localStorage.getItem('mos_chat_name') || '{{ auth()->user()?->name ?? "" }}';
+                const savedContact = localStorage.getItem('mos_chat_contact') || '{{ auth()->user()?->phone ?? "" }}';
+                const nameEl = document.getElementById('chat-sender-name');
+                const contactEl = document.getElementById('chat-sender-contact');
+                if (nameEl && savedName && !nameEl.value) nameEl.value = savedName;
+                if (contactEl && savedContact && !contactEl.value) contactEl.value = savedContact;
+
+                const savedId = localStorage.getItem('mos_active_support_id');
+                if (savedId) {
+                    activeTeacherChatId = savedId;
+                    switchToActiveComposer(savedName || 'Khách', savedContact);
+                    pollTeacherChatReply();
+                    if (!teacherPollingTimer) {
+                        teacherPollingTimer = setInterval(pollTeacherChatReply, 2500);
+                    }
+                }
+            } catch(e) {}
+        })();
     </script>
 </body>
 </html>

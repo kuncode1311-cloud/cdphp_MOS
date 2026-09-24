@@ -179,7 +179,6 @@ class TeacherLearningAccessTest extends TestCase
             'duration_minutes' => 20,
             'pass_score' => 700,
             'max_score' => 1000,
-            'difficulty' => 'Cơ bản',
             'is_published' => true,
             'position' => 1,
         ]);

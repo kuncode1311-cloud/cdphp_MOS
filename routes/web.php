@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\Admin\ClassroomController;
 use App\Http\Controllers\Admin\GameSettingController;
+use App\Http\Controllers\Admin\MockTestController;
 use App\Http\Controllers\Admin\PackageController as AdminPackageController;
 use App\Http\Controllers\Admin\PracticeTestController;
 use App\Http\Controllers\Admin\QuestionAssetController;
@@ -12,8 +13,11 @@ use App\Http\Controllers\AdminController;
 use App\Http\Controllers\AdminManagementController;
 use App\Http\Controllers\AttemptController;
 use App\Http\Controllers\AuthController;
+use App\Http\Controllers\GoogleAuthController;
 use App\Http\Controllers\LearningController;
+use App\Http\Controllers\MistakeController;
 use App\Http\Controllers\PricingController;
+use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\TelegramBotController;
 use App\Http\Controllers\TestController;
 use Illuminate\Support\Facades\Route;
@@ -26,13 +30,17 @@ use Illuminate\Support\Facades\Route;
 | 1. Khách vãng lai (Guest Auth)
 | 2. Học sinh làm bài (Learning App)
 | 3. Quản trị viên & Studio Soạn câu hỏi (Admin & Studio)
-*/
+|*/
 
 // --- 1. XÁC THỰC NGƯỜI DÙNG (AUTHENTICATION) ---
 // Đọc luồng từ đây: URL → controller → model/service lấy dữ liệu → view hiển thị.
 Route::middleware('guest')->group(function () {
     Route::get('/dang-nhap', [AuthController::class, 'create'])->name('login');
     Route::post('/dang-nhap', [AuthController::class, 'store'])->name('login.store');
+
+    // Đăng nhập bằng tài khoản Google (OAuth 2.0)
+    Route::get('/auth/google', [GoogleAuthController::class, 'redirectToGoogle'])->name('auth.google');
+    Route::get('/auth/google/callback', [GoogleAuthController::class, 'handleGoogleCallback'])->name('auth.google.callback');
 });
 
 Route::post('/dang-xuat', [AuthController::class, 'destroy'])
@@ -60,6 +68,16 @@ Route::middleware('auth')->group(function () {
     Route::get('/bai-luyen/{practiceTest:slug}', [LearningController::class, 'test'])->name('tests.show');
     Route::get('/bai-luyen/{practiceTest:slug}/lam-bai', [LearningController::class, 'launch'])->name('tests.launch');
     Route::post('/bai-luyen/{practiceTest:slug}/ket-qua', [AttemptController::class, 'store'])->name('attempts.store');
+
+    // Sổ Tay Câu Sai & Phòng Luyện Tập Phục Thù (Mistake Notebook & Revenge Practice)
+    Route::get('/so-tay-cau-sai', [MistakeController::class, 'index'])->name('mistakes.index');
+    Route::get('/so-tay-cau-sai/lam-lai', [MistakeController::class, 'launch'])->name('mistakes.launch');
+    Route::post('/so-tay-cau-sai/nop-bai', [MistakeController::class, 'submit'])->name('mistakes.submit');
+
+    // Hồ Sơ Cá Nhân & Đổi Mật Khẩu với xác thực OTP
+    Route::post('/tai-khoan/gui-otp-mat-khau', [ProfileController::class, 'sendOtp'])->name('profile.send-otp');
+    Route::post('/tai-khoan/doi-mat-khau', [ProfileController::class, 'updatePassword'])->name('profile.password');
+    Route::post('/tai-khoan/cap-nhat-email', [ProfileController::class, 'updateEmail'])->name('profile.update-email');
 
     // 🛡️ BỘ LỌC ĐỊNH TUYẾN THÔNG MINH: Tự động sửa lỗi & chuyển hướng nếu URL bị gõ khoảng trắng (%20), dấu gạch dưới (_)
     Route::get('/{prefix}/{slug}/{action?}', function (string $prefix, string $slug, ?string $action = null) {
@@ -138,6 +156,15 @@ Route::prefix('quan-tri')->name('admin.')->middleware(['auth', 'admin'])->group(
     Route::post('/tests', [PracticeTestController::class, 'store'])->name('tests.store');
     Route::put('/tests/{practiceTest}', [PracticeTestController::class, 'update'])->name('tests.update');
     Route::delete('/tests/{practiceTest}', [PracticeTestController::class, 'destroy'])->name('tests.destroy');
+
+    // Quản lý & Soạn Bộ đề thi thử tổng hợp (Admin Mock Exams)
+    Route::get('/bo-de-thi-thu', [MockTestController::class, 'index'])->name('mock-tests.index');
+    Route::get('/bo-de-thi-thu/tao-moi', [MockTestController::class, 'create'])->name('mock-tests.create');
+    Route::post('/bo-de-thi-thu', [MockTestController::class, 'store'])->name('mock-tests.store');
+    Route::get('/bo-de-thi-thu/{mockTest}/chinh-sua', [MockTestController::class, 'edit'])->name('mock-tests.edit');
+    Route::put('/bo-de-thi-thu/{mockTest}', [MockTestController::class, 'update'])->name('mock-tests.update');
+    Route::delete('/bo-de-thi-thu/{mockTest}', [MockTestController::class, 'destroy'])->name('mock-tests.destroy');
+    Route::post('/bo-de-thi-thu/boc-ngau-nhien', [MockTestController::class, 'quickRandom'])->name('mock-tests.quick-random');
 
     // Quản lý Chủ đề (Topic)
     Route::post('/topics', [TopicController::class, 'store'])->name('topics.store');

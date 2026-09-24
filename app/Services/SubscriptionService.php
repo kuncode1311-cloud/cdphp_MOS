@@ -61,52 +61,81 @@ class SubscriptionService
                 return true;
             }
 
-            /** @var User $teacher */
-            $teacher = $order->user;
-            if (! $teacher) {
+            /** @var User $user */
+            $user = $order->user;
+            if (! $user) {
                 return false;
             }
 
             $durationDays = max(1, (int) $order->duration_days);
-            $currentExpiry = $teacher->expires_at;
+            $currentExpiry = $user->expires_at;
             $isCurrentlyExpired = ! $currentExpiry || $currentExpiry->isPast();
 
-            // 1. Cập nhật số lượng học sinh tối đa (max_students) theo chuẩn Design Logic
-            if ($order->max_students > 0) {
-                if ($isCurrentlyExpired || (int) $teacher->max_students === 0) {
-                    // Kịch bản A: Tài khoản đã hết hạn hoặc chưa từng có gói -> Thiết lập chuẩn theo gói mới
-                    $teacher->max_students = $order->max_students;
-                } elseif ($order->order_type === PackageOrder::TYPE_QUOTA_ADD) {
-                    // Kịch bản B: Đơn hàng mua thêm sĩ số -> Cộng dồn số lượng học sinh
-                    $teacher->max_students += $order->max_students;
+            if ($user->isStudent()) {
+                // ══════════════════════════════════════════════════════════════
+                // 🎒 NHÁNH 1: KÍCH HOẠT CHO TÀI KHOẢN HỌC SINH TỰ LUYỆN
+                // ══════════════════════════════════════════════════════════════
+                $user->max_students = 1;
+
+                // Gia hạn thời gian sử dụng
+                if ($currentExpiry && $currentExpiry->isFuture()) {
+                    $user->expires_at = $currentExpiry->copy()->addDays($durationDays);
                 } else {
-                    // Kịch bản C: Đang còn hạn và gia hạn/nâng cấp gói:
-                    // Nâng cấp lên nếu gói mới có sĩ số lớn hơn; nếu gói mới nhỏ hơn thì bảo lưu sĩ số hiện tại
-                    if ($order->max_students > (int) $teacher->max_students) {
-                        $teacher->max_students = $order->max_students;
+                    $user->expires_at = Carbon::now()->addDays($durationDays);
+                }
+
+                $user->status = 'active';
+                $user->save();
+
+                // Cấp quyền trực tiếp các Khối lớp vào bảng level_user cho Học sinh
+                $package = $order->package;
+                if ($package) {
+                    $levelIds = $package->levels()->pluck('levels.id')->all();
+                    if (! empty($levelIds)) {
+                        $user->accessibleLevels()->syncWithoutDetaching($levelIds);
                     }
                 }
-            }
-
-            // 2. Tính toán gia hạn thời gian sử dụng (expires_at)
-            if ($currentExpiry && $currentExpiry->isFuture()) {
-                // Đang còn hạn: Cộng dồn thêm số ngày vào hạn hiện tại
-                $teacher->expires_at = $currentExpiry->copy()->addDays($durationDays);
             } else {
-                // Đã hết hạn hoặc chưa có hạn: Bắt đầu tính từ thời điểm hiện tại
-                $teacher->expires_at = Carbon::now()->addDays($durationDays);
-            }
+                // ══════════════════════════════════════════════════════════════
+                // 🏫 NHÁNH 2: KÍCH HOẠT CHO GIÁO VIÊN / NHÀ TRƯỜNG
+                // ══════════════════════════════════════════════════════════════
+                // 1. Cập nhật số lượng học sinh tối đa (max_students) theo chuẩn Design Logic
+                if ($order->max_students > 0) {
+                    if ($isCurrentlyExpired || (int) $user->max_students === 0) {
+                        // Kịch bản A: Tài khoản đã hết hạn hoặc chưa từng có gói -> Thiết lập chuẩn theo gói mới
+                        $user->max_students = $order->max_students;
+                    } elseif ($order->order_type === PackageOrder::TYPE_QUOTA_ADD) {
+                        // Kịch bản B: Đơn hàng mua thêm sĩ số -> Cộng dồn số lượng học sinh
+                        $user->max_students += $order->max_students;
+                    } else {
+                        // Kịch bản C: Đang còn hạn và gia hạn/nâng cấp gói:
+                        // Nâng cấp lên nếu gói mới có sĩ số lớn hơn; nếu gói mới nhỏ hơn thì bảo lưu sĩ số hiện tại
+                        if ($order->max_students > (int) $user->max_students) {
+                            $user->max_students = $order->max_students;
+                        }
+                    }
+                }
 
-            // Đảm bảo trạng thái tài khoản là hoạt động
-            $teacher->status = 'active';
-            $teacher->save();
+                // 2. Tính toán gia hạn thời gian sử dụng (expires_at)
+                if ($currentExpiry && $currentExpiry->isFuture()) {
+                    // Đang còn hạn: Cộng dồn thêm số ngày vào hạn hiện tại
+                    $user->expires_at = $currentExpiry->copy()->addDays($durationDays);
+                } else {
+                    // Đã hết hạn hoặc chưa có hạn: Bắt đầu tính từ thời điểm hiện tại
+                    $user->expires_at = Carbon::now()->addDays($durationDays);
+                }
 
-            // 3. Cấp quyền các Khối lớp tương ứng của Gói
-            $package = $order->package;
-            if ($package) {
-                $levelIds = $package->levels()->pluck('levels.id')->all();
-                if (! empty($levelIds)) {
-                    $teacher->teacherLevels()->syncWithoutDetaching($levelIds);
+                // Đảm bảo trạng thái tài khoản là hoạt động
+                $user->status = 'active';
+                $user->save();
+
+                // 3. Cấp quyền các Khối lớp tương ứng của Gói cho Giáo viên
+                $package = $order->package;
+                if ($package) {
+                    $levelIds = $package->levels()->pluck('levels.id')->all();
+                    if (! empty($levelIds)) {
+                        $user->teacherLevels()->syncWithoutDetaching($levelIds);
+                    }
                 }
             }
 

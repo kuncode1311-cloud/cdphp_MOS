@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\PracticeTest;
 use App\Models\Question;
+use App\Models\StudentMistake;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Collection;
@@ -30,9 +31,9 @@ class AttemptController extends Controller
 
         if (! $user->isAdmin()) {
             abort_unless($practiceTest->is_published, 404);
-            $practiceTest->loadMissing('topic.level');
+            $levelId = $practiceTest->is_mock ? $practiceTest->level_id : $practiceTest->topic?->level_id;
             abort_unless(
-                $user->canAccessLevel($practiceTest->topic->level_id),
+                $user->canAccessLevel($levelId),
                 403,
                 'Bạn chưa được cấp quyền truy cập bài luyện của Khối học này.',
             );
@@ -47,7 +48,9 @@ class AttemptController extends Controller
         $submittedAnswers = $data['answers'] ?? [];
 
         // 2. Lấy danh sách câu hỏi đang phát hành của bộ đề
-        $questions = $practiceTest->questions()->where('is_published', true)->with('options')->get();
+        $questions = $practiceTest->is_mock
+            ? $practiceTest->mockQuestions()->where('is_published', true)->with('options')->get()
+            : $practiceTest->questions()->where('is_published', true)->with('options')->get();
         abort_if($questions->isEmpty(), 422, 'Bộ đề chưa có câu hỏi.');
 
         // Nếu client gửi kèm thứ tự question_ids (do đề thi xáo trộn câu hỏi)
@@ -86,6 +89,9 @@ class AttemptController extends Controller
             if ($score > 0) {
                 $user->addRewardStars($score, "Hoàn thành {$practiceTest->name} ({$score}/1000đ)");
             }
+
+            // Tự động ghi nhận lịch sử câu sai & tiến trình khắc phục câu sai của học sinh
+            $this->trackStudentMistakes($user, $questions, $results, $submittedAnswers, $practiceTest);
         }
 
         // 6. Tổng hợp đáp án chuẩn phục vụ chế độ xem lại bài thi (Review Quiz Mode)
@@ -137,8 +143,8 @@ class AttemptController extends Controller
     {
         $options = $question->relationLoaded('options') ? $question->options : $question->options()->get();
         if (in_array($question->type, ['MultipleChoice', 'MultipleResponse'], true)) {
-            $correct = $options->filter->is_correct->pluck('position')->sort()->values()->all();
-            $selected = is_array($answer) ? array_map('intval', $answer) : [];
+            $correct = $options->filter(fn ($o) => (bool) $o->is_correct)->pluck('position')->sort()->values()->all();
+            $selected = is_array($answer) ? array_map('intval', $answer) : (is_numeric($answer) ? [(int) $answer] : []);
             sort($correct);
             sort($selected);
 
@@ -196,5 +202,64 @@ class AttemptController extends Controller
         }
 
         return array_values(array_map('intval', $answer)) === $options->sortBy('position')->pluck('position')->values()->all();
+    }
+
+    /**
+     * Tự động lưu vết câu sai và tiến trình khắc phục vào bảng student_mistakes
+     *
+     * @param  \App\Models\User  $user  Tài khoản học sinh
+     * @param  Collection  $questions  Danh sách câu hỏi của bài thi
+     * @param  array  $results  Mảng boolean kết quả chấm điểm từng câu (true = đúng, false = sai)
+     * @param  array  $submittedAnswers  Mảng câu trả lời học sinh đã gửi lên
+     * @param  PracticeTest  $practiceTest  Bộ đề thi học sinh vừa làm
+     */
+    protected function trackStudentMistakes(
+        $user,
+        Collection $questions,
+        array $results,
+        array $submittedAnswers,
+        PracticeTest $practiceTest
+    ): void {
+        foreach ($questions as $index => $question) {
+            $isCorrect = (bool) ($results[$index] ?? false);
+            $submitted = $submittedAnswers[$index] ?? null;
+
+            $mistake = StudentMistake::where('user_id', $user->id)
+                ->where('question_id', $question->id)
+                ->first();
+
+            if (! $isCorrect) {
+                // Nếu làm sai câu này: tăng wrong_count và chuyển trạng thái unresolved
+                if ($mistake) {
+                    $mistake->update([
+                        'wrong_count' => $mistake->wrong_count + 1,
+                        'practice_test_id' => $practiceTest->id,
+                        'last_student_answer' => $submitted,
+                        'status' => 'unresolved',
+                        'last_wrong_at' => now(),
+                    ]);
+                } else {
+                    StudentMistake::create([
+                        'user_id' => $user->id,
+                        'question_id' => $question->id,
+                        'practice_test_id' => $practiceTest->id,
+                        'wrong_count' => 1,
+                        'correct_count' => 0,
+                        'last_student_answer' => $submitted,
+                        'status' => 'unresolved',
+                        'last_wrong_at' => now(),
+                    ]);
+                }
+            } else {
+                // Nếu làm đúng câu này: nếu trước đó từng làm sai thì cập nhật resolved
+                if ($mistake && $mistake->status === 'unresolved') {
+                    $mistake->update([
+                        'correct_count' => $mistake->correct_count + 1,
+                        'status' => 'resolved',
+                        'last_resolved_at' => now(),
+                    ]);
+                }
+            }
+        }
     }
 }

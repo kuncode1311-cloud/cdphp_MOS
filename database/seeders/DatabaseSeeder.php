@@ -93,7 +93,6 @@ class DatabaseSeeder extends Seeder
                             'question_count' => 0,
                             'pass_score' => 1000,
                             'max_score' => 1000,
-                            'difficulty' => $testNo === 1 ? 'Cơ bản' : 'Trung bình',
                             'position' => $testNo,
                         ]
                     );

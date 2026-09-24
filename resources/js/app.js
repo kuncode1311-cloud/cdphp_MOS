@@ -44,10 +44,55 @@ starModal?.addEventListener('click', (e) => {
     if (e.target === starModal) closeStarModal();
 });
 
+// Mở và đóng modal Hồ sơ cá nhân & Đổi mật khẩu
+const openProfileModal = () => {
+    if (typeof window.openUserProfileModal === 'function') {
+        window.openUserProfileModal();
+    } else {
+        const modal = document.getElementById('user-profile-modal');
+        if (modal) {
+            modal.style.setProperty('display', 'flex', 'important');
+            modal.classList.add('open');
+            modal.setAttribute('aria-hidden', 'false');
+        }
+    }
+};
+const closeProfileModal = () => {
+    if (typeof window.closeUserProfileModal === 'function') {
+        window.closeUserProfileModal();
+    } else {
+        const modal = document.getElementById('user-profile-modal');
+        if (modal) {
+            modal.classList.remove('open');
+            modal.setAttribute('aria-hidden', 'true');
+            modal.style.setProperty('display', 'none', 'important');
+        }
+    }
+};
+document.addEventListener('click', (e) => {
+    const trigger = e.target.closest('[data-open-profile-modal]');
+    if (trigger) {
+        e.preventDefault();
+        openProfileModal();
+        return;
+    }
+    const closeBtn = e.target.closest('[data-close-profile-modal]');
+    if (closeBtn) {
+        e.preventDefault();
+        closeProfileModal();
+        return;
+    }
+    const modal = document.getElementById('user-profile-modal');
+    if (modal && e.target === modal) {
+        closeProfileModal();
+    }
+});
+
 document.addEventListener('keydown', e => {
     if (e.key === 'Escape') {
         close();
         closeStarModal();
+        closeProfileModal();
     }
 });
 

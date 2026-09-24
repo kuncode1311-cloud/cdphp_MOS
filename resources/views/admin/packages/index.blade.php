@@ -303,11 +303,25 @@
         @if($tab === 'packages')
             <!-- TAB 1: DANH SÁCH GÓI DỊCH VỤ -->
             <div class="table-card">
-                <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:18px;">
+                <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:14px; flex-wrap:wrap; gap:10px;">
                     <h3 style="margin:0; font-size:17px; font-weight:900; color:#0f172a;">Danh Sách Gói Bản Quyền Đang Cấu Hình</h3>
-                    <button type="button" class="action-btn btn-primary-pkg" onclick="openPackageModal()">
-                        <span>+</span> Thêm Gói Mới
-                    </button>
+                    <div style="display:flex; gap:8px;">
+                        <a href="{{ route('admin.packages.index', ['tab' => 'packages']) }}"
+                           class="action-btn" style="background: {{ !request('audience') ? '#0f172a' : '#f1f5f9' }}; color: {{ !request('audience') ? '#fff' : '#475569' }};">
+                            Tất cả ({{ $packages->count() }})
+                        </a>
+                        <a href="{{ route('admin.packages.index', ['tab' => 'packages', 'audience' => 'student']) }}"
+                           class="action-btn" style="background: {{ request('audience') === 'student' ? '#1d4ed8' : '#eff6ff' }}; color: {{ request('audience') === 'student' ? '#fff' : '#1d4ed8' }}; border: 1.5px solid #bfdbfe;">
+                            🎒 Học sinh ({{ $packages->where('target_audience', 'student')->count() }})
+                        </a>
+                        <a href="{{ route('admin.packages.index', ['tab' => 'packages', 'audience' => 'teacher']) }}"
+                           class="action-btn" style="background: {{ request('audience') === 'teacher' ? '#15803d' : '#f0fdf4' }}; color: {{ request('audience') === 'teacher' ? '#fff' : '#15803d' }}; border: 1.5px solid #bbf7d0;">
+                            🏫 Giáo viên ({{ $packages->where('target_audience', 'teacher')->count() }})
+                        </a>
+                        <button type="button" class="action-btn btn-primary-pkg" onclick="openPackageModal()">
+                            <span>+</span> Thêm Gói Mới
+                        </button>
+                    </div>
                 </div>
 
                 <div style="overflow-x:auto;">
@@ -316,6 +330,7 @@
                             <tr>
                                 <th>Thứ tự</th>
                                 <th>Tên gói</th>
+                                <th>Đối tượng</th>
                                 <th>Giá bán</th>
                                 <th>Thời hạn</th>
                                 <th>Sĩ số HS</th>
@@ -326,17 +341,36 @@
                             </tr>
                         </thead>
                         <tbody>
-                            @forelse($packages as $pkg)
+                            @php
+                                // Lọc danh sách theo tham số audience nếu có
+                                $filteredPackages = request('audience')
+                                    ? $packages->where('target_audience', request('audience'))
+                                    : $packages;
+                            @endphp
+                            @forelse($filteredPackages as $pkg)
                                 <tr>
                                     <td><b>#{{ $pkg->sort_order }}</b></td>
                                     <td>
                                         <b style="color:#0f172a; font-size:14.5px;">{{ $pkg->name }}</b>
                                         @if($pkg->badge)
-                                            <span style="background:#fef3c7; color:#b45309; font-size:11px; padding:2px 7px; border-radius:6px; font-weight:850; margin-left:6px;">
+                                            <span style="background:#fef3c7; color:#b45309; font-size:11px; padding:2px 7px; border-radius:6px; font-weight:850; margin-left:4px;">
                                                 {{ $pkg->badge }}
                                             </span>
                                         @endif
                                         <small style="display:block; color:#64748b; font-size:12px; margin-top:2px;">{{ Str::limit($pkg->description, 60) }}</small>
+                                    </td>
+                                    <td>
+                                        @if($pkg->isForStudents())
+                                            <span style="display:inline-flex; align-items:center; gap:4px; background:linear-gradient(135deg,#eff6ff,#dbeafe); color:#1d4ed8; font-size:12px; padding:5px 12px; border-radius:20px; font-weight:900; border:1.5px solid #bfdbfe;">
+                                                🎒 Học sinh
+                                            </span>
+                                            <small style="display:block; color:#94a3b8; font-size:10.5px; margin-top:3px; font-weight:700;">B2C · Tự luyện tại nhà</small>
+                                        @else
+                                            <span style="display:inline-flex; align-items:center; gap:4px; background:linear-gradient(135deg,#f0fdf4,#dcfce7); color:#15803d; font-size:12px; padding:5px 12px; border-radius:20px; font-weight:900; border:1.5px solid #bbf7d0;">
+                                                🏫 Giáo viên
+                                            </span>
+                                            <small style="display:block; color:#94a3b8; font-size:10.5px; margin-top:3px; font-weight:700;">B2B · Quản lý lớp học</small>
+                                        @endif
                                     </td>
                                     <td>
                                         <b style="color:#b45309; font-family:'Fredoka', cursive; font-size:15px;">{{ $pkg->formatted_price }}</b>
@@ -379,7 +413,7 @@
                                 </tr>
                             @empty
                                 <tr>
-                                    <td colspan="9" style="text-align:center; padding:40px; color:#64748b;">
+                                    <td colspan="10" style="text-align:center; padding:40px; color:#64748b;">
                                         Chưa có gói dịch vụ nào. Hãy bấm <b>"+ Thêm Gói Mới"</b> để bắt đầu.
                                     </td>
                                 </tr>
@@ -412,7 +446,7 @@
                         <thead>
                             <tr>
                                 <th>Mã đơn</th>
-                                <th>Giáo viên đăng ký</th>
+                                <th>Người đăng ký</th>
                                 <th>Gói thuê</th>
                                 <th>Số tiền</th>
                                 <th>Thời hạn</th>
@@ -430,6 +464,11 @@
                                     </td>
                                     <td>
                                         <b style="color:#0f172a;">{{ $order->user?->name ?? 'N/A' }}</b>
+                                        @if($order->isStudentOrder())
+                                            <span style="background:#eff6ff; color:#1d4ed8; font-size:10.5px; padding:1px 6px; border-radius:6px; font-weight:800; border:1px solid #bfdbfe; margin-left:4px;">🎒 Học sinh</span>
+                                        @else
+                                            <span style="background:#f0fdf4; color:#15803d; font-size:10.5px; padding:1px 6px; border-radius:6px; font-weight:800; border:1px solid #bbf7d0; margin-left:4px;">🏫 Giáo viên</span>
+                                        @endif
                                         <small style="display:block; color:#64748b; font-size:11.5px;">{{ $order->user?->email }}</small>
                                     </td>
                                     <td>
@@ -527,13 +566,21 @@
 
                 <div style="display:grid; grid-template-columns:1fr 1fr; gap:14px;">
                     <div class="form-group">
+                        <label>Đối tượng phục vụ (*):</label>
+                        <select name="target_audience" id="input-target-audience" class="form-control-custom">
+                            <option value="student">🎒 Học sinh & Phụ huynh (B2C Tự luyện)</option>
+                            <option value="teacher" selected>🏫 Giáo viên & Nhà trường (B2B Quản lý lớp)</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
                         <label>Huy hiệu nổi bật (Badge):</label>
                         <input type="text" name="badge" id="input-badge" class="form-control-custom" placeholder="Ví dụ: Phổ biến nhất ⭐">
                     </div>
-                    <div class="form-group">
-                        <label>Thứ tự hiển thị:</label>
-                        <input type="number" name="sort_order" id="input-sort-order" class="form-control-custom" value="1" min="0">
-                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label>Thứ tự hiển thị:</label>
+                    <input type="number" name="sort_order" id="input-sort-order" class="form-control-custom" value="1" min="0">
                 </div>
 
                 <div style="display:grid; grid-template-columns:1fr 1fr; gap:14px;">
@@ -604,6 +651,7 @@
             document.getElementById('method-container').innerHTML = '';
 
             document.getElementById('input-name').value = '';
+            document.getElementById('input-target-audience').value = 'teacher';
             document.getElementById('input-badge').value = '';
             document.getElementById('input-price').value = '';
             document.getElementById('input-original-price').value = '';
@@ -627,6 +675,7 @@
             document.getElementById('method-container').innerHTML = '<input type="hidden" name="_method" value="PUT">';
 
             document.getElementById('input-name').value = pkg.name || '';
+            document.getElementById('input-target-audience').value = pkg.target_audience || 'teacher';
             document.getElementById('input-badge').value = pkg.badge || '';
             document.getElementById('input-price').value = pkg.price || 0;
             document.getElementById('input-original-price').value = pkg.original_price || '';

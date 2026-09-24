@@ -30,7 +30,7 @@ use Illuminate\Notifications\Notifiable;
  * - `created_at` / `updated_at`: Thời điểm tạo và cập nhật tài khoản.
  */
 // Fillable cho phép gán hàng loạt; Hidden ẩn mật khẩu/token khi xuất model thành JSON.
-#[Fillable(['name', 'email', 'password', 'role', 'student_code', 'classroom_id', 'created_by', 'max_students', 'expires_at', 'status', 'reward_stars', 'game_time_seconds'])]
+#[Fillable(['name', 'email', 'password', 'role', 'student_code', 'classroom_id', 'created_by', 'max_students', 'expires_at', 'status', 'reward_stars', 'game_time_seconds', 'google_id', 'avatar'])]
 #[Hidden(['password', 'remember_token'])]
 class User extends Authenticatable
 {
@@ -75,6 +75,22 @@ class User extends Authenticatable
     public function attempts(): HasMany
     {
         return $this->hasMany(TestAttempt::class);
+    }
+
+    /**
+     * Mối quan hệ: Sổ tay các câu hỏi học sinh đã làm sai (StudentMistakes)
+     */
+    public function mistakes(): HasMany
+    {
+        return $this->hasMany(StudentMistake::class);
+    }
+
+    /**
+     * Helper: Đếm số câu hỏi học sinh đang bị sai (chưa sửa được)
+     */
+    public function unresolvedMistakesCount(): int
+    {
+        return $this->mistakes()->where('status', 'unresolved')->count();
     }
 
     /**
@@ -136,6 +152,12 @@ class User extends Authenticatable
 
         if (($this->status ?? 'active') !== 'active') {
             return false;
+        }
+
+        // 🎒 Nếu là Học sinh thuộc quyền quản lý của Giáo viên:
+        // Hạn dùng và trạng thái hoạt động kế thừa trực tiếp từ gói của Giáo viên phụ trách
+        if ($this->isStudent() && $this->created_by && $this->teacher) {
+            return $this->teacher->isSubscriptionActive();
         }
 
         if ($this->expires_at && $this->expires_at->isPast() && ! $this->expires_at->isToday()) {
@@ -206,7 +228,11 @@ class User extends Authenticatable
             return $this->teacherLevels()->where('levels.id', $levelId)->exists();
         }
 
-        // Nếu là Học sinh: Kiểm tra các Khối được Giáo viên cấp quyền qua bảng level_user
+        // Nếu là Học sinh: Kiểm tra tài khoản còn hạn và các Khối được cấp quyền qua bảng level_user
+        if (! $this->isSubscriptionActive()) {
+            return false;
+        }
+
         if ($this->relationLoaded('accessibleLevels')) {
             return $this->accessibleLevels->contains('id', $levelId);
         }

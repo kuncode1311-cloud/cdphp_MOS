@@ -18,7 +18,7 @@
     // Xác định nhóm nào cần mở sẵn (auto-expanded)
     if ($currentRoute === 'admin.games.settings') {
         $activeGroup = 'games';
-    } elseif ($currentRoute === 'admin.questions.studio') {
+    } elseif ($currentRoute === 'admin.questions.studio' || str_starts_with((string)$currentRoute, 'admin.mock-tests.')) {
         $activeGroup = 'exams';
     }
 
@@ -47,7 +47,7 @@
                 <b style="white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">{{ $user?->name ?? 'Quản trị viên' }}</b>
                 <span style="font-size: 11px; opacity: 0.8;" title="Chỉnh sửa thông tin">✏️</span>
             </div>
-            <small>{{ $isTeacher ? '👩‍🏫 Giáo viên phụ trách' : '👑 Quản trị viên Tổng' }}</small>
+            <small>{{ $isTeacher ? '👩‍🏫 Giáo viên phụ trách · Chế độ Giáo viên' : '👑 Quản trị viên Tổng' }}</small>
         </div>
     </div>
 
@@ -113,10 +113,10 @@
                             <span class="sub-icon">👨‍🎓</span> <span class="nav-text">Danh Sách Học Sinh</span>
                         </a>
                     @else
-                        <a href="{{ route('admin.dashboard') }}#tab-users" class="nav-sub-item">
+                        <a href="{{ route('admin.dashboard') }}?role=teacher#tab-users" class="nav-sub-item">
                             <span class="sub-icon">👩‍🏫</span> <span class="nav-text">Giáo Viên & Đối Tác</span>
                         </a>
-                        <a href="{{ route('admin.dashboard') }}#tab-users" class="nav-sub-item">
+                        <a href="{{ route('admin.dashboard') }}?role=student#tab-users" class="nav-sub-item">
                             <span class="sub-icon">👨‍🎓</span> <span class="nav-text">Danh Sách Học Sinh</span>
                         </a>
                     @endif
@@ -139,6 +139,9 @@
             </button>
             <div class="nav-submenu">
                 @if(! $isTeacher)
+                    <a href="{{ route('admin.mock-tests.index') }}" class="nav-sub-item {{ request()->routeIs('admin.mock-tests.*') ? 'on' : '' }}" title="Quản lý và soạn bộ đề thi thử IC3 các khối lớp">
+                        <span class="sub-icon">🏆</span> <span class="nav-text">Bộ Đề Thi Thử IC3</span>
+                    </a>
                     <a href="{{ route('admin.questions.studio') }}" class="nav-sub-item studio-link {{ $currentRoute === 'admin.questions.studio' ? 'on' : '' }}" title="Mở Question Studio soạn đề trọn gói">
                         <span class="sub-icon">✍️</span> <span class="nav-text">Soạn đề thi IC3 ➔</span>
                     </a>

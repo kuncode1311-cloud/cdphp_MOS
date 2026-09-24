@@ -32,10 +32,14 @@ class Package extends Model
 {
     use HasFactory;
 
+    public const AUDIENCE_TEACHER = 'teacher';
+    public const AUDIENCE_STUDENT = 'student';
+
     protected $fillable = [
         'name',
         'slug',
         'badge',
+        'target_audience',
         'description',
         'price',
         'original_price',
@@ -52,6 +56,7 @@ class Package extends Model
     protected function casts(): array
     {
         return [
+            'target_audience' => 'string',
             'price' => 'integer',
             'original_price' => 'integer',
             'duration_days' => 'integer',
@@ -111,6 +116,38 @@ class Package extends Model
     public function scopeOrdered(Builder $query): Builder
     {
         return $query->orderBy('sort_order')->orderBy('price');
+    }
+
+    /**
+     * Scope: Lọc các gói dành riêng cho Giáo viên & Nhà trường
+     */
+    public function scopeForTeachers(Builder $query): Builder
+    {
+        return $query->where('target_audience', self::AUDIENCE_TEACHER);
+    }
+
+    /**
+     * Scope: Lọc các gói dành cho Học sinh & Khách lẻ tự luyện
+     */
+    public function scopeForStudents(Builder $query): Builder
+    {
+        return $query->where('target_audience', self::AUDIENCE_STUDENT);
+    }
+
+    /**
+     * Kiểm tra xem gói này có dành cho học sinh không
+     */
+    public function isForStudents(): bool
+    {
+        return $this->target_audience === self::AUDIENCE_STUDENT;
+    }
+
+    /**
+     * Kiểm tra xem gói này có dành cho giáo viên không
+     */
+    public function isForTeachers(): bool
+    {
+        return $this->target_audience !== self::AUDIENCE_STUDENT;
     }
 
     /**

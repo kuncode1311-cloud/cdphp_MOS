@@ -42,6 +42,16 @@ class UpdateUserRequest extends FormRequest
                     'role' => UserRole::Student->value,
                 ]);
             }
+
+            // ⚡ Nếu form cấp quyền giáo viên gửi lên mà bỏ chọn hết khối: gán teacher_level_ids = []
+            if ($this->has('is_grant_teacher_form') && ! $this->has('teacher_level_ids')) {
+                $this->merge(['teacher_level_ids' => []]);
+            }
+
+            // ⚡ Nếu form cấp quyền học sinh gửi lên mà bỏ chọn hết khối: gán level_ids = []
+            if ($this->has('is_grant_level_form') && ! $this->has('level_ids')) {
+                $this->merge(['level_ids' => []]);
+            }
         }
     }
 

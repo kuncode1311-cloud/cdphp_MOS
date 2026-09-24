@@ -35,7 +35,6 @@ class ShufflePracticeTestTest extends TestCase
             'topic_id' => $topic->id,
             'name' => 'Bài luyện 1',
             'slug' => 'k4-cd4-bai-1',
-            'difficulty' => 'Cơ bản',
             'duration_minutes' => 20,
             'is_published' => true,
             'shuffle_questions' => true,
@@ -56,7 +55,6 @@ class ShufflePracticeTestTest extends TestCase
         $response = $this->actingAs($admin)->put(route('admin.tests.update', $test), [
             'topic_id' => $test->topic_id,
             'name' => 'Bài luyện 1 Đã Đổi',
-            'difficulty' => 'Trung bình',
             'duration_minutes' => 25,
             'shuffle_questions' => 0,
             'shuffle_options' => 1,

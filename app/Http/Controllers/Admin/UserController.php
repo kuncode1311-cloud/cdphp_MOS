@@ -38,8 +38,15 @@ class UserController extends Controller
 
         $user = User::create($data);
 
-        // Cấp quyền Khối học cho Học sinh
+        // Cấp quyền Khối học cho Học sinh (chỉ cấp các khối mà Giáo viên sở hữu)
         if ($user->isStudent() && ! empty($levelIds)) {
+            if ($user->created_by) {
+                $teacher = User::find($user->created_by);
+                if ($teacher && $teacher->isTeacher()) {
+                    $allowedLevelIds = $teacher->teacherLevels()->pluck('levels.id')->map(fn($id) => (int)$id)->toArray();
+                    $levelIds = array_values(array_filter($levelIds, fn($id) => in_array((int)$id, $allowedLevelIds, true)));
+                }
+            }
             $user->accessibleLevels()->sync($levelIds);
         }
 
@@ -81,9 +88,17 @@ class UserController extends Controller
             unset($data['role'], $data['status']);
         }
 
-        // Cập nhật danh sách Khối học cho Học sinh
+        // Cập nhật danh sách Khối học cho Học sinh (chỉ cấp các khối mà Giáo viên sở hữu)
         // sync() thay danh sách quyền: [] là gỡ hết, còn null ở đây là không cập nhật.
         if ($levelIds !== null && $user->isStudent()) {
+            $effectiveTeacherId = array_key_exists('created_by', $data) ? $data['created_by'] : $user->created_by;
+            if ($effectiveTeacherId) {
+                $teacher = User::find($effectiveTeacherId);
+                if ($teacher && $teacher->isTeacher()) {
+                    $allowedLevelIds = $teacher->teacherLevels()->pluck('levels.id')->map(fn($id) => (int)$id)->toArray();
+                    $levelIds = array_values(array_filter($levelIds, fn($id) => in_array((int)$id, $allowedLevelIds, true)));
+                }
+            }
             $user->accessibleLevels()->sync($levelIds);
         }
 

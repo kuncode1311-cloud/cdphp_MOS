@@ -1,6 +1,13 @@
 {{-- Trang giới thiệu bài luyện trước khi mở màn hình làm bài ở learning/launch. --}}
 @extends('layouts.app')
-@section('title', $practiceTest->name.' — '.$practiceTest->topic->name.' (Khối '.$practiceTest->topic->level->grade.')')
+@php
+    $effectiveLevel = $practiceTest->level ?? $practiceTest->topic?->level;
+    $gradeNumber = $effectiveLevel?->grade ?? 3;
+    $sparkNumber = max(1, $gradeNumber - 2);
+    $categoryName = $practiceTest->is_mock ? 'Đề Thi Thử IC3 GS6' : ($practiceTest->topic?->name ?? 'Luyện Tập');
+    $topicPosition = $practiceTest->topic?->position ?? 1;
+@endphp
+@section('title', $practiceTest->name.' — '.$categoryName.' (Khối '.$gradeNumber.')')
 
 @section('content')
 <style>
@@ -341,15 +348,15 @@
 <div class="mission-stage-bright-wrap">
     <!-- Đường dẫn bản đồ Tone Sáng -->
     <div class="bright-nav-bar">
-        <a class="bright-back-btn" href="{{ route('levels.show', $practiceTest->topic->level) }}">
-            <span>←</span> Quay lại Bản đồ Khối {{ $practiceTest->topic->level->grade }}
+        <a class="bright-back-btn" href="{{ route('levels.show', $effectiveLevel) }}">
+            <span>←</span> Quay lại Bản đồ Khối {{ $gradeNumber }}
         </a>
         <div class="bright-breadcrumbs">
             <a href="{{ route('home') }}">Trang chủ</a>
             <span>›</span>
-            <a href="{{ route('levels.show', $practiceTest->topic->level) }}">Khối {{ $practiceTest->topic->level->grade }}</a>
+            <a href="{{ route('levels.show', $effectiveLevel) }}">Khối {{ $gradeNumber }}</a>
             <span>›</span>
-            <span>Chủ đề {{ $practiceTest->topic->position }}</span>
+            <span>{{ $practiceTest->is_mock ? 'Đấu trường thi thử' : 'Chủ đề ' . $topicPosition }}</span>
         </div>
     </div>
 
@@ -359,27 +366,30 @@
         <article class="bright-card bright-main-card">
             <div class="bright-badge-row">
                 <span class="bright-pill pill-grade">
-                    <i>★</i> KHỐI {{ $practiceTest->topic->level->grade }} · SPARK LEVEL {{ $practiceTest->topic->level->grade - 2 }}
+                    <i>★</i> KHỐI {{ $gradeNumber }} · SPARK LEVEL {{ $sparkNumber }}
                 </span>
-                <span class="bright-pill pill-topic">
-                    <i>⚡</i> CHỦ ĐỀ {{ $practiceTest->topic->position }}: {{ mb_strtoupper($practiceTest->topic->name) }}
-                </span>
-                <span class="bright-pill pill-diff">
-                    <i>🎯</i> {{ mb_strtoupper($practiceTest->difficulty) }}
-                </span>
+                @if($practiceTest->is_mock)
+                    <span class="bright-pill pill-topic" style="background: linear-gradient(135deg, #f59e0b, #d97706); color: #fff;">
+                        <i>🏆</i> ĐỀ THI THỬ TỔNG HỢP KHỐI {{ $gradeNumber }}
+                    </span>
+                @else
+                    <span class="bright-pill pill-topic">
+                        <i>⚡</i> CHỦ ĐỀ {{ $topicPosition }}: {{ mb_strtoupper($categoryName) }}
+                    </span>
+                @endif
             </div>
 
             <div class="bright-stage-header">
-                <span class="stage-label-chip">STAGE 0{{ $practiceTest->position }}</span>
+                <span class="stage-label-chip">{{ $practiceTest->is_mock ? 'MOCK EXAM' : 'STAGE 0' . $practiceTest->position }}</span>
                 <h1>{{ $practiceTest->name }}</h1>
-                <h2>{{ $practiceTest->topic->name }}</h2>
+                <h2>{{ $categoryName }}</h2>
             </div>
 
             <div class="bright-rule-box">
                 💡 <b>Quy định IC3:</b> Với mục đích rèn luyện kĩ năng, các bài Test đều cần đạt <b>điểm tối đa (1000/1000)</b> mới được tính là hoàn thành.
             </div>
 
-            <p class="bright-desc">{{ $practiceTest->topic->description }}</p>
+            <p class="bright-desc">{{ $practiceTest->is_mock ? 'Bộ đề thi thử tổng hợp 7 chủ đề với áp lực thời gian thực, đạt chuẩn ' . $practiceTest->pass_score . '/' . $practiceTest->max_score . ' điểm để được cấp chứng nhận và Sao Vàng thưởng!' : ($practiceTest->topic?->description ?? '') }}</p>
 
             <!-- 4 Thẻ chỉ số Game Stats Màu Sắc Rực Rỡ -->
             <div class="bright-stats-grid">
@@ -491,9 +501,9 @@
         <span class="arcade-kicker" style="font-size:12px;font-weight:900;color:#d97706;letter-spacing:1.5px;display:block;">SẴN SÀNG CHƯA NÀO?</span>
         <h2 id="modal-title" style="margin:8px 0 14px;font-family:'Fredoka',cursive,sans-serif!important;font-size:28px!important;color:#0f172a!important;font-weight:700!important;text-shadow:none!important;">Bắt Đầu Thử Thách!</h2>
         <div class="modal-test-preview" style="padding:16px;background:#f8fafc;border:2px solid #e2e8f0;border-radius:20px;margin:16px 0;">
-            <span class="preview-grade" style="display:inline-block;padding:4px 12px;background:linear-gradient(135deg,#0ea5e9,#0284c7);color:#ffffff;border-radius:999px;font-size:11px;font-weight:900;margin-bottom:6px;">Khối {{ $practiceTest->topic->level->grade }}</span>
-            <b style="display:block;font-size:18px;color:#0f172a;font-weight:900;">{{ $practiceTest->topic->name }}</b>
-            <small style="display:block;font-size:13px;color:#64748b;margin-top:4px;font-weight:750;">{{ $practiceTest->name }} · {{ $practiceTest->question_count }} câu hỏi chuẩn IIG</small>
+            <span class="preview-grade" style="display:inline-block;padding:4px 12px;background:linear-gradient(135deg,#0ea5e9,#0284c7);color:#ffffff;border-radius:999px;font-size:11px;font-weight:900;margin-bottom:6px;">Khối {{ $gradeNumber }}</span>
+            <b style="display:block;font-size:18px;color:#0f172a;font-weight:900;">{{ $categoryName }}</b>
+            <small style="display:block;font-size:13px;color:#64748b;margin-top:4px;font-weight:750;">{{ $practiceTest->name }} · {{ $practiceTest->question_count ?: $practiceTest->questions()->count() }} câu hỏi chuẩn IIG</small>
         </div>
         <p class="modal-desc" style="font-size:14px;line-height:1.6;color:#475569!important;margin:14px 0 24px!important;font-weight:700;">
             Bé hãy đọc thật kỹ từng câu hỏi và chọn đáp án chính xác nhất nhé. Chúc bé hoàn thành xuất sắc 1000/1000 điểm!

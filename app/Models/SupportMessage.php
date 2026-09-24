@@ -20,6 +20,7 @@ class SupportMessage extends Model
         'phone',
         'email',
         'message',
+        'conversation_history',
         'admin_reply',
         'replied_at',
         'status',
@@ -30,10 +31,30 @@ class SupportMessage extends Model
      * Thuộc tính tự động ép kiểu
      */
     protected $casts = [
+        'conversation_history' => 'array',
         'replied_at' => 'datetime',
         'created_at' => 'datetime',
         'updated_at' => 'datetime',
     ];
+
+    /**
+     * Thêm một lượt tin nhắn vào luồng hội thoại đa chiều
+     */
+    public function appendConversationTurn(string $sender, string $text): void
+    {
+        $history = is_array($this->conversation_history) ? $this->conversation_history : [];
+        $tz = config('learning.display_timezone', 'Asia/Ho_Chi_Minh');
+        $timeStr = now()->setTimezone($tz)->format('H:i');
+
+        $history[] = [
+            'sender' => $sender, // 'user' hoặc 'admin'
+            'text' => trim($text),
+            'time' => $timeStr,
+            'timestamp' => now()->timestamp,
+        ];
+
+        $this->conversation_history = $history;
+    }
 
     /**
      * Scope lấy tin nhắn chờ xử lý

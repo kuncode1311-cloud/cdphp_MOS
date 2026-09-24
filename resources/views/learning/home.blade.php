@@ -50,6 +50,34 @@
             </div>
         </section>
 
+        @if(auth()->user()->isStudent())
+            @php $unresolvedCount = auth()->user()->unresolvedMistakesCount(); @endphp
+            @if($unresolvedCount > 0)
+            <div style="background: linear-gradient(135deg, #7f1d1d 0%, #991b1b 50%, #c2410c 100%); border-radius: 24px; padding: 18px 24px; margin-bottom: 25px; display: flex; align-items: center; justify-content: space-between; gap: 20px; flex-wrap: wrap; border: 3px solid #fca5a5; box-shadow: 0 12px 28px rgba(185, 28, 28, 0.3);">
+                <div style="display: flex; align-items: center; gap: 16px;">
+                    <div style="width: 52px; height: 52px; border-radius: 18px; background: rgba(255,255,255,0.15); display: grid; place-items: center; font-size: 26px; border: 2px solid rgba(255,255,255,0.3); flex-shrink: 0;">
+                        🔥
+                    </div>
+                    <div>
+                        <div style="display: flex; align-items: center; gap: 8px;">
+                            <span style="font-family: 'Fredoka', cursive, sans-serif; font-size: 19px; color: #fef08a; font-weight: 700;">Em Đang Có {{ $unresolvedCount }} Câu Hỏi Cần Phục Thù!</span>
+                            <span style="background: #ef4444; color: #ffffff; font-size: 10px; font-weight: 900; padding: 2px 8px; border-radius: 999px; text-transform: uppercase;">Sổ Tay Câu Sai</span>
+                        </div>
+                        <p style="margin: 4px 0 0; color: #fecaca; font-size: 13px; font-weight: 700;">Hãy ôn luyện lại các câu này để sửa lỗi hoàn toàn và nhận thêm Sao Vàng nhé!</p>
+                    </div>
+                </div>
+                <div style="display: flex; align-items: center; gap: 10px;">
+                    <a href="{{ route('mistakes.launch') }}" style="display: inline-flex; align-items: center; gap: 8px; padding: 10px 20px; border-radius: 16px; background: #ffffff; color: #991b1b; font-size: 13.5px; font-weight: 1000; text-decoration: none; box-shadow: 0 4px 12px rgba(0,0,0,0.2); transition: all 0.15s;">
+                        <span>⚡</span> Phục Thù Ngay
+                    </a>
+                    <a href="{{ route('mistakes.index') }}" style="display: inline-flex; align-items: center; gap: 6px; padding: 10px 16px; border-radius: 16px; background: rgba(255,255,255,0.15); border: 1.5px solid rgba(255,255,255,0.3); color: #ffffff; font-size: 13px; font-weight: 800; text-decoration: none;">
+                        Xem Sổ Tay
+                    </a>
+                </div>
+            </div>
+            @endif
+        @endif
+
         <!-- 4 Action Hub Cards lối tắt chức năng VIP -->
         <section class="action-hub" aria-label="Lối tắt chức năng" style="margin-bottom: 35px;">
             <a class="action-card action-learn" href="#chuong-trinh">

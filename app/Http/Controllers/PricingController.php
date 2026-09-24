@@ -33,17 +33,29 @@ class PricingController extends Controller
      */
     public function index(): View
     {
-        // 🌟 Chỉ hiển thị 3 gói bản quyền mặc định cốt lõi (Khởi Đầu, Tiêu Chuẩn, Toàn Diện)
-        $packages = Package::active()
+        // 🌟 Lấy danh sách gói Giáo viên & Nhà trường
+        $teacherPackages = Package::active()
+            ->forTeachers()
             ->ordered()
-            ->take(3)
+            ->take(6)
             ->with('levels')
             ->get();
+
+        // 🌟 Lấy danh sách gói Học sinh & Khách lẻ tự luyện
+        $studentPackages = Package::active()
+            ->forStudents()
+            ->ordered()
+            ->take(6)
+            ->with('levels')
+            ->get();
+
+        // Biến $packages giữ danh sách gói mặc định để tương thích
+        $packages = $teacherPackages;
 
         $user = auth()->user();
         $latestOrder = $user ? $user->packageOrders()->with('package')->first() : null;
 
-        return view('pricing.index', compact('packages', 'latestOrder'));
+        return view('pricing.index', compact('packages', 'teacherPackages', 'studentPackages', 'latestOrder'));
     }
 
     /**
@@ -59,9 +71,9 @@ class PricingController extends Controller
     {
         $user = $request->user();
 
-        // Không cho phép học sinh thuê gói giáo viên nếu không phù hợp
-        if ($user->isStudent()) {
-            return back()->with('err', 'Tài khoản học sinh không thể thuê gói giáo viên. Vui lòng liên hệ Thầy/Cô hoặc Quản trị viên.');
+        // Học sinh không thể mua các gói quản lý lớp của giáo viên
+        if ($user->isStudent() && $package->isForTeachers()) {
+            return back()->with('err', 'Tài khoản học sinh không thể thuê gói giáo viên. Vui lòng chọn các gói tự luyện dành cho Học sinh.');
         }
 
         $data = $request->validated();
@@ -71,7 +83,8 @@ class PricingController extends Controller
             $user->update(['school_name' => $data['school_name']]);
         }
         if (! empty($data['phone'])) {
-            $extraNotes[] = "SĐT: {$data['phone']}";
+            $phonePrefix = $user->isStudent() ? 'SĐT Phụ huynh' : 'SĐT';
+            $extraNotes[] = "{$phonePrefix}: {$data['phone']}";
             $user->update(['phone' => $data['phone']]);
         }
         if (! empty($data['name']) && $user->name !== $data['name']) {
@@ -132,7 +145,7 @@ class PricingController extends Controller
     }
 
     /**
-     * Đăng ký tài khoản Giáo viên mới VÀ đặt thuê gói bản quyền ngay lập tức (Dành cho khách chưa có tài khoản)
+     * Đăng ký tài khoản mới (Giáo viên hoặc Học sinh) VÀ đặt thuê gói ngay lập tức
      */
     public function registerAndOrder(
         \App\Http\Requests\RegisterTeacherPackageRequest $request,
@@ -143,33 +156,38 @@ class PricingController extends Controller
     ): RedirectResponse|JsonResponse
     {
         $data = $request->validated();
+        $isStudentPackage = $package->isForStudents();
 
-        // 1. Tạo hồ sơ tài khoản Giáo viên mới ở trạng thái chờ kích hoạt
-        $teacher = \App\Models\User::create([
+        // 1. Phân loại vai trò tài khoản dựa trên gói đặt mua
+        $role = $isStudentPackage ? \App\Enums\UserRole::Student->value : \App\Enums\UserRole::Teacher->value;
+        $maxStudents = $isStudentPackage ? 1 : 0;
+
+        $user = \App\Models\User::create([
             'name' => $data['name'],
             'email' => $data['email'],
             'password' => $data['password'],
             'phone' => $data['phone'] ?? null,
             'school_name' => $data['school_name'] ?? null,
-            'role' => \App\Enums\UserRole::Teacher->value,
+            'role' => $role,
             'status' => 'pending', // Chờ thanh toán & kích hoạt đơn hàng
-            'max_students' => 0,   // Sẽ tự động nâng cấp khi thanh toán/admin duyệt
+            'max_students' => $maxStudents,
             'expires_at' => null,
         ]);
 
-        // 2. Tạo đơn hàng thuê gói (chưa đăng nhập cho đến khi kích hoạt)
+        // 2. Tạo đơn hàng thuê gói
         $extraNotes = [];
         if (! empty($data['school_name'])) {
             $extraNotes[] = "Trường/Đơn vị: {$data['school_name']}";
         }
         if (! empty($data['phone'])) {
-            $extraNotes[] = "SĐT: {$data['phone']}";
+            $phonePrefix = $isStudentPackage ? 'SĐT Phụ huynh' : 'SĐT';
+            $extraNotes[] = "{$phonePrefix}: {$data['phone']}";
         }
         if (! empty($data['notes'])) {
             $extraNotes[] = "Ghi chú: {$data['notes']}";
         }
 
-        $order = $subscriptionService->createOrder($teacher, $package, [
+        $order = $subscriptionService->createOrder($user, $package, [
             'payment_method' => $data['payment_method'] ?? 'bank_transfer',
             'notes' => implode(' · ', $extraNotes),
         ]);
@@ -213,8 +231,12 @@ class PricingController extends Controller
             ]);
         }
 
+        $welcomeMsg = $isStudentPackage
+            ? "Chào mừng bạn {$user->name}! Tài khoản Học sinh của bạn đã được tạo thành công."
+            : "Chào mừng Thầy/Cô {$user->name}! Tài khoản Giáo viên của Thầy/Cô đã được tạo thành công.";
+
         return redirect()->route('pricing.order.checkout', $order)
-            ->with('ok', "Chào mừng Thầy/Cô {$teacher->name}! Tài khoản Giáo viên của Thầy/Cô đã được tạo thành công.");
+            ->with('ok', $welcomeMsg);
     }
 
     /**
@@ -267,29 +289,48 @@ class PricingController extends Controller
      */
     public function payosWebhook(Request $request, PayosService $payosService, SubscriptionService $subscriptionService, TelegramService $telegramService): JsonResponse
     {
+        Log::info('PayOS Webhook received payload: ', $request->all());
+
         $data = $payosService->verifyWebhookData($request->all());
 
         if (! $data) {
+            Log::warning('PayOS Webhook verification failed.');
             return response()->json(['success' => false, 'message' => 'Invalid signature'], 400);
         }
 
         $order = null;
         if (! empty($data['orderCode'])) {
             $codeStr = (string) $data['orderCode'];
-            $candidateId = (int) substr($codeStr, 0, -6);
-            if ($candidateId > 0) {
-                $order = PackageOrder::find($candidateId);
+            if (strlen($codeStr) > 6) {
+                $candidateId = (int) substr($codeStr, 0, -6);
+                if ($candidateId > 0) {
+                    $order = PackageOrder::find($candidateId);
+                }
             }
         }
 
+        // Fallback: Tìm theo description hoặc mã code
         if (! $order && ! empty($data['description'])) {
-            $cleaned = preg_replace('/[^A-Za-z0-9-]/', '', $data['description']);
-            $order = PackageOrder::where('code', 'like', "%{$cleaned}%")->first();
+            $rawDesc = trim((string)$data['description']);
+            $cleanLettersOnly = preg_replace('/[^A-Za-z0-9]/', '', $rawDesc);
+            $order = PackageOrder::where('status', PackageOrder::STATUS_PENDING)
+                ->get()
+                ->first(function ($o) use ($cleanLettersOnly) {
+                    $orderLetters = preg_replace('/[^A-Za-z0-9]/', '', $o->code);
+                    return str_contains($cleanLettersOnly, $orderLetters) || str_contains($orderLetters, $cleanLettersOnly);
+                });
         }
 
-        if ($order && $order->status === PackageOrder::STATUS_PENDING) {
-            $subscriptionService->activateOrder($order);
-            $telegramService->sendPaymentSuccessNotification($order);
+        if ($order) {
+            if ($order->status === PackageOrder::STATUS_PENDING) {
+                $subscriptionService->activateOrder($order);
+                $telegramService->sendPaymentSuccessNotification($order);
+                Log::info("PayOS Webhook: Kích hoạt thành công đơn hàng #{$order->code} (ID: {$order->id})");
+            } else {
+                Log::info("PayOS Webhook: Đơn hàng #{$order->code} đã được kích hoạt trước đó.");
+            }
+        } else {
+            Log::warning("PayOS Webhook: Không tìm thấy đơn hàng pending tương ứng.", $data);
         }
 
         return response()->json(['success' => true]);
@@ -314,18 +355,23 @@ class PricingController extends Controller
 
         $data['ip_address'] = $request->ip();
 
-        // 🔄 Cơ chế nhận diện phiên chat: Nếu cùng phiên (parent_id) hoặc cùng SĐT chưa đóng trong 24h, gộp vào cùng cuộc hội thoại
+        // 🔄 Cơ chế nhận diện phiên chat thông minh 2 lớp:
+        // Lớp 1: Khóa theo mã phiên trình duyệt (parent_id) nếu phiên đó chưa đóng và còn trong 24h
+        // Lớp 2: Khóa theo Số điện thoại nếu cùng SĐT tương tác trong vòng 24h gần nhất (tính từ tin nhắn cuối - updated_at)
         $parentId = (int) $request->input('parent_id', 0);
         $supportMsg = null;
 
         if ($parentId > 0) {
-            $supportMsg = SupportMessage::find($parentId);
+            $supportMsg = SupportMessage::where('id', $parentId)
+                ->where('status', '!=', 'closed')
+                ->where('updated_at', '>=', now()->subHours(24))
+                ->first();
         }
 
         if (! $supportMsg && ! empty($data['phone'])) {
             $supportMsg = SupportMessage::where('phone', $data['phone'])
                 ->where('status', '!=', 'closed')
-                ->where('created_at', '>=', now()->subHours(24))
+                ->where('updated_at', '>=', now()->subHours(24))
                 ->latest('id')
                 ->first();
         }
@@ -343,11 +389,18 @@ class PricingController extends Controller
             } else {
                 $supportMsg->message = $existingMsg . "\n" . $incomingMessage;
             }
+            if (! empty($data['name']) && (empty($supportMsg->name) || $supportMsg->name === 'Khách vãng lai')) {
+                $supportMsg->name = $data['name'];
+            }
+            if (! empty($data['phone']) && empty($supportMsg->phone)) {
+                $supportMsg->phone = $data['phone'];
+            }
             $supportMsg->status = 'pending';
+            $supportMsg->appendConversationTurn('user', $incomingMessage);
             $supportMsg->updated_at = now();
             $supportMsg->save();
         } else {
-            $supportMsg = SupportMessage::create([
+            $supportMsg = new SupportMessage([
                 'name' => $data['name'],
                 'phone' => $data['phone'] ?? null,
                 'email' => $data['email'] ?? null,
@@ -355,6 +408,8 @@ class PricingController extends Controller
                 'ip_address' => $data['ip_address'],
                 'status' => 'pending',
             ]);
+            $supportMsg->appendConversationTurn('user', $incomingMessage);
+            $supportMsg->save();
         }
 
         $telegramService->sendSupportMessageNotification(
@@ -365,10 +420,13 @@ class PricingController extends Controller
             $supportMsg->id
         );
 
+        $tz = config('learning.display_timezone', 'Asia/Ho_Chi_Minh');
+
         return response()->json([
             'ok' => true,
             'message_id' => $supportMsg->id,
-            'time' => $supportMsg->created_at ? $supportMsg->created_at->format('H:i') : date('H:i'),
+            'time' => now()->setTimezone($tz)->format('H:i'),
+            'conversation_history' => $supportMsg->conversation_history ?? [],
             'message' => 'Cảm ơn bạn! Ban Quản Trị đã nhận được tin nhắn và sẽ phản hồi ngay tại đây.',
         ]);
     }
@@ -392,7 +450,10 @@ class PricingController extends Controller
             'ok' => true,
             'id' => $msg->id,
             'status' => $msg->status,
+            'sender_name' => $msg->name,
+            'contact' => $msg->phone ?? $msg->email ?? '',
             'admin_reply' => $msg->admin_reply,
+            'conversation_history' => $msg->conversation_history ?? [],
             'replied_at' => $msg->replied_at ? \Illuminate\Support\Carbon::parse($msg->replied_at)->format('H:i') : null,
         ]);
     }

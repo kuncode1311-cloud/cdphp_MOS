@@ -260,7 +260,7 @@ class GameRewardAndSettingsTest extends TestCase
             'time_seconds_change' => -10,
             'description' => 'Chơi mini-game 10 giây',
         ]);
-        $tx->created_at = \Illuminate\Support\Carbon::parse('2026-09-16 11:01:00', 'UTC');
+        $tx->created_at = \Illuminate\Support\Carbon::parse('2026-09-16 11:01:00', 'UTC')->setTimezone(config('learning.display_timezone', 'Asia/Ho_Chi_Minh'));
         $tx->save();
 
         // Kiểm tra accessor hiển thị đúng 18:01 16/09

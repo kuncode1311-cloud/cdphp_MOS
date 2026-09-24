@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 
 /**
@@ -57,6 +58,24 @@ class Question extends Model
     public function assets(): HasMany
     {
         return $this->hasMany(QuestionAsset::class);
+    }
+
+    /**
+     * Mối quan hệ Many-to-Many: Thuộc về nhiều Đề thi thử tổng hợp
+     */
+    public function mockTests(): BelongsToMany
+    {
+        return $this->belongsToMany(PracticeTest::class, 'practice_test_questions')
+            ->withPivot('position')
+            ->orderBy('practice_test_questions.position');
+    }
+
+    /**
+     * Mối quan hệ: Lịch sử làm sai của học sinh với câu hỏi này
+     */
+    public function mistakes(): HasMany
+    {
+        return $this->hasMany(StudentMistake::class);
     }
 
     /** Dữ liệu an toàn cho runtime; không mang raw_payload hay đáp án đúng ra trình duyệt. */

@@ -2770,19 +2770,9 @@
                         <input type="text" name="name" class="form-input" placeholder="Ví dụ: Bài luyện 1, Đề thi thử cuối kỳ..." required>
                         <small style="font-size:11px; color:#64748b; margin-top:3px; display:block;">Tên đề luyện thi để học sinh chọn làm bài</small>
                     </div>
-                    <div style="display:grid; grid-template-columns: 1fr 1fr; gap:10px;">
-                        <div class="field-unit">
-                            <label class="field-label">🎯 Mức độ</label>
-                            <select name="difficulty" class="form-select">
-                                <option value="Cơ bản">🟢 Cơ bản</option>
-                                <option value="Trung bình">🟡 Trung bình</option>
-                                <option value="Nâng cao">🔴 Nâng cao</option>
-                            </select>
-                        </div>
-                        <div class="field-unit">
-                            <label class="field-label">⏱️ Thời gian (Phút) <small style="font-weight:normal; color:#64748b;">(0 = Không giới hạn)</small></label>
-                            <input type="number" name="duration_minutes" class="form-input" value="0" min="0" placeholder="0 = Không giới hạn">
-                        </div>
+                    <div class="field-unit">
+                        <label class="field-label">⏱️ Thời gian (Phút) <small style="font-weight:normal; color:#64748b;">(0 = Không giới hạn)</small></label>
+                        <input type="number" name="duration_minutes" class="form-input" value="0" min="0" placeholder="0 = Không giới hạn">
                     </div>
                     <div style="margin-top:12px; padding:10px 12px; background:#f8fafc; border:1px solid #cbd5e1; border-radius:8px; display:flex; flex-direction:column; gap:8px;">
                         <label style="display:flex; align-items:center; gap:8px; font-size:12px; font-weight:700; color:#0f172a; cursor:pointer;">
@@ -2820,19 +2810,9 @@
                         <label class="field-label">📝 Tên bài luyện / Đề thi *</label>
                         <input type="text" name="name" class="form-input" value="{{ $selectedTest->name }}" required>
                     </div>
-                    <div style="display:grid; grid-template-columns: 1fr 1fr; gap:10px;">
-                        <div class="field-unit">
-                            <label class="field-label">🎯 Mức độ</label>
-                            <select name="difficulty" class="form-select">
-                                <option value="Cơ bản" {{ $selectedTest->difficulty === 'Cơ bản' ? 'selected' : '' }}>🟢 Cơ bản</option>
-                                <option value="Trung bình" {{ $selectedTest->difficulty === 'Trung bình' ? 'selected' : '' }}>🟡 Trung bình</option>
-                                <option value="Nâng cao" {{ $selectedTest->difficulty === 'Nâng cao' ? 'selected' : '' }}>🔴 Nâng cao</option>
-                            </select>
-                        </div>
-                        <div class="field-unit">
-                            <label class="field-label">⏱️ Thời gian (Phút) <small style="font-weight:normal; color:#64748b;">(0 = Không giới hạn)</small></label>
-                            <input type="number" name="duration_minutes" class="form-input" value="{{ $selectedTest->duration_minutes ?? 0 }}" min="0" placeholder="0 = Không giới hạn">
-                        </div>
+                    <div class="field-unit">
+                        <label class="field-label">⏱️ Thời gian (Phút) <small style="font-weight:normal; color:#64748b;">(0 = Không giới hạn)</small></label>
+                        <input type="number" name="duration_minutes" class="form-input" value="{{ $selectedTest->duration_minutes ?? 0 }}" min="0" placeholder="0 = Không giới hạn">
                     </div>
                     
                     <div style="margin-top:14px; padding:12px 14px; background:#f8fafc; border:1px solid #cbd5e1; border-radius:10px; display:flex; flex-direction:column; gap:10px;">

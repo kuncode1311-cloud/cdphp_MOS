@@ -216,9 +216,11 @@
         .role-pill.teacher { background: #ecfdf5; color: #047857; border: 1px solid #a7f3d0; }
 
         .content {
-            padding: 24px 32px 48px;
-            max-width: 1560px;
+            padding: 10px 14px 28px;
+            max-width: 100%;
             margin: 0 auto;
+            width: 100%;
+            box-sizing: border-box;
         }
 
         /* Context Alerts */
@@ -690,10 +692,10 @@
             overflow-x: auto;
             width: 100%;
             -webkit-overflow-scrolling: touch;
-            border: 2px solid #94a3b8; /* Viền ngoài đậm nét rõ ràng */
-            border-radius: 12px;
+            border: 1px solid #cbd5e1;
+            border-radius: 10px;
             background: #ffffff;
-            box-shadow: 0 4px 14px rgba(15, 23, 42, 0.08);
+            box-shadow: 0 2px 8px rgba(15, 23, 42, 0.04);
         }
         
         table,
@@ -787,16 +789,14 @@
         /* Định dạng riêng cho cột Người dùng: Căn trái tự nhiên, không bị áp đặt style cột số thứ tự */
         .col-user,
         #users-data-table td.col-user,
-        #users-data-table th.col-user,
-        #users-data-table td:first-child {
+        #users-data-table th.col-user {
             text-align: left !important;
             background: transparent;
-            border-right: 1.5px solid #cbd5e1 !important;
+            border-right: 1px solid #cbd5e1 !important;
         }
-        #users-data-table thead th.col-user,
-        #users-data-table thead th:first-child {
-            background: #e2e8f0 !important;
-            border-right: 1.5px solid #94a3b8 !important;
+        #users-data-table thead th.col-user {
+            background: #f1f5f9 !important;
+            border-right: 1px solid #94a3b8 !important;
             text-align: left !important;
         }
 
@@ -907,19 +907,19 @@
         .action-btn-group {
             display: inline-flex;
             align-items: center;
-            gap: 5px;
+            gap: 2.5px;
             justify-content: center;
             flex-wrap: nowrap;
         }
         .btn-action-edit, .btn-action-grant, .btn-action-view, .btn-action-delete {
-            padding: 4px 8px;
-            border-radius: 7px;
-            font-size: 11px;
-            font-weight: 850;
+            padding: 2.5px 5.5px;
+            border-radius: 5px;
+            font-size: 10.5px;
+            font-weight: 800;
             cursor: pointer;
             display: inline-flex;
             align-items: center;
-            gap: 4px;
+            gap: 2px;
             white-space: nowrap;
             line-height: 1.2;
             transition: all 0.15s ease;
@@ -979,6 +979,121 @@
             transform: translateY(-1px);
             box-shadow: 0 2px 6px rgba(225, 29, 72, 0.25);
         }
+
+        /* 👥 TỐI ƯU HÓA GIAO DIỆN QUẢN TRỊ NGƯỜI DÙNG TOÀN DIỆN (FULL-WIDTH & TÁI CẤU TRÚC GỌN GÀNG) */
+        #tab-users {
+            width: 100%;
+        }
+        #tab-users .user-card-clean {
+            background: transparent;
+            border: none;
+            box-shadow: none;
+            margin-bottom: 0;
+            width: 100%;
+            padding: 0;
+        }
+        #tab-users .user-management-toolbar {
+            background: #ffffff;
+            padding: 7px 12px;
+            border: 1px solid #cbd5e1;
+            border-radius: 10px;
+            margin-bottom: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: 8px;
+            box-shadow: 0 1px 4px rgba(15, 23, 42, 0.04);
+            width: 100%;
+            box-sizing: border-box;
+        }
+        #tab-users .excel-table-wrap {
+            border: 1px solid #cbd5e1;
+            border-radius: 10px;
+            box-shadow: 0 1px 6px rgba(15, 23, 42, 0.04);
+            background: #ffffff;
+            overflow-x: hidden; /* Tuyệt đối chống thanh cuộn ngang gây trượt lẹm avatar trên Desktop */
+            overflow-y: hidden;
+            width: 100%;
+            box-sizing: border-box;
+            margin: 0;
+        }
+        @media (max-width: 1023px) {
+            #tab-users .excel-table-wrap {
+                overflow-x: auto; /* Màn hình cảm ứng hoặc tablet nhỏ mới cuộn ngang */
+            }
+        }
+        #users-data-table {
+            width: 100% !important;
+            max-width: 100% !important;
+            table-layout: fixed;
+            border-collapse: collapse !important;
+            border-spacing: 0 !important;
+            margin: 0 !important;
+        }
+        #users-data-table thead th {
+            padding: 7px 4px !important;
+            font-size: 11px !important;
+            font-weight: 900 !important;
+            background: #f1f5f9 !important;
+            color: #1e293b !important;
+            border-bottom: 2px solid #94a3b8 !important;
+            border-right: 1px solid #cbd5e1 !important;
+            white-space: nowrap !important;
+            vertical-align: middle !important;
+            text-align: center;
+            box-sizing: border-box;
+        }
+        #users-data-table thead th.col-user {
+            text-align: left !important;
+            padding-left: 14px !important;
+        }
+        #users-data-table thead th:last-child {
+            border-right: none !important;
+        }
+        #users-data-table tbody td {
+            padding: 4.5px 4px !important;
+            font-size: 11.5px !important;
+            border-bottom: 1px solid #e2e8f0 !important;
+            border-right: 1px solid #e2e8f0 !important;
+            vertical-align: middle !important;
+            box-sizing: border-box;
+        }
+        #users-data-table tbody td.col-user {
+            padding-left: 14px !important;
+            padding-right: 6px !important;
+            text-align: left !important;
+        }
+        #users-data-table tbody td:last-child {
+            border-right: none !important;
+        }
+        #users-data-table tbody tr:hover td {
+            background: #f0f9ff !important;
+        }
+
+        /* ⚡ PHÂN BỔ ĐỘ RỘNG CỘT BẢNG NGƯỜI DÙNG CHUẨN XÁC THEO TỪNG CHẾ ĐỘ XEM (KHÔNG DÙNG COLGROUP TRÁNH LỆCH CỘT) */
+        #users-data-table th.col-user, #users-data-table td.col-user { width: 26% !important; }
+        #users-data-table th.col-role, #users-data-table td.col-role { width: 9% !important; }
+        #users-data-table th.col-status, #users-data-table td.col-status { width: 10% !important; }
+        #users-data-table th.col-package, #users-data-table td.col-package { width: 23% !important; }
+        #users-data-table th.col-attempts, #users-data-table td.col-attempts { width: 7% !important; }
+        #users-data-table th.col-actions, #users-data-table td.col-actions { width: 25% !important; }
+
+        /* Chế độ xem Học sinh (Ẩn cột Vai trò thừa thãi, mở rộng cột Học sinh & Giáo viên/Khối) */
+        #users-data-table.mode-student .col-role { display: none !important; }
+        #users-data-table.mode-student th.col-user, #users-data-table.mode-student td.col-user { width: 32% !important; }
+        #users-data-table.mode-student th.col-status, #users-data-table.mode-student td.col-status { width: 12% !important; }
+        #users-data-table.mode-student th.col-package, #users-data-table.mode-student td.col-package { width: 24% !important; }
+        #users-data-table.mode-student th.col-attempts, #users-data-table.mode-student td.col-attempts { width: 11% !important; }
+        #users-data-table.mode-student th.col-actions, #users-data-table.mode-student td.col-actions { width: 21% !important; }
+
+        /* Chế độ xem Giáo viên (Ẩn cột Vai trò & Cột Tiến độ thi học sinh) */
+        #users-data-table.mode-teacher .col-role { display: none !important; }
+        #users-data-table.mode-teacher .col-attempts { display: none !important; }
+        #users-data-table.mode-teacher th.col-user, #users-data-table.mode-teacher td.col-user { width: 32% !important; }
+        #users-data-table.mode-teacher th.col-status, #users-data-table.mode-teacher td.col-status { width: 13% !important; }
+        #users-data-table.mode-teacher th.col-package, #users-data-table.mode-teacher td.col-package { width: 27% !important; }
+        #users-data-table.mode-teacher th.col-actions, #users-data-table.mode-teacher td.col-actions { width: 28% !important; }
 
         /* Level Hero Cards VIP — Vibrant & High Contrast */
         .level-hero-card {
@@ -1440,33 +1555,75 @@
         }
         @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
 
-        /* 🍞 FLOATING TOAST NOTIFICATION */
+        /* 🍞 FLOATING TOAST NOTIFICATION 3D GAMIFIED VIP (GỌN ĐẸP 1 GÓC, ĐỒNG BỘ TONE MÀU) */
         .toast-container {
             position: fixed;
-            top: 24px;
+            top: 20px;
             right: 24px;
-            z-index: 99999;
+            z-index: 999999;
             display: flex;
             flex-direction: column;
             gap: 10px;
             pointer-events: none;
         }
         .toast-msg {
-            padding: 12px 18px;
-            font-size: 13.5px;
+            padding: 11px 16px;
+            font-size: 13px;
             font-weight: 800;
-            border-radius: 12px;
-            box-shadow: 0 10px 25px rgba(0,0,0,0.2);
+            border-radius: 14px;
             display: flex;
             align-items: center;
             gap: 10px;
-            animation: toastSlideIn 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+            animation: toastSlideIn 0.3s cubic-bezier(0.16, 1, 0.3, 1);
             pointer-events: auto;
+            min-width: 320px;
+            max-width: 450px;
+            border: 2px solid #ffffff;
+            box-shadow: 0 14px 35px rgba(0, 0, 0, 0.2), inset 0 -3px 0 rgba(0, 0, 0, 0.12);
+            transition: all 0.25s ease;
         }
-        .toast-success { background: #065f46; border: 1.5px solid #34d399; color: #ecfdf5; }
-        .toast-error { background: #991b1b; border: 1.5px solid #f87171; color: #fef2f2; }
+        .toast-msg.toast-success {
+            background: linear-gradient(135deg, #059669 0%, #047857 100%);
+            color: #ffffff;
+            border-color: #6ee7b7;
+            box-shadow: 0 14px 32px rgba(4, 120, 87, 0.38), inset 0 -3px 0 rgba(0, 0, 0, 0.15);
+        }
+        .toast-msg.toast-error {
+            background: linear-gradient(135deg, #dc2626 0%, #b91c1c 100%);
+            color: #ffffff;
+            border-color: #fca5a5;
+            box-shadow: 0 14px 32px rgba(220, 38, 38, 0.38), inset 0 -3px 0 rgba(0, 0, 0, 0.15);
+        }
+        .toast-icon-wrap {
+            width: 26px;
+            height: 26px;
+            border-radius: 8px;
+            background: rgba(255, 255, 255, 0.22);
+            border: 1.5px solid rgba(255, 255, 255, 0.45);
+            display: grid;
+            place-items: center;
+            font-size: 13px;
+            font-weight: 900;
+            flex-shrink: 0;
+            color: #ffffff;
+        }
+        .toast-close-btn {
+            margin-left: auto;
+            background: transparent;
+            border: none;
+            color: rgba(255, 255, 255, 0.75);
+            font-size: 16px;
+            cursor: pointer;
+            padding: 0 4px;
+            line-height: 1;
+            transition: color 0.15s ease, transform 0.15s ease;
+        }
+        .toast-close-btn:hover {
+            color: #ffffff;
+            transform: scale(1.15);
+        }
         @keyframes toastSlideIn {
-            from { opacity: 0; transform: translateX(40px) scale(0.95); }
+            from { opacity: 0; transform: translateX(50px) scale(0.92); }
             to { opacity: 1; transform: translateX(0) scale(1); }
         }
         .modal-box {
@@ -1596,11 +1753,20 @@
 
         <main class="content">
 
-            @if(session('ok'))
-                <div class="alert-ok">
-                    <span>✓</span>
-                    <div>{{ session('ok') }}</div>
-                </div>
+            {{-- 🍞 TOAST THÔNG BÁO TỰ ĐỘNG GỌN ĐẸP Ở GÓC PHẢI (KHÔNG CỘM BANNER MÀN HÌNH) --}}
+            @if(session('ok') || session('success') || session('status'))
+                <script>
+                    document.addEventListener('DOMContentLoaded', () => {
+                        showToast(@json(session('ok') ?: (session('success') ?: session('status'))), 'success');
+                    });
+                </script>
+            @endif
+            @if(session('error'))
+                <script>
+                    document.addEventListener('DOMContentLoaded', () => {
+                        showToast(@json(session('error')), 'error');
+                    });
+                </script>
             @endif
 
             @if($isTeacher)
@@ -2246,6 +2412,9 @@
                                                             <a href="{{ route('admin.questions.studio') }}?grade={{ $lvl->grade }}" class="btn-level-primary" style="background: {{ $thm['btn_bg'] }};" title="Soạn đề & Quản lý câu hỏi cho Khối {{ $lvl->grade }}">
                                                                 <span>📚</span> Soạn đề
                                                             </a>
+                                                            <a href="{{ route('admin.mock-tests.index', ['grade' => $lvl->grade]) }}" class="btn-level-primary" style="background: linear-gradient(135deg, #f59e0b, #d97706); text-decoration:none;" title="Quản trị Bộ đề thi thử Khối {{ $lvl->grade }}">
+                                                                <span>🏆</span> Thi thử
+                                                            </a>
                                                             <a href="{{ route('levels.show', $lvl) }}" target="_blank" class="btn-level-preview" title="Xem bản đồ học sinh Khối {{ $lvl->grade }}">
                                                                 <span>👁️</span> Xem map
                                                             </a>
@@ -2373,46 +2542,39 @@
             <!-- TAB 2: 👥 QUẢN TRỊ ĐẠI LÝ & HỌC SINH (TAB-USERS)           -->
             <!-- ========================================================= -->
             <div id="tab-users" class="admin-tab-pane" style="display:none;">
-                <section class="card">
-                    <div class="card-header-row">
-                        <div>
-                            <h2 class="card-title"><span>👥</span> {{ $isTeacher ? 'Danh Sách Học Sinh Của Tôi' : 'Quản Trị Giáo Viên & Học Sinh' }}</h2>
-                            <p class="card-subtitle">{{ $isTeacher ? 'Quản lý tài khoản và cấp quyền mở khóa Khối học cho học sinh của bạn' : 'Cấp quyền Khối học & Quota cho Giáo viên và toàn bộ Học sinh trong hệ thống' }}</p>
-                        </div>
-                        <div style="display:flex; align-items:center; gap:10px;">
-                            <span class="pill-badge pill-grade" style="padding:6px 12px; font-size:12px;">Tổng: {{ $allUsers->count() }} tài khoản</span>
-                            <button type="button" class="btn-primary" onclick="openCreateUserModal()">
-                                <span>＋</span> {{ $isTeacher ? 'Thêm học sinh mới' : 'Thêm tài khoản mới' }}
-                            </button>
-                        </div>
-                    </div>
-
-                    <!-- Modern Toolbar Bar for Filters & Search -->
-                    <div class="card-toolbar" style="display:flex; gap:12px; align-items:center; justify-content:space-between; flex-wrap:wrap;">
+                <div class="user-card-clean">
                     @if($isTeacher)
                         <!-- ================= GIAO DIỆN DÀNH RIÊNG CHO GIÁO VIÊN ================= -->
-                        <div class="card-toolbar" style="display:flex; gap:12px; align-items:center; justify-content:space-between; flex-wrap:wrap;">
-                            <div style="display:flex; align-items:center; gap:8px;">
-                                <span class="pill-badge pill-grade" style="font-size:12.5px; padding:6px 14px;">
-                                    👥 Sĩ số: <b>{{ $allUsers->count() }}</b> / {{ auth()->user()->max_students ?: '∞' }} Học sinh
+                        <div class="user-management-toolbar">
+                            <div style="display:flex; align-items:center; gap:10px; flex-wrap:wrap;">
+                                <h2 style="font-size:16px; font-weight:900; color:#0f172a; margin:0; display:flex; align-items:center; gap:8px;">
+                                    <span>👥</span> Danh Sách Học Sinh Của Tôi
+                                </h2>
+                                <span class="pill-badge pill-grade" style="font-size:12px; padding:3px 10px; font-weight:800;">
+                                    Sĩ số: <b>{{ $allUsers->count() }}</b> / {{ auth()->user()->max_students ?: '∞' }} Học sinh
                                 </span>
                             </div>
 
-                            <div class="search-wrap" style="flex: 1; max-width: 460px; min-width: 280px;">
-                                <span class="search-icon">🔍</span>
-                                <input type="text" id="user-search-input" class="search-input" style="width: 100%; box-sizing: border-box; font-size: 13px;" placeholder="Tìm tên, mã HS, email học sinh..." onkeyup="filterUserSearch()">
+                            <div style="display:flex; align-items:center; gap:10px; flex-wrap:wrap;">
+                                <div class="search-wrap" style="width:260px; position:relative;">
+                                    <span class="search-icon" style="position:absolute; left:10px; top:50%; transform:translateY(-50%); font-size:12px; color:#94a3b8; pointer-events:none;">🔍</span>
+                                    <input type="text" id="user-search-input" class="search-input" style="width:100%; box-sizing:border-box; height:36px; padding-left:30px; padding-right:10px; font-size:12.5px; border:1.5px solid #cbd5e1; border-radius:8px; outline:none; background:#ffffff;" placeholder="Tìm tên, mã HS, email..." onkeyup="filterUserSearch()">
+                                </div>
+                                <button type="button" class="btn-primary" onclick="openCreateUserModal()" style="padding:7px 14px; font-size:12.5px; border-radius:8px; height:36px; white-space:nowrap;">
+                                    <span>＋</span> Thêm học sinh mới
+                                </button>
                             </div>
                         </div>
 
                         <div class="excel-table-wrap">
-                            <table id="users-data-table" class="modal-roster-table" style="width:100% !important; max-width:100% !important; table-layout:fixed; min-width: 760px;">
+                            <table id="users-data-table" class="modal-roster-table" style="width:100% !important; table-layout:fixed;">
                                 <colgroup>
                                     <col style="width: 4%;">
-                                    <col style="width: 36%;">
-                                    <col style="width: 13%;">
-                                    <col style="width: 14%;">
+                                    <col style="width: 33%;">
+                                    <col style="width: 12%;">
+                                    <col style="width: 19%;">
                                     <col style="width: 10%;">
-                                    <col style="width: 23%;">
+                                    <col style="width: 22%;">
                                 </colgroup>
                                 <thead>
                                     <tr>
@@ -2432,10 +2594,10 @@
                                         @endphp
                                         <tr class="user-row-item {{ $isSuspended ? 'user-row-suspended' : '' }}" data-role="{{ $uRoleStr }}" data-user-id="{{ $u->id }}">
                                             <td class="col-stt" style="color:#94a3b8; font-weight:700; text-align:center;">{{ $loop->iteration }}</td>
-                                            <td class="col-user" style="text-align:left; padding-left:14px; vertical-align:middle;">
-                                                <div style="display:flex; align-items:center; gap:10px; min-width:0;">
+                                            <td class="col-user" style="text-align:left; padding:4.5px 6px 4.5px 14px; vertical-align:middle;">
+                                                <div style="display:flex; align-items:center; gap:8px; min-width:0;">
                                                     <div class="avatar-box-wrap" 
-                                                         style="cursor:pointer; transition:transform 0.15s ease;" 
+                                                         style="cursor:pointer; transition:transform 0.15s ease; flex-shrink:0;" 
                                                          onmouseover="this.style.transform='scale(1.08)'" 
                                                          onmouseout="this.style.transform='scale(1)'"
                                                          onclick="openStudentProfileModal(this)"
@@ -2449,62 +2611,62 @@
                                                          data-levels='@json($u->accessibleLevels->map(fn($l) => ["grade" => $l->grade, "name" => $l->name]))'
                                                          data-teacher="{{ $u->teacher?->name ?? (auth()->user()->name ?? 'Giáo viên phụ trách') }}"
                                                          title="Bấm để xem hồ sơ chi tiết của {{ $u->name }}">
-                                                        <div style="width:34px; height:34px; border-radius:10px; display:grid; place-items:center; font-weight:900; font-size:13px; color:#fff; background: {{ $isSuspended ? '#94a3b8' : 'linear-gradient(135deg, #6366f1, #8b5cf6)' }}; box-shadow:0 2px 6px rgba(99,102,241,0.25); flex-shrink:0;">
+                                                        <div style="width:28px; height:28px; min-width:28px; border-radius:7px; display:grid; place-items:center; font-weight:900; font-size:11px; color:#fff; background: {{ $isSuspended ? '#94a3b8' : 'linear-gradient(135deg, #6366f1, #8b5cf6)' }}; box-shadow:0 2px 5px rgba(99,102,241,0.22); flex-shrink:0;">
                                                             {{ mb_strtoupper(mb_substr($u->name, 0, 1)) }}
                                                         </div>
                                                         @if($isSuspended)
-                                                            <span class="avatar-suspended-badge" title="Tài khoản đang bị tạm khóa">🔒</span>
+                                                            <span class="avatar-suspended-badge" style="width:12px; height:12px; font-size:7px; bottom:-2px; right:-2px;" title="Tài khoản đang bị tạm khóa">🔒</span>
                                                         @else
-                                                            <span class="avatar-online-badge" title="Tài khoản đang hoạt động / Online"></span>
+                                                            <span class="avatar-online-badge" style="width:9px; height:9px; bottom:-1px; right:-1px;" title="Tài khoản đang hoạt động / Online"></span>
                                                         @endif
                                                     </div>
-                                                    <div style="min-width:0; flex:1;">
-                                                        <div style="display:flex; align-items:center; gap:6px; flex-wrap:wrap;">
-                                                            <b style="color:{{ $isSuspended ? '#64748b' : '#0f172a' }}; font-size:13.5px; cursor:pointer;" 
+                                                    <div style="min-width:0; flex:1; overflow:hidden;">
+                                                        <div style="display:flex; align-items:center; gap:5px; flex-wrap:nowrap; overflow:hidden;">
+                                                            <b style="color:{{ $isSuspended ? '#64748b' : '#0f172a' }}; font-size:12.5px; font-weight:800; cursor:pointer; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;" 
                                                                onclick="openStudentProfileModal(this.closest('td').querySelector('.avatar-box-wrap'))" 
                                                                title="Bấm xem hồ sơ {{ $u->name }}">
                                                                 {{ $u->name }}
                                                             </b>
                                                             @if($u->student_code)
-                                                                <span class="pill-badge pill-code" style="font-size:10px; padding:1px 6px; font-weight:800; border-radius:5px;">{{ $u->student_code }}</span>
+                                                                <span class="pill-badge pill-code" style="font-size:9.5px; padding:0.5px 4px; font-weight:800; border-radius:4px; flex-shrink:0;">{{ $u->student_code }}</span>
                                                             @endif
                                                             @if($isSuspended)
-                                                                <span style="font-size:10.5px; color:#ef4444; font-weight:750;">(Đã khóa)</span>
+                                                                <span style="font-size:9.5px; color:#ef4444; font-weight:800; background:#fef2f2; padding:0.5px 4px; border-radius:4px; border:1px solid #fca5a5; flex-shrink:0;">(Khóa)</span>
                                                             @endif
                                                         </div>
-                                                        <div style="font-size:11px; color:#64748b; margin-top:3px; display:flex; align-items:center; gap:6px; flex-wrap:wrap;">
-                                                            <span style="color:#475569;" title="{{ $u->email }}">{{ $u->email }}</span>
-                                                            <span style="color:#cbd5e1;">•</span>
-                                                            <span style="color:#64748b; white-space:nowrap; font-weight:600;">📅 {{ $u->created_date_vn }}</span>
+                                                        <div style="font-size:10.5px; color:#64748b; margin-top:1px; display:flex; align-items:center; gap:5px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">
+                                                            <span style="color:#475569; font-weight:500; overflow:hidden; text-overflow:ellipsis;" title="{{ $u->email }}">{{ $u->email }}</span>
+                                                            <span style="color:#cbd5e1; flex-shrink:0;">•</span>
+                                                            <span style="color:#64748b; font-weight:600; flex-shrink:0;">📅 {{ $u->created_date_vn }}</span>
                                                         </div>
                                                     </div>
                                                 </div>
                                             </td>
-                                            <td style="text-align:center;" class="user-status-cell">
+                                            <td style="text-align:center; vertical-align:middle; padding:5px 4px;" class="user-status-cell">
                                                 @if($isSuspended)
-                                                    <button type="button" class="pill-badge pill-fail" style="cursor:pointer; padding:4px 10px; font-size:11px; font-weight:800; line-height:1.3; border-radius:8px; border:1.5px solid #fca5a5; white-space:nowrap; display:inline-flex; align-items:center; gap:5px;" onclick="toggleStudentStatusAjax({{ $u->id }}, 'active', '{{ addslashes($u->name) }}')" title="Bấm để mở khóa kích hoạt lại tài khoản">
+                                                    <button type="button" class="pill-badge pill-fail" style="cursor:pointer; padding:2.5px 7px; font-size:10.5px; font-weight:800; border-radius:6px; border:1.5px solid #fca5a5; display:inline-flex; align-items:center; gap:3px;" onclick="toggleStudentStatusAjax({{ $u->id }}, 'active', '{{ addslashes($u->name) }}')" title="Bấm để mở khóa kích hoạt lại tài khoản">
                                                         <span>🔒</span> Tạm khóa
                                                     </button>
                                                 @else
-                                                    <button type="button" class="pill-badge pill-pass" style="cursor:pointer; padding:4px 10px; font-size:11px; font-weight:800; line-height:1.3; border-radius:8px; border:1.5px solid #86efac; white-space:nowrap; display:inline-flex; align-items:center; gap:5px;" onclick="toggleStudentStatusAjax({{ $u->id }}, 'suspended', '{{ addslashes($u->name) }}')" title="Bấm để tạm khóa tài khoản này">
-                                                        <span class="status-dot-online" style="width:7px; height:7px; background:#10b981; border-radius:50%; display:inline-block; box-shadow:0 0 0 2px rgba(16,185,129,0.2);"></span> Đang học
+                                                    <button type="button" class="pill-badge pill-pass" style="cursor:pointer; padding:2.5px 7px; font-size:10.5px; font-weight:800; border-radius:6px; border:1.5px solid #86efac; display:inline-flex; align-items:center; gap:3px;" onclick="toggleStudentStatusAjax({{ $u->id }}, 'suspended', '{{ addslashes($u->name) }}')" title="Bấm để tạm khóa tài khoản này">
+                                                        <span class="status-dot-online" style="width:6px; height:6px; background:#10b981; border-radius:50%; display:inline-block;"></span> Đang học
                                                     </button>
                                                 @endif
                                             </td>
-                                            <td style="text-align:center;">
-                                                <div style="display:flex; gap:3px; flex-wrap:wrap; justify-content:center;">
+                                            <td style="text-align:center; vertical-align:middle; padding:5px 4px;">
+                                                <div style="display:flex; gap:2.5px; flex-wrap:wrap; justify-content:center;">
                                                     @forelse($u->accessibleLevels as $lvl)
-                                                        <span class="pill-badge pill-grade" style="font-size:10px; padding:2px 6px;">Khối {{ $lvl->grade }}</span>
+                                                        <span class="pill-badge pill-grade" style="font-size:9px; padding:1px 4.5px;">Khối {{ $lvl->grade }}</span>
                                                     @empty
-                                                        <span style="font-size:10.5px; color:#ef4444; font-weight:750;">🔒 Chưa mở</span>
+                                                        <span style="font-size:9.5px; color:#ef4444; font-weight:750;">🔒 Chưa mở</span>
                                                     @endforelse
                                                 </div>
                                             </td>
-                                            <td style="text-align:center;">
-                                                <span class="pill-badge pill-time" style="font-size:10.5px; padding:2px 6px;">📝 {{ $u->attempts_count ?? $u->attempts()->count() }} lượt</span>
+                                            <td style="text-align:center; vertical-align:middle; padding:5px 4px;">
+                                                <span class="pill-badge pill-time" style="font-size:10px; padding:1.5px 5px; font-weight:750;">📝 {{ $u->attempts_count ?? $u->attempts()->count() }} lượt</span>
                                             </td>
-                                            <td style="text-align:center;">
-                                                <div class="action-btn-group" style="justify-content:center; gap:4px; flex-wrap:nowrap;">
+                                            <td style="text-align:center; vertical-align:middle; padding:5px 4px;">
+                                                <div class="action-btn-group" style="justify-content:center; gap:2.5px; flex-wrap:nowrap;">
                                                     <button type="button" class="btn-action-edit"
                                                         data-id="{{ $u->id }}"
                                                         data-name="{{ $u->name }}"
@@ -2532,10 +2694,10 @@
                                         </tr>
                                     @empty
                                         <tr>
-                                            <td colspan="6" style="text-align:center; padding:36px; color:#94a3b8;">
-                                                <div style="font-size:32px; margin-bottom:6px;">👨‍🎓</div>
+                                            <td colspan="6" style="text-align:center; padding:32px; color:#94a3b8;">
+                                                <div style="font-size:28px; margin-bottom:6px;">👨‍🎓</div>
                                                 <b style="color:#334155; font-size:14px;">Bạn chưa có học sinh nào.</b>
-                                                <p style="font-size:13px; margin-top:4px;">Bấm "＋ Thêm học sinh mới" ở trên để tạo tài khoản cho học sinh.</p>
+                                                <p style="font-size:12.5px; margin-top:4px;">Bấm "＋ Thêm học sinh mới" ở trên để tạo tài khoản cho học sinh.</p>
                                             </td>
                                         </tr>
                                     @endforelse
@@ -2544,37 +2706,46 @@
                         </div>
                     @else
                         <!-- ================= GIAO DIỆN DÀNH CHO ADMIN (QUẢN LÝ GIÁO VIÊN & TẤT CẢ USER) ================= -->
-                        <div class="card-toolbar" style="display:flex; gap:12px; align-items:center; justify-content:space-between; flex-wrap:wrap;">
-                            <div class="filter-tab-group">
-                                <button type="button" class="filter-tab-btn active" id="filter-btn-all" onclick="filterUserRole('all', this)">Tất cả ({{ $allUsers->count() }})</button>
-                                <button type="button" class="filter-tab-btn" id="filter-btn-teacher" onclick="filterUserRole('teacher', this)">👩‍🏫 Giáo viên ({{ $allUsers->filter(fn($u) => $u->isTeacher())->count() }})</button>
-                                <button type="button" class="filter-tab-btn" id="filter-btn-student" onclick="filterUserRole('student', this)">👨‍🎓 Học sinh ({{ $allUsers->filter(fn($u) => $u->isStudent())->count() }})</button>
+                        <div class="user-management-toolbar">
+                            <!-- Cụm trái: Tiêu đề & Tổng số -->
+                            <div style="display:flex; align-items:center; gap:10px; flex-wrap:wrap;">
+                                <h2 style="font-size:16px; font-weight:900; color:#0f172a; margin:0; display:flex; align-items:center; gap:8px;" id="user-toolbar-title-text">
+                                    <span>👥</span> Quản Trị Giáo Viên & Học Sinh
+                                </h2>
+                                <span class="pill-badge pill-grade" style="font-size:11.5px; padding:3px 9px; font-weight:800;" id="user-toolbar-count-badge">
+                                    Tổng: {{ $allUsers->count() }} tài khoản
+                                </span>
                             </div>
 
-                            <div class="search-wrap" style="flex: 1; max-width: 320px;">
-                                <span class="search-icon">🔍</span>
-                                <input type="text" id="user-search-input" class="search-input" style="width: 100%; box-sizing: border-box;" placeholder="Tìm theo tên, mã HS, email..." onkeyup="filterUserSearch()">
+                            <!-- Cụm giữa: Bộ lọc Vai trò -->
+                            <div class="filter-tab-group" style="display:inline-flex; background:#f1f5f9; padding:3px; border-radius:10px; border:1px solid #e2e8f0; gap:3px;">
+                                <button type="button" class="filter-tab-btn active" id="filter-btn-all" onclick="filterUserRole('all', this)" style="padding:5px 12px; font-size:12px; border-radius:7px;">Tất cả ({{ $allUsers->count() }})</button>
+                                <button type="button" class="filter-tab-btn" id="filter-btn-teacher" onclick="filterUserRole('teacher', this)" style="padding:5px 12px; font-size:12px; border-radius:7px;">👩‍🏫 Giáo viên ({{ $allUsers->filter(fn($u) => $u->isTeacher())->count() }})</button>
+                                <button type="button" class="filter-tab-btn" id="filter-btn-student" onclick="filterUserRole('student', this)" style="padding:5px 12px; font-size:12px; border-radius:7px;">👨‍🎓 Học sinh ({{ $allUsers->filter(fn($u) => $u->isStudent())->count() }})</button>
+                            </div>
+
+                            <!-- Cụm phải: Tìm kiếm & Thêm mới -->
+                            <div style="display:flex; align-items:center; gap:10px; flex-wrap:wrap;">
+                                <div class="search-wrap" style="width:230px; position:relative;">
+                                    <span class="search-icon" style="position:absolute; left:10px; top:50%; transform:translateY(-50%); font-size:12px; color:#94a3b8; pointer-events:none;">🔍</span>
+                                    <input type="text" id="user-search-input" class="search-input" style="width:100%; box-sizing:border-box; height:36px; padding-left:30px; padding-right:10px; font-size:12.5px; border:1.5px solid #cbd5e1; border-radius:8px; outline:none; background:#ffffff;" placeholder="Tìm theo tên, mã HS, email..." onkeyup="filterUserSearch()">
+                                </div>
+                                <button type="button" class="btn-primary" onclick="openCreateUserModal()" style="padding:7px 14px; font-size:12.5px; border-radius:8px; height:36px; white-space:nowrap;">
+                                    <span>＋</span> Thêm tài khoản mới
+                                </button>
                             </div>
                         </div>
 
                         <div class="excel-table-wrap">
-                            <table id="users-data-table" class="modal-roster-table" style="width:100% !important; max-width:100% !important; table-layout: fixed; min-width: 800px;">
-                                <colgroup>
-                                    <col style="width: 30%;">
-                                    <col style="width: 10%;">
-                                    <col style="width: 11%;">
-                                    <col style="width: 19%;">
-                                    <col style="width: 9%;">
-                                    <col style="width: 21%;">
-                                </colgroup>
+                            <table id="users-data-table" class="modal-roster-table" style="width:100% !important; table-layout: fixed;">
                                 <thead>
                                     <tr>
-                                        <th class="col-user" style="text-align:left; padding-left:16px;">NGƯỜI DÙNG</th>
-                                        <th style="text-align:center;">VAI TRÒ</th>
-                                        <th style="text-align:center;">TRẠNG THÁI</th>
-                                        <th style="text-align:center;">GIÁO VIÊN / GÓI & KHỐI</th>
-                                        <th style="text-align:center;">TIẾN ĐỘ</th>
-                                        <th style="text-align:center;">THAO TÁC</th>
+                                        <th id="th-col-user" class="col-user" style="text-align:left; padding-left:14px;">NGƯỜI DÙNG</th>
+                                        <th id="th-col-role" class="col-role" style="text-align:center;">VAI TRÒ</th>
+                                        <th id="th-col-status" class="col-status" style="text-align:center;">TRẠNG THÁI</th>
+                                        <th id="th-col-package" class="col-package" style="text-align:center;">GÓI & LỚP HỌC</th>
+                                        <th id="th-col-attempts" class="col-attempts" style="text-align:center;">TIẾN ĐỘ</th>
+                                        <th id="th-col-actions" class="col-actions" style="text-align:center;">THAO TÁC</th>
                                     </tr>
                                 </thead>
                                 <tbody>
@@ -2586,10 +2757,10 @@
                                             $userPendingOrder = $isPending ? $u->packageOrders->firstWhere('status', 'pending') : null;
                                         @endphp
                                         <tr class="user-row-item {{ $isSuspended ? 'user-row-suspended' : '' }}" data-role="{{ $uRoleStr }}" data-user-id="{{ $u->id }}">
-                                            <td class="col-user" style="vertical-align:middle; padding:10px 16px; text-align:left;">
-                                                <div style="display:flex; align-items:center; gap:10px; min-width:0;">
+                                            <td class="col-user" style="vertical-align:middle; padding:4.5px 6px 4.5px 14px; text-align:left;">
+                                                <div style="display:flex; align-items:center; gap:8px; min-width:0;">
                                                     <div class="avatar-box-wrap"
-                                                         style="cursor:pointer; transition:transform 0.15s ease;"
+                                                         style="cursor:pointer; transition:transform 0.15s ease; flex-shrink:0;"
                                                          onmouseover="this.style.transform='scale(1.08)'"
                                                          onmouseout="this.style.transform='scale(1)'"
                                                          onclick="openStudentProfileModal(this)"
@@ -2603,138 +2774,135 @@
                                                          data-levels='@json($u->accessibleLevels->map(fn($l) => ["grade" => $l->grade, "name" => $l->name]))'
                                                          data-teacher="{{ $u->teacher?->name ?? 'Quản trị viên' }}"
                                                          title="Bấm để xem hồ sơ chi tiết của {{ $u->name }}">
-                                                        <div style="width:36px; height:36px; border-radius:9px; display:grid; place-items:center; font-weight:900; font-size:13px; color:#fff; background: {{ $isSuspended ? '#94a3b8' : ($isPending ? 'linear-gradient(135deg, #f59e0b, #d97706)' : ($u->isAdmin() ? 'linear-gradient(135deg, #ef4444, #f59e0b)' : ($u->isTeacher() ? 'linear-gradient(135deg, #10b981, #06b6d4)' : 'linear-gradient(135deg, #6366f1, #8b5cf6)'))) }}; box-shadow:0 2px 6px rgba(99,102,241,0.25); flex-shrink:0;">
+                                                        <div style="width:28px; height:28px; min-width:28px; border-radius:7px; display:grid; place-items:center; font-weight:900; font-size:11px; color:#fff; background: {{ $isSuspended ? '#94a3b8' : ($isPending ? 'linear-gradient(135deg, #f59e0b, #d97706)' : ($u->isAdmin() ? 'linear-gradient(135deg, #ef4444, #f59e0b)' : ($u->isTeacher() ? 'linear-gradient(135deg, #10b981, #06b6d4)' : 'linear-gradient(135deg, #6366f1, #8b5cf6)'))) }}; box-shadow:0 2px 5px rgba(99,102,241,0.22); flex-shrink:0;">
                                                             {{ mb_strtoupper(mb_substr($u->name, 0, 1)) }}
                                                         </div>
                                                         @if($isSuspended)
-                                                            <span class="avatar-suspended-badge" title="Tài khoản đang bị tạm khóa">🔒</span>
+                                                            <span class="avatar-suspended-badge" style="width:12px; height:12px; font-size:7px; bottom:-2px; right:-2px;" title="Tài khoản đang bị tạm khóa">🔒</span>
                                                         @elseif($isPending)
-                                                            <span class="avatar-suspended-badge" style="background:#f59e0b;" title="Tài khoản đang chờ thanh toán/kích hoạt">⏳</span>
+                                                            <span class="avatar-suspended-badge" style="width:12px; height:12px; font-size:7px; bottom:-2px; right:-2px; background:#f59e0b;" title="Tài khoản đang chờ thanh toán/kích hoạt">⏳</span>
                                                         @else
-                                                            <span class="avatar-online-badge" title="Tài khoản đang hoạt động / Online"></span>
+                                                            <span class="avatar-online-badge" style="width:9px; height:9px; bottom:-1px; right:-1px;" title="Tài khoản đang hoạt động / Online"></span>
                                                         @endif
                                                     </div>
-                                                    <div style="min-width:0; flex:1; text-align:left;">
-                                                        <div style="display:flex; align-items:center; gap:6px; flex-wrap:wrap;">
-                                                            <b style="color:{{ $isSuspended ? '#64748b' : '#0f172a' }}; font-size:13.5px; font-weight:800; cursor:pointer;"
+                                                    <div style="min-width:0; flex:1; text-align:left; overflow:hidden;">
+                                                        <div style="display:flex; align-items:center; gap:5px; flex-wrap:nowrap; overflow:hidden;">
+                                                            <b style="color:{{ $isSuspended ? '#64748b' : '#0f172a' }}; font-size:12.5px; font-weight:800; cursor:pointer; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;"
                                                                onclick="openStudentProfileModal(this.closest('td').querySelector('.avatar-box-wrap'))"
                                                                title="Bấm xem hồ sơ {{ $u->name }}">
                                                                 {{ $u->name }}
                                                             </b>
                                                             @if($u->student_code)
-                                                                <span class="pill-badge pill-code" style="font-size:10px; padding:1px 6px; font-weight:800; border-radius:5px; background:#e0e7ff; color:#4338ca; border:1px solid #c7d2fe;">{{ $u->student_code }}</span>
+                                                                <span class="pill-badge pill-code" style="font-size:9.5px; padding:0.5px 4px; font-weight:800; border-radius:4px; background:#e0e7ff; color:#4338ca; border:1px solid #c7d2fe; flex-shrink:0;">{{ $u->student_code }}</span>
                                                             @endif
                                                             @if($isSuspended)
-                                                                <span style="font-size:10px; color:#ef4444; font-weight:800; background:#fef2f2; padding:1px 5px; border-radius:4px; border:1px solid #fca5a5;">(Đã khóa)</span>
+                                                                <span style="font-size:9.5px; color:#ef4444; font-weight:800; background:#fef2f2; padding:0.5px 4px; border-radius:4px; border:1px solid #fca5a5; flex-shrink:0;">(Khóa)</span>
                                                             @elseif($isPending)
-                                                                <span style="font-size:10px; color:#b45309; font-weight:800; background:#fffbeb; padding:1px 5px; border-radius:4px; border:1px solid #fde68a;">(Chờ duyệt)</span>
+                                                                <span style="font-size:9.5px; color:#b45309; font-weight:800; background:#fffbeb; padding:0.5px 4px; border-radius:4px; border:1px solid #fde68a; flex-shrink:0;">(Chờ duyệt)</span>
                                                             @endif
                                                         </div>
-                                                        <div style="font-size:11px; color:#64748b; margin-top:3px; display:flex; align-items:center; gap:6px; flex-wrap:wrap;">
-                                                            <span style="color:#475569; font-weight:500;" title="{{ $u->email }}">{{ $u->email }}</span>
-                                                            <span style="color:#cbd5e1;">•</span>
-                                                            <span style="color:#64748b; white-space:nowrap; font-weight:600;">📅 {{ $u->created_date_vn }}</span>
+                                                        <div style="font-size:10.5px; color:#64748b; margin-top:1px; display:flex; align-items:center; gap:5px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">
+                                                            <span style="color:#475569; font-weight:500; overflow:hidden; text-overflow:ellipsis;" title="{{ $u->email }}">{{ $u->email }}</span>
+                                                            <span style="color:#cbd5e1; flex-shrink:0;">•</span>
+                                                            <span style="color:#64748b; font-weight:600; flex-shrink:0;">📅 {{ $u->created_date_vn }}</span>
                                                         </div>
                                                     </div>
                                                 </div>
                                             </td>
-                                            <td style="text-align:center; vertical-align:middle;">
+                                            <td class="col-role" style="text-align:center; vertical-align:middle; padding:5px 4px;">
                                                 @if($u->isAdmin())
-                                                    <span class="pill-badge pill-role-admin" style="font-size:11px; padding:3px 8px; font-weight:800; display:inline-flex; align-items:center; gap:4px;">👑 Admin</span>
+                                                    <span class="pill-badge pill-role-admin" style="font-size:10.5px; padding:2px 6px; font-weight:800; display:inline-flex; align-items:center; gap:3px;">👑 Admin</span>
                                                 @elseif($u->isTeacher())
-                                                    <span class="pill-badge pill-role-teacher" style="font-size:11px; padding:3px 8px; font-weight:800; display:inline-flex; align-items:center; gap:4px;">👩‍🏫 Giáo viên</span>
+                                                    <span class="pill-badge pill-role-teacher" style="font-size:10.5px; padding:2px 6px; font-weight:800; display:inline-flex; align-items:center; gap:3px;">👩‍🏫 GV</span>
                                                 @else
-                                                    <span class="pill-badge pill-role-student" style="font-size:11px; padding:3px 8px; font-weight:800; display:inline-flex; align-items:center; gap:4px;">👨‍🎓 Học sinh</span>
+                                                    <span class="pill-badge pill-role-student" style="font-size:10.5px; padding:2px 6px; font-weight:800; display:inline-flex; align-items:center; gap:3px;">👨‍🎓 HS</span>
                                                 @endif
                                             </td>
-                                            <td style="text-align:center; vertical-align:middle;" class="user-status-cell">
+                                            <td class="col-status user-status-cell" style="text-align:center; vertical-align:middle; padding:5px 4px;">
                                                 @if($isSuspended)
-                                                    <button type="button" class="pill-badge pill-fail" style="cursor:pointer; padding:4px 10px; font-size:11px; font-weight:800; border-radius:8px; border:1.5px solid #fca5a5; display:inline-flex; align-items:center; gap:4px;" onclick="toggleStudentStatusAjax({{ $u->id }}, 'active', '{{ addslashes($u->name) }}')" title="Bấm để mở khóa kích hoạt lại tài khoản">
-                                                        🔒 Tạm khóa
+                                                    <button type="button" class="pill-badge pill-fail" style="cursor:pointer; padding:2.5px 7px; font-size:10.5px; font-weight:800; border-radius:6px; border:1.5px solid #fca5a5; display:inline-flex; align-items:center; gap:3px;" onclick="toggleStudentStatusAjax({{ $u->id }}, 'active', '{{ addslashes($u->name) }}')" title="Bấm để mở khóa kích hoạt lại tài khoản">
+                                                        <span>🔒</span> Khóa
                                                     </button>
                                                 @elseif($isPending)
-                                                    <span class="pill-badge" style="background:#fef3c7; color:#b45309; border:1.5px solid #fde68a; font-weight:800; padding:4px 10px; font-size:11px; display:inline-flex; align-items:center; gap:4px;" title="Tài khoản mới đăng ký, đang chờ thanh toán đơn hàng">
-                                                        ⏳ Chờ kích hoạt
+                                                    <span class="pill-badge" style="background:#fef3c7; color:#b45309; border:1.5px solid #fde68a; font-weight:800; padding:2.5px 7px; font-size:10.5px; display:inline-flex; align-items:center; gap:3px;" title="Tài khoản mới đăng ký, đang chờ thanh toán đơn hàng">
+                                                        ⏳ Chờ duyệt
                                                     </span>
                                                 @else
-                                                    <button type="button" class="pill-badge pill-pass" style="cursor:pointer; padding:4px 10px; font-size:11px; font-weight:800; border-radius:8px; border:1.5px solid #86efac; display:inline-flex; align-items:center; gap:5px;" onclick="toggleStudentStatusAjax({{ $u->id }}, 'suspended', '{{ addslashes($u->name) }}')" title="Bấm để tạm khóa tài khoản này">
-                                                        <span class="status-dot-online" style="width:7px; height:7px; background:#10b981; border-radius:50%; display:inline-block; box-shadow:0 0 0 2px rgba(16,185,129,0.2);"></span> {{ $u->isTeacher() ? 'Hoạt động' : 'Đang học' }}
+                                                    <button type="button" class="pill-badge pill-pass" style="cursor:pointer; padding:2.5px 7px; font-size:10.5px; font-weight:800; border-radius:6px; border:1.5px solid #86efac; display:inline-flex; align-items:center; gap:3px;" onclick="toggleStudentStatusAjax({{ $u->id }}, 'suspended', '{{ addslashes($u->name) }}')" title="Bấm để tạm khóa tài khoản này">
+                                                        <span class="status-dot-online" style="width:6px; height:6px; background:#10b981; border-radius:50%; display:inline-block;"></span> {{ $u->isTeacher() ? 'Hoạt động' : 'Đang học' }}
                                                     </button>
                                                 @endif
                                             </td>
-                                            <td style="text-align:center; vertical-align:middle;">
-                                                <div style="display:flex; flex-direction:column; align-items:center; justify-content:center; gap:3px;">
+                                            <td class="col-package" style="text-align:center; vertical-align:middle; padding:5px 4px;">
+                                                <div style="display:flex; flex-direction:column; align-items:center; justify-content:center; gap:2px;">
                                                     @if($u->isTeacher())
                                                         @if($isPending)
                                                             @if($userPendingOrder)
-                                                                <div style="font-size:11.5px; font-weight:800; color:#b45309;">
-                                                                    📦 Đơn: #{{ $userPendingOrder->code }}
+                                                                <div style="font-size:10.5px; font-weight:800; color:#b45309; line-height:1.2;">
+                                                                    📦 #{{ $userPendingOrder->code }} • {{ $userPendingOrder->package_name }}
                                                                 </div>
-                                                                <div style="font-size:11px; color:#475569;">
-                                                                    Gói: <b>{{ $userPendingOrder->package_name }}</b>
-                                                                </div>
-                                                                <div style="font-size:10.5px; font-weight:800; color:#d97706;">
+                                                                <div style="font-size:10px; font-weight:800; color:#d97706; line-height:1.2;">
                                                                     💰 {{ number_format($userPendingOrder->price) }} đ (Chờ duyệt)
                                                                 </div>
                                                             @else
-                                                                <span style="font-size:10.5px; color:#b45309; font-weight:700;">Chưa kích hoạt đơn</span>
+                                                                <span style="font-size:10px; color:#b45309; font-weight:700;">Chưa kích hoạt đơn</span>
                                                             @endif
                                                         @else
                                                             @php
                                                                 $daysLeft = $u->expires_at ? (int) ceil(now()->diffInDays($u->expires_at, false)) : null;
                                                             @endphp
-                                                            <div style="display:flex; gap:3px; flex-wrap:wrap; justify-content:center;">
+                                                            <div style="display:flex; gap:2.5px; flex-wrap:wrap; justify-content:center; margin-bottom:1px;">
                                                                 @forelse($u->teacherLevels as $tl)
-                                                                    <span class="pill-badge pill-grade" style="font-size:9.5px; padding:1.5px 5px; background:#dcfce7; color:#166534;">Khối {{ $tl->grade }}</span>
+                                                                    <span class="pill-badge pill-grade" style="font-size:9px; padding:1px 4.5px; background:#dcfce7; color:#166534;">Khối {{ $tl->grade }}</span>
                                                                 @empty
-                                                                    <span style="font-size:10px; color:#ef4444; font-weight:750;">🔒 Chưa cấp Khối</span>
+                                                                    <span style="font-size:9.5px; color:#ef4444; font-weight:750;">🔒 Chưa cấp Khối</span>
                                                                 @endforelse
                                                             </div>
-                                                            <div style="font-size:11px; color:#1e293b; font-weight:750;">
-                                                                👥 Quota: <b>{{ $u->students_count ?? $u->students()->count() }}</b>/{{ $u->max_students ?: '∞' }} HS
+                                                            <div style="font-size:10.5px; color:#1e293b; font-weight:700; line-height:1.2; display:flex; align-items:center; gap:4px; justify-content:center; flex-wrap:wrap;">
+                                                                <span>👥 <b>{{ $u->students_count ?? $u->students()->count() }}</b>/{{ $u->max_students ?: '∞' }} HS</span>
+                                                                @if($u->expires_at)
+                                                                    <span style="color:#cbd5e1;">•</span>
+                                                                    <span style="font-weight:750; color: {{ $daysLeft < 0 ? '#dc2626' : ($daysLeft <= 30 ? '#d97706' : '#059669') }};" title="{{ $u->expires_at->format('d/m/Y') }}">
+                                                                        📅 {{ $u->expires_at->format('d/m/Y') }} ({{ $daysLeft < 0 ? 'Hết hạn' : 'Còn ' . $daysLeft . 'N' }})
+                                                                    </span>
+                                                                @else
+                                                                    <span style="color:#cbd5e1;">•</span>
+                                                                    <span style="color:#059669; font-weight:700;">♾️ Vĩnh viễn</span>
+                                                                @endif
                                                             </div>
-                                                            @if($u->expires_at)
-                                                                <div style="font-size:10.5px; font-weight:750; color: {{ $daysLeft < 0 ? '#dc2626' : ($daysLeft <= 30 ? '#d97706' : '#059669') }};">
-                                                                    📅 {{ $u->expires_at->format('d/m/Y') }} ({{ $daysLeft < 0 ? 'Hết hạn ' . abs($daysLeft) . ' ngày' : 'Còn ' . $daysLeft . ' ngày' }})
-                                                                </div>
-                                                            @else
-                                                                <div style="font-size:10.5px; color:#059669; font-weight:700;">
-                                                                    ♾️ Vĩnh viễn
-                                                                </div>
-                                                            @endif
                                                         @endif
                                                     @elseif($u->isStudent())
                                                         @if($u->teacher)
-                                                            <div style="font-size:11.5px; font-weight:750; color:#059669; text-align:center;" title="Giáo viên phụ trách">👩‍🏫 {{ $u->teacher->name }}</div>
+                                                            <div style="font-size:10.5px; font-weight:750; color:#059669; text-align:center; line-height:1.2; margin-bottom:1px;" title="Giáo viên phụ trách">👩‍🏫 {{ $u->teacher->name }}</div>
                                                         @endif
-                                                        <div style="display:flex; gap:3px; flex-wrap:wrap; justify-content:center;">
+                                                        <div style="display:flex; gap:2.5px; flex-wrap:wrap; justify-content:center;">
                                                             @forelse($u->accessibleLevels as $lvl)
-                                                                <span class="pill-badge pill-grade" style="font-size:10px; padding:2px 6px;">Khối {{ $lvl->grade }}</span>
+                                                                <span class="pill-badge pill-grade" style="font-size:9px; padding:1px 4.5px;">Khối {{ $lvl->grade }}</span>
                                                             @empty
-                                                                <span style="font-size:10px; color:#ef4444; font-weight:750;">🔒 Chưa mở</span>
+                                                                <span style="font-size:9.5px; color:#ef4444; font-weight:750;">🔒 Chưa mở</span>
                                                             @endforelse
                                                         </div>
                                                     @else
-                                                        <span style="color:#64748b; font-weight:700; font-size:11.5px;">👑 Toàn quyền hệ thống</span>
+                                                        <span style="color:#64748b; font-weight:700; font-size:10.5px;">👑 Toàn quyền hệ thống</span>
                                                     @endif
                                                 </div>
                                             </td>
-                                            <td style="text-align:center; vertical-align:middle;">
+                                            <td class="col-attempts" style="text-align:center; vertical-align:middle; padding:5px 4px;">
                                                 @if($u->isStudent())
-                                                    <span class="pill-badge pill-time" style="font-size:11px; padding:3px 8px; font-weight:750; display:inline-flex; align-items:center; justify-content:center; gap:4px;">
-                                                        📝 {{ $u->attempts_count ?? $u->attempts()->count() }} lượt
+                                                    <span class="pill-badge pill-time" style="font-size:10.5px; padding:1.5px 5px; font-weight:750; display:inline-flex; align-items:center; justify-content:center; gap:2px;">
+                                                        📝 {{ $u->attempts_count ?? $u->attempts()->count() }}
                                                     </span>
                                                 @else
-                                                    <span style="color:#94a3b8; font-size:12px; font-weight:600;">—</span>
+                                                    <span style="color:#94a3b8; font-size:11px; font-weight:600;">—</span>
                                                 @endif
                                             </td>
-                                            <td style="text-align:center; vertical-align:middle;">
-                                                <div class="action-btn-group" style="justify-content:center; align-items:center; gap:4px; flex-wrap:nowrap;">
+                                            <td class="col-actions" style="text-align:center; vertical-align:middle; padding:5px 4px;">
+                                                <div class="action-btn-group" style="justify-content:center; align-items:center; gap:2.5px; flex-wrap:nowrap;">
                                                     @if($u->isTeacher())
                                                         @if($isPending && $userPendingOrder)
-                                                            <form method="POST" action="{{ route('admin.orders.activate', $userPendingOrder) }}" onsubmit="return confirm('Duyệt kích hoạt đơn #{{ $userPendingOrder->code }} và mở tài khoản cho giáo viên {{ addslashes($u->name) }}?');" style="display:inline;">
+                                                            <form method="POST" action="{{ route('admin.orders.activate', $userPendingOrder) }}" onsubmit="return confirm('Duyệt kích hoạt đơn #{{ $userPendingOrder->code }} và mở tài khoản cho giáo viên {{ addslashes($u->name) }}?');" style="display:inline; margin:0;">
                                                                 @csrf
-                                                                <button type="submit" class="btn-action-grant" style="background:linear-gradient(135deg, #10b981, #059669); color:#fff; border:none; box-shadow:0 2px 6px rgba(16,185,129,0.3); padding:4px 8px;" title="Duyệt đơn thanh toán và kích hoạt tài khoản Giáo viên này">
+                                                                <button type="submit" class="btn-action-grant" style="background:linear-gradient(135deg, #10b981, #059669); color:#fff; border:none; box-shadow:0 1px 3px rgba(16,185,129,0.3); padding:2.5px 6px;" title="Duyệt đơn thanh toán và kích hoạt tài khoản Giáo viên này">
                                                                     <span>⚡</span> Duyệt
                                                                 </button>
                                                             </form>
@@ -2765,8 +2933,8 @@
                                                             <span>🔑</span> Khối
                                                         </button>
                                                     @elseif($u->isTeacher() && ! $isPending)
-                                                        <button type="button" class="btn-action-grant" style="background:#059669; color:#ffffff;" onclick='openGrantTeacherModal(@json($u), @json($u->teacherLevels->pluck("id")), {{ (int)$u->max_students }}, "{{ $u->expires_at?->format("Y-m-d") ?? "" }}", "{{ $u->status ?? "active" }}")' title="Cấp gói & Phân quyền Khối học cho Giáo viên">
-                                                            <span>👑</span> Gói
+                                                        <button type="button" class="btn-action-grant" style="background:linear-gradient(135deg, #059669, #047857); color:#ffffff; border-color:#059669;" onclick='openGrantTeacherModal(@json($u), @json($u->teacherLevels->pluck("id")), {{ (int)$u->max_students }}, "{{ $u->expires_at?->format("Y-m-d") ?? "" }}", "{{ $u->status ?? "active" }}")' title="Cấp gói, Phân quyền Khối học & Tùy chỉnh Quota cho Giáo viên">
+                                                            <span>👑</span> Gói & Khối
                                                         </button>
                                                     @endif
 
@@ -2775,7 +2943,7 @@
                                                             <span>🗑️</span> Xóa
                                                         </button>
                                                     @elseif(auth()->user()->is($u))
-                                                        <span class="badge-current-user" style="font-size:10px; padding:3px 6px;">✓ Đang dùng</span>
+                                                        <span class="badge-current-user" style="font-size:9.5px; padding:2px 5px; background:#e2e8f0; color:#475569; border-radius:4px; font-weight:750;">✓ Dùng</span>
                                                     @endif
                                                 </div>
                                             </td>
@@ -2789,7 +2957,7 @@
                             </table>
                         </div>
                     @endif
-                </section>
+                </div>
             </div>
 
             @if(! $isTeacher)
@@ -2804,7 +2972,7 @@
                             <span>💎</span> Quản Trị Gói Dịch Vụ & Bản Quyền IC3 GS6
                         </h2>
                         <p style="font-size:13px; color:var(--text-muted); margin-top:3px;">
-                            Cấu hình bảng giá gói theo khối lớp & sĩ số học sinh, tự động duyệt đơn nâng cấp từ giáo viên
+                            Cấu hình bảng giá cho Học sinh (B2C) & Giáo viên (B2B), tự động phân quyền khối lớp và duyệt đơn bản quyền
                         </p>
                     </div>
                     <div style="display:flex; align-items:center; gap:10px; flex-wrap:wrap;">
@@ -2817,53 +2985,58 @@
                     </div>
                 </div>
 
-                <!-- 📊 4 Thẻ chỉ số kinh doanh Gói & Đơn hàng -->
+                <!-- 📊 4 Thẻ chỉ số kinh doanh Gói & Đơn hàng (Chuẩn Gamified 3D Rực Rỡ & Nổi Khối) -->
                 <div class="stats-grid" style="margin-bottom: 24px;">
-                    <div class="stat-card c-purple">
+                    <div class="stat-card c-purple" style="border: 2px solid #e9d5ff; box-shadow: 0 8px 20px rgba(168, 85, 247, 0.08), inset 0 -3px 0 rgba(168, 85, 247, 0.15);">
                         <div class="stat-header">
-                            <span class="stat-label">TỔNG SỐ GÓI BẢN QUYỀN</span>
-                            <div class="stat-icon">💎</div>
+                            <span class="stat-label" style="font-weight: 800; color: #7e22ce;">TỔNG SỐ GÓI BẢN QUYỀN</span>
+                            <div class="stat-icon" style="background: linear-gradient(135deg, #a855f7, #6366f1); color: #fff; width: 34px; height: 34px; display: grid; place-items: center; border-radius: 10px; box-shadow: 0 4px 10px rgba(168, 85, 247, 0.3);">💎</div>
                         </div>
-                        <div class="stat-value">{{ $packages->count() }} <small style="font-size:13px; font-weight:700; color:#64748b;">Gói</small></div>
-                        <div class="stat-footer">
-                            <span style="color:#10b981; font-weight:800;">● {{ $packages->where('is_active', true)->count() }}</span> đang mở bán
+                        <div class="stat-value" style="font-size: 26px; font-weight: 900; color: #1e1b4b;">{{ $packages->count() }} <small style="font-size:13px; font-weight:700; color:#64748b;">Gói</small></div>
+                        <div class="stat-footer" style="font-size: 12px; margin-top: 6px;">
+                            <span style="color:#059669; font-weight:800; background: #ecfdf5; padding: 2px 8px; border-radius: 6px; border: 1px solid #a7f3d0;">● <span id="stat-pkg-active-count">{{ $packages->where('is_active', true)->count() }}</span> đang mở bán</span>
                         </div>
                     </div>
 
-                    <div class="stat-card {{ $pendingOrdersCount > 0 ? 'c-amber' : 'c-blue' }}">
+                    <div class="stat-card {{ $pendingOrdersCount > 0 ? 'c-amber' : 'c-blue' }}" style="{{ $pendingOrdersCount > 0 ? 'border: 2px solid #f59e0b; background: linear-gradient(135deg, #fffbeb 0%, #ffffff 100%); box-shadow: 0 8px 24px rgba(245, 158, 11, 0.18), inset 0 -3px 0 rgba(245, 158, 11, 0.25);' : 'border: 2px solid #bae6fd;' }}">
                         <div class="stat-header">
-                            <span class="stat-label">ĐƠN CHỜ PHÊ DUYỆT</span>
-                            <div class="stat-icon">⏳</div>
+                            <span class="stat-label" style="font-weight: 800; color: {{ $pendingOrdersCount > 0 ? '#b45309' : '#0369a1' }};">ĐƠN CHỜ PHÊ DUYỆT</span>
+                            <div class="stat-icon" style="background: {{ $pendingOrdersCount > 0 ? 'linear-gradient(135deg, #f59e0b, #d97706)' : 'linear-gradient(135deg, #38bdf8, #0284c7)' }}; color: #fff; width: 34px; height: 34px; display: grid; place-items: center; border-radius: 10px; box-shadow: 0 4px 10px rgba(245, 158, 11, 0.3);">⏳</div>
                         </div>
-                        <div class="stat-value" style="{{ $pendingOrdersCount > 0 ? 'color:#d97706;' : '' }}">{{ $pendingOrdersCount }} <small style="font-size:13px; font-weight:700; color:#64748b;">Đơn</small></div>
-                        <div class="stat-footer">
+                        <div class="stat-value" style="font-size: 26px; font-weight: 900; color: {{ $pendingOrdersCount > 0 ? '#b45309' : '#0f172a' }};">
+                            {{ $pendingOrdersCount }} <small style="font-size:13px; font-weight:700; color:#64748b;">Đơn</small>
+                        </div>
+                        <div class="stat-footer" style="font-size: 12px; margin-top: 6px;">
                             @if($pendingOrdersCount > 0)
-                                <span style="color:#ef4444; font-weight:800;">⚠️ Cần duyệt kích hoạt ngay</span>
+                                <span style="color:#b45309; font-weight:800; background: #fef3c7; border: 1px solid #fde68a; padding: 2px 8px; border-radius: 6px; display: inline-flex; align-items: center; gap: 4px;">
+                                    <span style="display:inline-block; width:7px; height:7px; border-radius:50%; background:#d97706; animation: pulse 1.5s infinite;"></span>
+                                    Cần duyệt kích hoạt ngay
+                                </span>
                             @else
-                                <span style="color:#10b981; font-weight:800;">✓ Đã xử lý toàn bộ</span>
+                                <span style="color:#059669; font-weight:800; background: #ecfdf5; border: 1px solid #a7f3d0; padding: 2px 8px; border-radius: 6px;">✓ Đã xử lý toàn bộ</span>
                             @endif
                         </div>
                     </div>
 
-                    <div class="stat-card c-green">
+                    <div class="stat-card c-green" style="border: 2px solid #a7f3d0; box-shadow: 0 8px 20px rgba(16, 185, 129, 0.08), inset 0 -3px 0 rgba(16, 185, 129, 0.15);">
                         <div class="stat-header">
-                            <span class="stat-label">ĐƠN ĐÃ KÍCH HOẠT</span>
-                            <div class="stat-icon">✅</div>
+                            <span class="stat-label" style="font-weight: 800; color: #047857;">ĐƠN ĐÃ KÍCH HOẠT</span>
+                            <div class="stat-icon" style="background: linear-gradient(135deg, #10b981, #059669); color: #fff; width: 34px; height: 34px; display: grid; place-items: center; border-radius: 10px; box-shadow: 0 4px 10px rgba(16, 185, 129, 0.3);">✅</div>
                         </div>
-                        <div class="stat-value">{{ $activeOrdersCount }} <small style="font-size:13px; font-weight:700; color:#64748b;">Đơn</small></div>
-                        <div class="stat-footer">
-                            <span style="color:#059669; font-weight:800;">{{ $totalOrdersCount }}</span> tổng số đơn đã đặt
+                        <div class="stat-value" style="font-size: 26px; font-weight: 900; color: #065f46;">{{ $activeOrdersCount }} <small style="font-size:13px; font-weight:700; color:#64748b;">Đơn</small></div>
+                        <div class="stat-footer" style="font-size: 12px; margin-top: 6px;">
+                            <span style="color:#475569; font-weight:700;">Tổng số đơn: <b style="color:#0f172a;">{{ $totalOrdersCount }}</b></span>
                         </div>
                     </div>
 
-                    <div class="stat-card c-blue">
+                    <div class="stat-card c-blue" style="border: 2px solid #bae6fd; box-shadow: 0 8px 20px rgba(14, 165, 233, 0.08), inset 0 -3px 0 rgba(14, 165, 233, 0.15);">
                         <div class="stat-header">
-                            <span class="stat-label">DOANH THU BẢN QUYỀN</span>
-                            <div class="stat-icon">💰</div>
+                            <span class="stat-label" style="font-weight: 800; color: #0369a1;">DOANH THU THỰC NHẬN</span>
+                            <div class="stat-icon" style="background: linear-gradient(135deg, #0ea5e9, #2563eb); color: #fff; width: 34px; height: 34px; display: grid; place-items: center; border-radius: 10px; box-shadow: 0 4px 10px rgba(14, 165, 233, 0.3);">💰</div>
                         </div>
-                        <div class="stat-value" style="font-size: 20px;">{{ number_format($totalRevenue) }} <small style="font-size:13px; font-weight:700; color:#64748b;">đ</small></div>
-                        <div class="stat-footer">
-                            Doanh thu thực nhận từ đơn kích hoạt
+                        <div class="stat-value" style="font-size: 24px; font-weight: 900; color: #0c4a6e;">{{ number_format($totalRevenue) }} <small style="font-size:14px; font-weight:800; color:#0284c7;">đ</small></div>
+                        <div class="stat-footer" style="font-size: 12px; margin-top: 6px;">
+                            <span style="color:#64748b; font-weight:600;">Từ các đơn hàng thành công</span>
                         </div>
                     </div>
                 </div>
@@ -2885,24 +3058,41 @@
 
                 <!-- SUB-VIEW 1: DANH SÁCH GÓI DỊCH VỤ -->
                 <div id="pkg-subview-list" class="pkg-subview-pane">
+                    <!-- Bộ lọc nhanh theo đối tượng: Học sinh / Giáo viên -->
+                    <div style="display:flex; align-items:center; gap:8px; margin-bottom:14px; flex-wrap:wrap;">
+                        <span style="font-size:12.5px; font-weight:800; color:#64748b;">LỌC:</span>
+                        <button type="button" id="pkg-filter-all" onclick="filterPackagesByAudience('all', this)"
+                            style="padding:5px 14px; border-radius:20px; border:1.5px solid #cbd5e1; background:#0f172a; color:#fff; font-size:12px; font-weight:800; cursor:pointer;">
+                            Tất cả (<span id="pkg-count-all">{{ $packages->count() }}</span>)
+                        </button>
+                        <button type="button" id="pkg-filter-student" onclick="filterPackagesByAudience('student', this)"
+                            style="padding:5px 14px; border-radius:20px; border:1.5px solid #bfdbfe; background:#eff6ff; color:#1d4ed8; font-size:12px; font-weight:800; cursor:pointer;">
+                            🎒 Học sinh (<span id="pkg-count-student">{{ $packages->where('target_audience', 'student')->count() }}</span>)
+                        </button>
+                        <button type="button" id="pkg-filter-teacher" onclick="filterPackagesByAudience('teacher', this)"
+                            style="padding:5px 14px; border-radius:20px; border:1.5px solid #bbf7d0; background:#f0fdf4; color:#15803d; font-size:12px; font-weight:800; cursor:pointer;">
+                            🏫 Giáo viên (<span id="pkg-count-teacher">{{ $packages->where('target_audience', 'teacher')->count() }}</span>)
+                        </button>
+                    </div>
                     <div class="table-card" style="border: 1.5px solid #e2e8f0; border-radius: 14px; overflow: hidden; background: #fff; box-shadow: var(--shadow-sm);">
                         <div class="table-responsive">
                             <table class="user-table" style="width: 100%; border-collapse: collapse;">
                                 <thead>
                                     <tr>
-                                        <th style="width:50px; text-align:center;">#</th>
+                                        <th style="width:45px; text-align:center;">#</th>
                                         <th>TÊN GÓI & ĐẶC ĐIỂM</th>
-                                        <th>GIÁ BÁN</th>
-                                        <th>THỜI HẠN</th>
-                                        <th>SĨ SỐ HỌC SINH</th>
-                                        <th>KHỐI ĐƯỢC CẤP</th>
-                                        <th style="text-align:center;">TRẠNG THÁI</th>
-                                        <th style="text-align:right;">THAO TÁC</th>
+                                        <th style="width:130px; text-align:center;">ĐỐI TƯỢNG</th>
+                                        <th style="width:125px;">GIÁ BÁN</th>
+                                        <th style="width:110px;">THỜI HẠN</th>
+                                        <th style="width:130px;">SĨ SỐ HỌC SINH</th>
+                                        <th style="width:135px;">KHỐI ĐƯỢC CẤP</th>
+                                        <th style="width:115px; text-align:center;">TRẠNG THÁI</th>
+                                        <th style="width:140px; text-align:center; padding-right:14px;">THAO TÁC</th>
                                     </tr>
                                 </thead>
                                 <tbody>
                                     @forelse($packages as $pkg)
-                                        <tr>
+                                        <tr class="pkg-row-item" data-audience="{{ $pkg->target_audience ?? 'teacher' }}">
                                             <td style="text-align:center;">
                                                 <span class="badge-grade" style="background:#f1f5f9; color:#475569; font-weight:800; font-size:11.5px;">#{{ $pkg->position }}</span>
                                             </td>
@@ -2914,7 +3104,20 @@
                                                     @endif
                                                 </div>
                                                 @if($pkg->description)
-                                                    <p style="font-size:11.5px; color:#64748b; margin:3px 0 0; max-width:320px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">{{ $pkg->description }}</p>
+                                                    <p style="font-size:11.5px; color:#64748b; margin:3px 0 0; max-width:280px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">{{ $pkg->description }}</p>
+                                                @endif
+                                            </td>
+                                            <td>
+                                                @if($pkg->isForStudents())
+                                                    <span style="display:inline-flex; align-items:center; gap:4px; background:linear-gradient(135deg,#eff6ff,#dbeafe); color:#1d4ed8; font-size:11.5px; padding:4px 10px; border-radius:20px; font-weight:900; border:1.5px solid #bfdbfe; white-space:nowrap;">
+                                                        🎒 Học sinh
+                                                    </span>
+                                                    <small style="display:block; color:#94a3b8; font-size:10px; margin-top:2px; font-weight:700;">B2C · Tự luyện</small>
+                                                @else
+                                                    <span style="display:inline-flex; align-items:center; gap:4px; background:linear-gradient(135deg,#f0fdf4,#dcfce7); color:#15803d; font-size:11.5px; padding:4px 10px; border-radius:20px; font-weight:900; border:1.5px solid #bbf7d0; white-space:nowrap;">
+                                                        🏫 Giáo viên
+                                                    </span>
+                                                    <small style="display:block; color:#94a3b8; font-size:10px; margin-top:2px; font-weight:700;">B2B · Quản lớp</small>
                                                 @endif
                                             </td>
                                             <td>
@@ -2927,9 +3130,15 @@
                                                 <span style="font-weight:800; color:#334155; font-size:12.5px;">⏰ {{ $pkg->duration_days }} ngày</span>
                                             </td>
                                             <td>
-                                                <span class="pill-badge pill-grade" style="background:#eff6ff; color:#1d4ed8; border:1px solid #bfdbfe; font-size:11.5px;">
-                                                    👥 Tối đa {{ $pkg->max_students }} HS
-                                                </span>
+                                                @if($pkg->isForStudents())
+                                                    <span class="pill-badge" style="background:#eff6ff; color:#1d4ed8; border:1px solid #bfdbfe; font-size:11.5px; font-weight:800; display:inline-flex; align-items:center; gap:4px;">
+                                                        🎒 Cá nhân (1 HS)
+                                                    </span>
+                                                @else
+                                                    <span class="pill-badge pill-grade" style="background:#f0fdf4; color:#15803d; border:1px solid #bbf7d0; font-size:11.5px; font-weight:800; display:inline-flex; align-items:center; gap:4px;">
+                                                        👥 Tối đa {{ $pkg->max_students ?: '∞' }} HS
+                                                    </span>
+                                                @endif
                                             </td>
                                             <td>
                                                 <div style="display:flex; gap:4px; flex-wrap:wrap;">
@@ -2943,31 +3152,35 @@
                                                 </div>
                                             </td>
                                             <td style="text-align:center;">
-                                                <form method="POST" action="{{ route('admin.packages.toggle', $pkg) }}" style="display:inline;">
-                                                    @csrf
-                                                    <button type="submit" class="pill-badge {{ $pkg->is_active ? 'pill-pass' : 'pill-fail' }}" style="cursor:pointer; border:1px solid {{ $pkg->is_active ? '#86efac' : '#fca5a5' }};" title="Bấm để chuyển trạng thái mở bán">
-                                                        {{ $pkg->is_active ? '🟢 Mở bán' : '⚪ Tạm ẩn' }}
-                                                    </button>
-                                                </form>
+                                                <button type="button" 
+                                                        class="pill-badge {{ $pkg->is_active ? 'pill-pass' : 'pill-fail' }}" 
+                                                        onclick="togglePackageStatusAjax(this, {{ $pkg->id }}, '{{ addslashes($pkg->name) }}')"
+                                                        data-active="{{ $pkg->is_active ? '1' : '0' }}"
+                                                        data-name="{{ addslashes($pkg->name) }}"
+                                                        style="cursor:pointer; border:1.5px solid {{ $pkg->is_active ? '#86efac' : '#fca5a5' }}; font-weight:800; padding:4px 10px; font-size:11.5px; transition:all 0.15s ease;" 
+                                                        title="Bấm để chuyển nhanh trạng thái mở bán (Realtime không reload trang)">
+                                                    {{ $pkg->is_active ? '🟢 Mở bán' : '⚪ Tạm ẩn' }}
+                                                </button>
                                             </td>
-                                            <td style="text-align:right;">
-                                                <div style="display:inline-flex; align-items:center; gap:6px;">
+                                            <td style="text-align:center; padding-right:16px;">
+                                                <div style="display:inline-flex; align-items:center; justify-content:center; gap:6px;">
                                                     <button type="button" class="btn-action-edit" onclick='openEditPackageModal(@json($pkg), @json($pkg->levels->pluck("id")))' title="Chỉnh sửa thông tin gói">
                                                         <span>✏️</span> Sửa
                                                     </button>
-                                                    <form method="POST" action="{{ route('admin.packages.destroy', $pkg) }}" onsubmit="return confirm('Bạn có chắc muốn xóa gói \"{{ addslashes($pkg->name) }}\"?');" style="display:inline;">
-                                                        @csrf
-                                                        @method('DELETE')
-                                                        <button type="submit" class="btn-action-delete" title="Xóa gói dịch vụ">
-                                                            <span>🗑️</span> Xóa
-                                                        </button>
-                                                    </form>
+                                                    <button type="button" class="btn-action-delete" onclick="deletePackageConfirm({{ $pkg->id }}, '{{ addslashes($pkg->name) }}')" title="Xóa gói dịch vụ">
+                                                        <span>🗑️</span> Xóa
+                                                    </button>
                                                 </div>
                                             </td>
                                         </tr>
                                     @empty
-                                        <tr>
-                                            <td colspan="8" style="text-align:center; padding:36px; color:#94a3b8;">
+                                        <tr id="pkg-empty-row" style="display:none;">
+                                            <td colspan="9" style="text-align:center; padding:36px; color:#94a3b8;">
+                                                Không có gói nào trong bộ lọc này.
+                                            </td>
+                                        </tr>
+                                        <tr id="pkg-empty-default">
+                                            <td colspan="9" style="text-align:center; padding:36px; color:#94a3b8;">
                                                 Chưa có gói dịch vụ nào. Bấm "+ Thêm Gói Mới" để tạo gói đầu tiên.
                                             </td>
                                         </tr>
@@ -2978,50 +3191,51 @@
                     </div>
                 </div>
 
-                <!-- SUB-VIEW 2: ĐƠN THUÊ & PHÊ DUYỆT BẢN QUYỀN (TỐI GIẢN - RÕ RÀNG - ĐẸP MẮT - KHÔNG CUỘN NGANG) -->
+                <!-- SUB-VIEW 2: ĐƠN THUÊ & PHÊ DUYỆT BẢN QUYỀN (SMART 3D GAMIFIED ORDERS TABLE - RỰC RỠ, RÕ RÀNG, DỄ THAO TÁC) -->
                 <div id="pkg-subview-orders" class="pkg-subview-pane" style="display:none;">
                     <style>
                         /* =====================================================================
-                           💎 GIAO DIỆN QUẢN LÝ ĐƠN HÀNG ADMIN (TỐI GIẢN - HIỆN ĐẠI - ĐẸP MẮT)
+                           💎 SMART 3D GAMIFIED ORDERS TABLE - ĐƠN GIẢN HÓA & TRỰC QUAN HÓA UI/UX
                            ===================================================================== */
                         .orders-toolbar-wrap {
                             display: flex;
                             align-items: center;
                             justify-content: space-between;
                             gap: 12px;
-                            margin-bottom: 14px;
+                            margin-bottom: 16px;
                             flex-wrap: wrap;
                         }
                         .orders-search-box {
                             position: relative;
                             flex: 1;
-                            min-width: 240px;
-                            max-width: 360px;
+                            min-width: 250px;
+                            max-width: 380px;
                         }
                         .orders-search-box input {
                             width: 100%;
-                            height: 36px;
-                            border: 1.5px solid #cbd5e1;
-                            border-radius: 8px;
-                            padding: 0 12px 0 34px;
-                            font-size: 12.5px;
+                            height: 40px;
+                            border: 2px solid #e2e8f0;
+                            border-radius: 12px;
+                            padding: 0 14px 0 38px;
+                            font-size: 13px;
                             font-family: inherit;
                             color: #0f172a;
                             background: #ffffff;
-                            transition: all 0.15s ease;
+                            box-shadow: 0 2px 6px rgba(15, 23, 42, 0.04);
+                            transition: all 0.2s ease;
                             box-sizing: border-box;
                         }
                         .orders-search-box input:focus {
                             outline: none;
-                            border-color: #4f46e5;
-                            box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.12);
+                            border-color: #6366f1;
+                            box-shadow: 0 0 0 3.5px rgba(99, 102, 241, 0.15);
                         }
                         .orders-search-icon {
                             position: absolute;
-                            left: 10px;
+                            left: 12px;
                             top: 50%;
                             transform: translateY(-50%);
-                            font-size: 13px;
+                            font-size: 15px;
                             color: #94a3b8;
                             pointer-events: none;
                         }
@@ -3029,19 +3243,19 @@
                             display: inline-flex;
                             align-items: center;
                             background: #f1f5f9;
-                            padding: 3px;
-                            border-radius: 9px;
-                            gap: 3px;
-                            border: 1px solid #e2e8f0;
+                            padding: 4px;
+                            border-radius: 12px;
+                            gap: 4px;
+                            border: 1.5px solid #e2e8f0;
                         }
                         .order-filter-pill-tab {
                             border: none;
                             background: transparent;
                             color: #64748b;
-                            font-size: 12px;
-                            font-weight: 600;
-                            padding: 5px 12px;
-                            border-radius: 6px;
+                            font-size: 12.5px;
+                            font-weight: 700;
+                            padding: 6px 14px;
+                            border-radius: 8px;
                             cursor: pointer;
                             transition: all 0.15s ease;
                             display: inline-flex;
@@ -3051,17 +3265,18 @@
                         }
                         .order-filter-pill-tab:hover {
                             color: #0f172a;
+                            background: rgba(255, 255, 255, 0.6);
                         }
                         .order-filter-pill-tab.active {
                             background: #ffffff;
                             color: #0f172a;
-                            font-weight: 800;
-                            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+                            font-weight: 900;
+                            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08);
                         }
                         .filter-count-badge {
-                            font-size: 10.5px;
+                            font-size: 11px;
                             font-weight: 800;
-                            padding: 1px 6px;
+                            padding: 1.5px 7px;
                             border-radius: 999px;
                             background: #e2e8f0;
                             color: #475569;
@@ -3073,317 +3288,384 @@
                         .filter-count-badge.count-pending {
                             background: #fef3c7;
                             color: #b45309;
-                        }
-                        .order-filter-pill-tab.active .filter-count-badge.count-pending {
-                            background: #d97706;
-                            color: #ffffff;
-                        }
-
-                        /* List Container - ZERO HORIZONTAL SCROLL & CLEAN CANVAS */
-                        .orders-list-container {
-                            display: flex;
-                            flex-direction: column;
-                            gap: 12px;
-                            width: 100%;
-                            box-sizing: border-box;
-                            overflow-x: hidden;
-                        }
-
-                        /* Order Row Card (Sạch Sẽ, Tinh Tế, Đẳng Cấp) */
-                        .order-card-box {
-                            background: #ffffff;
-                            border-radius: 10px;
-                            transition: all 0.15s ease;
-                            position: relative;
-                            overflow: hidden;
-                            width: 100%;
-                            box-sizing: border-box;
-                            border: 1px solid #e2e8f0;
-                            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.03);
-                        }
-                        .order-card-box:hover {
-                            border-color: #cbd5e1;
-                            box-shadow: 0 4px 12px rgba(15, 23, 42, 0.06);
-                        }
-
-                        /* Top Meta Row */
-                        .order-card-meta-row {
-                            display: flex;
-                            align-items: center;
-                            justify-content: space-between;
-                            gap: 10px;
-                            padding: 9px 16px;
-                            flex-wrap: wrap;
-                            background: #f8fafc;
-                            border-bottom: 1px solid #f1f5f9;
-                        }
-                        .order-meta-left {
-                            display: flex;
-                            align-items: center;
-                            gap: 8px;
-                            flex-wrap: wrap;
-                        }
-                        .ord-status-tag {
-                            font-size: 11px;
-                            font-weight: 700;
-                            padding: 2.5px 8px;
-                            border-radius: 5px;
-                            display: inline-flex;
-                            align-items: center;
-                            gap: 4px;
-                            letter-spacing: 0.1px;
-                        }
-                        .ord-status-tag.status-pending {
-                            background: #fef3c7;
-                            color: #92400e;
                             border: 1px solid #fde68a;
                         }
-                        .ord-status-tag.status-active {
-                            background: #ecfdf5;
-                            color: #065f46;
-                            border: 1px solid #a7f3d0;
+                        .order-filter-pill-tab.active .filter-count-badge.count-pending {
+                            background: #f59e0b;
+                            color: #ffffff;
+                            border-color: #d97706;
                         }
-                        .ord-status-tag.status-rejected {
-                            background: #f1f5f9;
-                            color: #64748b;
-                            border: 1px solid #e2e8f0;
+                        .order-filter-pill-tab.tab-pending-alert {
+                            color: #b45309;
                         }
-                        .ord-code-text {
+                        .order-filter-pill-tab.tab-pending-alert.active {
+                            background: #fffbeb;
+                            color: #b45309;
+                        }
+
+                        /* ================= BẢNG THÔNG MINH 3D CARD ================= */
+                        .orders-table-card {
+                            background: #ffffff;
+                            border-radius: 16px;
+                            border: 2px solid #e2e8f0;
+                            box-shadow: 0 10px 30px rgba(15, 23, 42, 0.06), inset 0 -3px 0 rgba(0, 0, 0, 0.02);
+                            overflow: hidden;
+                            margin-bottom: 24px;
+                        }
+                        .orders-table-responsive {
+                            width: 100%;
+                            overflow-x: auto;
+                            -webkit-overflow-scrolling: touch;
+                        }
+                        .orders-smart-table {
+                            width: 100%;
+                            border-collapse: separate;
+                            border-spacing: 0;
+                            min-width: 900px;
+                            text-align: left;
+                        }
+                        .orders-smart-table thead th {
+                            background: #f8fafc;
+                            color: #475569;
+                            font-size: 11px;
+                            font-weight: 800;
+                            text-transform: uppercase;
+                            letter-spacing: 0.6px;
+                            padding: 12px 16px;
+                            border-bottom: 1.5px solid #e2e8f0;
+                            white-space: nowrap;
+                            user-select: none;
+                        }
+                        .orders-smart-table tbody tr {
+                            transition: all 0.15s ease;
+                            border-bottom: 1px solid #f1f5f9;
+                        }
+                        .orders-smart-table tbody td {
+                            padding: 12px 16px;
+                            vertical-align: middle;
+                            border-bottom: 1px solid #f1f5f9;
+                            font-size: 12.5px;
+                        }
+
+                        /* 🎨 Tone màu sắc và viền 3D theo từng trạng thái đơn hàng */
+                        .orders-smart-table tr.status-pending {
+                            background-color: #fffdf5;
+                            border-left: 5px solid #f59e0b;
+                        }
+                        .orders-smart-table tr.status-pending:hover {
+                            background-color: #fefce8;
+                        }
+
+                        .orders-smart-table tr.status-active {
+                            background-color: #ffffff;
+                            border-left: 5px solid #10b981;
+                        }
+                        .orders-smart-table tr.status-active:hover {
+                            background-color: #f8fafc;
+                        }
+
+                        .orders-smart-table tr.status-rejected {
+                            background-color: #fafafa;
+                            border-left: 5px solid #94a3b8;
+                            opacity: 0.85;
+                        }
+                        .orders-smart-table tr.status-rejected:hover {
+                            opacity: 1;
+                            background-color: #f1f5f9;
+                        }
+
+                        /* Cột 1: Mã đơn & Thời gian */
+                        .ord-code-pill {
                             font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
                             font-size: 12px;
-                            font-weight: 700;
-                            color: #334155;
-                            background: #ffffff;
-                            border: 1px solid #e2e8f0;
-                            padding: 2px 7px;
-                            border-radius: 5px;
+                            font-weight: 800;
+                            color: #1e1b4b;
+                            background: #f1f5f9;
+                            border: 1px solid #cbd5e1;
+                            padding: 3px 8px;
+                            border-radius: 6px;
                             cursor: pointer;
+                            display: inline-block;
                             transition: all 0.12s ease;
                         }
-                        .ord-code-text:hover {
-                            background: #f1f5f9;
-                            border-color: #cbd5e1;
-                            color: #0f172a;
+                        .ord-code-pill:hover {
+                            background: #e2e8f0;
+                            border-color: #94a3b8;
                         }
-                        .ord-date-text, .ord-paymethod-text {
+                        .ord-datetime {
                             font-size: 11.5px;
                             color: #64748b;
                             font-weight: 500;
-                        }
-                        .ord-price-pill {
-                            font-size: 15px;
-                            font-weight: 800;
-                            color: #0f172a;
-                            letter-spacing: -0.3px;
-                        }
-                        .ord-price-pill small {
-                            font-size: 12px;
-                            font-weight: 600;
-                            color: #64748b;
-                        }
-
-                        /* Main Content Row */
-                        .order-card-main {
-                            display: grid;
-                            grid-template-columns: minmax(0, 1.4fr) minmax(0, 1.1fr) 180px;
-                            gap: 16px;
-                            padding: 13px 16px;
-                            align-items: center;
-                            background: #ffffff;
-                            box-sizing: border-box;
-                        }
-                        @media (max-width: 960px) {
-                            .order-card-main {
-                                grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
-                                gap: 12px;
-                            }
-                            .ord-actions-zone {
-                                grid-column: 1 / -1;
-                                border-top: 1px solid #f1f5f9;
-                                padding-top: 8px;
-                            }
-                        }
-                        @media (max-width: 600px) {
-                            .order-card-main {
-                                grid-template-columns: 1fr;
-                                gap: 10px;
-                                padding: 12px 14px;
-                            }
-                        }
-
-                        /* Customer Zone */
-                        .ord-user-primary {
+                            margin-top: 3px;
                             display: flex;
                             align-items: center;
-                            gap: 9px;
-                            margin-bottom: 4px;
+                            gap: 4px;
                         }
-                        .ord-user-avatar {
-                            width: 32px;
-                            height: 32px;
-                            border-radius: 8px;
-                            background: #eff6ff;
-                            color: #1d4ed8;
-                            border: 1px solid #dbeafe;
+                        .ord-paymode-badge {
+                            font-size: 10.5px;
+                            font-weight: 600;
+                            color: #475569;
+                            background: #ffffff;
+                            border: 1px solid #e2e8f0;
+                            padding: 1px 6px;
+                            border-radius: 4px;
+                            margin-top: 3px;
+                            display: inline-block;
+                        }
+
+                        /* Cột 2: Khách hàng (Giáo viên) */
+                        .ord-customer-cell {
+                            display: flex;
+                            align-items: center;
+                            gap: 10px;
+                        }
+                        .ord-avatar {
+                            width: 36px;
+                            height: 36px;
+                            border-radius: 10px;
+                            background: linear-gradient(135deg, #6366f1, #8b5cf6);
+                            color: #ffffff;
+                            font-weight: 800;
+                            font-size: 13px;
                             display: grid;
                             place-items: center;
-                            font-size: 12px;
-                            font-weight: 700;
                             flex-shrink: 0;
+                            box-shadow: 0 3px 8px rgba(99, 102, 241, 0.25);
+                            border: 2px solid #ffffff;
                         }
-                        .ord-user-name {
-                            font-size: 14px;
-                            font-weight: 700;
+                        .ord-avatar.avatar-pending {
+                            background: linear-gradient(135deg, #f59e0b, #d97706);
+                            box-shadow: 0 3px 8px rgba(245, 158, 11, 0.25);
+                        }
+                        .ord-customer-info {
+                            display: flex;
+                            flex-direction: column;
+                            gap: 2px;
+                            min-width: 0;
+                        }
+                        .ord-customer-name {
+                            font-size: 13.5px;
+                            font-weight: 800;
                             color: #0f172a;
-                            line-height: 1.2;
+                            line-height: 1.25;
+                            white-space: nowrap;
+                            overflow: hidden;
+                            text-overflow: ellipsis;
                         }
-                        .ord-user-contacts {
+                        .ord-customer-meta {
+                            font-size: 11.5px;
+                            color: #64748b;
                             display: flex;
                             align-items: center;
-                            gap: 7px;
-                            font-size: 12px;
-                            color: #64748b;
+                            gap: 6px;
                             flex-wrap: wrap;
                         }
-                        .ord-zalo-link {
+                        .ord-zalo-btn {
                             display: inline-flex;
                             align-items: center;
-                            gap: 3px;
+                            gap: 2px;
                             background: #eff6ff;
                             color: #2563eb;
                             border: 1px solid #bfdbfe;
-                            padding: 1.5px 7px;
+                            padding: 1px 6px;
                             border-radius: 4px;
-                            font-size: 11px;
+                            font-size: 10.5px;
                             font-weight: 700;
                             text-decoration: none;
                             transition: all 0.15s ease;
                         }
-                        .ord-zalo-link:hover {
+                        .ord-zalo-btn:hover {
                             background: #2563eb;
                             color: #ffffff;
-                            border-color: #2563eb;
                         }
-                        .ord-school-badge {
-                            font-size: 11px;
+                        .ord-school-tag {
+                            font-size: 10.5px;
                             color: #475569;
-                            background: #f8fafc;
+                            background: #f1f5f9;
                             border: 1px solid #e2e8f0;
-                            padding: 1.5px 6px;
+                            padding: 1px 6px;
                             border-radius: 4px;
                             font-weight: 500;
+                            white-space: nowrap;
                         }
 
-                        /* Package Zone */
-                        .ord-pkg-name {
-                            font-size: 13.5px;
-                            font-weight: 700;
+                        /* Cột 3: Gói dịch vụ */
+                        .ord-pkg-title {
+                            font-size: 13px;
+                            font-weight: 800;
                             color: #0f172a;
-                            margin-bottom: 2px;
+                            line-height: 1.25;
+                            margin-bottom: 3px;
+                            display: flex;
+                            align-items: center;
+                            gap: 5px;
                         }
-                        .ord-pkg-meta {
-                            font-size: 12px;
-                            color: #64748b;
+                        .ord-pill-tags {
+                            display: flex;
+                            align-items: center;
+                            gap: 4px;
+                            flex-wrap: wrap;
                         }
-                        .ord-clean-notes {
-                            font-size: 11px;
+                        .ord-pill-meta {
+                            font-size: 10.5px;
+                            font-weight: 700;
                             color: #475569;
-                            font-style: italic;
-                            background: #f8fafc;
-                            border-left: 2px solid #cbd5e1;
-                            padding: 2px 7px;
-                            margin-top: 4px;
-                            border-radius: 0 4px 4px 0;
+                            background: #f1f5f9;
+                            border: 1px solid #e2e8f0;
+                            padding: 1px 6px;
+                            border-radius: 4px;
                         }
-                        .ord-reject-reason {
+                        .ord-user-note {
                             font-size: 11px;
-                            color: #991b1b;
+                            color: #4338ca;
+                            background: #eef2ff;
+                            border-left: 2px solid #6366f1;
+                            padding: 2px 6px;
+                            border-radius: 0 4px 4px 0;
+                            margin-top: 4px;
+                            display: inline-block;
+                            font-style: italic;
+                        }
+                        .ord-reject-reason-box {
+                            font-size: 11px;
+                            color: #b91c1c;
                             background: #fef2f2;
                             border: 1px solid #fecaca;
-                            padding: 3px 8px;
-                            border-radius: 5px;
-                            margin-top: 4px;
-                        }
-                        .ord-active-time {
-                            font-size: 11px;
-                            color: #059669;
+                            padding: 2px 6px;
+                            border-radius: 4px;
                             margin-top: 3px;
+                            display: inline-block;
+                        }
+                        .ord-active-time-text {
+                            font-size: 10.5px;
+                            color: #059669;
                             font-weight: 600;
+                            margin-top: 3px;
                         }
 
-                        /* Actions Zone */
-                        .ord-actions-zone {
-                            display: flex;
-                            flex-direction: column;
-                            gap: 5px;
-                            align-items: stretch;
-                            justify-content: center;
+                        /* Cột 4: Số tiền */
+                        .ord-price-box {
+                            font-size: 15px;
+                            font-weight: 900;
+                            color: #1e1b4b;
+                            letter-spacing: -0.3px;
                         }
-                        .ord-btn-quick-activate {
-                            width: 100%;
-                            height: 34px;
-                            border: none;
-                            border-radius: 7px;
-                            background: #2563eb;
-                            color: #ffffff;
+                        .ord-price-box small {
                             font-size: 12px;
                             font-weight: 700;
-                            cursor: pointer;
-                            display: flex;
-                            align-items: center;
-                            justify-content: center;
-                            gap: 4px;
-                            transition: all 0.15s ease;
-                        }
-                        .ord-btn-quick-activate:hover {
-                            background: #1d4ed8;
-                        }
-                        .ord-btn-quick-reject {
-                            width: 100%;
-                            height: 28px;
-                            border: 1px solid #e2e8f0;
-                            border-radius: 6px;
-                            background: #ffffff;
                             color: #64748b;
-                            font-size: 11px;
-                            font-weight: 600;
-                            cursor: pointer;
-                            display: flex;
-                            align-items: center;
-                            justify-content: center;
-                            gap: 3px;
-                            transition: all 0.15s ease;
                         }
-                        .ord-btn-quick-reject:hover {
-                            background: #fef2f2;
-                            color: #dc2626;
-                            border-color: #fecaca;
-                        }
-                        .ord-tag-done {
+
+                        /* Cột 5: Trạng thái */
+                        .ord-status-badge {
                             display: inline-flex;
                             align-items: center;
+                            gap: 5px;
+                            font-size: 11px;
+                            font-weight: 800;
+                            padding: 3.5px 9px;
+                            border-radius: 6px;
+                            letter-spacing: 0.2px;
+                            white-space: nowrap;
+                        }
+                        .ord-status-badge.status-pending {
+                            background: #fef3c7;
+                            color: #b45309;
+                            border: 1.5px solid #fde68a;
+                        }
+                        .ord-status-badge.status-active {
+                            background: #ecfdf5;
+                            color: #047857;
+                            border: 1.5px solid #a7f3d0;
+                        }
+                        .ord-status-badge.status-rejected {
+                            background: #f1f5f9;
+                            color: #64748b;
+                            border: 1.5px solid #e2e8f0;
+                        }
+                        .pulse-dot-amber {
+                            width: 6px;
+                            height: 6px;
+                            border-radius: 50%;
+                            background: #d97706;
+                            display: inline-block;
+                            animation: pulse 1.5s infinite;
+                        }
+
+                        /* Cột 6: Thao tác (3D Tactile Buttons) */
+                        .ord-btn-smart-activate {
+                            height: 33px;
+                            padding: 0 14px;
+                            border: 1px solid #34d399;
+                            border-radius: 8px;
+                            background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+                            color: #ffffff;
+                            font-size: 12px;
+                            font-weight: 800;
+                            cursor: pointer;
+                            display: inline-flex;
+                            align-items: center;
+                            justify-content: center;
                             gap: 4px;
-                            color: #059669;
+                            box-shadow: 0 4px 10px rgba(16, 185, 129, 0.35), inset 0 -2px 0 rgba(0, 0, 0, 0.15);
+                            transition: all 0.15s cubic-bezier(0.4, 0, 0.2, 1);
+                            white-space: nowrap;
+                        }
+                        .ord-btn-smart-activate:hover {
+                            transform: translateY(-2px);
+                            box-shadow: 0 6px 14px rgba(16, 185, 129, 0.45), inset 0 -2px 0 rgba(0, 0, 0, 0.2);
+                        }
+                        .ord-btn-smart-activate:active {
+                            transform: translateY(1px);
+                            box-shadow: 0 2px 4px rgba(16, 185, 129, 0.2);
+                        }
+
+                        .ord-btn-smart-reject {
+                            height: 33px;
+                            width: 33px;
+                            border: 1px solid #fecaca;
+                            border-radius: 8px;
+                            background: #ffffff;
+                            color: #dc2626;
+                            font-size: 13px;
+                            font-weight: 800;
+                            cursor: pointer;
+                            display: inline-flex;
+                            align-items: center;
+                            justify-content: center;
+                            transition: all 0.15s ease;
+                        }
+                        .ord-btn-smart-reject:hover {
+                            background: #fef2f2;
+                            border-color: #ef4444;
+                            transform: translateY(-1px);
+                        }
+
+                        .ord-tag-smart-done {
+                            display: inline-flex;
+                            align-items: center;
+                            gap: 3px;
+                            color: #047857;
                             font-weight: 700;
                             font-size: 11.5px;
                             background: #ecfdf5;
                             border: 1px solid #a7f3d0;
-                            padding: 5px 9px;
+                            padding: 4px 8px;
                             border-radius: 6px;
-                            justify-content: center;
+                            white-space: nowrap;
                         }
-                        .ord-tag-closed {
+                        .ord-tag-smart-closed {
                             display: inline-flex;
                             align-items: center;
-                            gap: 4px;
+                            gap: 3px;
                             color: #64748b;
                             font-weight: 600;
                             font-size: 11.5px;
                             background: #f8fafc;
                             border: 1px solid #e2e8f0;
-                            padding: 5px 9px;
+                            padding: 4px 8px;
                             border-radius: 6px;
-                            justify-content: center;
+                            white-space: nowrap;
                         }
                     </style>
 
@@ -3391,13 +3673,13 @@
                     <div class="orders-toolbar-wrap">
                         <div class="orders-search-box">
                             <span class="orders-search-icon">🔍</span>
-                            <input type="text" id="order-search-input" placeholder="Tìm theo mã đơn, tên, email, SĐT, trường..." onkeyup="filterOrdersTable()">
+                            <input type="text" id="order-search-input" placeholder="Tìm theo mã đơn, tên cô giáo, SĐT, trường học..." onkeyup="filterOrdersTable()">
                         </div>
                         <div class="orders-filter-segmented">
                             <button type="button" class="order-filter-pill-tab active" data-status="" onclick="filterOrdersTable('')">
                                 Tất cả <span class="filter-count-badge">{{ $packageOrders->count() }}</span>
                             </button>
-                            <button type="button" class="order-filter-pill-tab" data-status="pending" onclick="filterOrdersTable('pending')">
+                            <button type="button" class="order-filter-pill-tab {{ $pendingOrdersCount > 0 ? 'tab-pending-alert' : '' }}" data-status="pending" onclick="filterOrdersTable('pending')">
                                 ⏳ Chờ duyệt <span class="filter-count-badge count-pending">{{ $pendingOrdersCount }}</span>
                             </button>
                             <button type="button" class="order-filter-pill-tab" data-status="active" onclick="filterOrdersTable('active')">
@@ -3410,153 +3692,194 @@
                         <input type="hidden" id="order-status-filter" value="">
                     </div>
 
-                    <!-- 📋 DANH SÁCH CARD ĐƠN HÀNG (TỐI GIẢN, RÕ RÀNG, KHÔNG RỐI MẮT) -->
-                    <div class="orders-list-container" id="orders-tbody">
-                        @forelse($packageOrders as $ord)
-                            @php
-                                $rawNotes = $ord->notes ?? '';
-                                $userPhone = $ord->user?->phone;
-                                if (!$userPhone && preg_match('/(?:SĐT|Điện thoại|Phone)[\s\:\-]+([0-9\+\s]{9,15})/iu', $rawNotes, $m)) {
-                                    $userPhone = trim($m[1]);
-                                }
-                                $userSchool = $ord->user?->school_name;
-                                if (!$userSchool && preg_match('/(?:Trường|Đơn vị)[\s\:\-\/]+([^\-\n\r,]+?)(?=\s*[\-\–]\s*|\s*SĐT|\s*Điện thoại|\s*Lý do|$)/iu', $rawNotes, $m)) {
-                                    $userSchool = $m[1];
-                                }
-                                if ($userSchool) {
-                                    $userSchool = preg_replace('/^(?:Trường|Đơn vị)[\s\:\-\/]+/iu', '', $userSchool);
-                                    $userSchool = preg_replace('/[\s\-\–]*(?:SĐT|Điện thoại|Phone)[\s\:\-]+[0-9\+\s]+/iu', '', $userSchool);
-                                    $userSchool = trim($userSchool, " \t\n\r\0\x0B-*:,./");
-                                }
+                    <!-- 📋 BẢNG ĐƠN HÀNG THÔNG MINH CHUẨN 3D (RỰC RỠ, RÕ RÀNG, DỄ NHÌN, DỄ THAO TÁC) -->
+                    <div class="orders-table-card">
+                        <div class="orders-table-responsive">
+                            <table class="orders-smart-table">
+                                <thead>
+                                    <tr>
+                                        <th style="width: 17%;">MÃ ĐƠN & THỜI GIAN</th>
+                                        <th style="width: 25%;">GIÁO VIÊN / KHÁCH HÀNG</th>
+                                        <th style="width: 23%;">GÓI BẢN QUYỀN</th>
+                                        <th style="width: 12%;">SỐ TIỀN</th>
+                                        <th style="width: 11%;">TRẠNG THÁI</th>
+                                        <th style="width: 12%; text-align: center;">THAO TÁC</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="orders-tbody">
+                                    @forelse($packageOrders as $ord)
+                                        @php
+                                            $rawNotes = $ord->notes ?? '';
+                                            $userPhone = $ord->user?->phone;
+                                            if (!$userPhone && preg_match('/(?:SĐT|Điện thoại|Phone)[\s\:\-]+([0-9\+\s]{9,15})/iu', $rawNotes, $m)) {
+                                                $userPhone = trim($m[1]);
+                                            }
+                                            $userSchool = $ord->user?->school_name;
+                                            if (!$userSchool && preg_match('/(?:Trường|Đơn vị)[\s\:\-\/]+([^\-\n\r,]+?)(?=\s*[\-\–]\s*|\s*SĐT|\s*Điện thoại|\s*Lý do|$)/iu', $rawNotes, $m)) {
+                                                $userSchool = $m[1];
+                                            }
+                                            if ($userSchool) {
+                                                $userSchool = preg_replace('/^(?:Trường|Đơn vị)[\s\:\-\/]+/iu', '', $userSchool);
+                                                $userSchool = preg_replace('/[\s\-\–]*(?:SĐT|Điện thoại|Phone)[\s\:\-]+[0-9\+\s]+/iu', '', $userSchool);
+                                                $userSchool = trim($userSchool, " \t\n\r\0\x0B-*:,./");
+                                            }
 
-                                $rejectionReason = $ord->rejection_reason;
-                                if (!$rejectionReason && preg_match('/Lý do từ chối:\s*(.+)$/iu', $rawNotes, $m)) {
-                                    $rejectionReason = trim($m[1]);
-                                }
+                                            $rejectionReason = $ord->rejection_reason;
+                                            if (!$rejectionReason && preg_match('/Lý do từ chối:\s*(.+)$/iu', $rawNotes, $m)) {
+                                                $rejectionReason = trim($m[1]);
+                                            }
 
-                                // Làm sạch ghi chú: chỉ hiển thị nếu là ghi chú thực sự của khách
-                                $cleanNotes = $rawNotes;
-                                $cleanNotes = preg_replace('/Lý do từ chối:.*$/iu', '', $cleanNotes);
-                                $cleanNotes = preg_replace('/[\*]*Trường[\/\s]*Đơn vị[\s\:\-]+[^\-\n\r,]+/iu', '', $cleanNotes);
-                                $cleanNotes = preg_replace('/[\*]*(?:SĐT|Điện thoại|Phone)[\s\:\-]+[0-9\+\s]+/iu', '', $cleanNotes);
-                                $cleanNotes = trim($cleanNotes, " \t\n\r\0\x0B-*:,./");
-                            @endphp
-                            <div class="order-row-item order-card-box status-{{ $ord->status }}"
-                                 data-code="{{ strtolower($ord->code) }}"
-                                 data-user="{{ strtolower($ord->user?->name ?? '') }}"
-                                 data-email="{{ strtolower($ord->user?->email ?? '') }}"
-                                 data-phone="{{ strtolower($userPhone ?? '') }}"
-                                 data-school="{{ strtolower($userSchool ?? '') }}"
-                                 data-status="{{ $ord->status }}">
-                                
-                                <!-- 1. THANH TIÊU ĐỀ: Trạng thái, Mã đơn, Thời gian, PTTT, Giá tiền -->
-                                <div class="order-card-meta-row">
-                                    <div class="order-meta-left">
-                                        @if($ord->status === 'pending')
-                                            <span class="ord-status-tag status-pending">⏳ Chờ duyệt</span>
-                                        @elseif($ord->status === 'active')
-                                            <span class="ord-status-tag status-active">✓ Đã kích hoạt</span>
-                                        @elseif($ord->status === 'rejected')
-                                            <span class="ord-status-tag status-rejected">✕ Đã từ chối</span>
-                                        @else
-                                            <span class="ord-status-tag">{{ $ord->status }}</span>
-                                        @endif
+                                            // Ghi chú của khách hàng (lược bỏ các ghi chú mặc định do hệ thống tạo)
+                                            $cleanNotes = $rawNotes;
+                                            $cleanNotes = preg_replace('/Lý do từ chối:.*$/iu', '', $cleanNotes);
+                                            $cleanNotes = preg_replace('/Kích hoạt bản quyền giáo viên tự động trên hệ thống máy chủ/iu', '', $cleanNotes);
+                                            $cleanNotes = preg_replace('/[\*]*Trường[\/\s]*Đơn vị[\s\:\-]+[^\-\n\r,]+/iu', '', $cleanNotes);
+                                            $cleanNotes = preg_replace('/[\*]*(?:SĐT|Điện thoại|Phone)[\s\:\-]+[0-9\+\s]+/iu', '', $cleanNotes);
+                                            $cleanNotes = trim($cleanNotes, " \t\n\r\0\x0B-*:,./");
+                                        @endphp
+                                        <tr class="order-row-item status-{{ $ord->status }}"
+                                            data-code="{{ strtolower($ord->code) }}"
+                                            data-user="{{ strtolower($ord->user?->name ?? '') }}"
+                                            data-email="{{ strtolower($ord->user?->email ?? '') }}"
+                                            data-phone="{{ strtolower($userPhone ?? '') }}"
+                                            data-school="{{ strtolower($userSchool ?? '') }}"
+                                            data-status="{{ $ord->status }}">
+                                            
+                                            <!-- CỘT 1: MÃ ĐƠN & THỜI GIAN -->
+                                            <td>
+                                                <span class="ord-code-pill" onclick="navigator.clipboard.writeText('{{ $ord->code }}'); alert('Đã sao chép mã đơn: {{ $ord->code }}');" title="Bấm để sao chép mã đơn">
+                                                    #{{ $ord->code }}
+                                                </span>
+                                                <div class="ord-datetime">
+                                                    <span>📅 {{ $ord->created_at?->format('d/m/Y H:i') }}</span>
+                                                </div>
+                                                <div class="ord-paymode-badge">
+                                                    💳 {{ $ord->payment_method === 'payos' ? 'QR PayOS' : ($ord->payment_method === 'bank_transfer' ? 'Chuyển khoản' : ($ord->payment_method_label ?? 'Chuyển khoản')) }}
+                                                </div>
+                                            </td>
 
-                                        <span class="ord-code-text" onclick="navigator.clipboard.writeText('{{ $ord->code }}'); alert('Đã sao chép: {{ $ord->code }}');" title="Sao chép mã đơn">
-                                            #{{ $ord->code }}
-                                        </span>
+                                            <!-- CỘT 2: KHÁCH HÀNG (GIÁO VIÊN) -->
+                                            <td>
+                                                <div class="ord-customer-cell">
+                                                    <div class="ord-avatar {{ $ord->status === 'pending' ? 'avatar-pending' : '' }}">
+                                                        {{ mb_strtoupper(mb_substr($ord->user?->name ?? 'GV', 0, 2)) }}
+                                                    </div>
+                                                    <div class="ord-customer-info">
+                                                        <div class="ord-customer-name" title="{{ $ord->user?->name }}">
+                                                            {{ $ord->user?->name ?? 'Khách vãng lai' }}
+                                                        </div>
+                                                        <div class="ord-customer-meta">
+                                                            <span>📧 {{ $ord->user?->email }}</span>
+                                                        </div>
+                                                        <div class="ord-customer-meta" style="margin-top:2px;">
+                                                            @if($userPhone)
+                                                                <span style="font-weight:700; color:#334155;">📞 {{ $userPhone }}</span>
+                                                                <a href="https://zalo.me/{{ preg_replace('/[^0-9]/', '', $userPhone) }}" target="_blank" class="ord-zalo-btn" title="Mở chat Zalo với cô giáo">
+                                                                    💬 Zalo
+                                                                </a>
+                                                            @endif
+                                                            @if($userSchool)
+                                                                <span class="ord-school-tag" title="{{ $userSchool }}">🏫 {{ Str::limit($userSchool, 24) }}</span>
+                                                            @endif
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </td>
 
-                                        <span class="ord-date-text">📅 {{ $ord->created_at?->format('d/m/Y H:i') }}</span>
-                                        <span class="ord-paymethod-text">· 💳 {{ $ord->payment_method === 'payos' ? 'Chuyển khoản QR' : ($ord->payment_method === 'bank_transfer' ? 'Chuyển khoản ngân hàng' : ($ord->payment_method_label ?? 'Chuyển khoản')) }}</span>
-                                    </div>
+                                            <!-- CỘT 3: GÓI BẢN QUYỀN -->
+                                            <td>
+                                                <div class="ord-pkg-title">
+                                                    <span>💎</span> {{ $ord->package_name }}
+                                                </div>
+                                                <div class="ord-pill-tags">
+                                                    <span class="ord-pill-meta">⏰ <b>{{ $ord->duration_days }}</b> Ngày</span>
+                                                    <span class="ord-pill-meta">👥 Tối đa <b>{{ $ord->max_students }}</b> HS</span>
+                                                </div>
+                                                @if($cleanNotes)
+                                                    <div class="ord-user-note" title="{{ $cleanNotes }}">
+                                                        💬 "{{ Str::limit($cleanNotes, 38) }}"
+                                                    </div>
+                                                @endif
+                                                @if($ord->status === 'rejected' && $rejectionReason)
+                                                    <div class="ord-reject-reason-box" title="{{ $rejectionReason }}">
+                                                        ❌ {{ Str::limit($rejectionReason, 38) }}
+                                                    </div>
+                                                @endif
+                                                @if($ord->status === 'active' && $ord->activated_at)
+                                                    <div class="ord-active-time-text">
+                                                        🛡️ Đã cấp: {{ \Carbon\Carbon::parse($ord->activated_at)->format('d/m/Y H:i') }}
+                                                    </div>
+                                                @endif
+                                            </td>
 
-                                    <div class="ord-price-pill">
-                                        {{ number_format($ord->price) }} <small>đ</small>
-                                    </div>
-                                </div>
+                                            <!-- CỘT 4: SỐ TIỀN -->
+                                            <td>
+                                                <div class="ord-price-box">
+                                                    {{ number_format($ord->price) }} <small>đ</small>
+                                                </div>
+                                            </td>
 
-                                <!-- 2. NỘI DUNG CHÍNH: KHÁCH HÀNG | GÓI THUÊ | THAO TÁC -->
-                                <div class="order-card-main">
-                                    <!-- KHÁCH HÀNG -->
-                                    <div>
-                                        <div class="ord-user-primary">
-                                            <div class="ord-user-avatar">
-                                                {{ mb_strtoupper(mb_substr($ord->user?->name ?? 'GV', 0, 2)) }}
-                                            </div>
-                                            <div>
-                                                <div class="ord-user-name">{{ $ord->user?->name ?? 'Khách vãng lai' }}</div>
-                                            </div>
-                                        </div>
-                                        <div class="ord-user-contacts">
-                                            <span>📧 {{ $ord->user?->email }}</span>
-                                            @if($userPhone)
-                                                <span>· 📞 <b>{{ $userPhone }}</b></span>
-                                                <a href="https://zalo.me/{{ preg_replace('/[^0-9]/', '', $userPhone) }}" target="_blank" class="ord-zalo-link" title="Nhắn Zalo">
-                                                    💬 Zalo
-                                                </a>
-                                            @endif
-                                            @if($userSchool)
-                                                <span class="ord-school-badge">🏫 {{ $userSchool }}</span>
-                                            @endif
-                                        </div>
-                                    </div>
+                                            <!-- CỘT 5: TRẠNG THÁI -->
+                                            <td>
+                                                @if($ord->status === 'pending')
+                                                    <span class="ord-status-badge status-pending">
+                                                        <span class="pulse-dot-amber"></span> Chờ duyệt
+                                                    </span>
+                                                @elseif($ord->status === 'active')
+                                                    <span class="ord-status-badge status-active">
+                                                        ✓ Đã kích hoạt
+                                                    </span>
+                                                @elseif($ord->status === 'rejected')
+                                                    <span class="ord-status-badge status-rejected">
+                                                        ✕ Đã từ chối
+                                                    </span>
+                                                @else
+                                                    <span class="ord-status-badge">{{ $ord->status }}</span>
+                                                @endif
+                                            </td>
 
-                                    <!-- GÓI THUÊ -->
-                                    <div>
-                                        <div class="ord-pkg-name">{{ $ord->package_name }}</div>
-                                        <div class="ord-pkg-meta">
-                                            <span>⏰ <b>{{ $ord->duration_days }}</b> ngày dùng</span>
-                                            <span> · 👥 Tối đa <b>{{ $ord->max_students }}</b> HS</span>
-                                        </div>
+                                            <!-- CỘT 6: THAO TÁC DUYỆT / TỪ CHỐI NHANH -->
+                                            <td style="text-align: center;">
+                                                @if($ord->status === 'pending')
+                                                    <div style="display:flex; align-items:center; justify-content:center; gap:6px;">
+                                                        <form method="POST" action="{{ route('admin.orders.activate', $ord) }}" onsubmit="return confirm('Kích hoạt ngay gói {{ addslashes($ord->package_name) }} cho giáo viên {{ addslashes($ord->user?->name) }}?');" style="margin:0;">
+                                                            @csrf
+                                                            <button type="submit" class="ord-btn-smart-activate" title="Duyệt đơn và cộng ngày/sĩ số ngay cho cô giáo">
+                                                                <span>⚡</span> Duyệt ngay
+                                                            </button>
+                                                        </form>
+                                                        <button type="button" class="ord-btn-smart-reject" onclick="openRejectOrderModal({{ $ord->id }}, '{{ $ord->code }}', '{{ addslashes($ord->user?->name) }}')" title="Từ chối đơn hàng này">
+                                                            ✕
+                                                        </button>
+                                                    </div>
+                                                @elseif($ord->status === 'active')
+                                                    <span class="ord-tag-smart-done">
+                                                        🛡️ Hoàn tất
+                                                    </span>
+                                                @else
+                                                    <span class="ord-tag-smart-closed">
+                                                        ✕ Đã hủy
+                                                    </span>
+                                                @endif
+                                            </td>
+                                        </tr>
+                                    @empty
+                                        <tr id="orders-empty-row">
+                                            <td colspan="6" style="text-align:center; padding:45px 20px; color:#94a3b8;">
+                                                <div style="font-size:36px; margin-bottom:8px;">📦</div>
+                                                <b style="font-size:14px; color:#475569;">Chưa có đơn thuê gói nào</b>
+                                                <p style="font-size:12px; margin-top:4px;">Khi giáo viên đặt mua gói từ bảng giá, đơn sẽ xuất hiện tại đây.</p>
+                                            </td>
+                                        </tr>
+                                    @endforelse
+                                </tbody>
+                            </table>
+                        </div>
 
-                                        @if($cleanNotes)
-                                            <div class="ord-clean-notes">"{{ $cleanNotes }}"</div>
-                                        @endif
-
-                                        @if($ord->status === 'rejected' && $rejectionReason)
-                                            <div class="ord-reject-reason">❌ <b>Lý do:</b> {{ $rejectionReason }}</div>
-                                        @endif
-
-                                        @if($ord->status === 'active' && $ord->activated_at)
-                                            <div class="ord-active-time">🛡️ Kích hoạt: {{ \Carbon\Carbon::parse($ord->activated_at)->format('d/m/Y H:i') }}</div>
-                                        @endif
-                                    </div>
-
-                                    <!-- THAO TÁC -->
-                                    <div class="ord-actions-zone">
-                                        @if($ord->status === 'pending')
-                                            <form method="POST" action="{{ route('admin.orders.activate', $ord) }}" onsubmit="return confirm('Kích hoạt ngay gói {{ addslashes($ord->package_name) }} cho giáo viên {{ addslashes($ord->user?->name) }}?');" style="width:100%;">
-                                                @csrf
-                                                <button type="submit" class="ord-btn-quick-activate" title="Duyệt đơn và cộng ngày/sĩ số ngay">
-                                                    <span>⚡</span> Duyệt Kích Hoạt
-                                                </button>
-                                            </form>
-                                            <button type="button" class="ord-btn-quick-reject" onclick="openRejectOrderModal({{ $ord->id }}, '{{ $ord->code }}', '{{ addslashes($ord->user?->name) }}')" title="Từ chối đơn">
-                                                <span>✕</span> Từ chối đơn
-                                            </button>
-                                        @elseif($ord->status === 'active')
-                                            <div class="ord-tag-done">
-                                                <span>✓</span> Đã kích hoạt
-                                            </div>
-                                        @else
-                                            <div class="ord-tag-closed">
-                                                <span>✕</span> Đã từ chối
-                                            </div>
-                                        @endif
-                                    </div>
-                                </div>
-                            </div>
-                        @empty
-                            <div id="orders-empty-row" style="text-align:center; padding:40px 20px; background:#fff; border:1.5px dashed #cbd5e1; border-radius:12px; color:#94a3b8;">
-                                <div style="font-size:32px; margin-bottom:8px;">📦</div>
-                                <b style="font-size:14px; color:#475569;">Chưa có đơn thuê gói nào</b>
-                                <p style="font-size:12px; margin-top:4px;">Khi giáo viên đặt mua gói từ trang bảng giá, đơn sẽ xuất hiện tại đây.</p>
-                            </div>
-                        @endforelse
-
-                        <div id="orders-filter-empty" style="display:none; text-align:center; padding:36px 20px; background:#fff; border:1.5px dashed #cbd5e1; border-radius:12px; color:#94a3b8;">
-                            <div style="font-size:28px; margin-bottom:6px;">🔍</div>
-                            <b style="font-size:13.5px; color:#475569;">Không tìm thấy đơn hàng nào phù hợp</b>
+                        <!-- Thông báo khi lọc không tìm thấy -->
+                        <div id="orders-filter-empty" style="display:none; text-align:center; padding:40px 20px; color:#94a3b8; border-top:1px dashed #e2e8f0;">
+                            <div style="font-size:32px; margin-bottom:6px;">🔍</div>
+                            <b style="font-size:14px; color:#475569;">Không tìm thấy đơn hàng nào phù hợp</b>
                             <p style="font-size:12px; margin-top:4px;">Vui lòng thử đổi từ khóa tìm kiếm hoặc bấm tab "Tất cả".</p>
                         </div>
                     </div>
@@ -4657,6 +4980,7 @@
                                      data-email="{{ $msg->email }}"
                                      data-message="{{ $cleanMessage }}"
                                      data-admin-reply="{{ $msg->admin_reply }}"
+                                     data-conversation="{{ json_encode($msg->conversation_history ?? []) }}"
                                      data-replied-at="{{ $msg->replied_at ? \Illuminate\Support\Carbon::parse($msg->replied_at)->setTimezone('Asia/Ho_Chi_Minh')->format('H:i d/m/Y') : '' }}"
                                      data-status="{{ $msg->status }}"
                                      data-initials="{{ $initials }}"
@@ -4767,26 +5091,52 @@
                                 </div>
 
                                 <!-- Dynamic Incoming Message Bubbles Container -->
-                                <div id="chat-incoming-bubbles-wrap" style="display:flex; flex-direction:column; gap:6px;">
-                                    @foreach($activeLines as $lIdx => $line)
-                                        <div class="ms-message-row incoming">
-                                            @if($lIdx === count($activeLines) - 1)
-                                                <div id="chat-bubble-avatar" class="ms-mini-avatar" style="background: {{ $activeGradient }};">{{ $activeInitials }}</div>
+                                <div id="chat-incoming-bubbles-wrap" style="display:flex; flex-direction:column; gap:8px;">
+                                    @php
+                                        $historyTurns = (is_array($activeMsg->conversation_history) && !empty($activeMsg->conversation_history))
+                                            ? $activeMsg->conversation_history
+                                            : null;
+                                    @endphp
+                                    @if(!empty($historyTurns))
+                                        @foreach($historyTurns as $tIdx => $turn)
+                                            @if(($turn['sender'] ?? 'user') === 'user')
+                                                <div class="ms-message-row incoming">
+                                                    <div class="ms-mini-avatar" style="background: {{ $activeGradient }};">{{ $activeInitials }}</div>
+                                                    <div>
+                                                        <div class="ms-bubble-text">{{ $turn['text'] ?? '' }}</div>
+                                                        <div class="ms-bubble-meta">{{ $turn['created_at'] ?? $turn['time'] ?? '' }} · Khách gửi</div>
+                                                    </div>
+                                                </div>
                                             @else
-                                                <div style="width: 28px; height: 28px; flex-shrink: 0;"></div>
+                                                <div class="ms-message-row outgoing" style="display:flex;">
+                                                    <div>
+                                                        <div class="ms-bubble-text">{{ $turn['text'] ?? '' }}</div>
+                                                        <div class="ms-bubble-meta">{{ $turn['created_at'] ?? $turn['time'] ?? '' }} · ✓✓ Ban Quản Trị</div>
+                                                    </div>
+                                                </div>
                                             @endif
-                                            <div>
-                                                <div class="ms-bubble-text">{{ $line }}</div>
+                                        @endforeach
+                                    @else
+                                        @foreach($activeLines as $lIdx => $line)
+                                            <div class="ms-message-row incoming">
                                                 @if($lIdx === count($activeLines) - 1)
-                                                    <div class="ms-bubble-meta">📩 Khách gửi · Live Chat</div>
+                                                    <div id="chat-bubble-avatar" class="ms-mini-avatar" style="background: {{ $activeGradient }};">{{ $activeInitials }}</div>
+                                                @else
+                                                    <div style="width: 28px; height: 28px; flex-shrink: 0;"></div>
                                                 @endif
+                                                <div>
+                                                    <div class="ms-bubble-text">{{ $line }}</div>
+                                                    @if($lIdx === count($activeLines) - 1)
+                                                        <div class="ms-bubble-meta">📩 Khách gửi · Live Chat</div>
+                                                    @endif
+                                                </div>
                                             </div>
-                                        </div>
-                                    @endforeach
+                                        @endforeach
+                                    @endif
                                 </div>
 
-                                <!-- Outgoing Admin Reply -->
-                                <div id="chat-admin-reply-container" style="{{ $activeMsg->admin_reply ? 'display:flex;' : 'display:none;' }}" class="ms-message-row outgoing">
+                                <!-- Outgoing Admin Reply fallback for non-history cards -->
+                                <div id="chat-admin-reply-container" style="{{ (empty($historyTurns) && $activeMsg->admin_reply) ? 'display:flex;' : 'display:none;' }}" class="ms-message-row outgoing">
                                     <div>
                                         <div class="ms-bubble-text" id="chat-admin-reply-text">{{ $activeMsg->admin_reply }}</div>
                                         <div class="ms-bubble-meta" id="chat-admin-reply-meta">
@@ -5131,7 +5481,7 @@
                         <label style="margin-bottom: 5px;">
                             <span class="label-title" style="color: #1d4ed8; font-weight: 800;">👩‍🏫 Giáo viên phụ trách:</span>
                         </label>
-                        <select name="created_by" id="create-user-teacher-select" class="form-control" style="font-weight:700; background:#fff;">
+                        <select name="created_by" id="create-user-teacher-select" class="form-control" style="font-weight:700; background:#fff;" onchange="updateCreateStudentLevelsByTeacher(this.value)">
                             <option value="">-- Học sinh tự do (Không gán Giáo viên nào) --</option>
                             @foreach($teachers as $tc)
                                 @php
@@ -5152,12 +5502,13 @@
                     <!-- Ô chọn Khối cấp quyền cho học sinh -->
                     <div id="student-levels-box" class="form-level-box" style="grid-column: 1 / -1; margin-top: 4px; padding: 14px 16px; background: #f8fafc; border: 1.5px dashed #cbd5e1; border-radius: 12px;">
                         <b style="font-size: 12.5px; color: #1e293b; display: block; margin-bottom: 6px;">🔑 Cấp quyền mở khóa Khối học (Level Access):</b>
-                        <small class="modal-field-hint" style="margin-bottom: 10px;">Chọn các khối lớp mà học sinh này được phép vào luyện thi</small>
-                        <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px;">
+                        <small class="modal-field-hint" id="create-level-hint-text" style="margin-bottom: 10px; display:block;">Chọn các khối lớp mà học sinh này được phép vào luyện thi</small>
+                        <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px;" id="create-levels-grid">
                             @foreach($teacherLevels as $lvl)
-                                <label class="chip-label" style="justify-content: center; padding: 9px 12px; border-radius: 8px; background: #ffffff; width: 100%; box-sizing: border-box;">
-                                    <input type="checkbox" name="level_ids[]" value="{{ $lvl->id }}" {{ $loop->first ? 'checked' : '' }}>
+                                <label class="chip-label create-level-chip" id="create-chip-lvl-{{ $lvl->id }}" data-level-id="{{ $lvl->id }}" style="justify-content: center; padding: 9px 12px; border-radius: 8px; background: #ffffff; width: 100%; box-sizing: border-box; transition: all 0.2s ease;">
+                                    <input type="checkbox" name="level_ids[]" value="{{ $lvl->id }}" class="create-level-chk" {{ $loop->first ? 'checked' : '' }}>
                                     <span style="color:#0f172a; font-weight:800; font-size:12.5px;">Khối {{ $lvl->grade }}</span>
+                                    <span class="chip-lock-msg" style="display:none; font-size:10px; color:#ef4444; font-weight:750; margin-left:4px;">(Cô chưa có)</span>
                                 </label>
                             @endforeach
                         </div>
@@ -5238,7 +5589,7 @@
                         <label style="margin-bottom: 5px;">
                             <span class="label-title" style="color: #1d4ed8; font-weight: 800;">👩‍🏫 Giáo viên phụ trách:</span>
                         </label>
-                        <select name="created_by" id="edit-user-teacher-select" class="form-control" style="font-weight:700; background:#fff;">
+                        <select name="created_by" id="edit-user-teacher-select" class="form-control" style="font-weight:700; background:#fff;" onchange="updateEditStudentLevelsByTeacher(this.value)">
                             <option value="">-- Học sinh tự do (Không gán Giáo viên nào) --</option>
                             @foreach($teachers as $tc)
                                 @php
@@ -5259,12 +5610,13 @@
                     <!-- Ô chọn Khối cấp quyền cho học sinh -->
                     <div id="edit-student-levels-box" class="form-level-box" style="grid-column: 1 / -1; margin-top: 4px; padding: 14px 16px; background: #f8fafc; border: 1.5px dashed #cbd5e1; border-radius: 12px;">
                         <b style="font-size: 12.5px; color: #1e293b; display: block; margin-bottom: 6px;">🔑 Cấp quyền truy cập Khối học (Level Access):</b>
-                        <small class="modal-field-hint" style="margin-bottom: 10px;">Đánh dấu vào các khối học sinh này được phép truy cập</small>
-                        <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px;">
+                        <small class="modal-field-hint" id="edit-level-hint-text" style="margin-bottom: 10px; display:block;">Đánh dấu vào các khối học sinh này được phép truy cập</small>
+                        <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px;" id="edit-levels-grid">
                             @foreach($teacherLevels as $lvl)
-                                <label class="chip-label" style="justify-content: center; padding: 9px 12px; border-radius: 8px; background: #ffffff; width: 100%; box-sizing: border-box;">
+                                <label class="chip-label edit-level-chip" id="edit-chip-lvl-{{ $lvl->id }}" data-level-id="{{ $lvl->id }}" style="justify-content: center; padding: 9px 12px; border-radius: 8px; background: #ffffff; width: 100%; box-sizing: border-box; transition: all 0.2s ease;">
                                     <input type="checkbox" name="level_ids[]" value="{{ $lvl->id }}" class="edit-level-chk">
                                     <span style="color:#0f172a; font-weight:800; font-size:12.5px;">Khối {{ $lvl->grade }}</span>
+                                    <span class="chip-lock-msg" style="display:none; font-size:10px; color:#ef4444; font-weight:750; margin-left:4px;">(Cô chưa có)</span>
                                 </label>
                             @endforeach
                         </div>
@@ -5499,6 +5851,7 @@
         <form id="grant-level-form" method="post" action="" onsubmit="handleAjaxUserForm(event, this)">
             @csrf
             @method('put')
+            <input type="hidden" name="is_grant_level_form" value="1">
             <input type="hidden" name="name" id="modal-user-name">
             <input type="hidden" name="email" id="modal-user-email">
             <input type="hidden" name="student_code" id="modal-user-code">
@@ -5506,17 +5859,21 @@
             <input type="hidden" name="classroom_id" id="modal-user-class">
 
             <div class="modal-body">
-                <p style="font-size:13.5px; color:#334155; margin-bottom:14px;">
+                <p style="font-size:13.5px; color:#334155; margin-bottom:10px;">
                     Chọn các Khối lớp học sinh <b id="modal-display-student-name" style="color:#0f172a;"></b> được phép truy cập và làm bài thi luyện:
                 </p>
+                <div id="grant-level-hint-text" style="margin-bottom: 12px; font-size:12px; line-height: 1.4;"></div>
 
-                <div style="display:flex; flex-direction:column; gap:10px;">
+                <div style="display:flex; flex-direction:column; gap:10px;" id="grant-levels-list">
                     @foreach($teacherLevels as $lvl)
-                        <label class="chip-label" style="padding:10px 14px; border-radius:10px; width:100%; justify-content:flex-start;">
-                            <input type="checkbox" name="level_ids[]" value="{{ $lvl->id }}" id="modal-lvl-{{ $lvl->id }}">
-                            <div>
-                                <b style="color:#0f172a;">Khối {{ $lvl->grade }}</b> — <span>{{ $lvl->name }}</span>
+                        <label class="chip-label grant-level-chip" id="grant-chip-lvl-{{ $lvl->id }}" data-level-id="{{ $lvl->id }}" style="padding:10px 14px; border-radius:10px; width:100%; justify-content:space-between; align-items:center; transition: all 0.2s ease;">
+                            <div style="display:flex; align-items:center; gap:8px;">
+                                <input type="checkbox" name="level_ids[]" value="{{ $lvl->id }}" id="modal-lvl-{{ $lvl->id }}" class="grant-level-chk">
+                                <div>
+                                    <b style="color:#0f172a;">Khối {{ $lvl->grade }}</b> — <span>{{ $lvl->name }}</span>
+                                </div>
                             </div>
+                            <span class="chip-lock-msg" style="display:none; font-size:11px; color:#ef4444; font-weight:700; background:#fef2f2; padding:2px 8px; border-radius:6px; border:1px solid #fecaca;">🔒 Cô chưa có</span>
                         </label>
                     @endforeach
                 </div>
@@ -5535,34 +5892,69 @@
      👑 MODAL CẤP GÓI & QUẢN LÝ GIÁO VIÊN (DÀNH CHO ADMIN)
      =========================================================================== -->
 <div id="grant-teacher-modal" class="modal-backdrop">
-    <div class="modal-box" style="width: min(580px, 100%);">
+    <div class="modal-box" style="width: min(600px, 100%);">
         <div class="modal-header">
-            <h3><span>👑</span> Cấp Gói & Phân Quyền Giáo Viên</h3>
+            <h3><span>👑</span> Cấp Gói & Phân Quyền Khối Học Giáo Viên</h3>
             <button type="button" class="modal-close-btn" onclick="closeGrantTeacherModal()">✕</button>
         </div>
         <form id="grant-teacher-form" method="post" action="" onsubmit="handleAjaxUserForm(event, this)">
             @csrf
             @method('put')
+            <input type="hidden" name="is_grant_teacher_form" value="1">
             <input type="hidden" name="name" id="teacher-modal-name">
             <input type="hidden" name="email" id="teacher-modal-email">
             <input type="hidden" name="role" value="teacher">
 
             <div class="modal-body" style="max-height: 75vh; overflow-y: auto;">
-                <p style="font-size:13.5px; color:#334155; margin-bottom:14px;">
-                    Cấu hình gói đăng ký, số lượng học sinh tối đa và phân quyền Khối học cho Giáo viên <b id="display-teacher-name" style="color:#0f172a;"></b>:
+                <p style="font-size:13px; color:#334155; margin-bottom:12px;">
+                    Cấu hình gói dịch vụ, hạn ngạch sĩ số học sinh và phân quyền Khối học cho Giáo viên <b id="display-teacher-name" style="color:#0f172a;"></b>:
                 </p>
+
+                <!-- 🌟 GỢI Ý MẪU GÓI NHANH (PRESET MẪU CHO ADMIN TIỆN THAO TÁC) -->
+                <div style="background:#f0fdf4; border:1.5px solid #bbf7d0; border-radius:10px; padding:9px 12px; margin-bottom:14px;">
+                    <div style="font-size:11.5px; font-weight:800; color:#166534; margin-bottom:6px; display:flex; align-items:center; gap:5px;">
+                        <span>⚡</span> Chọn nhanh mẫu gói (tự điền số, có thể tùy chỉnh thêm):
+                    </div>
+                    <div style="display:flex; gap:6px; flex-wrap:wrap;">
+                        <button type="button" style="padding:3px 9px; font-size:11px; background:#ffffff; border:1px solid #86efac; border-radius:6px; font-weight:750; color:#15803d; cursor:pointer;" onclick="applyTeacherPreset(35, 30)">
+                            📦 Khởi đầu (35 HS • 30N)
+                        </button>
+                        <button type="button" style="padding:3px 9px; font-size:11px; background:#ffffff; border:1px solid #86efac; border-radius:6px; font-weight:750; color:#15803d; cursor:pointer;" onclick="applyTeacherPreset(100, 90)">
+                            🚀 Tiêu chuẩn (100 HS • 90N)
+                        </button>
+                        <button type="button" style="padding:3px 9px; font-size:11px; background:#ffffff; border:1px solid #86efac; border-radius:6px; font-weight:750; color:#15803d; cursor:pointer;" onclick="applyTeacherPreset(300, 365)">
+                            🏫 Toàn diện (300 HS • 1N)
+                        </button>
+                        <button type="button" style="padding:3px 9px; font-size:11px; background:#ffffff; border:1px solid #86efac; border-radius:6px; font-weight:750; color:#15803d; cursor:pointer;" onclick="applyTeacherPreset(0, null)">
+                            ♾️ Vĩnh viễn (∞ HS)
+                        </button>
+                    </div>
+                </div>
 
                 <div class="form-grid-2">
                     <div class="form-group">
                         <label><span class="label-title">👥 Sĩ số Học sinh tối đa (Max Students)</span></label>
                         <input name="max_students" id="teacher-modal-max-students" type="number" min="0" class="form-control" placeholder="100">
-                        <small class="modal-field-hint">Số lượng học sinh tối đa giáo viên được phép tạo</small>
+                        <div style="display:flex; gap:4px; margin-top:5px; flex-wrap:wrap;">
+                            <button type="button" style="font-size:10.5px; padding:1.5px 6px; border-radius:4px; border:1px solid #cbd5e1; background:#f8fafc; cursor:pointer; color:#475569;" onclick="addTeacherStudents(10)">+10 HS</button>
+                            <button type="button" style="font-size:10.5px; padding:1.5px 6px; border-radius:4px; border:1px solid #cbd5e1; background:#f8fafc; cursor:pointer; color:#475569;" onclick="addTeacherStudents(25)">+25 HS</button>
+                            <button type="button" style="font-size:10.5px; padding:1.5px 6px; border-radius:4px; border:1px solid #cbd5e1; background:#f8fafc; cursor:pointer; color:#475569;" onclick="addTeacherStudents(50)">+50 HS</button>
+                            <button type="button" style="font-size:10.5px; padding:1.5px 6px; border-radius:4px; border:1px solid #cbd5e1; background:#f8fafc; cursor:pointer; color:#475569;" onclick="addTeacherStudents(100)">+100 HS</button>
+                            <button type="button" style="font-size:10.5px; padding:1.5px 6px; border-radius:4px; border:1px solid #cbd5e1; background:#f8fafc; cursor:pointer; color:#059669; font-weight:750;" onclick="setTeacherStudentsInfinite()">♾️ Vô hạn</button>
+                        </div>
+                        <small class="modal-field-hint">Để 0 hoặc trống là không giới hạn sĩ số học sinh</small>
                     </div>
 
                     <div class="form-group">
                         <label><span class="label-title">📅 Ngày hết hạn gói (Expires At)</span></label>
                         <input name="expires_at" id="teacher-modal-expires-at" type="date" class="form-control">
-                        <small class="modal-field-hint">Hạn sử dụng dịch vụ của tài khoản giáo viên</small>
+                        <div style="display:flex; gap:4px; margin-top:5px; flex-wrap:wrap;">
+                            <button type="button" style="font-size:10.5px; padding:1.5px 6px; border-radius:4px; border:1px solid #cbd5e1; background:#f8fafc; cursor:pointer; color:#475569;" onclick="addTeacherDays(30)">+30N</button>
+                            <button type="button" style="font-size:10.5px; padding:1.5px 6px; border-radius:4px; border:1px solid #cbd5e1; background:#f8fafc; cursor:pointer; color:#475569;" onclick="addTeacherDays(90)">+3T</button>
+                            <button type="button" style="font-size:10.5px; padding:1.5px 6px; border-radius:4px; border:1px solid #cbd5e1; background:#f8fafc; cursor:pointer; color:#475569;" onclick="addTeacherDays(365)">+1N</button>
+                            <button type="button" style="font-size:10.5px; padding:1.5px 6px; border-radius:4px; border:1px solid #cbd5e1; background:#f8fafc; cursor:pointer; color:#059669; font-weight:750;" onclick="setTeacherExpiresForever()">♾️ Vĩnh viễn</button>
+                        </div>
+                        <small class="modal-field-hint">Để trống nếu cấp hạn dùng vĩnh viễn</small>
                     </div>
 
                     <div class="form-group" style="grid-column: 1 / -1;">
@@ -5576,11 +5968,17 @@
 
                     <!-- Danh sách Khối cấp cho Teacher -->
                     <div class="form-level-box" style="grid-column: 1 / -1; margin-top: 4px; padding: 14px 16px; background: #f8fafc; border: 1.5px dashed #cbd5e1; border-radius: 12px;">
-                        <b style="font-size: 12.5px; color: #1e293b; display: block; margin-bottom: 6px;">🔑 Khối học được phép sử dụng (Teacher Level Quota):</b>
-                        <small class="modal-field-hint" style="margin-bottom: 10px;">Đánh dấu vào các khối mà Giáo viên này được quyền truy cập và cấp cho học sinh của họ</small>
+                        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:6px; flex-wrap:wrap; gap:6px;">
+                            <b style="font-size: 12.5px; color: #1e293b;">🔑 Khối học được phép sử dụng (Teacher Level Quota):</b>
+                            <div style="display:flex; gap:6px;">
+                                <button type="button" style="font-size:11px; padding:2px 8px; border-radius:5px; border:1px solid #cbd5e1; background:#ffffff; color:#0f172a; cursor:pointer; font-weight:750;" onclick="toggleAllTeacherLevels(true)">✓ Chọn tất cả</button>
+                                <button type="button" style="font-size:11px; padding:2px 8px; border-radius:5px; border:1px solid #cbd5e1; background:#ffffff; color:#dc2626; cursor:pointer; font-weight:750;" onclick="toggleAllTeacherLevels(false)">✕ Bỏ chọn</button>
+                            </div>
+                        </div>
+                        <small class="modal-field-hint" style="margin-bottom: 10px;">Đánh dấu vào các khối mà Giáo viên này được quyền truy cập và cấp cho học sinh của họ:</small>
                         <div style="display: flex; flex-direction: column; gap: 8px;">
                             @foreach($levels as $lvl)
-                                <label class="chip-label" style="padding:9px 12px; border-radius:8px; width:100%; justify-content:flex-start;">
+                                <label class="chip-label" style="padding:9px 12px; border-radius:8px; width:100%; justify-content:flex-start; cursor:pointer;">
                                     <input type="checkbox" name="teacher_level_ids[]" value="{{ $lvl->id }}" class="teacher-lvl-chk" id="teacher-lvl-{{ $lvl->id }}">
                                     <div>
                                         <b style="color:#0f172a;">Khối {{ $lvl->grade }}</b> — <span>{{ $lvl->name }}</span>
@@ -6057,206 +6455,796 @@
 
 @if(! $isTeacher)
 <!-- ===========================================================================
-     💎 MODAL THÊM MỚI GÓI DỊCH VỤ (CREATE PACKAGE MODAL)
+     💎 MODAL THÊM & SỬA GÓI DỊCH VỤ 3D GAMIFIED (ĐA SẮC MÀU, CỰC KỲ GỌN GÀNG)
+     =========================================================================== -->
+<style>
+/* 💎 GIAO DIỆN MODAL 3D GAMIFIED CHO GÓI DỊCH VỤ IC3 */
+.pkg-modal-box-3d {
+    width: min(800px, 96vw);
+    background: #ffffff;
+    border-radius: 22px;
+    box-shadow: 0 25px 60px -12px rgba(15, 23, 42, 0.4), 0 0 0 1px rgba(0,0,0,0.06);
+    border: 3px solid #ffffff;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    max-height: 90vh;
+}
+.pkg-modal-header-3d {
+    background: linear-gradient(135deg, #1e1b4b 0%, #312e81 60%, #4338ca 100%);
+    color: #ffffff;
+    padding: 16px 22px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: 2.5px solid rgba(255,255,255,0.12);
+}
+.pkg-modal-title-3d {
+    margin: 0;
+    font-size: 17.5px;
+    font-weight: 900;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    color: #ffffff;
+    letter-spacing: -0.2px;
+}
+.pkg-modal-close-3d {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    background: rgba(255,255,255,0.16);
+    border: 1.5px solid rgba(255,255,255,0.3);
+    color: #ffffff;
+    font-size: 15px;
+    font-weight: 900;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 0.15s ease;
+}
+.pkg-modal-close-3d:hover {
+    background: #ef4444;
+    border-color: #ef4444;
+    transform: rotate(90deg) scale(1.06);
+}
+.pkg-modal-body-3d {
+    padding: 18px 22px;
+    overflow-y: auto;
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+    background: #f8fafc;
+}
+.pkg-modal-body-3d::-webkit-scrollbar {
+    width: 6px;
+}
+.pkg-modal-body-3d::-webkit-scrollbar-thumb {
+    background: #cbd5e1;
+    border-radius: 10px;
+}
+
+/* 🎯 Thẻ Chọn Đối Tượng 3D (Audience Cards) */
+.pkg-aud-grid-3d {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+}
+.pkg-aud-card-3d {
+    border-radius: 16px;
+    padding: 12px 14px;
+    cursor: pointer;
+    border: 2.5px solid #e2e8f0;
+    background: #ffffff;
+    transition: all 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);
+    position: relative;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.03);
+}
+.pkg-aud-card-3d:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 16px rgba(0,0,0,0.06);
+}
+.pkg-aud-card-3d.active-student {
+    border-color: #3b82f6 !important;
+    background: linear-gradient(135deg, #eff6ff 0%, #dbeafe 100%) !important;
+    box-shadow: 0 8px 20px rgba(59, 130, 246, 0.22), inset 0 -3px 0 rgba(59, 130, 246, 0.2) !important;
+}
+.pkg-aud-card-3d.active-teacher {
+    border-color: #16a34a !important;
+    background: linear-gradient(135deg, #f0fdf4 0%, #dcfce7 100%) !important;
+    box-shadow: 0 8px 20px rgba(22, 163, 74, 0.22), inset 0 -3px 0 rgba(22, 163, 74, 0.2) !important;
+}
+
+/* 🎨 3 Thẻ Phân Khu Màu Sắc (Color Section Pods) */
+.pkg-pod-3d {
+    border-radius: 16px;
+    padding: 14px 16px;
+    position: relative;
+    border-width: 2px;
+    border-style: solid;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.02);
+}
+.pkg-pod-amber-3d {
+    background: linear-gradient(180deg, #ffffff 0%, #fffbeb 100%);
+    border-color: #fde68a;
+}
+.pkg-pod-blue-3d {
+    background: linear-gradient(180deg, #ffffff 0%, #f0f9ff 100%);
+    border-color: #bae6fd;
+}
+.pkg-pod-purple-3d {
+    background: linear-gradient(180deg, #ffffff 0%, #faf5ff 100%);
+    border-color: #e9d5ff;
+}
+
+.pkg-pod-header-3d {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 10px;
+    padding-bottom: 6px;
+    border-bottom: 1.5px dashed rgba(0,0,0,0.06);
+}
+.pkg-pod-title-3d {
+    font-size: 12px;
+    font-weight: 900;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+.pkg-pod-amber-3d .pkg-pod-title-3d { color: #b45309; }
+.pkg-pod-blue-3d .pkg-pod-title-3d { color: #0369a1; }
+.pkg-pod-purple-3d .pkg-pod-title-3d { color: #7e22ce; }
+
+/* Grid Cân Đối Tuyệt Đối */
+.pkg-row-grid-3 {
+    display: grid;
+    grid-template-columns: 1.2fr 1fr 100px;
+    gap: 10px;
+}
+.pkg-row-grid-2 {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+}
+.pkg-field {
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
+}
+.pkg-label-3d {
+    font-size: 11.5px;
+    font-weight: 800;
+    color: #334155;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+}
+.pkg-input-3d {
+    width: 100%;
+    height: 38px;
+    border-radius: 9px;
+    border: 1.5px solid #cbd5e1;
+    padding: 0 11px;
+    font-size: 13px;
+    font-family: inherit;
+    font-weight: 600;
+    background: #ffffff;
+    transition: all 0.15s ease;
+    color: #0f172a;
+    box-sizing: border-box;
+}
+.pkg-input-3d:focus {
+    outline: none;
+    border-color: #4f46e5;
+    box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.15);
+}
+
+/* Dải Nút Chọn Nhanh 4 Cột Đều Tăm Tắp */
+.pkg-fast-grid-4 {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 7px;
+    margin-top: 5px;
+}
+.pkg-fast-pill {
+    padding: 7px 4px;
+    border-radius: 9px;
+    border: 1.5px solid #cbd5e1;
+    background: #ffffff;
+    color: #334155;
+    font-size: 11.5px;
+    font-weight: 800;
+    cursor: pointer;
+    text-align: center;
+    transition: all 0.15s ease;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.04);
+    white-space: nowrap;
+    user-select: none;
+}
+.pkg-fast-pill:hover {
+    border-color: #94a3b8;
+    background: #f8fafc;
+    transform: translateY(-1px);
+}
+.pkg-fast-pill.active-blue {
+    background: linear-gradient(135deg, #2563eb, #1d4ed8) !important;
+    color: #ffffff !important;
+    border-color: #1e40af !important;
+    box-shadow: 0 3px 8px rgba(37, 99, 235, 0.35) !important;
+    transform: translateY(-1px);
+}
+.pkg-fast-pill.active-green {
+    background: linear-gradient(135deg, #16a34a, #15803d) !important;
+    color: #ffffff !important;
+    border-color: #166534 !important;
+    box-shadow: 0 3px 8px rgba(22, 163, 74, 0.35) !important;
+    transform: translateY(-1px);
+}
+
+/* Chip Gợi Ý Badge */
+.pkg-badge-chip-3d {
+    padding: 3px 8px;
+    border-radius: 7px;
+    font-size: 10.5px;
+    font-weight: 800;
+    cursor: pointer;
+    border: 1.5px solid #fde68a;
+    background: #ffffff;
+    color: #b45309;
+    transition: all 0.15s ease;
+    display: inline-flex;
+    align-items: center;
+    gap: 3px;
+}
+.pkg-badge-chip-3d:hover {
+    background: #fef3c7;
+    border-color: #f59e0b;
+    transform: translateY(-1px);
+}
+
+/* Khối Lớp Chip 3D */
+.pkg-lvl-card-3d {
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+    padding: 7px 12px;
+    border-radius: 10px;
+    border: 1.5px solid #cbd5e1;
+    background: #ffffff;
+    cursor: pointer;
+    font-weight: 800;
+    font-size: 12px;
+    transition: all 0.15s ease;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.03);
+}
+.pkg-lvl-card-3d:hover {
+    border-color: #94a3b8;
+    transform: translateY(-1px);
+}
+.pkg-lvl-card-3d input[type="checkbox"] {
+    width: 15px;
+    height: 15px;
+    accent-color: #7e22ce;
+    cursor: pointer;
+}
+
+/* Switch Trạng Thái Mở Bán */
+.pkg-status-grid-2 {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 8px;
+}
+.pkg-status-opt-3d {
+    padding: 7px 10px;
+    border-radius: 9px;
+    border: 1.5px solid #e2e8f0;
+    background: #ffffff;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    font-size: 12px;
+    font-weight: 800;
+    transition: all 0.15s ease;
+}
+.pkg-status-opt-3d.active-active {
+    border-color: #22c55e !important;
+    background: #f0fdf4 !important;
+    color: #15803d !important;
+    box-shadow: 0 2px 6px rgba(34, 197, 94, 0.25) !important;
+}
+.pkg-status-opt-3d.active-inactive {
+    border-color: #94a3b8 !important;
+    background: #f1f5f9 !important;
+    color: #475569 !important;
+}
+
+/* Modal Footer 3D */
+.pkg-modal-footer-3d {
+    padding: 13px 22px;
+    background: #ffffff;
+    border-top: 1.5px solid #e2e8f0;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+.pkg-btn-cancel-3d {
+    padding: 9px 18px;
+    border-radius: 11px;
+    border: 1.5px solid #cbd5e1;
+    background: #f8fafc;
+    color: #475569;
+    font-size: 13px;
+    font-weight: 800;
+    cursor: pointer;
+    transition: all 0.15s ease;
+    box-shadow: 0 1px 2px rgba(0,0,0,0.04);
+}
+.pkg-btn-cancel-3d:hover {
+    background: #f1f5f9;
+    color: #0f172a;
+    border-color: #94a3b8;
+}
+.pkg-btn-submit-3d {
+    padding: 9px 24px;
+    border-radius: 11px;
+    border: 1.5px solid #4338ca;
+    background: linear-gradient(135deg, #6366f1 0%, #4f46e5 100%);
+    color: #ffffff;
+    font-size: 13.5px;
+    font-weight: 900;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+    transition: all 0.15s ease;
+    box-shadow: 0 4px 14px rgba(79, 70, 229, 0.35), inset 0 -2px 0 rgba(0,0,0,0.2);
+}
+.pkg-btn-submit-3d:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 6px 18px rgba(79, 70, 229, 0.45), inset 0 -2px 0 rgba(0,0,0,0.2);
+}
+.pkg-btn-submit-3d:active {
+    transform: translateY(1px);
+    box-shadow: 0 2px 6px rgba(79, 70, 229, 0.3);
+}
+</style>
+
+<!-- ===========================================================================
+     💎 MODAL 1: THÊM MỚI GÓI DỊCH VỤ (CREATE PACKAGE MODAL 3D)
      =========================================================================== -->
 <div id="create-package-modal" class="modal-backdrop">
-    <div class="modal-box" style="width: min(720px, 95vw); border-radius: 18px; box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);">
-        <div class="modal-header">
-            <h3 style="display:flex; align-items:center; gap:8px; margin:0; font-size:18px; font-weight:900;">
-                <span>💎</span> Thêm Mới Gói Dịch Vụ & Bản Quyền IC3 GS6
+    <div class="pkg-modal-box-3d">
+        <div class="pkg-modal-header-3d">
+            <h3 class="pkg-modal-title-3d">
+                <span style="font-size:22px;">💎</span> Thêm Gói Dịch Vụ & Bản Quyền Mới
             </h3>
-            <button type="button" class="modal-close-btn" onclick="closeCreatePackageModal()">✕</button>
+            <button type="button" class="pkg-modal-close-3d" onclick="closeCreatePackageModal()">✕</button>
         </div>
-        <form method="POST" action="{{ route('admin.packages.store') }}">
+        <form method="POST" action="{{ route('admin.packages.store') }}" id="create-package-form" style="display:contents;">
             @csrf
-            <div class="modal-body" style="max-height: 75vh; overflow-y: auto;">
-                <div class="form-grid-2">
-                    <div class="form-group" style="grid-column: 1 / -1;">
-                        <label><span class="label-title">📦 Tên gói dịch vụ <span class="req">*</span></span></label>
-                        <input name="name" class="form-control" required placeholder="Ví dụ: Gói Tiêu Chuẩn (Standard)" oninput="autoGenPackageSlug(this.value, 'create-package-slug')">
-                        <small class="modal-field-hint">Tên hiển thị rõ ràng trên bảng giá</small>
+            <div class="pkg-modal-body-3d">
+                <!-- 🎯 PHÂN LUỒNG ĐỐI TƯỢNG (B2C HỌC SINH VS B2B GIÁO VIÊN) -->
+                <div>
+                    <input type="hidden" name="target_audience" id="create-pkg-audience-val" value="student">
+                    <div class="pkg-aud-grid-3d">
+                        <!-- Thẻ Học Sinh (B2C) -->
+                        <div id="create-opt-student" class="pkg-aud-card-3d active-student" onclick="setCreatePackageAudience('student')">
+                            <div style="display:flex; align-items:center; gap:10px;">
+                                <span style="font-size:28px;">🎒</span>
+                                <div>
+                                    <b style="display:block; color:#1d4ed8; font-size:14px; font-weight:900;">Học Sinh & Cá Nhân</b>
+                                    <span style="font-size:11.5px; color:#2563eb; font-weight:700;">Gói B2C · Tự luyện 1 em tại nhà</span>
+                                </div>
+                            </div>
+                            <span id="create-icon-student" style="position:absolute; top:10px; right:12px; color:#2563eb; font-size:16px; font-weight:900;">✓</span>
+                        </div>
+                        <!-- Thẻ Giáo Viên (B2B) -->
+                        <div id="create-opt-teacher" class="pkg-aud-card-3d" onclick="setCreatePackageAudience('teacher')">
+                            <div style="display:flex; align-items:center; gap:10px;">
+                                <span style="font-size:28px;">🏫</span>
+                                <div>
+                                    <b style="display:block; color:#475569; font-size:14px; font-weight:900;">Giáo Viên & Nhà Trường</b>
+                                    <span style="font-size:11.5px; color:#64748b; font-weight:700;">Gói B2B · Cấp tài khoản quản lớp</span>
+                                </div>
+                            </div>
+                            <span id="create-icon-teacher" style="position:absolute; top:10px; right:12px; color:#16a34a; font-size:16px; font-weight:900; display:none;">✓</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 🟡 POD 1: TÊN GÓI & THIẾT LẬP GIÁ BÁN (TONE VÀNG CAM HỔ PHÁCH) -->
+                <div class="pkg-pod-3d pkg-pod-amber-3d">
+                    <div class="pkg-pod-header-3d">
+                        <span class="pkg-pod-title-3d"><span>💰</span> 1. Thông Tin Gói & Giá Bán</span>
+                        <span style="font-size:11px; color:#92400e; font-weight:700;">Hiển thị trực tiếp trên bảng giá khách hàng</span>
+                    </div>
+                    
+                    <!-- Tên gói -->
+                    <div class="pkg-field" style="margin-bottom:10px;">
+                        <label class="pkg-label-3d"><span>📦</span> Tên Gói Dịch Vụ <span style="color:#ef4444;">*</span></label>
+                        <input name="name" id="create-pkg-name-input" class="pkg-input-3d" required 
+                               placeholder="Ví dụ: Gói Tự Luyện Khám Phá (1 Tháng)" style="border-color:#fcd34d; font-size:13.5px; font-weight:800;">
                     </div>
 
-                    <div class="form-group">
-                        <label><span class="label-title">🏷️ Mã định danh (Slug)</span></label>
-                        <input name="slug" id="create-package-slug" class="form-control" placeholder="tu-dong-theo-ten">
-                        <small class="modal-field-hint">Định danh URL (để trống sẽ tự tạo)</small>
-                    </div>
-
-                    <div class="form-group">
-                        <label><span class="label-title">✨ Huy hiệu nổi bật (Badge)</span></label>
-                        <input name="badge" class="form-control" placeholder="Ví dụ: Phổ biến nhất ⭐, Tiết kiệm 🔥">
-                        <small class="modal-field-hint">Nhãn tag nhỏ gây ấn tượng trên bảng giá</small>
-                    </div>
-
-                    <div class="form-group">
-                        <label><span class="label-title">💰 Giá bán thực tế (VND) <span class="req">*</span></span></label>
-                        <input name="price" type="number" step="1000" class="form-control" required placeholder="Ví dụ: 990000" min="0">
-                        <small class="modal-field-hint">Giá giáo viên sẽ thanh toán</small>
-                    </div>
-
-                    <div class="form-group">
-                        <label><span class="label-title">🏷️ Giá gốc niêm yết (VND)</span></label>
-                        <input name="original_price" type="number" step="1000" class="form-control" placeholder="Ví dụ: 1490000 (hiển thị gạch ngang)" min="0">
-                        <small class="modal-field-hint">Giá gạch ngang để làm nổi bật giảm giá</small>
-                    </div>
-
-                    <div class="form-group">
-                        <label><span class="label-title">⏰ Thời hạn sử dụng (Ngày) <span class="req">*</span></span></label>
-                        <input name="duration_days" id="create-pkg-duration" type="number" class="form-control" required placeholder="Ví dụ: 90" min="1">
-                        <div style="display:flex; gap:6px; margin-top:6px; flex-wrap:wrap;">
-                            <button type="button" class="btn-ghost" style="padding:2px 7px; font-size:11px;" onclick="document.getElementById('create-pkg-duration').value=30">1 tháng (30 ngày)</button>
-                            <button type="button" class="btn-ghost" style="padding:2px 7px; font-size:11px;" onclick="document.getElementById('create-pkg-duration').value=90">3 tháng (90 ngày)</button>
-                            <button type="button" class="btn-ghost" style="padding:2px 7px; font-size:11px;" onclick="document.getElementById('create-pkg-duration').value=180">6 tháng (180 ngày)</button>
-                            <button type="button" class="btn-ghost" style="padding:2px 7px; font-size:11px;" onclick="document.getElementById('create-pkg-duration').value=365">1 năm (365 ngày)</button>
+                    <!-- 3 Cột: Giá bán thực tế - Giá gốc niêm yết - Thứ tự -->
+                    <div class="pkg-row-grid-3">
+                        <div class="pkg-field">
+                            <label class="pkg-label-3d"><span>💵</span> Giá Bán Thực Tế (VNĐ) <span style="color:#ef4444;">*</span></label>
+                            <input name="price" id="create-pkg-price-input" type="number" step="1000" class="pkg-input-3d" required 
+                                   placeholder="Ví dụ: 69000" min="0" style="border-color:#f59e0b; color:#b45309; font-weight:900; font-size:14px;">
+                        </div>
+                        <div class="pkg-field">
+                            <label class="pkg-label-3d"><span>🏷️</span> Giá Gốc Niêm Yết (VNĐ)</label>
+                            <input name="original_price" id="create-pkg-original-price" type="number" step="1000" class="pkg-input-3d" 
+                                   placeholder="Ví dụ: 99000" min="0" style="color:#64748b; text-decoration:line-through;">
+                        </div>
+                        <div class="pkg-field">
+                            <label class="pkg-label-3d"><span>🔢</span> Vị Trí (#)</label>
+                            <input name="sort_order" id="create-pkg-sort-order" type="number" class="pkg-input-3d" value="1" min="0" style="text-align:center; font-weight:800;">
                         </div>
                     </div>
 
-                    <div class="form-group">
-                        <label><span class="label-title">👥 Sĩ số học sinh tối đa <span class="req">*</span></span></label>
-                        <input name="max_students" type="number" class="form-control" required placeholder="Ví dụ: 100" min="1">
-                        <small class="modal-field-hint">Hạn mức số lượng học sinh giáo viên được tạo</small>
+                    <!-- Huy hiệu nổi bật (Badge) -->
+                    <div class="pkg-field" style="margin-top:10px;">
+                        <label class="pkg-label-3d"><span>✨</span> Huy Hiệu Nổi Bật (Badge)</label>
+                        <div style="display:flex; gap:8px; align-items:center;">
+                            <input name="badge" id="create-pkg-badge-input" class="pkg-input-3d" placeholder="Ví dụ: Phổ Biến Nhất ⭐" style="flex:1;">
+                            <div style="display:flex; gap:4px; flex-wrap:wrap;">
+                                <button type="button" class="pkg-badge-chip-3d" onclick="setPkgBadge('create', 'Phổ Biến Nhất ⭐')">⭐ Phổ Biến</button>
+                                <button type="button" class="pkg-badge-chip-3d" onclick="setPkgBadge('create', 'Tự Luyện Cấp Tốc ⚡')">⚡ Cấp Tốc</button>
+                                <button type="button" class="pkg-badge-chip-3d" onclick="setPkgBadge('create', 'Tiết Kiệm 🔥')">🔥 Tiết Kiệm</button>
+                                <button type="button" class="pkg-badge-chip-3d" onclick="setPkgBadge('create', 'Bán Chạy Nhất 🚀')">🚀 Bán Chạy</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 🔵 POD 2: THỜI HẠN & SĨ SỐ (TONE XANH BIỂN SKY BLUE) -->
+                <div class="pkg-pod-3d pkg-pod-blue-3d">
+                    <div class="pkg-pod-header-3d">
+                        <span class="pkg-pod-title-3d"><span>⏰</span> 2. Thời Hạn Sử Dụng & Sĩ Số Lớp</span>
+                        <span style="font-size:11px; color:#0369a1; font-weight:700;">Bấm chọn nhanh 1 chạm</span>
                     </div>
 
-                    <div class="form-group">
-                        <label><span class="label-title">🔢 Thứ tự hiển thị</span></label>
-                        <input name="position" type="number" class="form-control" value="1" min="0">
-                        <small class="modal-field-hint">Số nhỏ đứng trước</small>
-                    </div>
-
-                    <div class="form-group">
-                        <label><span class="label-title">⚡ Trạng thái mở bán</span></label>
-                        <select name="is_active" class="form-control" style="font-weight:700;">
-                            <option value="1" selected>🟢 Mở bán ngay</option>
-                            <option value="0">⚪ Tạm ẩn</option>
-                        </select>
-                    </div>
-
-                    <!-- Phân quyền khối lớp -->
-                    <div class="form-group" style="grid-column: 1 / -1; background:#f8fafc; border:1.5px dashed #cbd5e1; border-radius:12px; padding:12px 16px;">
-                        <label><span class="label-title" style="color:#0f172a; font-weight:800;">🔑 Khối lớp được cấp quyền trong gói:</span></label>
-                        <small class="modal-field-hint" style="margin-bottom:8px;">Giáo viên mua gói này sẽ được truy cập và cấp bài thi của các khối đã chọn</small>
-                        <div style="display:flex; gap:12px; flex-wrap:wrap;">
-                            @foreach($levels as $lvl)
-                                <label class="chip-label" style="padding:7px 12px; border-radius:8px;">
-                                    <input type="checkbox" name="level_ids[]" value="{{ $lvl->id }}" checked>
-                                    <b style="color:#0f172a;">Khối {{ $lvl->grade }}</b> — {{ $lvl->name }}
-                                </label>
-                            @endforeach
+                    <!-- Thời hạn sử dụng -->
+                    <div class="pkg-field">
+                        <div style="display:flex; justify-content:space-between; align-items:center;">
+                            <label class="pkg-label-3d"><span>⏱️</span> Thời Hạn Kích Hoạt (Số ngày) <span style="color:#ef4444;">*</span></label>
+                            <div style="display:flex; align-items:center; gap:6px;">
+                                <span style="font-size:11px; color:#64748b; font-weight:700;">Hoặc nhập:</span>
+                                <input name="duration_days" id="create-pkg-duration" type="number" class="pkg-input-3d" value="30" min="1" 
+                                       oninput="syncDurationFromInput('create', this.value)"
+                                       style="width:75px; height:28px; font-size:12px; font-weight:900; text-align:center; padding:0 4px; border-color:#38bdf8;">
+                                <span style="font-size:11px; color:#0369a1; font-weight:800;">ngày</span>
+                            </div>
+                        </div>
+                        <div class="pkg-fast-grid-4">
+                            <button type="button" class="pkg-fast-pill pkg-dur-btn-create active-blue" data-days="30" onclick="selectPkgDuration('create', 30)">⚡ 1 Tháng (30 ngày)</button>
+                            <button type="button" class="pkg-fast-pill pkg-dur-btn-create" data-days="90" onclick="selectPkgDuration('create', 90)">⭐ 1 Quý (90 ngày)</button>
+                            <button type="button" class="pkg-fast-pill pkg-dur-btn-create" data-days="180" onclick="selectPkgDuration('create', 180)">🔥 Nửa Năm (180 ngày)</button>
+                            <button type="button" class="pkg-fast-pill pkg-dur-btn-create" data-days="365" onclick="selectPkgDuration('create', 365)">👑 1 Năm (365 ngày)</button>
                         </div>
                     </div>
 
-                    <div class="form-group" style="grid-column: 1 / -1;">
-                        <label><span class="label-title">📝 Mô tả ngắn tóm tắt gói</span></label>
-                        <input name="description" class="form-control" placeholder="Ví dụ: Phù hợp cho giáo viên chủ nhiệm nhiều lớp...">
+                    <!-- THÔNG BÁO CHO HỌC SINH (B2C) -->
+                    <div id="create-pkg-student-note" style="margin-top:10px; background:#eff6ff; border:1.5px solid #bfdbfe; border-radius:10px; padding:9px 12px; display:flex; align-items:center; gap:8px;">
+                        <span style="font-size:18px;">🎒</span>
+                        <div style="font-size:11.5px; color:#1e40af; font-weight:700;">
+                            <b>Gói Tự Luyện Cá Nhân:</b> Hệ thống tự động kích hoạt cố định cho <b>1 tài khoản học sinh</b>, không giới hạn bài ôn và thi thử.
+                        </div>
                     </div>
 
-                    <div class="form-group" style="grid-column: 1 / -1;">
-                        <label><span class="label-title">📋 Danh sách tính năng (Mỗi dòng 1 tính năng)</span></label>
-                        <textarea name="features_text" class="form-control" rows="4" placeholder="Toàn bộ ngân hàng đề thi IC3 Spark GS6&#10;Báo cáo phân tích điểm số tự động&#10;Hỗ trợ kỹ thuật 24/7"></textarea>
-                        <small class="modal-field-hint">Mỗi dòng là một gạch đầu dòng có icon xanh trên bảng giá</small>
+                    <!-- SĨ SỐ HỌC SINH (CHỈ HIỆN KHI CHỌN GIÁO VIÊN B2B) -->
+                    <div id="create-pkg-teacher-scale-wrap" class="pkg-field" style="margin-top:10px; display:none; background:#f0fdf4; border:1.5px solid #bbf7d0; border-radius:12px; padding:10px 12px;">
+                        <div style="display:flex; justify-content:space-between; align-items:center;">
+                            <label class="pkg-label-3d" style="color:#166534;"><span>👥</span> Sĩ Số Học Sinh Tối Đa Được Cấp Tài Khoản <span style="color:#ef4444;">*</span></label>
+                            <div style="display:flex; align-items:center; gap:6px;">
+                                <span style="font-size:11px; color:#15803d; font-weight:700;">Hoặc nhập:</span>
+                                <input name="max_students" id="create-pkg-max-students" type="number" class="pkg-input-3d" value="35" min="0"
+                                       oninput="syncMaxStudentsFromInput('create', this.value)"
+                                       style="width:75px; height:28px; font-size:12px; font-weight:900; text-align:center; padding:0 4px; border-color:#4ade80;">
+                                <span style="font-size:11px; color:#166534; font-weight:800;">HS</span>
+                            </div>
+                        </div>
+                        <div class="pkg-fast-grid-4">
+                            <button type="button" class="pkg-fast-pill pkg-stu-btn-create active-green" data-count="35" onclick="selectPkgMaxStudents('create', 35)">👥 35 HS (1 Lớp)</button>
+                            <button type="button" class="pkg-fast-pill pkg-stu-btn-create" data-count="70" onclick="selectPkgMaxStudents('create', 70)">🏫 70 HS (2 Lớp)</button>
+                            <button type="button" class="pkg-fast-pill pkg-stu-btn-create" data-count="100" onclick="selectPkgMaxStudents('create', 100)">🏆 100 HS (Khối)</button>
+                            <button type="button" class="pkg-fast-pill pkg-stu-btn-create" data-count="0" onclick="selectPkgMaxStudents('create', 0)">♾️ Không Giới Hạn (0)</button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 🟣 POD 3: PHÂN QUYỀN KHỐI LỚP & TRẠNG THÁI MỞ BÁN (TONE TÍM THẠCH ANH) -->
+                <div class="pkg-pod-3d pkg-pod-purple-3d">
+                    <div class="pkg-pod-header-3d">
+                        <span class="pkg-pod-title-3d"><span>🔑</span> 3. Khối Lớp Cấp Quyền & Mở Bán</span>
+                        <div style="display:flex; gap:6px;">
+                            <button type="button" class="pkg-badge-chip-3d" style="border-color:#d8b4fe; color:#6b21a8;" onclick="toggleAllCreatePkgLevels(true)">✓ Chọn tất cả</button>
+                            <button type="button" class="pkg-badge-chip-3d" style="border-color:#d8b4fe; color:#6b21a8;" onclick="toggleAllCreatePkgLevels(false)">✕ Bỏ chọn</button>
+                        </div>
+                    </div>
+
+                    <!-- Khối Lớp Checkbox Chips -->
+                    <div style="display:flex; gap:8px; flex-wrap:wrap; margin-bottom:10px;">
+                        @foreach($levels as $lvl)
+                            <label class="pkg-lvl-card-3d">
+                                <input type="checkbox" name="level_ids[]" value="{{ $lvl->id }}" class="create-pkg-lvl-chk" checked>
+                                <span style="color:#4c1d95;"><b>Khối {{ $lvl->grade }}</b> — {{ $lvl->name }}</span>
+                            </label>
+                        @endforeach
+                    </div>
+
+                    <!-- 2 Cột: Trạng thái mở bán & Mô tả ngắn -->
+                    <div class="pkg-row-grid-2" style="align-items:flex-start;">
+                        <div class="pkg-field">
+                            <label class="pkg-label-3d"><span>⚡</span> Trạng Thái Bán</label>
+                            <input type="hidden" name="is_active" id="create-pkg-is-active-val" value="1">
+                            <div class="pkg-status-grid-2">
+                                <div id="create-status-opt-1" class="pkg-status-opt-3d active-active" onclick="setPkgActiveStatus('create', '1')">
+                                    <span>🟢</span> Mở Bán Ngay
+                                </div>
+                                <div id="create-status-opt-0" class="pkg-status-opt-3d" onclick="setPkgActiveStatus('create', '0')">
+                                    <span>⚪</span> Tạm Ẩn
+                                </div>
+                            </div>
+                        </div>
+                        <div class="pkg-field">
+                            <label class="pkg-label-3d"><span>📝</span> Mô Tả Ngắn Tóm Tắt</label>
+                            <input name="description" id="create-pkg-desc-input" class="pkg-input-3d" 
+                                   placeholder="Ví dụ: Dành cho học sinh tự ôn luyện trọng điểm 1 khối lớp...">
+                        </div>
+                    </div>
+
+                    <!-- Tính năng nổi bật dạng text (có thể mở rộng linh hoạt & chèn nhanh) -->
+                    <div class="pkg-field" style="margin-top:10px;">
+                        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:4px;">
+                            <label class="pkg-label-3d">
+                                <span>📋</span> Tính Năng Nổi Bật <span style="font-weight:600; font-size:11px; color:#64748b;">(Mỗi dòng 1 gạch đầu dòng tích xanh trên bảng giá)</span>
+                            </label>
+                            <button type="button" class="pkg-badge-chip-3d" style="border-color:#c084fc; color:#7e22ce; padding:2px 8px; cursor:pointer;" onclick="toggleExpandTextarea('create-pkg-features-input', this)">
+                                <span>↕️</span> Mở rộng ô soạn
+                            </button>
+                        </div>
+                        <div style="display:flex; gap:5px; flex-wrap:wrap; margin-bottom:6px;">
+                            <span style="font-size:10.5px; font-weight:750; color:#64748b; align-self:center;">Gợi ý:</span>
+                            <button type="button" class="pkg-badge-chip-3d" style="border-color:#cbd5e1; color:#334155; font-size:10.5px; padding:2px 7px;" onclick="insertQuickFeature('create-pkg-features-input', 'Ngân hàng đề thi IC3 Spark GS6 chuẩn quốc tế')">+ Ngân hàng đề GS6</button>
+                            <button type="button" class="pkg-badge-chip-3d" style="border-color:#cbd5e1; color:#334155; font-size:10.5px; padding:2px 7px;" onclick="insertQuickFeature('create-pkg-features-input', 'Phòng luyện thi thử mô phỏng giao diện chuẩn IIG')">+ Thi thử mô phỏng</button>
+                            <button type="button" class="pkg-badge-chip-3d" style="border-color:#cbd5e1; color:#334155; font-size:10.5px; padding:2px 7px;" onclick="insertQuickFeature('create-pkg-features-input', 'Sổ tay câu sai & Luyện tập phục thù không giới hạn')">+ Sổ tay câu sai</button>
+                            <button type="button" class="pkg-badge-chip-3d" style="border-color:#cbd5e1; color:#334155; font-size:10.5px; padding:2px 7px;" onclick="insertQuickFeature('create-pkg-features-input', 'Báo cáo năng lực & Phân tích điểm yếu theo chủ đề')">+ Báo cáo phân tích</button>
+                        </div>
+                        <textarea name="features_text" id="create-pkg-features-input" class="pkg-input-3d" rows="4" 
+                                  style="min-height:90px; height:90px; padding:8px 12px; font-size:12.5px; line-height:1.5; resize:vertical; box-sizing:border-box; transition:height 0.2s ease;"
+                                  placeholder="Nhập mỗi tính năng trên 1 dòng riêng biệt:&#10;Toàn bộ ngân hàng đề thi IC3 Spark GS6 chuẩn quốc tế&#10;Phòng luyện thi thử mô phỏng thời gian thực chuẩn IIG&#10;Sổ tay câu sai & Luyện tập phục thù không giới hạn"></textarea>
                     </div>
                 </div>
             </div>
-            <div class="modal-footer">
-                <button type="button" class="btn-secondary" onclick="closeCreatePackageModal()">Hủy</button>
-                <button type="submit" class="btn-primary">✓ Lưu Gói Dịch Vụ</button>
+            
+            <!-- Footer 3D -->
+            <div class="pkg-modal-footer-3d">
+                <button type="button" class="pkg-btn-cancel-3d" onclick="closeCreatePackageModal()">Hủy Bỏ</button>
+                <button type="submit" class="pkg-btn-submit-3d">
+                    <span>✓</span> Hoàn Tất & Lưu Gói Mới
+                </button>
             </div>
         </form>
     </div>
 </div>
 
 <!-- ===========================================================================
-     ✏️ MODAL CHỈNH SỬA GÓI DỊCH VỤ (EDIT PACKAGE MODAL)
+     ✏️ MODAL 2: CHỈNH SỬA GÓI DỊCH VỤ (EDIT PACKAGE MODAL 3D)
      =========================================================================== -->
 <div id="edit-package-modal" class="modal-backdrop">
-    <div class="modal-box" style="width: min(720px, 95vw); border-radius: 18px; box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);">
-        <div class="modal-header">
-            <h3 style="display:flex; align-items:center; gap:8px; margin:0; font-size:18px; font-weight:900;">
-                <span>✏️</span> Chỉnh Sửa Gói Dịch Vụ — <b id="edit-pkg-title-name" style="color:var(--brand);"></b>
+    <div class="pkg-modal-box-3d">
+        <div class="pkg-modal-header-3d" style="background: linear-gradient(135deg, #0f172a 0%, #1e293b 60%, #334155 100%);">
+            <h3 class="pkg-modal-title-3d">
+                <span style="font-size:22px;">✏️</span> Chỉnh Sửa Gói Dịch Vụ — <span id="edit-pkg-title-name" style="color:#67e8f9; font-weight:900;"></span>
             </h3>
-            <button type="button" class="modal-close-btn" onclick="closeEditPackageModal()">✕</button>
+            <button type="button" class="pkg-modal-close-3d" onclick="closeEditPackageModal()">✕</button>
         </div>
-        <form id="edit-package-form" method="POST" action="">
+        <form id="edit-package-form" method="POST" action="" style="display:contents;">
             @csrf
             @method('PUT')
-            <div class="modal-body" style="max-height: 75vh; overflow-y: auto;">
-                <div class="form-grid-2">
-                    <div class="form-group" style="grid-column: 1 / -1;">
-                        <label><span class="label-title">📦 Tên gói dịch vụ <span class="req">*</span></span></label>
-                        <input name="name" id="edit-pkg-name" class="form-control" required>
+            <div class="pkg-modal-body-3d">
+                <!-- 🎯 PHÂN LUỒNG ĐỐI TƯỢNG -->
+                <div>
+                    <input type="hidden" name="target_audience" id="edit-pkg-audience-val" value="teacher">
+                    <div class="pkg-aud-grid-3d">
+                        <!-- Thẻ Học Sinh -->
+                        <div id="edit-opt-student" class="pkg-aud-card-3d" onclick="setEditPackageAudience('student')">
+                            <div style="display:flex; align-items:center; gap:10px;">
+                                <span style="font-size:28px;">🎒</span>
+                                <div>
+                                    <b style="display:block; color:#1d4ed8; font-size:14px; font-weight:900;">Học Sinh & Cá Nhân</b>
+                                    <span style="font-size:11.5px; color:#2563eb; font-weight:700;">Gói B2C · Tự luyện 1 em tại nhà</span>
+                                </div>
+                            </div>
+                            <span id="edit-icon-student" style="position:absolute; top:10px; right:12px; color:#2563eb; font-size:16px; font-weight:900; display:none;">✓</span>
+                        </div>
+                        <!-- Thẻ Giáo Viên -->
+                        <div id="edit-opt-teacher" class="pkg-aud-card-3d" onclick="setEditPackageAudience('teacher')">
+                            <div style="display:flex; align-items:center; gap:10px;">
+                                <span style="font-size:28px;">🏫</span>
+                                <div>
+                                    <b style="display:block; color:#475569; font-size:14px; font-weight:900;">Giáo Viên & Nhà Trường</b>
+                                    <span style="font-size:11.5px; color:#64748b; font-weight:700;">Gói B2B · Cấp tài khoản quản lớp</span>
+                                </div>
+                            </div>
+                            <span id="edit-icon-teacher" style="position:absolute; top:10px; right:12px; color:#16a34a; font-size:16px; font-weight:900; display:none;">✓</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 🟡 POD 1: TÊN GÓI & BẢNG GIÁ (TONE VÀNG CAM) -->
+                <div class="pkg-pod-3d pkg-pod-amber-3d">
+                    <div class="pkg-pod-header-3d">
+                        <span class="pkg-pod-title-3d"><span>💰</span> 1. Thông Tin Gói & Giá Bán</span>
+                        <span style="font-size:11px; color:#92400e; font-weight:700;">Cập nhật biểu phí và tên hiển thị</span>
                     </div>
 
-                    <div class="form-group">
-                        <label><span class="label-title">🏷️ Mã định danh (Slug)</span></label>
-                        <input name="slug" id="edit-pkg-slug" class="form-control">
+                    <div class="pkg-field" style="margin-bottom:10px;">
+                        <label class="pkg-label-3d"><span>📦</span> Tên Gói Dịch Vụ <span style="color:#ef4444;">*</span></label>
+                        <input name="name" id="edit-pkg-name" class="pkg-input-3d" required style="border-color:#fcd34d; font-size:13.5px; font-weight:800;">
                     </div>
 
-                    <div class="form-group">
-                        <label><span class="label-title">✨ Huy hiệu nổi bật (Badge)</span></label>
-                        <input name="badge" id="edit-pkg-badge" class="form-control">
-                    </div>
-
-                    <div class="form-group">
-                        <label><span class="label-title">💰 Giá bán thực tế (VND) <span class="req">*</span></span></label>
-                        <input name="price" id="edit-pkg-price" type="number" step="1000" class="form-control" required min="0">
-                    </div>
-
-                    <div class="form-group">
-                        <label><span class="label-title">🏷️ Giá gốc niêm yết (VND)</span></label>
-                        <input name="original_price" id="edit-pkg-original-price" type="number" step="1000" class="form-control" min="0">
-                    </div>
-
-                    <div class="form-group">
-                        <label><span class="label-title">⏰ Thời hạn sử dụng (Ngày) <span class="req">*</span></span></label>
-                        <input name="duration_days" id="edit-pkg-duration" type="number" class="form-control" required min="1">
-                    </div>
-
-                    <div class="form-group">
-                        <label><span class="label-title">👥 Sĩ số học sinh tối đa <span class="req">*</span></span></label>
-                        <input name="max_students" id="edit-pkg-max-students" type="number" class="form-control" required min="1">
-                    </div>
-
-                    <div class="form-group">
-                        <label><span class="label-title">🔢 Thứ tự hiển thị</span></label>
-                        <input name="position" id="edit-pkg-position" type="number" class="form-control" min="0">
-                    </div>
-
-                    <div class="form-group">
-                        <label><span class="label-title">⚡ Trạng thái mở bán</span></label>
-                        <select name="is_active" id="edit-pkg-is-active" class="form-control" style="font-weight:700;">
-                            <option value="1">🟢 Mở bán ngay</option>
-                            <option value="0">⚪ Tạm ẩn</option>
-                        </select>
-                    </div>
-
-                    <!-- Phân quyền khối lớp -->
-                    <div class="form-group" style="grid-column: 1 / -1; background:#f8fafc; border:1.5px dashed #cbd5e1; border-radius:12px; padding:12px 16px;">
-                        <label><span class="label-title" style="color:#0f172a; font-weight:800;">🔑 Khối lớp được cấp quyền trong gói:</span></label>
-                        <div style="display:flex; gap:12px; flex-wrap:wrap; margin-top:8px;">
-                            @foreach($levels as $lvl)
-                                <label class="chip-label" style="padding:7px 12px; border-radius:8px;">
-                                    <input type="checkbox" name="level_ids[]" value="{{ $lvl->id }}" id="edit-pkg-lvl-{{ $lvl->id }}" class="edit-pkg-lvl-chk">
-                                    <b style="color:#0f172a;">Khối {{ $lvl->grade }}</b> — {{ $lvl->name }}
-                                </label>
-                            @endforeach
+                    <div class="pkg-row-grid-3">
+                        <div class="pkg-field">
+                            <label class="pkg-label-3d"><span>💵</span> Giá Bán Thực Tế (VNĐ) <span style="color:#ef4444;">*</span></label>
+                            <input name="price" id="edit-pkg-price" type="number" step="1000" class="pkg-input-3d" required min="0" style="border-color:#f59e0b; color:#b45309; font-weight:900; font-size:14px;">
+                        </div>
+                        <div class="pkg-field">
+                            <label class="pkg-label-3d"><span>🏷️</span> Giá Gốc Niêm Yết (VNĐ)</label>
+                            <input name="original_price" id="edit-pkg-original-price" type="number" step="1000" class="pkg-input-3d" min="0" style="color:#64748b; text-decoration:line-through;">
+                        </div>
+                        <div class="pkg-field">
+                            <label class="pkg-label-3d"><span>🔢</span> Vị Trí (#)</label>
+                            <input name="sort_order" id="edit-pkg-sort-order" type="number" class="pkg-input-3d" min="0" style="text-align:center; font-weight:800;">
                         </div>
                     </div>
 
-                    <div class="form-group" style="grid-column: 1 / -1;">
-                        <label><span class="label-title">📝 Mô tả ngắn tóm tắt gói</span></label>
-                        <input name="description" id="edit-pkg-description" class="form-control">
+                    <div class="pkg-field" style="margin-top:10px;">
+                        <label class="pkg-label-3d"><span>✨</span> Huy Hiệu Nổi Bật (Badge)</label>
+                        <div style="display:flex; gap:8px; align-items:center;">
+                            <input name="badge" id="edit-pkg-badge" class="pkg-input-3d" style="flex:1;">
+                            <div style="display:flex; gap:4px; flex-wrap:wrap;">
+                                <button type="button" class="pkg-badge-chip-3d" onclick="setPkgBadge('edit', 'Phổ Biến Nhất ⭐')">⭐ Phổ Biến</button>
+                                <button type="button" class="pkg-badge-chip-3d" onclick="setPkgBadge('edit', 'Tự Luyện Cấp Tốc ⚡')">⚡ Cấp Tốc</button>
+                                <button type="button" class="pkg-badge-chip-3d" onclick="setPkgBadge('edit', 'Tiết Kiệm 🔥')">🔥 Tiết Kiệm</button>
+                                <button type="button" class="pkg-badge-chip-3d" onclick="setPkgBadge('edit', 'Bán Chạy Nhất 🚀')">🚀 Bán Chạy</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 🔵 POD 2: THỜI HẠN & SĨ SỐ (TONE XANH BIỂN) -->
+                <div class="pkg-pod-3d pkg-pod-blue-3d">
+                    <div class="pkg-pod-header-3d">
+                        <span class="pkg-pod-title-3d"><span>⏰</span> 2. Thời Hạn Sử Dụng & Sĩ Số Lớp</span>
+                        <span style="font-size:11px; color:#0369a1; font-weight:700;">Chọn nhanh hoặc tự điều chỉnh</span>
                     </div>
 
-                    <div class="form-group" style="grid-column: 1 / -1;">
-                        <label><span class="label-title">📋 Danh sách tính năng (Mỗi dòng 1 tính năng)</span></label>
-                        <textarea name="features_text" id="edit-pkg-features-text" class="form-control" rows="4"></textarea>
+                    <div class="pkg-field">
+                        <div style="display:flex; justify-content:space-between; align-items:center;">
+                            <label class="pkg-label-3d"><span>⏱️</span> Thời Hạn Kích Hoạt (Số ngày) <span style="color:#ef4444;">*</span></label>
+                            <div style="display:flex; align-items:center; gap:6px;">
+                                <span style="font-size:11px; color:#64748b; font-weight:700;">Hoặc nhập:</span>
+                                <input name="duration_days" id="edit-pkg-duration" type="number" class="pkg-input-3d" min="1" 
+                                       oninput="syncDurationFromInput('edit', this.value)"
+                                       style="width:75px; height:28px; font-size:12px; font-weight:900; text-align:center; padding:0 4px; border-color:#38bdf8;">
+                                <span style="font-size:11px; color:#0369a1; font-weight:800;">ngày</span>
+                            </div>
+                        </div>
+                        <div class="pkg-fast-grid-4">
+                            <button type="button" class="pkg-fast-pill pkg-dur-btn-edit" data-days="30" onclick="selectPkgDuration('edit', 30)">⚡ 1 Tháng (30 ngày)</button>
+                            <button type="button" class="pkg-fast-pill pkg-dur-btn-edit" data-days="90" onclick="selectPkgDuration('edit', 90)">⭐ 1 Quý (90 ngày)</button>
+                            <button type="button" class="pkg-fast-pill pkg-dur-btn-edit" data-days="180" onclick="selectPkgDuration('edit', 180)">🔥 Nửa Năm (180 ngày)</button>
+                            <button type="button" class="pkg-fast-pill pkg-dur-btn-edit" data-days="365" onclick="selectPkgDuration('edit', 365)">👑 1 Năm (365 ngày)</button>
+                        </div>
+                    </div>
+
+                    <!-- Nhắc nhở Học sinh -->
+                    <div id="edit-pkg-student-note" style="margin-top:10px; background:#eff6ff; border:1.5px solid #bfdbfe; border-radius:10px; padding:9px 12px; display:flex; align-items:center; gap:8px;">
+                        <span style="font-size:18px;">🎒</span>
+                        <div style="font-size:11.5px; color:#1e40af; font-weight:700;">
+                            <b>Gói Tự Luyện Cá Nhân:</b> Hệ thống tự động kích hoạt cố định cho <b>1 tài khoản học sinh</b> ôn luyện độc lập.
+                        </div>
+                    </div>
+
+                    <!-- Sĩ số Giáo viên -->
+                    <div id="edit-pkg-teacher-scale-wrap" class="pkg-field" style="margin-top:10px; display:none; background:#f0fdf4; border:1.5px solid #bbf7d0; border-radius:12px; padding:10px 12px;">
+                        <div style="display:flex; justify-content:space-between; align-items:center;">
+                            <label class="pkg-label-3d" style="color:#166534;"><span>👥</span> Sĩ Số Học Sinh Tối Đa Được Cấp <span style="color:#ef4444;">*</span></label>
+                            <div style="display:flex; align-items:center; gap:6px;">
+                                <span style="font-size:11px; color:#15803d; font-weight:700;">Hoặc nhập:</span>
+                                <input name="max_students" id="edit-pkg-max-students" type="number" class="pkg-input-3d" min="0"
+                                       oninput="syncMaxStudentsFromInput('edit', this.value)"
+                                       style="width:75px; height:28px; font-size:12px; font-weight:900; text-align:center; padding:0 4px; border-color:#4ade80;">
+                                <span style="font-size:11px; color:#166534; font-weight:800;">HS</span>
+                            </div>
+                        </div>
+                        <div class="pkg-fast-grid-4">
+                            <button type="button" class="pkg-fast-pill pkg-stu-btn-edit" data-count="35" onclick="selectPkgMaxStudents('edit', 35)">👥 35 HS (1 Lớp)</button>
+                            <button type="button" class="pkg-fast-pill pkg-stu-btn-edit" data-count="70" onclick="selectPkgMaxStudents('edit', 70)">🏫 70 HS (2 Lớp)</button>
+                            <button type="button" class="pkg-fast-pill pkg-stu-btn-edit" data-count="100" onclick="selectPkgMaxStudents('edit', 100)">🏆 100 HS (Khối)</button>
+                            <button type="button" class="pkg-fast-pill pkg-stu-btn-edit" data-count="0" onclick="selectPkgMaxStudents('edit', 0)">♾️ Không Giới Hạn (0)</button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 🟣 POD 3: PHÂN QUYỀN KHỐI LỚP & TRẠNG THÁI (TONE TÍM) -->
+                <div class="pkg-pod-3d pkg-pod-purple-3d">
+                    <div class="pkg-pod-header-3d">
+                        <span class="pkg-pod-title-3d"><span>🔑</span> 3. Khối Lớp Cấp Quyền & Mở Bán</span>
+                        <div style="display:flex; gap:6px;">
+                            <button type="button" class="pkg-badge-chip-3d" style="border-color:#d8b4fe; color:#6b21a8;" onclick="toggleAllEditPkgLevels(true)">✓ Chọn tất cả</button>
+                            <button type="button" class="pkg-badge-chip-3d" style="border-color:#d8b4fe; color:#6b21a8;" onclick="toggleAllEditPkgLevels(false)">✕ Bỏ chọn</button>
+                        </div>
+                    </div>
+
+                    <div style="display:flex; gap:8px; flex-wrap:wrap; margin-bottom:10px;">
+                        @foreach($levels as $lvl)
+                            <label class="pkg-lvl-card-3d">
+                                <input type="checkbox" name="level_ids[]" value="{{ $lvl->id }}" class="edit-pkg-lvl-chk" id="edit-pkg-lvl-{{ $lvl->id }}">
+                                <span style="color:#4c1d95;"><b>Khối {{ $lvl->grade }}</b> — {{ $lvl->name }}</span>
+                            </label>
+                        @endforeach
+                    </div>
+
+                    <div class="pkg-row-grid-2" style="align-items:flex-start;">
+                        <div class="pkg-field">
+                            <label class="pkg-label-3d"><span>⚡</span> Trạng Thái Bán</label>
+                            <input type="hidden" name="is_active" id="edit-pkg-is-active-val" value="1">
+                            <div class="pkg-status-grid-2">
+                                <div id="edit-status-opt-1" class="pkg-status-opt-3d active-active" onclick="setPkgActiveStatus('edit', '1')">
+                                    <span>🟢</span> Mở Bán Ngay
+                                </div>
+                                <div id="edit-status-opt-0" class="pkg-status-opt-3d" onclick="setPkgActiveStatus('edit', '0')">
+                                    <span>⚪</span> Tạm Ẩn
+                                </div>
+                            </div>
+                        </div>
+                        <div class="pkg-field">
+                            <label class="pkg-label-3d"><span>📝</span> Mô Tả Ngắn Tóm Tắt</label>
+                            <input name="description" id="edit-pkg-description" class="pkg-input-3d">
+                        </div>
+                    </div>
+
+                    <!-- Tính năng nổi bật dạng text (có thể mở rộng linh hoạt & chèn nhanh) -->
+                    <div class="pkg-field" style="margin-top:10px;">
+                        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:4px;">
+                            <label class="pkg-label-3d">
+                                <span>📋</span> Tính Năng Nổi Bật <span style="font-weight:600; font-size:11px; color:#64748b;">(Mỗi dòng 1 gạch đầu dòng tích xanh trên bảng giá)</span>
+                            </label>
+                            <button type="button" class="pkg-badge-chip-3d" style="border-color:#c084fc; color:#7e22ce; padding:2px 8px; cursor:pointer;" onclick="toggleExpandTextarea('edit-pkg-features-text', this)">
+                                <span>↕️</span> Mở rộng ô soạn
+                            </button>
+                        </div>
+                        <div style="display:flex; gap:5px; flex-wrap:wrap; margin-bottom:6px;">
+                            <span style="font-size:10.5px; font-weight:750; color:#64748b; align-self:center;">Gợi ý:</span>
+                            <button type="button" class="pkg-badge-chip-3d" style="border-color:#cbd5e1; color:#334155; font-size:10.5px; padding:2px 7px;" onclick="insertQuickFeature('edit-pkg-features-text', 'Ngân hàng đề thi IC3 Spark GS6 chuẩn quốc tế')">+ Ngân hàng đề GS6</button>
+                            <button type="button" class="pkg-badge-chip-3d" style="border-color:#cbd5e1; color:#334155; font-size:10.5px; padding:2px 7px;" onclick="insertQuickFeature('edit-pkg-features-text', 'Phòng luyện thi thử mô phỏng giao diện chuẩn IIG')">+ Thi thử mô phỏng</button>
+                            <button type="button" class="pkg-badge-chip-3d" style="border-color:#cbd5e1; color:#334155; font-size:10.5px; padding:2px 7px;" onclick="insertQuickFeature('edit-pkg-features-text', 'Sổ tay câu sai & Luyện tập phục thù không giới hạn')">+ Sổ tay câu sai</button>
+                            <button type="button" class="pkg-badge-chip-3d" style="border-color:#cbd5e1; color:#334155; font-size:10.5px; padding:2px 7px;" onclick="insertQuickFeature('edit-pkg-features-text', 'Báo cáo năng lực & Phân tích điểm yếu theo chủ đề')">+ Báo cáo phân tích</button>
+                        </div>
+                        <textarea name="features_text" id="edit-pkg-features-text" class="pkg-input-3d" rows="4" 
+                                  style="min-height:90px; height:90px; padding:8px 12px; font-size:12.5px; line-height:1.5; resize:vertical; box-sizing:border-box; transition:height 0.2s ease;"></textarea>
                     </div>
                 </div>
             </div>
-            <div class="modal-footer">
-                <button type="button" class="btn-secondary" onclick="closeEditPackageModal()">Hủy</button>
-                <button type="submit" class="btn-primary">✓ Cập Nhật Gói</button>
+
+            <!-- Footer 3D -->
+            <div class="pkg-modal-footer-3d">
+                <button type="button" class="pkg-btn-cancel-3d" onclick="closeEditPackageModal()">Hủy Bỏ</button>
+                <button type="submit" class="pkg-btn-submit-3d" style="background: linear-gradient(135deg, #0284c7 0%, #0369a1 100%); border-color:#075985;">
+                    <span>✓</span> Cập Nhật Thay Đổi Gói
+                </button>
             </div>
         </form>
     </div>
@@ -6381,40 +7369,76 @@
         if (timeStampEl) timeStampEl.innerHTML = `<span>${time || 'Hôm nay'}</span>`;
 
         const bubblesWrap = document.getElementById('chat-incoming-bubbles-wrap');
-        if (bubblesWrap) {
-            let safeMsg = (message || '').trim();
-            if (!safeMsg || safeMsg === 'undefined') {
-                safeMsg = 'Dạ em chào Admin, em cần hỗ trợ tư vấn về tài khoản và gói luyện thi ạ!';
-            }
-            const rawLines = safeMsg.split('\n').map(l => l.trim()).filter(l => l.length > 0 && l !== 'undefined');
-            const lines = rawLines.length > 0 ? rawLines : [safeMsg];
-            let html = '';
-            lines.forEach((line, idx) => {
-                const isLast = idx === lines.length - 1;
-                html += `
-                    <div class="ms-message-row incoming">
-                        ${isLast ? `<div class="ms-mini-avatar" style="background: ${gradient};">${initials}</div>` : `<div style="width:28px; height:28px; flex-shrink:0;"></div>`}
-                        <div>
-                            <div class="ms-bubble-text">${line}</div>
-                            ${isLast ? `<div class="ms-bubble-meta">📩 Khách gửi · Live Chat</div>` : ''}
-                        </div>
-                    </div>
-                `;
-            });
-            bubblesWrap.innerHTML = html;
-        }
-
-        // Outgoing Admin Reply row
         const replyContainer = document.getElementById('chat-admin-reply-container');
-        const replyText = document.getElementById('chat-admin-reply-text');
-        const replyMeta = document.getElementById('chat-admin-reply-meta');
-        if (replyContainer && replyText) {
-            if (adminReply) {
-                replyText.innerText = adminReply;
-                if (replyMeta) replyMeta.innerText = '✓✓ Đã phản hồi ' + (repliedAt || '');
-                replyContainer.style.display = 'flex';
+        const rawConv = card.getAttribute('data-conversation');
+        let conversation = [];
+        try {
+            conversation = rawConv ? JSON.parse(rawConv) : [];
+        } catch(e) {}
+
+        if (bubblesWrap) {
+            if (Array.isArray(conversation) && conversation.length > 0) {
+                let html = '';
+                conversation.forEach((turn, idx) => {
+                    const sender = turn.sender || 'user';
+                    const text = escapeSupportHtml(turn.text || '');
+                    const turnTime = turn.created_at || turn.time || '';
+                    if (sender === 'user') {
+                        html += `
+                            <div class="ms-message-row incoming">
+                                <div class="ms-mini-avatar" style="background: ${gradient};">${initials}</div>
+                                <div>
+                                    <div class="ms-bubble-text">${text}</div>
+                                    <div class="ms-bubble-meta">${turnTime ? turnTime + ' · ' : ''}Khách gửi</div>
+                                </div>
+                            </div>
+                        `;
+                    } else {
+                        html += `
+                            <div class="ms-message-row outgoing" style="display:flex;">
+                                <div>
+                                    <div class="ms-bubble-text">${text}</div>
+                                    <div class="ms-bubble-meta">${turnTime ? turnTime + ' · ' : ''}✓✓ Ban Quản Trị</div>
+                                </div>
+                            </div>
+                        `;
+                    }
+                });
+                bubblesWrap.innerHTML = html;
+                if (replyContainer) replyContainer.style.display = 'none';
             } else {
-                replyContainer.style.display = 'none';
+                let safeMsg = (message || '').trim();
+                if (!safeMsg || safeMsg === 'undefined') {
+                    safeMsg = 'Dạ em chào Admin, em cần hỗ trợ tư vấn về tài khoản và gói luyện thi ạ!';
+                }
+                const rawLines = safeMsg.split('\n').map(l => l.trim()).filter(l => l.length > 0 && l !== 'undefined');
+                const lines = rawLines.length > 0 ? rawLines : [safeMsg];
+                let html = '';
+                lines.forEach((line, idx) => {
+                    const isLast = idx === lines.length - 1;
+                    html += `
+                        <div class="ms-message-row incoming">
+                            ${isLast ? `<div class="ms-mini-avatar" style="background: ${gradient};">${initials}</div>` : `<div style="width:28px; height:28px; flex-shrink:0;"></div>`}
+                            <div>
+                                <div class="ms-bubble-text">${line}</div>
+                                ${isLast ? `<div class="ms-bubble-meta">📩 Khách gửi · Live Chat</div>` : ''}
+                            </div>
+                        </div>
+                    `;
+                });
+                bubblesWrap.innerHTML = html;
+
+                const replyText = document.getElementById('chat-admin-reply-text');
+                const replyMeta = document.getElementById('chat-admin-reply-meta');
+                if (replyContainer && replyText) {
+                    if (adminReply) {
+                        replyText.innerText = adminReply;
+                        if (replyMeta) replyMeta.innerText = '✓✓ Đã phản hồi ' + (repliedAt || '');
+                        replyContainer.style.display = 'flex';
+                    } else {
+                        replyContainer.style.display = 'none';
+                    }
+                }
             }
         }
 
@@ -6644,15 +7668,23 @@
     function submitAdminReply(text) {
         if (!currentChatMsgId) return;
 
-        const replyContainer = document.getElementById('chat-admin-reply-container');
-        const replyText = document.getElementById('chat-admin-reply-text');
-        const replyMeta = document.getElementById('chat-admin-reply-meta');
-
-        if (replyContainer && replyText) {
-            replyText.innerText = text;
-            if (replyMeta) replyMeta.innerText = '✓✓ Vừa gửi phản hồi';
-            replyContainer.style.display = 'flex';
+        const bubblesWrap = document.getElementById('chat-incoming-bubbles-wrap');
+        const nowTime = new Date().toLocaleTimeString('vi-VN', { hour: '2-digit', minute: '2-digit' });
+        if (bubblesWrap) {
+            const outRow = document.createElement('div');
+            outRow.className = 'ms-message-row outgoing';
+            outRow.style.display = 'flex';
+            outRow.innerHTML = `
+                <div>
+                    <div class="ms-bubble-text">${escapeSupportHtml(text)}</div>
+                    <div class="ms-bubble-meta">${nowTime} · ✓✓ Vừa gửi phản hồi</div>
+                </div>
+            `;
+            bubblesWrap.appendChild(outRow);
         }
+
+        const replyContainer = document.getElementById('chat-admin-reply-container');
+        if (replyContainer) replyContainer.style.display = 'none';
 
         const stream = document.getElementById('chat-conversation-body');
         if (stream) stream.scrollTop = stream.scrollHeight;
@@ -6660,6 +7692,13 @@
         // Cập nhật thẻ hội thoại bên cột trái
         const activeCard = document.querySelector(`.ms-conv-item[data-id="${currentChatMsgId}"]`);
         if (activeCard) {
+            let conv = [];
+            try {
+                conv = JSON.parse(activeCard.getAttribute('data-conversation') || '[]');
+            } catch(e) {}
+            conv.push({ sender: 'admin', text: text, time: nowTime });
+            activeCard.setAttribute('data-conversation', JSON.stringify(conv));
+
             activeCard.setAttribute('data-admin-reply', text);
             activeCard.setAttribute('data-status', 'replied');
             activeCard.classList.remove('is-unread');
@@ -6699,6 +7738,9 @@
         .then(res => res.json())
         .then(data => {
             showAdminToast('✓ Đã lưu và gửi phản hồi thành công!', 'success');
+            if (data.conversation_history && activeCard) {
+                activeCard.setAttribute('data-conversation', JSON.stringify(data.conversation_history));
+            }
             if (typeof pollAdminChat === 'function') {
                 pollAdminChat();
             }
@@ -6985,8 +8027,15 @@
                     const activeCard = document.querySelector(`.ms-conv-item[data-id="${currentChatMsgId}"]`);
                     if (activeCard) {
                         const oldMsg = activeCard.getAttribute('data-message') || '';
-                        // CHỈ cập nhật và phát chuông nếu message là chuỗi hợp lệ và khác với tin nhắn cũ
-                        if (typeof data.active_message.message === 'string' && data.active_message.message.trim().length > 0 && oldMsg !== data.active_message.message) {
+                        if (data.active_message.conversation_history && data.active_message.conversation_history.length > 0) {
+                            const oldConv = activeCard.getAttribute('data-conversation') || '[]';
+                            const newConvStr = JSON.stringify(data.active_message.conversation_history);
+                            if (oldConv !== newConvStr) {
+                                activeCard.setAttribute('data-conversation', newConvStr);
+                                selectChatConversation(activeCard);
+                                playAdminChime();
+                            }
+                        } else if (typeof data.active_message.message === 'string' && data.active_message.message.trim().length > 0 && oldMsg !== data.active_message.message) {
                             activeCard.setAttribute('data-message', data.active_message.message);
                             selectChatConversation(activeCard);
                             playAdminChime();
@@ -7003,15 +8052,6 @@
                             if (repTag) {
                                 repTag.classList.remove('is-hidden');
                                 repTag.innerText = 'Vừa xong';
-                            }
-
-                            const replyContainer = document.getElementById('chat-admin-reply-container');
-                            const replyText = document.getElementById('chat-admin-reply-text');
-                            const replyMeta = document.getElementById('chat-admin-reply-meta');
-                            if (replyContainer && replyText) {
-                                replyText.innerText = data.active_message.admin_reply;
-                                if (replyMeta) replyMeta.innerText = '✓✓ Đã phản hồi ' + (data.active_message.replied_at || '');
-                                replyContainer.style.display = 'flex';
                             }
                         }
                     }
@@ -7340,6 +8380,14 @@
             filterUserRole(filterRole, document.getElementById('filter-btn-' + filterRole));
         }
 
+        // ⚡ Đảm bảo bảng người dùng không bị cuộn ngang lệch mép khi mở tab
+        if (actualPaneId === 'tab-users') {
+            const tableWrap = document.querySelector('#tab-users .excel-table-wrap');
+            if (tableWrap) {
+                tableWrap.scrollLeft = 0;
+            }
+        }
+
         // ⚡ Cập nhật Breadcrumbs & Tiêu đề TopBar đồng bộ với Tab đang mở
         if (typeof tabMeta !== 'undefined' && tabMeta[tabId]) {
             const titleEl = document.getElementById('topbar-title');
@@ -7379,8 +8427,14 @@
             const createdByHidden = document.getElementById('create-user-created-by');
             if (createdByHidden) createdByHidden.value = '';
             toggleStudentClassSelect('student');
+            if (typeof updateCreateStudentLevelsByTeacher === 'function') {
+                updateCreateStudentLevelsByTeacher('');
+            }
         }
-        if (modal) modal.style.display = 'grid';
+        if (modal) {
+            modal.style.zIndex = '11000';
+            modal.style.display = 'grid';
+        }
     }
 
     function closeCreateUserModal() {
@@ -7512,6 +8566,7 @@
             verdictText.innerText = 'Học sinh chưa đạt mốc 700 điểm. Giáo viên nên hướng dẫn học sinh làm lại để củng cố các dạng câu hỏi còn sai.';
         }
 
+        modal.style.zIndex = '11000';
         modal.style.display = 'grid';
     }
 
@@ -7523,9 +8578,60 @@
     let currentRoleFilter = 'all';
 
     function filterUserRole(role, btn) {
-        currentRoleFilter = role;
+        currentRoleFilter = role || 'all';
         document.querySelectorAll('.filter-tab-group .filter-tab-btn').forEach(b => b.classList.remove('active'));
-        if (btn) btn.classList.add('active');
+        if (btn) {
+            btn.classList.add('active');
+        } else {
+            const targetBtn = document.getElementById('filter-btn-' + currentRoleFilter);
+            if (targetBtn) targetBtn.classList.add('active');
+        }
+
+        // ⚡ Cập nhật class hiển thị bảng (CSS tự động ẩn các cột thừa như VAI TRÒ khi lọc Học sinh)
+        const table = document.getElementById('users-data-table');
+        if (table) {
+            table.classList.remove('mode-student', 'mode-teacher', 'mode-all');
+            if (currentRoleFilter === 'student') {
+                table.classList.add('mode-student');
+            } else if (currentRoleFilter === 'teacher') {
+                table.classList.add('mode-teacher');
+            } else {
+                table.classList.add('mode-all');
+            }
+        }
+
+        // ⚡ Tiêu đề cột & thanh tiêu đề hiển thị linh hoạt theo chế độ xem
+        const thUser = document.getElementById('th-col-user');
+        const thRole = document.getElementById('th-col-role');
+        const thStatus = document.getElementById('th-col-status');
+        const thPackage = document.getElementById('th-col-package');
+        const thAttempts = document.getElementById('th-col-attempts');
+        const thActions = document.getElementById('th-col-actions');
+        const titleEl = document.getElementById('user-toolbar-title-text');
+
+        if (currentRoleFilter === 'student') {
+            if (thUser) thUser.innerText = 'HỌC SINH';
+            if (thStatus) thStatus.innerText = 'TRẠNG THÁI';
+            if (thPackage) thPackage.innerText = 'GIÁO VIÊN & KHỐI LỚP';
+            if (thAttempts) thAttempts.innerText = 'LƯỢT THI';
+            if (thActions) thActions.innerText = 'THAO TÁC';
+            if (titleEl) titleEl.innerHTML = '<span>👨‍🎓</span> Danh Sách Học Sinh';
+        } else if (currentRoleFilter === 'teacher') {
+            if (thUser) thUser.innerText = 'GIÁO VIÊN';
+            if (thStatus) thStatus.innerText = 'TRẠNG THÁI';
+            if (thPackage) thPackage.innerText = 'GÓI BẢN QUYỀN & QUOTA';
+            if (thActions) thActions.innerText = 'THAO TÁC';
+            if (titleEl) titleEl.innerHTML = '<span>👩‍🏫</span> Danh Sách Giáo Viên';
+        } else {
+            if (thUser) thUser.innerText = 'NGƯỜI DÙNG';
+            if (thRole) thRole.innerText = 'VAI TRÒ';
+            if (thStatus) thStatus.innerText = 'TRẠNG THÁI';
+            if (thPackage) thPackage.innerText = 'GÓI & LỚP HỌC';
+            if (thAttempts) thAttempts.innerText = 'TIẾN ĐỘ';
+            if (thActions) thActions.innerText = 'THAO TÁC';
+            if (titleEl) titleEl.innerHTML = '<span>👥</span> Quản Trị Giáo Viên & Học Sinh';
+        }
+
         applyUserFilters();
     }
 
@@ -7536,6 +8642,8 @@
     function applyUserFilters() {
         const query = (document.getElementById('user-search-input')?.value || '').toLowerCase().trim();
         const rows = document.querySelectorAll('.user-row-item');
+        let visibleCount = 0;
+
         rows.forEach(row => {
             const role = row.getAttribute('data-role');
             const text = row.innerText.toLowerCase();
@@ -7543,24 +8651,52 @@
             const matchesRole = (currentRoleFilter === 'all' || role === currentRoleFilter);
             const matchesQuery = !query || text.includes(query);
 
-            row.style.display = (matchesRole && matchesQuery) ? '' : 'none';
+            if (matchesRole && matchesQuery) {
+                row.style.display = '';
+                visibleCount++;
+            } else {
+                row.style.display = 'none';
+            }
         });
+
+        const badge = document.getElementById('user-toolbar-count-badge');
+        if (badge) {
+            if (currentRoleFilter === 'student') {
+                badge.innerText = `Tổng: ${visibleCount} học sinh`;
+            } else if (currentRoleFilter === 'teacher') {
+                badge.innerText = `Tổng: ${visibleCount} giáo viên`;
+            } else {
+                badge.innerText = `Tổng: ${visibleCount} tài khoản`;
+            }
+        }
     }
 
-    // 🍞 TOAST NOTIFICATION REALTIME HELPER
+    // 🍞 TOAST NOTIFICATION REALTIME HELPER (3D GAMIFIED, TỰ TRƯỢT VÀ CÓ NÚT TẮT ✕)
     function showToast(message, type = 'success') {
         const container = document.getElementById('toast-container');
         if (!container) return;
         const toast = document.createElement('div');
         toast.className = `toast-msg ${type === 'success' ? 'toast-success' : 'toast-error'}`;
-        toast.innerHTML = `<span>${type === 'success' ? '✓' : '✕'}</span> <span>${message}</span>`;
+        const icon = type === 'success' ? '✓' : '✕';
+        toast.innerHTML = `
+            <div class="toast-icon-wrap">${icon}</div>
+            <div style="flex:1; line-height:1.35; font-size:12.5px; font-weight:750;">${message}</div>
+            <button type="button" class="toast-close-btn" onclick="this.closest('.toast-msg').remove()" title="Đóng">✕</button>
+        `;
         container.appendChild(toast);
+
+        // Kích hoạt âm thanh thông báo nhẹ nhàng nếu là thành công
+        if (type === 'success' && typeof playNotificationChime === 'function') {
+            playNotificationChime();
+        }
+
         setTimeout(() => {
-            toast.style.transition = 'opacity 0.3s ease, transform 0.3s ease';
-            toast.style.opacity = '0';
-            toast.style.transform = 'translateX(40px)';
-            setTimeout(() => toast.remove(), 300);
-        }, 3500);
+            if (toast.parentElement) {
+                toast.style.opacity = '0';
+                toast.style.transform = 'translateX(50px) scale(0.92)';
+                setTimeout(() => toast.remove(), 280);
+            }
+        }, 4200);
     }
 
     // 👥 QUẢN LÝ POPUP MODAL XEM HỌC SINH CỦA ĐẠI LÝ (REALTIME SPA)
@@ -7756,6 +8892,9 @@
         if (teacherSelect) teacherSelect.value = activeTeacherId;
         const createdByInput = document.getElementById('create-user-created-by');
         if (createdByInput) createdByInput.value = activeTeacherId;
+        if (typeof updateCreateStudentLevelsByTeacher === 'function') {
+            updateCreateStudentLevelsByTeacher(activeTeacherId);
+        }
 
         // Chọn vai trò student
         const roleSelect = document.getElementById('select-user-role');
@@ -7773,7 +8912,7 @@
             emailInput.value = `hs${Math.floor(1000 + Math.random() * 9000)}@student.ic3.local`;
         }
 
-        modal.style.zIndex = '1100';
+        modal.style.zIndex = '11000';
         modal.style.display = 'grid';
     }
 
@@ -7798,8 +8937,28 @@
             body: formData
         })
         .then(async res => {
-            const data = await res.json();
+            let data = {};
+            try {
+                data = await res.json();
+            } catch (jsonErr) {
+                data = {};
+            }
+
             if (!res.ok) {
+                if (res.status === 401 || data.message === 'Unauthenticated.') {
+                    showToast('⚠️ Phiên đăng nhập đã hết hạn. Đang chuyển về trang đăng nhập...', 'error');
+                    setTimeout(() => {
+                        window.location.href = '{{ route("login") }}';
+                    }, 1200);
+                    throw new Error('Phiên đăng nhập đã hết hạn. Vui lòng đăng nhập lại.');
+                }
+                if (res.status === 419) {
+                    showToast('⚠️ Phiên làm việc đã hết hạn. Đang tải lại trang...', 'error');
+                    setTimeout(() => {
+                        window.location.reload();
+                    }, 1200);
+                    throw new Error('Phiên làm việc đã hết hạn.');
+                }
                 let errorMsg = data.message || 'Dữ liệu không hợp lệ.';
                 if (data.errors) {
                     const firstErr = Object.values(data.errors)[0];
@@ -7882,8 +9041,21 @@
                     body: formData
                 })
                 .then(async res => {
-                    const data = await res.json();
-                    if (!res.ok) throw new Error(data.message || 'Không thể cập nhật trạng thái.');
+                    let data = {};
+                    try { data = await res.json(); } catch(e) { data = {}; }
+                    if (!res.ok) {
+                        if (res.status === 401 || data.message === 'Unauthenticated.') {
+                            showToast('⚠️ Phiên đăng nhập đã hết hạn. Đang chuyển về trang đăng nhập...', 'error');
+                            setTimeout(() => { window.location.href = '{{ route("login") }}'; }, 1200);
+                            throw new Error('Phiên đăng nhập đã hết hạn.');
+                        }
+                        if (res.status === 419) {
+                            showToast('⚠️ Phiên làm việc đã hết hạn. Đang tải lại trang...', 'error');
+                            setTimeout(() => { window.location.reload(); }, 1200);
+                            throw new Error('Phiên làm việc đã hết hạn.');
+                        }
+                        throw new Error(data.message || 'Không thể cập nhật trạng thái.');
+                    }
                     return data;
                 })
                 .then(data => {
@@ -7970,8 +9142,21 @@
                     body: formData
                 })
                 .then(async res => {
-                    const data = await res.json();
-                    if (!res.ok) throw new Error(data.message || 'Không thể xóa tài khoản.');
+                    let data = {};
+                    try { data = await res.json(); } catch(e) { data = {}; }
+                    if (!res.ok) {
+                        if (res.status === 401 || data.message === 'Unauthenticated.') {
+                            showToast('⚠️ Phiên đăng nhập đã hết hạn. Đang chuyển về trang đăng nhập...', 'error');
+                            setTimeout(() => { window.location.href = '{{ route("login") }}'; }, 1200);
+                            throw new Error('Phiên đăng nhập đã hết hạn.');
+                        }
+                        if (res.status === 419) {
+                            showToast('⚠️ Phiên làm việc đã hết hạn. Đang tải lại trang...', 'error');
+                            setTimeout(() => { window.location.reload(); }, 1200);
+                            throw new Error('Phiên làm việc đã hết hạn.');
+                        }
+                        throw new Error(data.message || 'Không thể xóa tài khoản.');
+                    }
                     return data;
                 })
                 .then(data => {
@@ -8008,6 +9193,266 @@
         if (levelsBox) levelsBox.style.display = (role === 'student') ? 'block' : 'none';
         if (codeGroup) codeGroup.style.display = (role === 'student') ? 'flex' : 'none';
     }
+
+    // 🔒 ĐỒNG BỘ KHỐI HỌC CỦA HỌC SINH THEO BẢN QUYỀN GIÁO VIÊN
+    function updateEditStudentLevelsByTeacher(teacherId) {
+        const isTeacherUser = {{ $isTeacher ? 'true' : 'false' }};
+        const hintEl = document.getElementById('edit-level-hint-text');
+        const chips = document.querySelectorAll('#edit-user-modal .edit-level-chip');
+
+        if (isTeacherUser) {
+            if (hintEl) hintEl.innerText = 'Đánh dấu vào các khối học sinh này được phép truy cập';
+            return;
+        }
+
+        if (!teacherId) {
+            chips.forEach(chip => {
+                const chk = chip.querySelector('.edit-level-chk');
+                if (chk) chk.disabled = false;
+                chip.style.opacity = '1';
+                chip.style.cursor = 'pointer';
+                chip.style.background = '#ffffff';
+                chip.style.borderColor = '#cbd5e1';
+                chip.removeAttribute('title');
+                const lockMsg = chip.querySelector('.chip-lock-msg');
+                if (lockMsg) lockMsg.style.display = 'none';
+            });
+            if (hintEl) {
+                hintEl.innerHTML = '<span style="color:#059669; font-weight:700;">🟢 Học sinh tự do:</span> Có thể cấp quyền truy cập bất kỳ khối nào.';
+            }
+            return;
+        }
+
+        const teacher = (typeof teachersData !== 'undefined') ? teachersData.find(t => t.id == teacherId) : null;
+        let allowedLevelIds = [];
+        let teacherName = 'Giáo viên';
+        let teacherGrades = [];
+
+        if (teacher) {
+            teacherName = teacher.name;
+            if (teacher.teacher_levels && Array.isArray(teacher.teacher_levels)) {
+                allowedLevelIds = teacher.teacher_levels.map(l => parseInt(l.id));
+                teacherGrades = teacher.teacher_levels.map(l => 'Khối ' + l.grade);
+            }
+        }
+
+        chips.forEach(chip => {
+            const lvlId = parseInt(chip.getAttribute('data-level-id'));
+            const chk = chip.querySelector('.edit-level-chk');
+            const lockMsg = chip.querySelector('.chip-lock-msg');
+
+            if (allowedLevelIds.includes(lvlId)) {
+                if (chk) chk.disabled = false;
+                chip.style.opacity = '1';
+                chip.style.cursor = 'pointer';
+                chip.style.background = '#ffffff';
+                chip.style.borderColor = '#86efac';
+                chip.title = `Giáo viên ${teacherName} sở hữu khối này`;
+                if (lockMsg) lockMsg.style.display = 'none';
+            } else {
+                if (chk) {
+                    chk.disabled = true;
+                    chk.checked = false;
+                }
+                chip.style.opacity = '0.42';
+                chip.style.cursor = 'not-allowed';
+                chip.style.background = '#f1f5f9';
+                chip.style.borderColor = '#e2e8f0';
+                chip.title = `Giáo viên ${teacherName} chưa được cấp quyền khối này`;
+                if (lockMsg) {
+                    lockMsg.style.display = 'inline';
+                    lockMsg.innerText = '(Cô chưa có)';
+                }
+            }
+        });
+
+        if (hintEl) {
+            if (allowedLevelIds.length > 0) {
+                hintEl.innerHTML = `<span style="color:#0284c7; font-weight:750;">💡 Chỉ mở các khối mà ${teacherName} sở hữu (${teacherGrades.join(', ')}).</span> Các khối khác bị khóa.`;
+            } else {
+                hintEl.innerHTML = `<span style="color:#ef4444; font-weight:750;">⚠️ ${teacherName} chưa được cấp Khối nào!</span> Vui lòng cấp Khối cho Giáo viên trước.`;
+            }
+        }
+    }
+    window.updateEditStudentLevelsByTeacher = updateEditStudentLevelsByTeacher;
+
+    function updateCreateStudentLevelsByTeacher(teacherId) {
+        const isTeacherUser = {{ $isTeacher ? 'true' : 'false' }};
+        const hintEl = document.getElementById('create-level-hint-text');
+        const chips = document.querySelectorAll('#create-user-modal .create-level-chip');
+
+        if (isTeacherUser) {
+            if (hintEl) hintEl.innerText = 'Chọn các khối lớp mà học sinh này được phép vào luyện thi';
+            return;
+        }
+
+        if (!teacherId) {
+            chips.forEach(chip => {
+                const chk = chip.querySelector('.create-level-chk');
+                if (chk) chk.disabled = false;
+                chip.style.opacity = '1';
+                chip.style.cursor = 'pointer';
+                chip.style.background = '#ffffff';
+                chip.style.borderColor = '#cbd5e1';
+                chip.removeAttribute('title');
+                const lockMsg = chip.querySelector('.chip-lock-msg');
+                if (lockMsg) lockMsg.style.display = 'none';
+            });
+            if (hintEl) {
+                hintEl.innerHTML = '<span style="color:#059669; font-weight:700;">🟢 Học sinh tự do:</span> Có thể mở bất kỳ khối nào.';
+            }
+            return;
+        }
+
+        const teacher = (typeof teachersData !== 'undefined') ? teachersData.find(t => t.id == teacherId) : null;
+        let allowedLevelIds = [];
+        let teacherName = 'Giáo viên';
+        let teacherGrades = [];
+
+        if (teacher) {
+            teacherName = teacher.name;
+            if (teacher.teacher_levels && Array.isArray(teacher.teacher_levels)) {
+                allowedLevelIds = teacher.teacher_levels.map(l => parseInt(l.id));
+                teacherGrades = teacher.teacher_levels.map(l => 'Khối ' + l.grade);
+            }
+        }
+
+        let firstChecked = false;
+        chips.forEach(chip => {
+            const lvlId = parseInt(chip.getAttribute('data-level-id'));
+            const chk = chip.querySelector('.create-level-chk');
+            const lockMsg = chip.querySelector('.chip-lock-msg');
+
+            if (allowedLevelIds.includes(lvlId)) {
+                if (chk) {
+                    chk.disabled = false;
+                    if (!firstChecked) {
+                        chk.checked = true;
+                        firstChecked = true;
+                    }
+                }
+                chip.style.opacity = '1';
+                chip.style.cursor = 'pointer';
+                chip.style.background = '#ffffff';
+                chip.style.borderColor = '#86efac';
+                chip.title = `Giáo viên ${teacherName} sở hữu khối này`;
+                if (lockMsg) lockMsg.style.display = 'none';
+            } else {
+                if (chk) {
+                    chk.disabled = true;
+                    chk.checked = false;
+                }
+                chip.style.opacity = '0.42';
+                chip.style.cursor = 'not-allowed';
+                chip.style.background = '#f1f5f9';
+                chip.style.borderColor = '#e2e8f0';
+                chip.title = `Giáo viên ${teacherName} chưa được cấp quyền khối này`;
+                if (lockMsg) {
+                    lockMsg.style.display = 'inline';
+                    lockMsg.innerText = '(Cô chưa có)';
+                }
+            }
+        });
+
+        if (hintEl) {
+            if (allowedLevelIds.length > 0) {
+                hintEl.innerHTML = `<span style="color:#0284c7; font-weight:750;">💡 Chỉ mở các khối mà ${teacherName} sở hữu (${teacherGrades.join(', ')}).</span>`;
+            } else {
+                hintEl.innerHTML = `<span style="color:#ef4444; font-weight:750;">⚠️ ${teacherName} chưa được cấp Khối nào!</span> Vui lòng cấp Khối cho Giáo viên trước.`;
+            }
+        }
+    }
+    window.updateCreateStudentLevelsByTeacher = updateCreateStudentLevelsByTeacher;
+
+    function updateGrantLevelsByTeacher(teacherId, levelIds = []) {
+        const isTeacherUser = {{ $isTeacher ? 'true' : 'false' }};
+        const hintEl = document.getElementById('grant-level-hint-text');
+        const chips = document.querySelectorAll('#grant-level-modal .grant-level-chip');
+
+        if (isTeacherUser) {
+            if (hintEl) hintEl.innerHTML = '';
+            chips.forEach(chip => {
+                const lvlId = parseInt(chip.getAttribute('data-level-id'));
+                const chk = chip.querySelector('.grant-level-chk');
+                if (chk) {
+                    chk.disabled = false;
+                    chk.checked = levelIds.includes(lvlId);
+                }
+            });
+            return;
+        }
+
+        if (!teacherId) {
+            chips.forEach(chip => {
+                const lvlId = parseInt(chip.getAttribute('data-level-id'));
+                const chk = chip.querySelector('.grant-level-chk');
+                if (chk) {
+                    chk.disabled = false;
+                    chk.checked = levelIds.includes(lvlId);
+                }
+                chip.style.opacity = '1';
+                chip.style.cursor = 'pointer';
+                chip.style.background = '#ffffff';
+                chip.style.borderColor = '#cbd5e1';
+                const lockMsg = chip.querySelector('.chip-lock-msg');
+                if (lockMsg) lockMsg.style.display = 'none';
+            });
+            if (hintEl) {
+                hintEl.innerHTML = '<span style="color:#059669; font-weight:700;">🟢 Học sinh tự do:</span> Có thể cấp quyền truy cập bất kỳ khối nào.';
+            }
+            return;
+        }
+
+        const teacher = (typeof teachersData !== 'undefined') ? teachersData.find(t => t.id == teacherId) : null;
+        let allowedLevelIds = [];
+        let teacherName = 'Giáo viên';
+        let teacherGrades = [];
+
+        if (teacher) {
+            teacherName = teacher.name;
+            if (teacher.teacher_levels && Array.isArray(teacher.teacher_levels)) {
+                allowedLevelIds = teacher.teacher_levels.map(l => parseInt(l.id));
+                teacherGrades = teacher.teacher_levels.map(l => 'Khối ' + l.grade);
+            }
+        }
+
+        chips.forEach(chip => {
+            const lvlId = parseInt(chip.getAttribute('data-level-id'));
+            const chk = chip.querySelector('.grant-level-chk');
+            const lockMsg = chip.querySelector('.chip-lock-msg');
+
+            if (allowedLevelIds.includes(lvlId)) {
+                if (chk) {
+                    chk.disabled = false;
+                    chk.checked = levelIds.includes(lvlId);
+                }
+                chip.style.opacity = '1';
+                chip.style.cursor = 'pointer';
+                chip.style.background = '#ffffff';
+                chip.style.borderColor = '#86efac';
+                if (lockMsg) lockMsg.style.display = 'none';
+            } else {
+                if (chk) {
+                    chk.disabled = true;
+                    chk.checked = false;
+                }
+                chip.style.opacity = '0.42';
+                chip.style.cursor = 'not-allowed';
+                chip.style.background = '#f1f5f9';
+                chip.style.borderColor = '#e2e8f0';
+                if (lockMsg) lockMsg.style.display = 'inline-block';
+            }
+        });
+
+        if (hintEl) {
+            if (allowedLevelIds.length > 0) {
+                hintEl.innerHTML = `<span style="color:#0284c7; font-weight:750;">💡 Chỉ mở các khối mà Giáo viên ${teacherName} sở hữu (${teacherGrades.join(', ')}).</span> Các khối khác bị khóa.`;
+            } else {
+                hintEl.innerHTML = `<span style="color:#ef4444; font-weight:750;">⚠️ Giáo viên ${teacherName} chưa được cấp Khối nào!</span> Vui lòng cấp Khối cho Giáo viên trước.`;
+            }
+        }
+    }
+    window.updateGrantLevelsByTeacher = updateGrantLevelsByTeacher;
 
     function filterResultsByStudent(studentName) {
         switchAdminTab('tab-results', document.querySelector('[data-tab="tab-results"]'));
@@ -8090,13 +9535,13 @@
         }
 
         const teacherSelect = document.getElementById('edit-user-teacher-select');
+        let selectedTeacherId = d.teacherId || (activeTeacherId || '');
         if (teacherSelect) {
-            teacherSelect.value = d.teacherId || '';
+            teacherSelect.value = selectedTeacherId;
         }
 
         // Ẩn/hiện các ô đặc thù của học sinh
         if (isSelf) {
-            // Đang tự sửa chính mình (Giáo viên hoặc Admin): Ẩn toàn bộ ô dành riêng cho học sinh
             const codeGroup = document.getElementById('edit-group-student-code');
             const levelsBox = document.getElementById('edit-student-levels-box');
             const teacherGroup = document.getElementById('edit-group-select-teacher');
@@ -8107,6 +9552,11 @@
             toggleEditStudentClassSelect(d.role || 'student');
         }
 
+        // 🔒 Tự động khóa và làm mờ các khối mà Giáo viên phụ trách không sở hữu
+        if (typeof updateEditStudentLevelsByTeacher === 'function') {
+            updateEditStudentLevelsByTeacher(selectedTeacherId);
+        }
+
         let levelIds = [];
         try {
             levelIds = typeof d.levels === 'string' ? JSON.parse(d.levels) : (Array.isArray(d.levels) ? d.levels : []);
@@ -8115,10 +9565,14 @@
         }
 
         document.querySelectorAll('#edit-user-modal .edit-level-chk').forEach(cb => {
-            cb.checked = levelIds.includes(parseInt(cb.value));
+            if (!cb.disabled) {
+                cb.checked = levelIds.includes(parseInt(cb.value));
+            } else {
+                cb.checked = false;
+            }
         });
 
-        modal.style.zIndex = isSelf ? '12000' : '1000';
+        modal.style.zIndex = isSelf ? '12000' : '11000';
         modal.style.display = 'grid';
     }
 
@@ -8312,16 +9766,16 @@
         document.getElementById('modal-user-class').value = user.classroom_id || '';
         document.getElementById('modal-display-student-name').innerText = user.name || '';
 
-        // Reset and check assigned levels
-        document.querySelectorAll('#grant-level-modal input[type="checkbox"]').forEach(cb => {
-            cb.checked = levelIds.includes(parseInt(cb.value));
-        });
-
-        if (activeTeacherId) {
-            modal.style.zIndex = '1100';
+        const teacherId = user.created_by || (typeof activeTeacherId !== 'undefined' ? activeTeacherId : '');
+        if (typeof updateGrantLevelsByTeacher === 'function') {
+            updateGrantLevelsByTeacher(teacherId, levelIds);
         } else {
-            modal.style.zIndex = '1000';
+            document.querySelectorAll('#grant-level-modal input[type="checkbox"]').forEach(cb => {
+                cb.checked = levelIds.includes(parseInt(cb.value));
+            });
         }
+
+        modal.style.zIndex = '11000';
         modal.style.display = 'grid';
     }
 
@@ -8400,12 +9854,59 @@
             cb.checked = levelIds.includes(parseInt(cb.value));
         });
 
+        modal.style.zIndex = '11000';
         modal.style.display = 'grid';
     }
 
     function closeGrantTeacherModal() {
         const modal = document.getElementById('grant-teacher-modal');
         if (modal) modal.style.display = 'none';
+    }
+
+    // ⚡ TIỆN ÍCH HỖ TRỢ CẤP GÓI, QUOTA & KHỐI HỌC GIÁO VIÊN NHANH CHÓNG
+    function applyTeacherPreset(students, days) {
+        document.getElementById('teacher-modal-max-students').value = students || '';
+        if (days) {
+            const d = new Date();
+            d.setDate(d.getDate() + days);
+            document.getElementById('teacher-modal-expires-at').value = d.toISOString().split('T')[0];
+        } else {
+            document.getElementById('teacher-modal-expires-at').value = '';
+        }
+    }
+
+    function addTeacherStudents(delta) {
+        const input = document.getElementById('teacher-modal-max-students');
+        if (!input) return;
+        const current = parseInt(input.value) || 0;
+        input.value = current + delta;
+    }
+
+    function setTeacherStudentsInfinite() {
+        const input = document.getElementById('teacher-modal-max-students');
+        if (input) input.value = '';
+    }
+
+    function addTeacherDays(deltaDays) {
+        const input = document.getElementById('teacher-modal-expires-at');
+        if (!input) return;
+        let baseDate = input.value ? new Date(input.value) : new Date();
+        if (isNaN(baseDate.getTime()) || baseDate < new Date()) {
+            baseDate = new Date();
+        }
+        baseDate.setDate(baseDate.getDate() + deltaDays);
+        input.value = baseDate.toISOString().split('T')[0];
+    }
+
+    function setTeacherExpiresForever() {
+        const input = document.getElementById('teacher-modal-expires-at');
+        if (input) input.value = '';
+    }
+
+    function toggleAllTeacherLevels(checked) {
+        document.querySelectorAll('#grant-teacher-modal .teacher-lvl-chk').forEach(cb => {
+            cb.checked = checked;
+        });
     }
 
     window.addEventListener('click', (e) => {
@@ -8457,9 +9958,227 @@
         }
     }
 
+    /**
+     * Lọc bảng gói theo đối tượng phục vụ (Học sinh / Giáo viên / Tất cả)
+     * Hoạt động hoàn toàn client-side, không reload trang
+     */
+    function filterPackagesByAudience(audience, btn) {
+        // Cập nhật trạng thái nút lọc đang active
+        ['pkg-filter-all', 'pkg-filter-student', 'pkg-filter-teacher'].forEach(id => {
+            const el = document.getElementById(id);
+            if (!el) return;
+            if (id === 'pkg-filter-' + audience) {
+                el.style.background = audience === 'all' ? '#0f172a' : (audience === 'student' ? '#1d4ed8' : '#15803d');
+                el.style.color = '#fff';
+            } else {
+                el.style.background = id === 'pkg-filter-all' ? '#f1f5f9' : (id === 'pkg-filter-student' ? '#eff6ff' : '#f0fdf4');
+                el.style.color = id === 'pkg-filter-student' ? '#1d4ed8' : (id === 'pkg-filter-teacher' ? '#15803d' : '#475569');
+            }
+        });
+
+        // Hiển thị/ẩn các row theo đối tượng
+        const rows = document.querySelectorAll('.pkg-row-item');
+        let visible = 0;
+        rows.forEach(row => {
+            const rowAudience = row.getAttribute('data-audience') || 'teacher';
+            if (audience === 'all' || rowAudience === audience) {
+                row.style.display = '';
+                visible++;
+            } else {
+                row.style.display = 'none';
+            }
+        });
+
+        // Hiện thông báo empty nếu không có row nào khớp
+        const emptyRow = document.getElementById('pkg-empty-row');
+        if (emptyRow) emptyRow.style.display = visible === 0 ? '' : 'none';
+    }
+
+    // ==========================================
+    // 💎 JS CHO MODAL THÊM & SỬA GÓI DỊCH VỤ
+    // ==========================================
+    // =========================================================================
+    // 💎 JS ĐIỀU KHIỂN MODAL GÓI DỊCH VỤ 3D GAMIFIED (ĐA SẮC MÀU, TRỰC QUAN)
+    // =========================================================================
+    function setCreatePackageAudience(aud) {
+        const valInput = document.getElementById('create-pkg-audience-val');
+        if (valInput) valInput.value = aud;
+
+        const optStudent = document.getElementById('create-opt-student');
+        const optTeacher = document.getElementById('create-opt-teacher');
+        const iconStudent = document.getElementById('create-icon-student');
+        const iconTeacher = document.getElementById('create-icon-teacher');
+        const teacherScaleWrap = document.getElementById('create-pkg-teacher-scale-wrap');
+        const studentNote = document.getElementById('create-pkg-student-note');
+        const nameInput = document.getElementById('create-pkg-name-input');
+        const priceInput = document.getElementById('create-pkg-price-input');
+
+        if (aud === 'student') {
+            if (optStudent) {
+                optStudent.classList.add('active-student');
+            }
+            if (iconStudent) iconStudent.style.display = 'block';
+
+            if (optTeacher) {
+                optTeacher.classList.remove('active-teacher');
+            }
+            if (iconTeacher) iconTeacher.style.display = 'none';
+
+            if (teacherScaleWrap) teacherScaleWrap.style.display = 'none';
+            if (studentNote) studentNote.style.display = 'flex';
+
+            if (nameInput && (!nameInput.value || nameInput.value.includes('Giáo Viên'))) {
+                nameInput.placeholder = 'Ví dụ: Gói Tự Luyện Khám Phá (1 Tháng)';
+            }
+            if (priceInput && (!priceInput.value || priceInput.value === '990000')) {
+                priceInput.placeholder = 'Ví dụ: 69000';
+            }
+        } else {
+            if (optTeacher) {
+                optTeacher.classList.add('active-teacher');
+            }
+            if (iconTeacher) iconTeacher.style.display = 'block';
+
+            if (optStudent) {
+                optStudent.classList.remove('active-student');
+            }
+            if (iconStudent) iconStudent.style.display = 'none';
+
+            if (teacherScaleWrap) teacherScaleWrap.style.display = 'block';
+            if (studentNote) studentNote.style.display = 'none';
+
+            if (nameInput && (!nameInput.value || nameInput.value.includes('Tự Luyện'))) {
+                nameInput.placeholder = 'Ví dụ: Gói Giáo Viên Tiêu Chuẩn (Standard)';
+            }
+            if (priceInput && (!priceInput.value || priceInput.value === '69000')) {
+                priceInput.placeholder = 'Ví dụ: 990000';
+            }
+        }
+    }
+
+    function setEditPackageAudience(aud) {
+        const valInput = document.getElementById('edit-pkg-audience-val');
+        if (valInput) valInput.value = aud;
+
+        const optStudent = document.getElementById('edit-opt-student');
+        const optTeacher = document.getElementById('edit-opt-teacher');
+        const iconStudent = document.getElementById('edit-icon-student');
+        const iconTeacher = document.getElementById('edit-icon-teacher');
+        const teacherScaleWrap = document.getElementById('edit-pkg-teacher-scale-wrap');
+        const studentNote = document.getElementById('edit-pkg-student-note');
+
+        if (aud === 'student') {
+            if (optStudent) optStudent.classList.add('active-student');
+            if (iconStudent) iconStudent.style.display = 'block';
+
+            if (optTeacher) optTeacher.classList.remove('active-teacher');
+            if (iconTeacher) iconTeacher.style.display = 'none';
+
+            if (teacherScaleWrap) teacherScaleWrap.style.display = 'none';
+            if (studentNote) studentNote.style.display = 'flex';
+        } else {
+            if (optTeacher) optTeacher.classList.add('active-teacher');
+            if (iconTeacher) iconTeacher.style.display = 'block';
+
+            if (optStudent) optStudent.classList.remove('active-student');
+            if (iconStudent) iconStudent.style.display = 'none';
+
+            if (teacherScaleWrap) teacherScaleWrap.style.display = 'block';
+            if (studentNote) studentNote.style.display = 'none';
+        }
+    }
+
+    // ⏱️ Chọn nhanh Thời hạn sử dụng
+    function selectPkgDuration(scope, days) {
+        const input = document.getElementById(`${scope}-pkg-duration`);
+        if (input) input.value = days;
+
+        document.querySelectorAll(`.pkg-dur-btn-${scope}`).forEach(btn => {
+            if (parseInt(btn.getAttribute('data-days')) === parseInt(days)) {
+                btn.classList.add('active-blue');
+            } else {
+                btn.classList.remove('active-blue');
+            }
+        });
+    }
+
+    function syncDurationFromInput(scope, val) {
+        const days = parseInt(val) || 0;
+        document.querySelectorAll(`.pkg-dur-btn-${scope}`).forEach(btn => {
+            if (parseInt(btn.getAttribute('data-days')) === days) {
+                btn.classList.add('active-blue');
+            } else {
+                btn.classList.remove('active-blue');
+            }
+        });
+    }
+
+    // 👥 Chọn nhanh Sĩ số học sinh (cho Giáo viên)
+    function selectPkgMaxStudents(scope, count) {
+        const input = document.getElementById(`${scope}-pkg-max-students`);
+        if (input) input.value = count;
+
+        document.querySelectorAll(`.pkg-stu-btn-${scope}`).forEach(btn => {
+            if (parseInt(btn.getAttribute('data-count')) === parseInt(count)) {
+                btn.classList.add('active-green');
+            } else {
+                btn.classList.remove('active-green');
+            }
+        });
+    }
+
+    function syncMaxStudentsFromInput(scope, val) {
+        const count = parseInt(val) || 0;
+        document.querySelectorAll(`.pkg-stu-btn-${scope}`).forEach(btn => {
+            if (parseInt(btn.getAttribute('data-count')) === count) {
+                btn.classList.add('active-green');
+            } else {
+                btn.classList.remove('active-green');
+            }
+        });
+    }
+
+    // ✨ Gán nhanh Huy hiệu
+    function setPkgBadge(scope, text) {
+        const input = document.getElementById(`${scope}-pkg-badge-input`) || document.getElementById(`${scope}-pkg-badge`);
+        if (input) input.value = text;
+    }
+
+    // ⚡ Switch Trạng thái mở bán
+    function setPkgActiveStatus(scope, val) {
+        const hidden = document.getElementById(`${scope}-pkg-is-active-val`);
+        if (hidden) hidden.value = val;
+
+        const opt1 = document.getElementById(`${scope}-status-opt-1`);
+        const opt0 = document.getElementById(`${scope}-status-opt-0`);
+
+        if (val === '1') {
+            if (opt1) { opt1.classList.add('active-active'); opt1.classList.remove('active-inactive'); }
+            if (opt0) { opt0.classList.remove('active-active', 'active-inactive'); }
+        } else {
+            if (opt0) { opt0.classList.add('active-inactive'); opt0.classList.remove('active-active'); }
+            if (opt1) { opt1.classList.remove('active-active', 'active-inactive'); }
+        }
+    }
+
+    // 🔑 Toggle Chọn/Bỏ chọn tất cả Khối lớp
+    function toggleAllCreatePkgLevels(checked) {
+        document.querySelectorAll('.create-pkg-lvl-chk').forEach(c => c.checked = checked);
+    }
+    function toggleAllEditPkgLevels(checked) {
+        document.querySelectorAll('.edit-pkg-lvl-chk').forEach(c => c.checked = checked);
+    }
+
+    // 🚀 Mở & Đóng Modal Thêm Gói
     function openCreatePackageModal() {
         const modal = document.getElementById('create-package-modal');
-        if (modal) modal.style.display = 'grid';
+        if (modal) {
+            setCreatePackageAudience('student');
+            selectPkgDuration('create', 30);
+            selectPkgMaxStudents('create', 35);
+            setPkgActiveStatus('create', '1');
+            modal.style.display = 'grid';
+        }
     }
 
     function closeCreatePackageModal() {
@@ -8467,19 +10186,7 @@
         if (modal) modal.style.display = 'none';
     }
 
-    function autoGenPackageSlug(text, targetId) {
-        const slug = text.toLowerCase()
-            .normalize('NFD').replace(/[\u0300-\u036f]/g, '')
-            .replace(/đ/g, 'd')
-            .replace(/[^a-z0-9\s-]/g, '')
-            .trim()
-            .replace(/\s+/g, '-');
-        const target = document.getElementById(targetId);
-        if (target && (!target.value || target.dataset.auto !== 'false')) {
-            target.value = slug;
-        }
-    }
-
+    // ✏️ Mở & Đóng Modal Chỉnh Sửa Gói
     function openEditPackageModal(pkg, levelIds) {
         const modal = document.getElementById('edit-package-modal');
         const form = document.getElementById('edit-package-form');
@@ -8487,16 +10194,26 @@
 
         form.action = `/quan-tri/packages/${pkg.id}`;
         document.getElementById('edit-pkg-title-name').innerText = pkg.name;
+        
+        // Cập nhật audience và giao diện tương ứng
+        setEditPackageAudience(pkg.target_audience || 'teacher');
+
         document.getElementById('edit-pkg-name').value = pkg.name || '';
-        document.getElementById('edit-pkg-slug').value = pkg.slug || '';
         document.getElementById('edit-pkg-badge').value = pkg.badge || '';
         document.getElementById('edit-pkg-price').value = pkg.price || 0;
         document.getElementById('edit-pkg-original-price').value = pkg.original_price || '';
-        document.getElementById('edit-pkg-duration').value = pkg.duration_days || 30;
-        document.getElementById('edit-pkg-max-students').value = pkg.max_students || 35;
-        document.getElementById('edit-pkg-position').value = pkg.position || 1;
-        document.getElementById('edit-pkg-is-active').value = pkg.is_active ? '1' : '0';
+        document.getElementById('edit-pkg-sort-order').value = pkg.sort_order ?? pkg.position ?? 1;
         document.getElementById('edit-pkg-description').value = pkg.description || '';
+
+        // Đồng bộ thời hạn & sĩ số
+        const days = pkg.duration_days || 30;
+        selectPkgDuration('edit', days);
+
+        const students = pkg.max_students !== undefined ? pkg.max_students : 35;
+        selectPkgMaxStudents('edit', students);
+
+        // Trạng thái mở bán
+        setPkgActiveStatus('edit', pkg.is_active ? '1' : '0');
 
         const features = Array.isArray(pkg.features) ? pkg.features.join("\n") : '';
         document.getElementById('edit-pkg-features-text').value = features;
@@ -8511,6 +10228,275 @@
     function closeEditPackageModal() {
         const modal = document.getElementById('edit-package-modal');
         if (modal) modal.style.display = 'none';
+    }
+
+    /**
+     * ↕️ Mở rộng / Thu gọn ô soạn thảo Tính năng nổi bật
+     */
+    function toggleExpandTextarea(textareaId, btn) {
+        const el = document.getElementById(textareaId);
+        if (!el) return;
+        const currentHeight = parseInt(el.style.height) || el.offsetHeight || 90;
+        if (currentHeight >= 160) {
+            el.style.height = '90px';
+            if (btn) btn.innerHTML = '<span>↕️</span> Mở rộng ô soạn';
+        } else {
+            el.style.height = '200px';
+            if (btn) btn.innerHTML = '<span>↕️</span> Thu gọn ô soạn';
+        }
+    }
+
+    /**
+     * ➕ Chèn nhanh tính năng nổi bật mẫu vào textarea
+     */
+    function insertQuickFeature(textareaId, text) {
+        const el = document.getElementById(textareaId);
+        if (!el) return;
+        const current = el.value.trim();
+        if (!current) {
+            el.value = text;
+        } else {
+            const lines = current.split('\n').map(l => l.trim());
+            if (!lines.includes(text)) {
+                el.value = current + '\n' + text;
+            }
+        }
+        el.focus();
+    }
+
+    /**
+     * 🍞 TOAST THÔNG BÁO SIÊU ĐẸP & TINH TẾ (3D Gamified Toast Notification)
+     */
+    function showPackageToast(title, type = 'success', subtitle = '') {
+        let container = document.getElementById('pkg-toast-container');
+        if (!container) {
+            container = document.createElement('div');
+            container.id = 'pkg-toast-container';
+            Object.assign(container.style, {
+                position: 'fixed',
+                top: '24px',
+                right: '24px',
+                zIndex: '9999999',
+                display: 'flex',
+                flexDirection: 'column',
+                gap: '10px',
+                pointerEvents: 'none'
+            });
+            document.body.appendChild(container);
+        }
+
+        const themes = {
+            success: {
+                bg: 'linear-gradient(135deg, #ffffff 0%, #f0fdf4 100%)',
+                border: '#86efac',
+                titleColor: '#15803d',
+                subColor: '#166534',
+                icon: '🟢',
+                barColor: '#22c55e',
+                shadow: '0 10px 25px -5px rgba(22, 163, 74, 0.28), 0 8px 10px -6px rgba(22, 163, 74, 0.15)'
+            },
+            warning: {
+                bg: 'linear-gradient(135deg, #ffffff 0%, #fffbeb 100%)',
+                border: '#fde68a',
+                titleColor: '#b45309',
+                subColor: '#92400e',
+                icon: '⚪',
+                barColor: '#f59e0b',
+                shadow: '0 10px 25px -5px rgba(245, 158, 11, 0.28), 0 8px 10px -6px rgba(245, 158, 11, 0.15)'
+            },
+            error: {
+                bg: 'linear-gradient(135deg, #ffffff 0%, #fef2f2 100%)',
+                border: '#fca5a5',
+                titleColor: '#b91c1c',
+                subColor: '#991b1b',
+                icon: '❌',
+                barColor: '#ef4444',
+                shadow: '0 10px 25px -5px rgba(239, 68, 68, 0.28), 0 8px 10px -6px rgba(239, 68, 68, 0.15)'
+            }
+        };
+
+        const theme = themes[type] || themes.success;
+
+        const toast = document.createElement('div');
+        Object.assign(toast.style, {
+            background: theme.bg,
+            border: `2px solid ${theme.border}`,
+            borderRadius: '14px',
+            padding: '12px 16px',
+            boxShadow: theme.shadow,
+            display: 'flex',
+            alignItems: 'flex-start',
+            gap: '12px',
+            minWidth: '320px',
+            maxWidth: '430px',
+            pointerEvents: 'auto',
+            transform: 'translateX(115%) scale(0.95)',
+            opacity: '0',
+            transition: 'all 0.32s cubic-bezier(0.34, 1.56, 0.64, 1)',
+            position: 'relative',
+            overflow: 'hidden'
+        });
+
+        toast.innerHTML = `
+            <div style="font-size: 20px; line-height: 1; flex-shrink: 0; margin-top: 1px;">${theme.icon}</div>
+            <div style="flex: 1; padding-right: 14px;">
+                <div style="font-size: 13.5px; font-weight: 900; color: ${theme.titleColor}; line-height: 1.3;">${title}</div>
+                ${subtitle ? `<div style="font-size: 11.5px; font-weight: 650; color: ${theme.subColor}; margin-top: 3px; line-height: 1.35;">${subtitle}</div>` : ''}
+            </div>
+            <button type="button" style="background:none; border:none; color:#94a3b8; font-size:14px; font-weight:900; cursor:pointer; padding:2px; line-height:1; position:absolute; top:10px; right:10px;" onclick="this.parentElement.remove()">✕</button>
+            <div class="pkg-toast-bar" style="position:absolute; bottom:0; left:0; height:3px; background:${theme.barColor}; width:100%; transition:width 3s linear;"></div>
+        `;
+
+        container.appendChild(toast);
+
+        // Kích hoạt animation trượt vào
+        requestAnimationFrame(() => {
+            toast.style.transform = 'translateX(0) scale(1)';
+            toast.style.opacity = '1';
+            const bar = toast.querySelector('.pkg-toast-bar');
+            if (bar) {
+                requestAnimationFrame(() => {
+                    bar.style.width = '0%';
+                });
+            }
+        });
+
+        // Tự động trượt biến mất sau 3.2 giây
+        setTimeout(() => {
+            toast.style.transform = 'translateX(115%) scale(0.95)';
+            toast.style.opacity = '0';
+            setTimeout(() => {
+                toast.remove();
+            }, 320);
+        }, 3200);
+    }
+
+    /**
+     * Bật / Tắt trạng thái mở bán Gói dịch vụ Realtime (Optimistic UI 0ms, không reload trang, kèm Toast thông báo)
+     */
+    function togglePackageStatusAjax(btn, pkgId, pkgName = '') {
+        if (!btn || !pkgId) return;
+        
+        if (!pkgName) {
+            pkgName = btn.getAttribute('data-name') || btn.closest('tr')?.querySelector('b')?.innerText || 'Gói dịch vụ';
+        }
+        
+        const currentActive = btn.getAttribute('data-active') === '1';
+        const nextActive = !currentActive;
+
+        // Lưu lại trạng thái cũ đề phòng rollback khi API lỗi
+        const prevText = btn.innerText;
+        const prevDataActive = btn.getAttribute('data-active');
+        const prevBorder = btn.style.borderColor;
+
+        // Cập nhật Optimistic UI tức thì (0ms)
+        btn.setAttribute('data-active', nextActive ? '1' : '0');
+        btn.innerText = nextActive ? '🟢 Mở bán' : '⚪ Tạm ẩn';
+        if (nextActive) {
+            btn.classList.remove('pill-fail');
+            btn.classList.add('pill-pass');
+            btn.style.borderColor = '#86efac';
+        } else {
+            btn.classList.remove('pill-pass');
+            btn.classList.add('pill-fail');
+            btn.style.borderColor = '#fca5a5';
+        }
+
+        // Tự động cập nhật số đếm đang mở bán ở thẻ thống kê
+        const statCountEl = document.getElementById('stat-pkg-active-count');
+        if (statCountEl) {
+            let currentCount = parseInt(statCountEl.innerText.trim()) || 0;
+            statCountEl.innerText = Math.max(0, currentCount + (nextActive ? 1 : -1));
+        }
+
+        // 🔔 Hiển thị Toast thông báo nhẹ, đẹp ngay tức thì
+        if (nextActive) {
+            showPackageToast(`🟢 Đã mở bán gói "${pkgName}"!`, 'success', 'Khách hàng có thể thấy và đăng ký gói ngay trên bảng giá.');
+        } else {
+            showPackageToast(`⚪ Đã tạm ẩn gói "${pkgName}"`, 'warning', 'Gói này đã được ẩn tạm thời khỏi bảng giá công khai.');
+        }
+
+        const csrfToken = document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') 
+                       || document.querySelector('input[name="_token"]')?.value;
+
+        fetch(`/quan-tri/packages/${pkgId}/toggle`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRF-TOKEN': csrfToken,
+                'Accept': 'application/json',
+                'X-Requested-With': 'XMLHttpRequest'
+            },
+            body: JSON.stringify({})
+        })
+        .then(response => {
+            if (!response.ok) {
+                throw new Error('Lỗi phản hồi máy chủ: ' + response.status);
+            }
+            return response.json();
+        })
+        .then(data => {
+            if (data && data.ok) {
+                // Đồng bộ chính xác theo kết quả trả về từ DB
+                btn.setAttribute('data-active', data.is_active ? '1' : '0');
+                btn.innerText = data.badge_text || (data.is_active ? '🟢 Mở bán' : '⚪ Tạm ẩn');
+                if (data.active_count !== undefined && statCountEl) {
+                    statCountEl.innerText = data.active_count;
+                }
+            } else {
+                throw new Error((data && data.message) || 'Thao tác không thành công');
+            }
+        })
+        .catch(error => {
+            console.error('Lỗi togglePackageStatusAjax:', error);
+            // Rollback về trạng thái cũ
+            btn.setAttribute('data-active', prevDataActive);
+            btn.innerText = prevText;
+            btn.style.borderColor = prevBorder;
+            if (currentActive) {
+                btn.classList.remove('pill-fail');
+                btn.classList.add('pill-pass');
+            } else {
+                btn.classList.remove('pill-pass');
+                btn.classList.add('pill-fail');
+            }
+            if (statCountEl) {
+                let currentCount = parseInt(statCountEl.innerText.trim()) || 0;
+                statCountEl.innerText = Math.max(0, currentCount + (currentActive ? 1 : -1));
+            }
+            showPackageToast(`⚠️ Lỗi khi cập nhật trạng thái gói`, 'error', error.message || 'Không thể kết nối máy chủ');
+        });
+    }
+
+    /**
+     * Xác nhận và xóa Gói dịch vụ
+     */
+    function deletePackageConfirm(pkgId, pkgName) {
+        if (!confirm(`Bạn có chắc chắn muốn xóa gói "${pkgName}" không? Các đơn hàng cũ đã tạo vẫn sẽ được bảo lưu.`)) {
+            return;
+        }
+
+        const form = document.createElement('form');
+        form.method = 'POST';
+        form.action = `/quan-tri/packages/${pkgId}`;
+
+        const csrfToken = document.querySelector('meta[name="csrf-token"]')?.getAttribute('content')
+                       || document.querySelector('input[name="_token"]')?.value;
+
+        const csrfInput = document.createElement('input');
+        csrfInput.type = 'hidden';
+        csrfInput.name = '_token';
+        csrfInput.value = csrfToken;
+        form.appendChild(csrfInput);
+
+        const methodInput = document.createElement('input');
+        methodInput.type = 'hidden';
+        methodInput.name = '_method';
+        methodInput.value = 'DELETE';
+        form.appendChild(methodInput);
+
+        document.body.appendChild(form);
+        form.submit();
     }
 
     function openRejectOrderModal(orderId, orderCode, teacherName) {
@@ -8598,17 +10584,25 @@
         const savedTab = localStorage.getItem('admin_active_tab');
         
         let tabToOpen = null;
+        let roleToFilter = null;
+
         if (hash) {
             const cleanHash = hash.replace('#', '');
             if (cleanHash === 'tab_chat' || cleanHash === 'tab-chat') {
                 tabToOpen = 'tab-chat';
+            } else if (cleanHash === 'tab-users-students' || cleanHash === 'hoc-sinh') {
+                tabToOpen = 'tab-users';
+                roleToFilter = 'student';
+            } else if (cleanHash === 'tab-users-teachers' || cleanHash === 'giao-vien' || cleanHash === 'dai-ly') {
+                tabToOpen = 'tab-users';
+                roleToFilter = 'teacher';
             } else if (document.getElementById(cleanHash)) {
                 tabToOpen = cleanHash;
             } else if (hash === '#lop-hoc' || hash === '#classes') {
                 tabToOpen = 'tab-classes';
             } else if (hash === '#khoi-hoc' || hash === '#levels' || hash === '#cau-truc' || hash === '#programs') {
                 tabToOpen = 'tab-levels';
-            } else if (hash === '#nguoi-dung' || hash === '#hoc-sinh' || hash === '#dai-ly') {
+            } else if (hash === '#nguoi-dung') {
                 tabToOpen = 'tab-users';
             } else if (hash === '#ket-qua' || hash === '#bao-cao') {
                 tabToOpen = 'tab-results';
@@ -8618,22 +10612,40 @@
                 tabToOpen = 'tab-orders';
             } else if (hash === '#lich-su-thue-goi' || hash === '#tab-teacher-packages' || hash === '#don-thue-goi' || hash === '#teacher-packages') {
                 tabToOpen = 'tab-teacher-packages';
-            } else if (hash === '#chat' || hash === '#tin-nhan' || hash === '#tab-chat' || hash === '#tab_chat' || hash === '#messenger') {
+            } else if (hash === '#chat' || hash === '#tin-nhan' || hash === '#messenger') {
                 tabToOpen = 'tab-chat';
             }
         }
+
+        // Đọc query param ?role=student hoặc ?role=teacher nếu có
+        try {
+            const urlParams = new URLSearchParams(window.location.search);
+            if (urlParams.has('role')) {
+                roleToFilter = urlParams.get('role');
+            }
+        } catch (e) {}
         
         if (!tabToOpen && savedTab && (document.getElementById(savedTab) || savedTab === 'tab-orders')) {
             tabToOpen = savedTab;
         }
 
         if (tabToOpen) {
-            switchAdminTab(tabToOpen, null);
+            switchAdminTab(tabToOpen, null, roleToFilter);
         }
     }
 
-    window.addEventListener('DOMContentLoaded', restoreAdminActiveTab);
-    window.addEventListener('hashchange', restoreAdminActiveTab);
+    window.addEventListener('DOMContentLoaded', () => {
+        restoreAdminActiveTab();
+        document.querySelectorAll('.excel-table-wrap').forEach(w => {
+            w.scrollLeft = 0;
+        });
+    });
+    window.addEventListener('hashchange', () => {
+        restoreAdminActiveTab();
+        document.querySelectorAll('.excel-table-wrap').forEach(w => {
+            w.scrollLeft = 0;
+        });
+    });
     restoreAdminActiveTab();
 </script>
 
@@ -9138,19 +11150,61 @@
     }
 
     // Polling nhận tin nhắn phản hồi từ Admin theo thời gian thực (Real-time)
+    let lastTeacherHistoryJson = null;
+    let lastTeacherAdminTurns = -1;
+
     async function pollTeacherSupportReply() {
         if (!teacherChatActiveId) return;
         try {
             const res = await fetch(`/ho-tro/tin-nhan/kiem-tra?id=${teacherChatActiveId}&t=${Date.now()}`);
             if (!res.ok) return;
             const data = await res.json();
+            if (!data.ok) return;
 
-            if (data.ok && data.admin_reply) {
-                // Tách các câu trả lời theo từng dòng để render thành từng bong bóng tin nhắn riêng
+            const body = document.getElementById('teacher-chat-messages-body');
+
+            // 1. Render chuẩn từ conversation_history nếu có
+            if (data.conversation_history && Array.isArray(data.conversation_history) && data.conversation_history.length > 0) {
+                const currentHistoryJson = JSON.stringify(data.conversation_history);
+                if (currentHistoryJson !== lastTeacherHistoryJson) {
+                    const adminTurns = data.conversation_history.filter(t => t.sender === 'admin').length;
+                    if (lastTeacherAdminTurns >= 0 && adminTurns > lastTeacherAdminTurns) {
+                        playTeacherNotificationSound();
+                        const box = document.getElementById('teacher-chat-box');
+                        if (box && box.style.display === 'none') {
+                            box.style.display = 'flex';
+                        }
+                    }
+                    lastTeacherAdminTurns = adminTurns;
+                    lastTeacherHistoryJson = currentHistoryJson;
+
+                    if (body) {
+                        // Giữ lại bong bóng chào mặc định ban đầu
+                        const welcomeMsg = body.querySelector('.teacher-chat-msg-bot');
+                        body.innerHTML = '';
+                        if (welcomeMsg) body.appendChild(welcomeMsg);
+
+                        data.conversation_history.forEach(turn => {
+                            const isUser = turn.sender === 'user';
+                            const div = document.createElement('div');
+                            const turnTime = turn.created_at || turn.time || '';
+                            if (isUser) {
+                                div.className = 'teacher-chat-msg teacher-chat-msg-user';
+                                div.innerHTML = `<div>${escapeHtml(turn.text || '')}</div><div class="teacher-chat-msg-time" style="display:flex;align-items:center;justify-content:flex-end;gap:4px;"><span>${turnTime}</span> <span style="opacity:0.85;font-size:10px;">✓</span></div>`;
+                            } else {
+                                div.className = 'teacher-chat-msg teacher-chat-msg-admin';
+                                div.innerHTML = `<div><b>👑 Ban Quản Trị:</b> ${escapeHtml(turn.text || '')}</div><div class="teacher-chat-msg-time">${turnTime}</div>`;
+                            }
+                            body.appendChild(div);
+                        });
+                        scrollTeacherChatToBottom();
+                    }
+                }
+            } else if (data.admin_reply) {
+                // Fallback cũ khi bản ghi chưa có conversation_history
                 const rawReplies = data.admin_reply.split('\n').map(s => s.trim()).filter(Boolean);
                 let hasNewReply = false;
 
-                const body = document.getElementById('teacher-chat-messages-body');
                 if (body) {
                     rawReplies.forEach(replyLine => {
                         const replyKey = `${teacherChatActiveId}_${replyLine}`;
@@ -9169,7 +11223,6 @@
                         playTeacherNotificationSound();
                         scrollTeacherChatToBottom();
 
-                        // Tự động mở khung chat nếu đang đóng để giáo viên đọc được ngay
                         const box = document.getElementById('teacher-chat-box');
                         if (box && box.style.display === 'none') {
                             box.style.display = 'flex';

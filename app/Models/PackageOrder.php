@@ -157,6 +157,26 @@ class PackageOrder extends Model
     }
 
     /**
+     * Kiểm tra xem đơn hàng này có phải là đơn mua gói lẻ của Học sinh không
+     */
+    public function isStudentOrder(): bool
+    {
+        if ($this->user && $this->user->isStudent()) {
+            return true;
+        }
+
+        return $this->package ? $this->package->isForStudents() : false;
+    }
+
+    /**
+     * Kiểm tra xem đơn hàng này có phải là đơn của Giáo viên / Nhà trường không
+     */
+    public function isTeacherOrder(): bool
+    {
+        return ! $this->isStudentOrder();
+    }
+
+    /**
      * Accessor: Giá định dạng tiền tệ VNĐ
      */
     public function getFormattedPriceAttribute(): string

@@ -340,7 +340,7 @@ class LearningController extends Controller
     }
 
     /**
-     * Màn hình chi tiết của một Khối lớp (Hiển thị các Chủ đề và Danh sách bài luyện)
+     * Màn hình chi tiết của một Khối lớp (Hiển thị các Chủ đề, Danh sách bài luyện và Đề thi thử)
      */
     public function level(Level $level): View
     {
@@ -349,7 +349,15 @@ class LearningController extends Controller
         $level->load(['program', 'topics.tests' => fn ($query) => $query->where('is_published', true)]);
         abort_unless($level->program->slug === 'ic3-gs6-primary', 404);
 
-        return view('learning.level', compact('level'));
+        // Nạp danh sách các Bộ đề thi thử cấp Khối đã phát hành
+        $mockTests = PracticeTest::where('is_mock', true)
+            ->where('level_id', $level->id)
+            ->where('is_published', true)
+            ->withCount('mockQuestions')
+            ->orderBy('id', 'desc')
+            ->get();
+
+        return view('learning.level', compact('level', 'mockTests'));
     }
 
     /**
@@ -358,9 +366,15 @@ class LearningController extends Controller
     public function test(PracticeTest $practiceTest): View
     {
         abort_unless($practiceTest->is_published, 404);
-        $practiceTest->load('topic.level.program');
+        if ($practiceTest->is_mock) {
+            $practiceTest->load('level.program');
+            $levelId = $practiceTest->level_id;
+        } else {
+            $practiceTest->load('topic.level.program');
+            $levelId = $practiceTest->topic?->level_id;
+        }
 
-        abort_unless(auth()->user()->canAccessLevel($practiceTest->topic->level_id), 403, 'Bạn chưa được cấp quyền truy cập bài luyện của Khối học này.');
+        abort_unless(auth()->user()->canAccessLevel($levelId), 403, 'Bạn chưa được cấp quyền truy cập bài luyện của Khối học này.');
 
         return view('learning.test', compact('practiceTest'));
     }
@@ -369,22 +383,37 @@ class LearningController extends Controller
      * Phòng thi trực tuyến — Nạp câu hỏi và khởi động giao diện làm bài tương tác chuẩn IIG/IC3 Spark
      *
      * - Nạp danh sách câu hỏi đang phát hành từ CSDL.
+     * - Hỗ trợ cả Bộ đề thi thử tổng hợp (is_mock) và Bài luyện đơn theo chủ đề.
      * - Chuyển câu hỏi thành DTO nội bộ an toàn cho giao diện làm bài.
      */
     public function launch(PracticeTest $practiceTest): View|\Illuminate\Http\RedirectResponse
     {
         $isAdmin = auth()->user()?->isAdmin();
         $adminAnswerKeys = [];
-        if ($isAdmin) {
-            $practiceTest->load(['topic.level', 'questions.options', 'questions.assets']);
+        $levelId = $practiceTest->is_mock ? $practiceTest->level_id : $practiceTest->topic?->level_id;
+
+        if ($practiceTest->is_mock) {
+            if ($isAdmin) {
+                $practiceTest->load(['level', 'mockQuestions.options', 'mockQuestions.assets']);
+            } else {
+                abort_unless($practiceTest->is_published, 404);
+                $practiceTest->load(['level', 'mockQuestions' => fn ($q) => $q->where('is_published', true)->with(['options', 'assets'])]);
+                abort_unless(auth()->user()->canAccessLevel($levelId), 403, 'Bạn chưa được cấp quyền truy cập bài luyện của Khối học này.');
+            }
+            $questionsCollection = $practiceTest->mockQuestions;
         } else {
-            abort_unless($practiceTest->is_published, 404);
-            $practiceTest->load(['topic.level', 'questions' => fn ($query) => $query->where('is_published', true)->with(['options', 'assets'])]);
-            abort_unless(auth()->user()->canAccessLevel($practiceTest->topic->level_id), 403, 'Bạn chưa được cấp quyền truy cập bài luyện của Khối học này.');
+            if ($isAdmin) {
+                $practiceTest->load(['topic.level', 'questions.options', 'questions.assets']);
+            } else {
+                abort_unless($practiceTest->is_published, 404);
+                $practiceTest->load(['topic.level', 'questions' => fn ($query) => $query->where('is_published', true)->with(['options', 'assets'])]);
+                abort_unless(auth()->user()->canAccessLevel($levelId), 403, 'Bạn chưa được cấp quyền truy cập bài luyện của Khối học này.');
+            }
+            $questionsCollection = $practiceTest->questions;
         }
 
         // Tự động kích hoạt nạp bộ câu hỏi nếu cơ sở dữ liệu trên máy chủ mới chưa có dữ liệu
-        if ($practiceTest->questions->isEmpty()) {
+        if ($questionsCollection->isEmpty() && ! $practiceTest->is_mock) {
             if (\App\Models\Question::count() === 0 && file_exists(database_path('data/ic3_questions_seed.json'))) {
                 \Illuminate\Support\Facades\Artisan::call('migrate', ['--force' => true]);
                 $practiceTest->refresh();
@@ -393,13 +422,13 @@ class LearningController extends Controller
                 } else {
                     $practiceTest->load(['topic.level', 'questions' => fn ($query) => $query->where('is_published', true)->with(['options', 'assets'])]);
                 }
+                $questionsCollection = $practiceTest->questions;
             }
         }
 
-        abort_if($practiceTest->questions->isEmpty(), 404, 'Bộ đề chưa có câu hỏi trong cơ sở dữ liệu.');
+        abort_if($questionsCollection->isEmpty(), 404, 'Bộ đề chưa có câu hỏi trong cơ sở dữ liệu.');
 
 
-        $questionsCollection = $practiceTest->questions;
         if ($practiceTest->shuffle_questions) {
             $questionsCollection = $questionsCollection->shuffle();
         }

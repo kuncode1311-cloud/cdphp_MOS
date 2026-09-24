@@ -9,6 +9,7 @@ use App\Models\Level;
 use App\Models\Package;
 use App\Models\PackageOrder;
 use App\Services\SubscriptionService;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\View\View;
@@ -51,6 +52,15 @@ class PackageController extends Controller
 
         $data['is_active'] = $request->boolean('is_active', true);
 
+        // Gói tự luyện cá nhân của Học sinh luôn cố định 1 HS
+        if (($data['target_audience'] ?? 'teacher') === 'student') {
+            $data['max_students'] = 1;
+        }
+
+        if (empty($data['slug']) && ! empty($data['name'])) {
+            $data['slug'] = \Illuminate\Support\Str::slug($data['name']);
+        }
+
         $package = Package::create($data);
 
         if (! empty($levelIds)) {
@@ -79,6 +89,11 @@ class PackageController extends Controller
 
         $data['is_active'] = $request->boolean('is_active', true);
 
+        // Gói tự luyện cá nhân của Học sinh luôn cố định 1 HS
+        if (($data['target_audience'] ?? $package->target_audience) === 'student') {
+            $data['max_students'] = 1;
+        }
+
         $package->update($data);
         $package->levels()->sync($levelIds);
 
@@ -87,12 +102,23 @@ class PackageController extends Controller
     }
 
     /**
-     * Bật / Tắt trạng thái mở bán của gói
+     * Bật / Tắt trạng thái mở bán của gói (Hỗ trợ Ajax Realtime & Full reload)
      */
-    public function toggle(Package $package): RedirectResponse
+    public function toggle(Request $request, Package $package): JsonResponse|RedirectResponse
     {
         $package->update(['is_active' => ! $package->is_active]);
         $statusText = $package->is_active ? 'mở bán' : 'tạm ẩn';
+
+        if ($request->expectsJson() || $request->ajax() || $request->wantsJson()) {
+            return response()->json([
+                'ok' => true,
+                'is_active' => (bool) $package->is_active,
+                'status_text' => $statusText,
+                'badge_text' => $package->is_active ? '🟢 Mở bán' : '⚪ Tạm ẩn',
+                'active_count' => Package::where('is_active', true)->count(),
+                'message' => "Đã chuyển gói \"{$package->name}\" sang trạng thái {$statusText}.",
+            ]);
+        }
 
         return back()->with('ok', "Đã chuyển gói \"{$package->name}\" sang trạng thái {$statusText}.");
     }
@@ -117,10 +143,10 @@ class PackageController extends Controller
         $success = $subscriptionService->activateOrder($order, auth()->user());
 
         if ($success) {
-            return back()->with('ok', "Đã duyệt và kích hoạt đơn #{$order->code} cho giáo viên {$order->user?->name}. Quota và thời hạn đã được tự động cập nhật!");
+            return back()->with('ok', "Đã duyệt và kích hoạt đơn #{$order->code} cho tài khoản {$order->user?->name}. Quyền hạn và thời hạn đã được tự động cập nhật!");
         }
 
-        return back()->with('err', "Không thể kích hoạt đơn hàng #{$order->code}. Vui lòng kiểm tra lại tài khoản giáo viên.");
+        return back()->with('err', "Không thể kích hoạt đơn hàng #{$order->code}. Vui lòng kiểm tra lại tài khoản.");
     }
 
     /**

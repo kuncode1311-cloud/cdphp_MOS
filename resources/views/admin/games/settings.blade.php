@@ -60,34 +60,97 @@
             min-width: 0;
         }
 
-        /* 3D Tactile Stat Cards */
+        /* 3D Tactile Stat Cards (Chuẩn Gamified 3D Rực Rỡ & Nổi Khối) */
         .stats-grid {
             display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-            gap: 16px; margin-bottom: 28px;
+            gap: 18px; margin-bottom: 28px;
         }
         .stat-card {
             background: #ffffff;
-            border: 2.5px solid #ffffff;
             border-radius: var(--radius-md);
-            padding: 20px;
-            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.06), inset 0 -4px 0 rgba(0, 0, 0, 0.04);
+            padding: 20px 22px;
             display: flex;
             align-items: center;
             gap: 16px;
-            transition: all 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            position: relative;
+            overflow: hidden;
+            transition: all 0.22s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+        .stat-card::before {
+            content: '';
+            position: absolute;
+            top: 0; left: 0; right: 0;
+            height: 4.5px;
+            transition: height 0.2s ease;
         }
         .stat-card:hover {
             transform: translateY(-3px) scale(1.01);
-            box-shadow: 0 16px 32px rgba(0, 0, 0, 0.1), inset 0 -4px 0 rgba(0, 0, 0, 0.04);
         }
+        .stat-card:hover::before {
+            height: 6px;
+        }
+
+        /* Từng tone màu chuyên biệt cho Stat Cards */
+        .stat-card.c-amber {
+            border: 2px solid #fde68a;
+            background: radial-gradient(circle at top right, rgba(245, 158, 11, 0.1) 0%, #ffffff 70%);
+            box-shadow: 0 10px 25px rgba(245, 158, 11, 0.12), inset 0 -3px 0 rgba(245, 158, 11, 0.18);
+        }
+        .stat-card.c-amber::before {
+            background: linear-gradient(90deg, #d97706, #fbbf24);
+        }
+        .stat-card.c-amber:hover {
+            box-shadow: 0 16px 32px rgba(245, 158, 11, 0.18), inset 0 -3px 0 rgba(245, 158, 11, 0.25);
+            border-color: #f59e0b;
+        }
+
+        .stat-card.c-purple {
+            border: 2px solid #e0e7ff;
+            background: radial-gradient(circle at top right, rgba(99, 102, 241, 0.1) 0%, #ffffff 70%);
+            box-shadow: 0 10px 25px rgba(99, 102, 241, 0.12), inset 0 -3px 0 rgba(99, 102, 241, 0.18);
+        }
+        .stat-card.c-purple::before {
+            background: linear-gradient(90deg, #4f46e5, #818cf8);
+        }
+        .stat-card.c-purple:hover {
+            box-shadow: 0 16px 32px rgba(99, 102, 241, 0.18), inset 0 -3px 0 rgba(99, 102, 241, 0.25);
+            border-color: #6366f1;
+        }
+
+        .stat-card.c-blue {
+            border: 2px solid #bae6fd;
+            background: radial-gradient(circle at top right, rgba(14, 165, 233, 0.1) 0%, #ffffff 70%);
+            box-shadow: 0 10px 25px rgba(14, 165, 233, 0.12), inset 0 -3px 0 rgba(14, 165, 233, 0.18);
+        }
+        .stat-card.c-blue::before {
+            background: linear-gradient(90deg, #0284c7, #38bdf8);
+        }
+        .stat-card.c-blue:hover {
+            box-shadow: 0 16px 32px rgba(14, 165, 233, 0.18), inset 0 -3px 0 rgba(14, 165, 233, 0.25);
+            border-color: #0ea5e9;
+        }
+
+        .stat-card.c-emerald {
+            border: 2px solid #a7f3d0;
+            background: radial-gradient(circle at top right, rgba(16, 185, 129, 0.1) 0%, #ffffff 70%);
+            box-shadow: 0 10px 25px rgba(16, 185, 129, 0.12), inset 0 -3px 0 rgba(16, 185, 129, 0.18);
+        }
+        .stat-card.c-emerald::before {
+            background: linear-gradient(90deg, #059669, #34d399);
+        }
+        .stat-card.c-emerald:hover {
+            box-shadow: 0 16px 32px rgba(16, 185, 129, 0.18), inset 0 -3px 0 rgba(16, 185, 129, 0.25);
+            border-color: #10b981;
+        }
+
         .stat-icon {
-            width: 54px; height: 54px; border-radius: 16px;
+            width: 54px; height: 54px; border-radius: 14px;
             display: grid; place-items: center; font-size: 26px; flex-shrink: 0;
             border: 2px solid #ffffff;
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
         }
         .stat-val { font-size: 26px; font-weight: 900; line-height: 1.1; margin: 3px 0; }
-        .stat-lbl { font-size: 12px; font-weight: 750; color: var(--text-muted); text-transform: uppercase; }
+        .stat-lbl { font-size: 11.5px; font-weight: 800; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.3px; }
 
         /* Cards Layout */
         .grid-layout {
@@ -95,64 +158,99 @@
             gap: 24px; align-items: start;
         }
         .card {
-            background: var(--surface);
-            border: 2.5px solid #ffffff;
+            background: #ffffff;
             border-radius: var(--radius-lg);
             padding: 26px;
-            box-shadow: 0 12px 30px rgba(0, 0, 0, 0.06), inset 0 -4px 0 rgba(0, 0, 0, 0.03);
+            box-shadow: 0 12px 30px rgba(15, 23, 42, 0.08), inset 0 -4px 0 rgba(0, 0, 0, 0.03);
             margin-bottom: 24px;
+            position: relative;
+            overflow: hidden;
+            transition: all 0.2s ease;
         }
+        .card:hover {
+            box-shadow: 0 16px 36px rgba(15, 23, 42, 0.1), inset 0 -4px 0 rgba(0, 0, 0, 0.04);
+        }
+
+        /* Phân màu viền và accent bar cho từng Thẻ chính */
+        .card.card-config-game {
+            border: 2px solid #c7d2fe;
+            border-top: 5px solid #6366f1;
+        }
+        .card.card-leaderboard {
+            border: 2px solid #bae6fd;
+            border-top: 5px solid #0284c7;
+        }
+        .card.card-reward {
+            border: 2px solid #fed7aa;
+            border-top: 5px solid #f97316;
+        }
+        .card.card-history {
+            border: 2px solid #cbd5e1;
+            border-top: 5px solid #10b981;
+        }
+
         .card-head {
             display: flex; justify-content: space-between; align-items: center;
-            margin-bottom: 18px; padding-bottom: 14px; border-bottom: 1px solid var(--border);
+            margin-bottom: 20px; padding-bottom: 14px; border-bottom: 2px solid #f1f5f9;
         }
-        .card-title { font-size: 17px; font-weight: 850; display: flex; align-items: center; gap: 8px; }
+        .card-title {
+            font-size: 16.5px; font-weight: 850; display: flex; align-items: center; gap: 10px; color: #0f172a;
+        }
+        .card-title-icon {
+            width: 32px; height: 32px; border-radius: 9px; display: grid; place-items: center;
+            font-size: 16px; border: 1.5px solid #ffffff; box-shadow: 0 2px 6px rgba(0,0,0,0.08);
+        }
 
         /* Form elements */
         .form-unit { margin-bottom: 16px; }
         .form-label { display: block; font-size: 13px; font-weight: 750; margin-bottom: 6px; color: #1e293b; }
         .form-input, .form-select {
-            width: 100%; padding: 11px 14px; border: 1.5px solid var(--border);
-            border-radius: 10px; font-size: 14px; font-family: inherit; font-weight: 600;
-            background: #fff; transition: border-color 0.15s;
+            width: 100%; padding: 11px 14px; border: 2px solid #cbd5e1;
+            border-radius: 10px; font-size: 13.5px; font-family: inherit; font-weight: 600;
+            background: #fff; transition: all 0.15s ease;
         }
         .form-input:focus, .form-select:focus {
             outline: none; border-color: var(--primary);
-            box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.12);
+            box-shadow: 0 0 0 3.5px rgba(79, 70, 229, 0.15);
         }
 
         .package-box {
-            padding: 16px; border-radius: var(--radius-md); border: 2px solid #e0e7ff;
-            background: #f8faff; margin-bottom: 16px;
+            padding: 16px; border-radius: var(--radius-md); border: 2px solid #818cf8;
+            background: linear-gradient(180deg, #f5f7ff 0%, #ffffff 100%);
+            margin-bottom: 16px; box-shadow: 0 4px 14px rgba(99, 102, 241, 0.08);
         }
-        .package-box.pkg2 { border-color: #fef08a; background: #fffdf2; }
+        .package-box.pkg2 {
+            border-color: #facc15;
+            background: linear-gradient(180deg, #fefce8 0%, #ffffff 100%);
+            box-shadow: 0 4px 14px rgba(234, 179, 8, 0.1);
+        }
 
         .btn-save {
             background: linear-gradient(135deg, #4f46e5, #4338ca);
-            color: #fff; border: 2px solid #ffffff; padding: 13px 26px; border-radius: 12px;
-            font-size: 14.5px; font-weight: 850; cursor: pointer; display: inline-flex;
-            align-items: center; gap: 8px; box-shadow: 0 5px 0 #312e81, 0 10px 20px rgba(79, 70, 229, 0.3);
+            color: #fff; border: 2px solid #ffffff; padding: 12px 24px; border-radius: 12px;
+            font-size: 14px; font-weight: 850; cursor: pointer; display: inline-flex;
+            align-items: center; gap: 8px; box-shadow: 0 4px 0 #312e81, 0 10px 20px rgba(79, 70, 229, 0.35);
             transition: all 0.15s ease;
         }
         .btn-save:hover {
             transform: translateY(-2px);
-            box-shadow: 0 7px 0 #312e81, 0 14px 25px rgba(79, 70, 229, 0.4);
+            box-shadow: 0 6px 0 #312e81, 0 14px 25px rgba(79, 70, 229, 0.45);
         }
         .btn-save:active {
-            transform: translateY(3px);
+            transform: translateY(2px);
             box-shadow: 0 2px 0 #312e81, 0 4px 8px rgba(79, 70, 229, 0.2);
         }
 
         .btn-action {
             background: linear-gradient(135deg, #10b981, #059669);
-            color: #fff; border: 2px solid #ffffff; padding: 11px 22px; border-radius: 12px;
+            color: #fff; border: 2px solid #ffffff; padding: 12px 22px; border-radius: 12px;
             font-size: 13.5px; font-weight: 850; cursor: pointer;
-            box-shadow: 0 4px 0 #047857, 0 8px 16px rgba(16, 185, 129, 0.25);
+            box-shadow: 0 4px 0 #047857, 0 8px 18px rgba(16, 185, 129, 0.35);
             transition: all 0.15s ease;
         }
         .btn-action:hover {
             transform: translateY(-2px);
-            box-shadow: 0 6px 0 #047857, 0 12px 20px rgba(16, 185, 129, 0.35);
+            box-shadow: 0 6px 0 #047857, 0 12px 22px rgba(16, 185, 129, 0.45);
         }
         .btn-action:active {
             transform: translateY(2px);
@@ -162,31 +260,40 @@
         /* Toggle switch */
         .switch-label {
             display: flex; align-items: center; justify-content: space-between;
-            padding: 14px 18px; border-radius: 12px; background: #f1f5f9;
-            cursor: pointer; margin-bottom: 20px;
+            padding: 14px 18px; border-radius: 12px; background: #f8fafc;
+            border: 2px solid #cbd5e1;
+            box-shadow: 0 2px 6px rgba(15, 23, 42, 0.04);
+            cursor: pointer; margin-bottom: 20px; transition: all 0.15s ease;
+        }
+        .switch-label:hover {
+            border-color: #94a3b8;
+            background: #f1f5f9;
         }
 
         /* Table */
-        .table-wrap { overflow-x: auto; max-height: 480px; }
+        .table-wrap {
+            overflow-x: auto; max-height: 480px;
+            border: 2px solid #e2e8f0; border-radius: 12px;
+        }
         table { width: 100%; border-collapse: collapse; font-size: 13px; text-align: left; }
         th {
-            background: #f8fafc; padding: 11px 12px; font-weight: 800;
-            color: var(--text-muted); border-bottom: 1.5px solid var(--border);
-            position: sticky; top: 0; z-index: 2;
+            background: #f8fafc; padding: 12px 14px; font-weight: 800;
+            color: #475569; border-bottom: 2px solid #e2e8f0;
+            position: sticky; top: 0; z-index: 2; font-size: 11.5px; text-transform: uppercase;
         }
-        td { padding: 11px 12px; border-bottom: 1px solid var(--border); }
+        td { padding: 12px 14px; border-bottom: 1px solid #f1f5f9; }
         tr:hover td { background: #f8fafc; }
 
-        .badge-earn { color: #047857; background: #d1fae5; padding: 4px 8px; border-radius: 6px; font-weight: 800; font-size: 11px; }
-        .badge-exchange { color: #1d4ed8; background: #dbeafe; padding: 4px 8px; border-radius: 6px; font-weight: 800; font-size: 11px; }
-        .badge-play { color: #b45309; background: #fef3c7; padding: 4px 8px; border-radius: 6px; font-weight: 800; font-size: 11px; }
+        .badge-earn { color: #047857; background: #d1fae5; border: 1px solid #a7f3d0; padding: 4px 8px; border-radius: 6px; font-weight: 800; font-size: 11px; }
+        .badge-exchange { color: #1d4ed8; background: #dbeafe; border: 1px solid #bfdbfe; padding: 4px 8px; border-radius: 6px; font-weight: 800; font-size: 11px; }
+        .badge-play { color: #b45309; background: #fef3c7; border: 1px solid #fde68a; padding: 4px 8px; border-radius: 6px; font-weight: 800; font-size: 11px; }
 
         .alert-box {
             padding: 14px 18px; border-radius: 12px; font-size: 14px; font-weight: 700;
             margin-bottom: 20px; display: flex; align-items: center; gap: 10px;
         }
-        .alert-ok { background: #ecfdf5; color: #065f46; border: 1.5px solid #a7f3d0; }
-        .alert-err { background: #fef2f2; color: #991b1b; border: 1.5px solid #fecaca; }
+        .alert-ok { background: #ecfdf5; color: #065f46; border: 2px solid #a7f3d0; box-shadow: 0 4px 12px rgba(16, 185, 129, 0.1); }
+        .alert-err { background: #fef2f2; color: #991b1b; border: 2px solid #fecaca; box-shadow: 0 4px 12px rgba(239, 68, 68, 0.1); }
 
         @media (max-width: 1100px) {
             .grid-layout { grid-template-columns: 1fr; }
@@ -224,37 +331,37 @@
             </div>
         @endif
 
-        <!-- Stats Overview -->
+        <!-- 📊 4 Thẻ chỉ số tổng quan (Chuẩn Gamified 3D Rực Rỡ, Viền Đậm & Tách Biệt) -->
         <div class="stats-grid">
-            <div class="stat-card">
-                <div class="stat-icon" style="background:#fef3c7; color:#d97706;">⭐</div>
+            <div class="stat-card c-amber">
+                <div class="stat-icon">⭐</div>
                 <div>
                     <div class="stat-lbl">Sao Thưởng Toàn Trường</div>
                     <div class="stat-val" style="color:#b45309;">{{ number_format($totalStarsBalance) }}</div>
                 </div>
             </div>
 
-            <div class="stat-card">
-                <div class="stat-icon" style="background:#e0e7ff; color:#4f46e5;">⏱️</div>
+            <div class="stat-card c-purple">
+                <div class="stat-icon">⏱️</div>
                 <div>
                     <div class="stat-lbl">Tổng Giờ Đã Chơi</div>
-                    <div class="stat-val" style="color:#4338ca;">{{ number_format($totalMinutesPlayed) }} <small style="font-size:14px;">Phút</small></div>
+                    <div class="stat-val" style="color:#4338ca;">{{ number_format($totalMinutesPlayed) }} <small style="font-size:14px; font-weight:750; color:#6366f1;">Phút</small></div>
                 </div>
             </div>
 
-            <div class="stat-card">
-                <div class="stat-icon" style="background:#dbeafe; color:#2563eb;">🎟️</div>
+            <div class="stat-card c-blue">
+                <div class="stat-icon">🎟️</div>
                 <div>
                     <div class="stat-lbl">Số Lượt Đổi Gói</div>
-                    <div class="stat-val" style="color:#1d4ed8;">{{ number_format($totalExchanges) }}</div>
+                    <div class="stat-val" style="color:#0369a1;">{{ number_format($totalExchanges) }} <small style="font-size:14px; font-weight:750; color:#0ea5e9;">Lượt</small></div>
                 </div>
             </div>
 
-            <div class="stat-card">
-                <div class="stat-icon" style="background:#dcfce7; color:#16a34a;">👨‍🎓</div>
+            <div class="stat-card c-emerald">
+                <div class="stat-icon">👨‍🎓</div>
                 <div>
-                    <div class="stat-lbl">Học Sinh Đang Có Giờ Chơi</div>
-                    <div class="stat-val" style="color:#15803d;">{{ number_format($totalStudentsWithTime) }}</div>
+                    <div class="stat-lbl">Học Sinh Có Giờ Chơi</div>
+                    <div class="stat-val" style="color:#047857;">{{ number_format($totalStudentsWithTime) }} <small style="font-size:14px; font-weight:750; color:#10b981;">Em</small></div>
                 </div>
             </div>
         </div>
@@ -264,10 +371,14 @@
             
             <!-- Cột Trái: Cấu hình quy đổi -->
             <div>
-                <div class="card">
+                <!-- Card 1: Cấu hình quy đổi Sao ➔ Giờ chơi -->
+                <div class="card card-config-game">
                     <div class="card-head">
-                        <h2 class="card-title"><span>⚙️</span> Cấu hình Quy đổi Sao ➔ Giờ chơi</h2>
-                        <span style="font-size:12px; color:var(--text-muted); font-weight:700;">Áp dụng toàn trường</span>
+                        <h2 class="card-title">
+                            <span class="card-title-icon" style="background:#eef2ff; color:#4f46e5; border: 1.5px solid #c7d2fe;">⚙️</span>
+                            Cấu hình Quy đổi Sao ➔ Giờ chơi
+                        </h2>
+                        <span style="font-size:11.5px; color:#4338ca; font-weight:800; background:#eef2ff; padding:3px 10px; border-radius:6px; border:1px solid #c7d2fe;">Áp dụng toàn trường</span>
                     </div>
 
                     <form method="post" action="{{ route('admin.games.settings.update') }}">
@@ -277,7 +388,7 @@
                         <!-- Bật/Tắt mini-game -->
                         <label class="switch-label">
                             <div>
-                                <b style="font-size:14.5px; display:block;">Mở Cổng Khu Trò Chơi Mini-Game</b>
+                                <b style="font-size:14.5px; display:block; color:#0f172a;">Mở Cổng Khu Trò Chơi Mini-Game</b>
                                 <small style="color:var(--text-muted);">Tắt tính năng này nếu đang trong giờ kiểm tra tập trung</small>
                             </div>
                             <input type="checkbox" name="game_enabled" value="1" {{ ($settings['game_enabled'] ?? '1') === '1' ? 'checked' : '' }} style="width:22px; height:22px; cursor:pointer;">
@@ -326,10 +437,10 @@
                         </div>
 
                         <!-- Giới hạn tối đa mỗi ngày -->
-                        <div class="form-unit">
-                            <label class="form-label">🛡️ Giới hạn tối đa thời gian chơi/ngày (Bảo vệ mắt học sinh)</label>
-                            <input type="number" name="max_daily_minutes" class="form-input" value="{{ $settings['max_daily_minutes'] ?? 20 }}" min="5" max="180" required>
-                            <small style="color:var(--text-muted); font-size:11.5px; display:block; margin-top:4px;">
+                        <div class="form-unit" style="background:#fffaf5; border:1.5px solid #fed7aa; border-radius:12px; padding:14px 16px;">
+                            <label class="form-label" style="color:#9a3412;">🛡️ Giới hạn tối đa thời gian chơi/ngày (Bảo vệ mắt học sinh)</label>
+                            <input type="number" name="max_daily_minutes" class="form-input" value="{{ $settings['max_daily_minutes'] ?? 20 }}" min="5" max="180" required style="border-color:#fdba74;">
+                            <small style="color:#c2410c; font-size:11.5px; display:block; margin-top:4px; font-weight:600;">
                                 Mỗi học sinh không được chơi quá số phút này trong cùng một ngày.
                             </small>
                         </div>
@@ -342,11 +453,14 @@
                     </form>
                 </div>
 
-                <!-- Cấu hình Bảng Xếp Hạng & Chu Kỳ Reset -->
-                <div class="card" style="margin-top: 24px; border-top: 4px solid #3b82f6;">
+                <!-- Card 2: Cấu hình Bảng Xếp Hạng & Chu Kỳ Reset -->
+                <div class="card card-leaderboard" style="margin-top: 24px;">
                     <div class="card-head">
-                        <h2 class="card-title"><span>👑</span> Quản Trị Bảng Xếp Hạng & Vòng Đua</h2>
-                        <span style="font-size:12px; color:var(--text-muted); font-weight:700;">Thi đua toàn trường</span>
+                        <h2 class="card-title">
+                            <span class="card-title-icon" style="background:#fefce8; color:#ca8a04; border: 1.5px solid #fde047;">👑</span>
+                            Quản Trị Bảng Xếp Hạng & Vòng Đua
+                        </h2>
+                        <span style="font-size:11.5px; color:#0369a1; font-weight:800; background:#f0f9ff; padding:3px 10px; border-radius:6px; border:1px solid #bae6fd;">Thi đua toàn trường</span>
                     </div>
 
                     <!-- 1. Cấu hình Chu kỳ & Chế độ tính điểm Bảng Xếp Hạng -->
@@ -442,15 +556,19 @@
 
             <!-- Cột Phải: Thưởng nóng & Tra cứu lịch sử -->
             <div>
-                <!-- Thưởng nóng cho học sinh -->
-                <div class="card">
+                <!-- Card 3: Thưởng nóng cho học sinh -->
+                <div class="card card-reward">
                     <div class="card-head">
-                        <h2 class="card-title"><span>🎁</span> Thưởng nóng / Điều chỉnh Sao</h2>
+                        <h2 class="card-title">
+                            <span class="card-title-icon" style="background:#fff7ed; color:#ea580c; border: 1.5px solid #fed7aa;">🎁</span>
+                            Thưởng nóng / Điều chỉnh Sao
+                        </h2>
+                        <span style="font-size:11.5px; color:#c2410c; font-weight:800; background:#fff7ed; padding:3px 10px; border-radius:6px; border:1px solid #fed7aa;">Cộng / Trừ Sao</span>
                     </div>
                     <form method="post" action="{{ route('admin.games.adjust-stars') }}">
                         @csrf
                         <div class="form-unit">
-                            <label class="form-label">Chọn học sinh</label>
+                            <label class="form-label">Chọn học sinh nhận thưởng</label>
                             <select name="user_id" class="form-select" required>
                                 <option value="">-- Chọn học sinh nhận thưởng --</option>
                                 @foreach($students as $st)
@@ -472,17 +590,20 @@
                             </div>
                         </div>
 
-                        <button type="submit" class="btn-action" style="width:100%; padding:12px;">
+                        <button type="submit" class="btn-action" style="width:100%; padding:13px; font-size:14px;">
                             <span>✨</span> Thực Hiện Thưởng Sao
                         </button>
                     </form>
                 </div>
 
-                <!-- Lịch sử đổi & chơi gần nhất -->
-                <div class="card">
+                <!-- Card 4: Lịch sử đổi & chơi gần nhất -->
+                <div class="card card-history">
                     <div class="card-head">
-                        <h2 class="card-title"><span>📜</span> Nhật ký Giao dịch Gần Nhất</h2>
-                        <span style="font-size:12px; color:var(--text-muted);">{{ $recentTransactions->count() }} lượt gần đây</span>
+                        <h2 class="card-title">
+                            <span class="card-title-icon" style="background:#ecfdf5; color:#059669; border: 1.5px solid #a7f3d0;">📜</span>
+                            Nhật ký Giao dịch Gần Nhất
+                        </h2>
+                        <span style="font-size:11.5px; color:#047857; font-weight:800; background:#ecfdf5; padding:3px 10px; border-radius:6px; border:1px solid #a7f3d0;">{{ $recentTransactions->count() }} lượt gần đây</span>
                     </div>
 
                     <div class="table-wrap">

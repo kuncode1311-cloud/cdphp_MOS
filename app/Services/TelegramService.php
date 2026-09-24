@@ -540,6 +540,7 @@ class TelegramService
             };
 
             // Lưu phản hồi vào DB
+            $supportMsg->appendConversationTurn('admin', $replyText);
             if (empty($supportMsg->admin_reply)) {
                 $supportMsg->admin_reply = $replyText;
             } else {
@@ -908,6 +909,7 @@ class TelegramService
             return $reply;
         }
 
+        $supportMsg->appendConversationTurn('admin', $replyContent);
         if (empty($supportMsg->admin_reply)) {
             $supportMsg->admin_reply = $replyContent;
         } else {

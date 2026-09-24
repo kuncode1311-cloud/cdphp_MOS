@@ -303,6 +303,89 @@ class PackageSubscriptionTest extends TestCase
             'phone' => '0912345999',
             'message' => 'Em muốn đăng ký gói Tiêu Chuẩn cho 2 lớp Khối 3 và 4 ạ!',
         ]);
+
+        $messageId = $response->json('message_id');
+
+        // Nhắn câu thứ 2 kèm parent_id -> Phải gộp vào cùng cuộc trò chuyện
+        $response2 = $this->postJson(route('support.message.send'), [
+            'name' => 'Cô Thu Hà',
+            'contact' => '0912345999',
+            'message' => 'Trường mình có 80 em học sinh nhé.',
+            'parent_id' => $messageId,
+        ]);
+
+        $response2->assertOk();
+        $this->assertEquals($messageId, $response2->json('message_id'));
+
+        $firstMsg = \App\Models\SupportMessage::find($messageId);
+        $this->assertStringContainsString('Em muốn đăng ký gói Tiêu Chuẩn', $firstMsg->message);
+        $this->assertStringContainsString('Trường mình có 80 em học sinh nhé.', $firstMsg->message);
+        $this->assertCount(2, $firstMsg->conversation_history);
+    }
+
+    /**
+     * Test: Đảm bảo luồng chat liền mạch nhiều lượt (multi-turn), bảo toàn lịch sử và thứ tự tin nhắn
+     */
+    public function test_multi_turn_live_chat_conversation_history_preservation_and_ordering(): void
+    {
+        $this->seed();
+        $admin = User::where('email', 'admin@ic3.test')->firstOrFail();
+
+        // 1. Khách gửi tin nhắn thứ 1: "mua gói"
+        $res1 = $this->postJson(route('support.message.send'), [
+            'name' => 'trí đẹp zai',
+            'contact' => '0345151438',
+            'phone' => '0345151438',
+            'message' => 'mua gói',
+        ]);
+        $res1->assertOk();
+        $msgId = $res1->json('message_id');
+
+        // 2. Khách gửi tiếp tin nhắn thứ 2: "dạ"
+        $res2 = $this->postJson(route('support.message.send'), [
+            'name' => 'trí đẹp zai',
+            'contact' => '0345151438',
+            'phone' => '0345151438',
+            'message' => 'dạ',
+            'parent_id' => $msgId,
+        ]);
+        $res2->assertOk();
+        $this->assertEquals($msgId, $res2->json('message_id'));
+
+        // 3. Admin phản hồi lượt 1: "ok ạ"
+        $resAdmin1 = $this->actingAs($admin)->patchJson(route('admin.support.status', $msgId), [
+            'status' => 'resolved',
+            'admin_reply' => 'ok ạ',
+        ]);
+        $resAdmin1->assertOk();
+
+        // 4. Admin phản hồi tiếp lượt 2: "❤️" (không làm mất "ok ạ")
+        $resAdmin2 = $this->actingAs($admin)->patchJson(route('admin.support.status', $msgId), [
+            'status' => 'resolved',
+            'admin_reply' => '❤️',
+        ]);
+        $resAdmin2->assertOk();
+
+        // 5. Kiểm tra lịch sử trò chuyện qua API kiểm tra tin nhắn
+        $checkRes = $this->getJson(route('support.message.check', ['id' => $msgId]));
+        $checkRes->assertOk();
+        $history = $checkRes->json('conversation_history');
+
+        $this->assertIsArray($history);
+        $this->assertCount(4, $history);
+
+        // Kiểm tra đúng thứ tự thời gian và người gửi
+        $this->assertEquals('user', $history[0]['sender']);
+        $this->assertEquals('mua gói', $history[0]['text']);
+
+        $this->assertEquals('user', $history[1]['sender']);
+        $this->assertEquals('dạ', $history[1]['text']);
+
+        $this->assertEquals('admin', $history[2]['sender']);
+        $this->assertEquals('ok ạ', $history[2]['text']);
+
+        $this->assertEquals('admin', $history[3]['sender']);
+        $this->assertEquals('❤️', $history[3]['text']);
     }
 
     /**
@@ -384,6 +467,225 @@ class PackageSubscriptionTest extends TestCase
         ]);
         $response->assertOk();
         $response->assertJson(['status' => 'ok']);
+    }
+
+    /**
+     * Test: Khách có thể đăng ký tài khoản Học sinh mới khi chọn mua gói học sinh
+     */
+    public function test_guest_can_register_new_student_account_and_create_order(): void
+    {
+        $this->seed();
+
+        $level3 = Level::where('grade', 3)->first();
+        $studentPackage = Package::create([
+            'slug' => 'goi-hoc-sinh-test',
+            'name' => 'Gói Tự Luyện Khối 3',
+            'target_audience' => 'student',
+            'price' => 69000,
+            'duration_days' => 30,
+            'max_students' => 1,
+            'is_active' => true,
+        ]);
+        if ($level3) {
+            $studentPackage->levels()->sync([$level3->id]);
+        }
+
+        $response = $this->post(route('pricing.register_and_order', $studentPackage), [
+            'name' => 'Bé Nguyễn An Nhiên',
+            'email' => 'annhien.hocsinh@ic3.test',
+            'password' => 'matkhau123',
+            'phone' => '0912345678',
+            'school_name' => 'Lớp 3A1',
+            'payment_method' => 'bank_transfer',
+        ]);
+
+        $student = User::where('email', 'annhien.hocsinh@ic3.test')->first();
+        $this->assertNotNull($student);
+        $this->assertEquals(UserRole::Student->value, $student->role);
+        $this->assertEquals(1, $student->max_students);
+        $this->assertEquals('pending', $student->status);
+
+        $order = PackageOrder::where('user_id', $student->id)->first();
+        $this->assertNotNull($order);
+        $this->assertEquals($studentPackage->id, $order->package_id);
+        $this->assertTrue($order->isStudentOrder());
+
+        $response->assertRedirect(route('pricing.order.checkout', $order));
+    }
+
+    /**
+     * Test: Kích hoạt đơn hàng của Học sinh sẽ cấp quyền vào accessibleLevels và gia hạn expires_at
+     */
+    public function test_activating_student_order_grants_accessible_levels_and_expiry(): void
+    {
+        $this->seed();
+
+        $level3 = Level::where('grade', 3)->firstOrFail();
+        $level4 = Level::where('grade', 4)->firstOrFail();
+
+        $studentPackage = Package::create([
+            'slug' => 'goi-but-pha-test',
+            'name' => 'Gói Bứt Phá Khối 3-4',
+            'target_audience' => 'student',
+            'price' => 149000,
+            'duration_days' => 90,
+            'max_students' => 1,
+            'is_active' => true,
+        ]);
+        $studentPackage->levels()->sync([$level3->id, $level4->id]);
+
+        $student = User::create([
+            'name' => 'Bé Minh Đăng',
+            'email' => 'minhdang@ic3.test',
+            'password' => '123456',
+            'role' => UserRole::Student->value,
+            'status' => 'pending',
+        ]);
+
+        $order = PackageOrder::create([
+            'code' => 'ORD-STUDENT-TEST',
+            'user_id' => $student->id,
+            'package_id' => $studentPackage->id,
+            'package_name' => $studentPackage->name,
+            'price' => $studentPackage->price,
+            'duration_days' => $studentPackage->duration_days,
+            'max_students' => 1,
+            'status' => 'pending',
+            'payment_method' => 'bank_transfer',
+        ]);
+
+        $service = app(\App\Services\SubscriptionService::class);
+        $result = $service->activateOrder($order);
+
+        $this->assertTrue($result);
+
+        $student->refresh();
+        $this->assertEquals('active', $student->status);
+        $this->assertNotNull($student->expires_at);
+        $this->assertTrue($student->expires_at->isFuture());
+
+        // Kiểm tra quyền truy cập qua level_user (accessibleLevels)
+        $this->assertTrue($student->canAccessLevel($level3));
+        $this->assertTrue($student->canAccessLevel($level4));
+    }
+
+    /**
+     * Test: Học sinh đã đăng nhập có thể tạo đơn mua gói học sinh
+     */
+    public function test_student_can_order_student_package_when_logged_in(): void
+    {
+        $this->seed();
+
+        $student = User::where('role', UserRole::Student->value)->firstOrFail();
+        $studentPackage = Package::create([
+            'slug' => 'goi-luyen-nhanh-test',
+            'name' => 'Gói Luyện Nhanh',
+            'target_audience' => 'student',
+            'price' => 49000,
+            'duration_days' => 15,
+            'max_students' => 1,
+            'is_active' => true,
+        ]);
+
+        $response = $this->actingAs($student)->post(route('pricing.order', $studentPackage), [
+            'payment_method' => 'bank_transfer',
+            'phone' => '0933221100',
+        ]);
+
+        $order = PackageOrder::where('user_id', $student->id)->where('package_id', $studentPackage->id)->first();
+        $this->assertNotNull($order);
+        $response->assertRedirect(route('pricing.order.checkout', $order));
+    }
+
+    /**
+     * Test: Học sinh kế thừa hạn dùng và trạng thái từ gói của Giáo viên phụ trách
+     */
+    public function test_student_inherits_teacher_subscription_status_and_level_access(): void
+    {
+        $this->seed();
+
+        $teacher = User::where('role', UserRole::Teacher->value)->firstOrFail();
+        $teacher->update([
+            'status' => 'active',
+            'expires_at' => now()->addDays(30),
+        ]);
+
+        $level = Level::firstOrFail();
+        $teacher->teacherLevels()->sync([$level->id]);
+
+        // Tạo học sinh thuộc giáo viên này
+        $student = User::create([
+            'name' => 'Học Sinh Thử Nghiệm',
+            'email' => 'hs_inherit_test@mos.test',
+            'password' => bcrypt('12345678'),
+            'role' => UserRole::Student->value,
+            'created_by' => $teacher->id,
+            'status' => 'active',
+            'expires_at' => null, // Không có hạn riêng, kế thừa từ giáo viên
+        ]);
+        $student->accessibleLevels()->sync([$level->id]);
+
+        // 1. Khi giáo viên còn hạn -> học sinh được phép học
+        $this->assertTrue($student->isSubscriptionActive());
+        $this->assertTrue($student->canAccessLevel($level));
+
+        // 2. Khi giáo viên bị hết hạn -> học sinh tự động bị chặn
+        $teacher->update(['expires_at' => now()->subDay()]);
+        $student->unsetRelation('teacher');
+        $this->assertFalse($student->isSubscriptionActive());
+        $this->assertFalse($student->canAccessLevel($level));
+
+        // 3. Khi giáo viên được gia hạn -> học sinh tự động được mở khóa lại
+        $teacher->update(['expires_at' => now()->addDays(60)]);
+        $student->unsetRelation('teacher');
+        $this->assertTrue($student->isSubscriptionActive());
+        $this->assertTrue($student->canAccessLevel($level));
+    }
+
+    /**
+     * Test: Khi gán khối cho học sinh thuộc giáo viên, chỉ những khối giáo viên sở hữu mới được cấp
+     */
+    public function test_student_can_only_be_assigned_levels_owned_by_teacher(): void
+    {
+        $this->seed();
+
+        $admin = User::where('role', UserRole::Admin->value)->firstOrFail();
+        $teacher = User::where('role', UserRole::Teacher->value)->firstOrFail();
+
+        $allLevels = Level::all();
+        $this->assertGreaterThanOrEqual(2, $allLevels->count());
+
+        $teacherLevel = $allLevels->first();
+        $unownedLevel = $allLevels->last();
+
+        // Giáo viên chỉ sở hữu 1 khối
+        $teacher->teacherLevels()->sync([$teacherLevel->id]);
+
+        $student = User::create([
+            'name' => 'Học Sinh Lớp Cô',
+            'email' => 'hs_co_test@mos.test',
+            'password' => bcrypt('12345678'),
+            'role' => UserRole::Student->value,
+            'created_by' => $teacher->id,
+            'status' => 'active',
+        ]);
+
+        // Cố tình gán cả khối giáo viên có và khối giáo viên KHÔNG có
+        $response = $this->actingAs($admin)
+            ->putJson(route('admin.users.update', $student), [
+                'name' => $student->name,
+                'email' => $student->email,
+                'role' => 'student',
+                'created_by' => $teacher->id,
+                'level_ids' => [$teacherLevel->id, $unownedLevel->id],
+            ]);
+
+        $response->assertOk();
+
+        // Kiểm tra trong database: Chỉ khối của giáo viên mới được cấp, khối không sở hữu bị loại bỏ
+        $studentLevels = $student->fresh()->accessibleLevels->pluck('id')->toArray();
+        $this->assertContains($teacherLevel->id, $studentLevels);
+        $this->assertNotContains($unownedLevel->id, $studentLevels);
     }
 }
 

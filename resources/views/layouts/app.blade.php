@@ -6,6 +6,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="google" content="notranslate">
     <meta name="theme-color" content="#1070b8">
+    <meta name="csrf-token" content="{{ csrf_token() }}">
     <title>@yield('title', 'IC3 Adventure — Game Khám Phá Kỹ Năng Số')</title>
     <meta name="description" content="Nền tảng luyện tập kỹ năng số IC3 GS6 dành cho học sinh tiểu học.">
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -52,6 +53,21 @@
             box-shadow: 0 5px 0 #094775, 0 8px 15px rgba(0,0,0,0.15);
             flex-shrink: 0;
             text-decoration: none;
+            cursor: pointer;
+            outline: none;
+            font-family: inherit;
+            transition: all 0.15s;
+        }
+        .vip-player-pill:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 7px 0 #094775, 0 10px 20px rgba(0,0,0,0.2);
+        }
+        .vip-player-pill:active {
+            transform: translateY(2px);
+            box-shadow: 0 3px 0 #094775;
+        }
+        .vip-player-pill * {
+            pointer-events: none;
         }
         .player-avatar-img {
             width: 50px;
@@ -447,6 +463,502 @@
             box-shadow: 0 0 15px rgba(72, 195, 247, 0.5);
         }
 
+        /* User Profile & Password Modal Styles */
+        .user-profile-backdrop {
+            position: fixed;
+            inset: 0;
+            background: rgba(10, 25, 47, 0.85);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            z-index: 9999999 !important;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            padding: 16px;
+        }
+        .user-profile-backdrop.open {
+            display: flex !important;
+            opacity: 1 !important;
+            visibility: visible !important;
+            pointer-events: auto !important;
+        }
+        .user-profile-box {
+            background: #ffffff;
+            border-radius: 24px;
+            border: 3.5px solid #ffffff;
+            width: min(480px, 94vw);
+            max-height: 94vh;
+            display: flex;
+            flex-direction: column;
+            position: relative;
+            box-shadow: 0 24px 60px rgba(0, 0, 0, 0.45), 0 0 0 1px rgba(255, 255, 255, 0.2);
+            transform: scale(0.94);
+            transition: transform 0.25s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            overflow: hidden;
+        }
+        .user-profile-backdrop.open .user-profile-box {
+            transform: scale(1);
+        }
+
+        /* Nút đóng góc phải */
+        .user-profile-close-btn {
+            position: absolute;
+            top: 12px;
+            right: 12px;
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.2);
+            border: 1.5px solid rgba(255, 255, 255, 0.35);
+            color: #ffffff;
+            font-size: 14px;
+            font-weight: 900;
+            display: grid;
+            place-items: center;
+            cursor: pointer;
+            transition: all 0.15s;
+            z-index: 10;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.25);
+        }
+        .user-profile-close-btn:hover {
+            background: #ef4444;
+            border-color: #f87171;
+            color: #ffffff;
+            transform: scale(1.08);
+        }
+
+        /* Hero Header: Căn giữa dọc chuẩn tỉ lệ Dũng Sĩ */
+        .user-profile-hero {
+            background: linear-gradient(135deg, #1e3a8a 0%, #2563eb 55%, #3b82f6 100%);
+            padding: 16px 20px 12px;
+            text-align: center;
+            color: #ffffff;
+            position: relative;
+            border-bottom: 3.5px solid #f59e0b;
+        }
+        .user-profile-avatar-wrap {
+            width: 64px;
+            height: 64px;
+            margin: 0 auto 6px;
+            position: relative;
+        }
+        .user-profile-avatar-img {
+            width: 100%;
+            height: 100%;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 3px solid #fbbf24;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+            background: #ffffff;
+            display: grid;
+            place-items: center;
+        }
+        .user-profile-role-badge {
+            position: absolute;
+            bottom: -3px;
+            right: -4px;
+            background: linear-gradient(135deg, #f59e0b, #d97706);
+            color: #ffffff;
+            font-size: 10.5px;
+            font-weight: 1000;
+            padding: 2px 7px;
+            border-radius: 999px;
+            border: 1.5px solid #ffffff;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.25);
+            white-space: nowrap;
+        }
+        .user-profile-name {
+            font-family: 'Fredoka', cursive, sans-serif;
+            font-size: 19px;
+            font-weight: 700;
+            color: #ffffff;
+            margin-bottom: 4px;
+            text-shadow: 0 2px 4px rgba(0,0,0,0.3);
+        }
+        .user-profile-meta {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+            font-size: 11.5px;
+            font-weight: 800;
+            color: #bae6fd;
+            flex-wrap: wrap;
+        }
+        .user-profile-code-tag {
+            background: rgba(255, 255, 255, 0.16);
+            border: 1px solid rgba(255, 255, 255, 0.28);
+            padding: 1px 8px;
+            border-radius: 999px;
+            color: #ffffff;
+            white-space: nowrap;
+        }
+        .user-profile-email-tag {
+            background: rgba(255, 255, 255, 0.18);
+            border: 1px solid rgba(255, 255, 255, 0.32);
+            padding: 1px 8px;
+            border-radius: 999px;
+            color: #ffffff;
+            white-space: nowrap;
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+        }
+        .btn-edit-email-mini {
+            background: rgba(255, 255, 255, 0.25);
+            border: 1px solid rgba(255, 255, 255, 0.4);
+            color: #ffffff;
+            border-radius: 999px;
+            padding: 0 5px;
+            font-size: 10px;
+            font-weight: 800;
+            cursor: pointer;
+            transition: all 0.15s;
+            line-height: 1.3;
+        }
+        .btn-edit-email-mini:hover {
+            background: #f59e0b;
+            border-color: #fde68a;
+            color: #ffffff;
+            transform: scale(1.08);
+        }
+
+        /* Thanh Chuyển Tab Rực Rỡ */
+        .user-profile-tabs {
+            display: flex;
+            background: #e2e8f0;
+            border-bottom: 2px solid #cbd5e1;
+            padding: 4px 10px 0;
+            gap: 6px;
+        }
+        .user-profile-tab-btn {
+            flex: 1;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+            padding: 8px 12px;
+            font-family: inherit;
+            font-size: 13.5px;
+            font-weight: 800;
+            color: #475569;
+            background: transparent;
+            border: none;
+            cursor: pointer;
+            transition: all 0.15s;
+            border-radius: 10px 10px 0 0;
+        }
+        .user-profile-tab-btn:hover {
+            color: #0f172a;
+            background: rgba(255, 255, 255, 0.5);
+        }
+        .user-profile-tab-btn.active {
+            color: #0284c7;
+            background: #ffffff;
+            font-weight: 900;
+            border-top: 3px solid #0284c7;
+            box-shadow: 0 -2px 6px rgba(0, 0, 0, 0.05);
+        }
+        .user-profile-tab-btn.tab-password.active {
+            color: #d97706;
+            border-top-color: #f59e0b;
+        }
+
+        /* Phần Nội Dung Modal */
+        .user-profile-body {
+            padding: 14px 18px;
+            color: #0f172a;
+            overflow: hidden;
+        }
+        .user-tab-panel {
+            display: none;
+        }
+        .user-tab-panel.active {
+            display: block;
+            animation: fadeInTab 0.18s ease-in-out;
+        }
+        @keyframes fadeInTab {
+            from { opacity: 0; transform: translateY(4px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* Tab 1: Stats & Info Pods (2x2 grid) */
+        .profile-stats-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 8px;
+            margin-bottom: 10px;
+        }
+        .profile-stat-pod {
+            background: #ffffff;
+            border: 1.5px solid #e2e8f0;
+            border-radius: 12px;
+            padding: 7px 10px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            box-shadow: 0 2px 0 #cbd5e1, 0 2px 5px rgba(0,0,0,0.03);
+        }
+        .profile-stat-icon {
+            width: 32px;
+            height: 32px;
+            border-radius: 8px;
+            display: grid;
+            place-items: center;
+            font-size: 16px;
+            flex-shrink: 0;
+        }
+        .profile-stat-info small {
+            display: block;
+            font-size: 9.5px;
+            font-weight: 800;
+            color: #64748b;
+            text-transform: uppercase;
+            line-height: 1.1;
+        }
+        .profile-stat-info b {
+            font-family: 'Fredoka', cursive, sans-serif;
+            font-size: 14.5px;
+            font-weight: 700;
+            color: #0f172a;
+            line-height: 1.2;
+        }
+        .profile-info-list {
+            background: #f8fafc;
+            border: 1.5px solid #e2e8f0;
+            border-radius: 12px;
+            padding: 8px 12px;
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+        }
+        .profile-info-row {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            font-size: 12.5px;
+            padding-bottom: 4px;
+            border-bottom: 1px dashed #e2e8f0;
+        }
+        .profile-info-row:last-child {
+            border-bottom: none;
+            padding-bottom: 0;
+        }
+        .profile-info-row span {
+            color: #475569;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+        .profile-info-row b {
+            color: #0f172a;
+            font-weight: 900;
+        }
+
+        /* Tab 2: Thông Báo Bảo Mật Tinh Gọn */
+        .profile-security-hint {
+            background: linear-gradient(135deg, #eff6ff 0%, #f0fdf4 100%);
+            border: 1.5px solid #93c5fd;
+            border-radius: 10px;
+            padding: 7px 12px;
+            margin-bottom: 8px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 12px;
+            color: #1e3a8a;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.04);
+        }
+        .profile-security-hint b {
+            color: #0369a1;
+        }
+        .profile-security-hint u {
+            text-decoration-color: #38bdf8;
+            font-weight: 800;
+        }
+
+        /* Thông Báo Trạng Thái Alert */
+        .profile-alert {
+            padding: 6px 12px;
+            border-radius: 8px;
+            font-size: 12.5px;
+            font-weight: 800;
+            margin-bottom: 8px;
+            display: none;
+        }
+        .profile-alert.success {
+            display: block;
+            background: #dcfce7;
+            border: 1.5px solid #86efac;
+            color: #166534;
+        }
+        .profile-alert.error {
+            display: block;
+            background: #fee2e2;
+            border: 1.5px solid #fca5a5;
+            color: #991b1b;
+        }
+
+        /* Form Đổi Mật Khẩu */
+        .profile-form-2cols {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 8px;
+            margin-bottom: 6px;
+        }
+        .profile-field-compact {
+            margin-bottom: 6px;
+            display: flex;
+            flex-direction: column;
+        }
+        .profile-field-compact label {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            font-size: 12px;
+            font-weight: 800;
+            color: #1e293b;
+            margin-bottom: 3px;
+        }
+        .profile-field-compact label .req-star {
+            color: #ef4444;
+            font-weight: 900;
+        }
+        .profile-input-wrap {
+            position: relative;
+            display: flex;
+            align-items: center;
+            width: 100%;
+        }
+        .profile-input {
+            width: 100%;
+            height: 36px;
+            padding: 0 32px 0 10px;
+            border-radius: 9px;
+            border: 1.5px solid #cbd5e1;
+            font-family: inherit;
+            font-size: 13px;
+            font-weight: 700;
+            color: #0f172a;
+            background: #f8fafc;
+            transition: all 0.15s;
+            outline: none;
+            box-sizing: border-box;
+        }
+        .profile-input:focus {
+            background: #ffffff;
+            border-color: #3b82f6;
+            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.18);
+        }
+        .btn-toggle-pwd {
+            position: absolute;
+            right: 8px;
+            background: transparent;
+            border: none;
+            color: #64748b;
+            cursor: pointer;
+            font-size: 14px;
+            padding: 2px;
+            line-height: 1;
+        }
+        .btn-toggle-pwd:hover {
+            color: #0f172a;
+            transform: scale(1.1);
+        }
+
+        /* Hàng Nhập OTP + Nút Nhận OTP */
+        .otp-input-action-row {
+            display: flex;
+            gap: 6px;
+            width: 100%;
+        }
+        .profile-input.otp-field {
+            height: 36px;
+            padding: 0 8px;
+            font-weight: 900;
+            letter-spacing: 3px;
+            text-align: center;
+            font-size: 15px;
+            color: #0284c7;
+            background: #ffffff;
+            border: 2px dashed #0284c7;
+            flex: 1;
+            min-width: 0;
+        }
+        .btn-request-otp {
+            height: 36px;
+            padding: 0 12px;
+            background: linear-gradient(180deg, #0284c7 0%, #0369a1 100%);
+            color: #ffffff;
+            border: 1.5px solid #38bdf8;
+            border-radius: 9px;
+            font-size: 12px;
+            font-weight: 800;
+            cursor: pointer;
+            box-shadow: 0 3px 0 #075985;
+            transition: all 0.15s;
+            white-space: nowrap;
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            font-family: inherit;
+            flex-shrink: 0;
+        }
+        .btn-request-otp:hover:not(:disabled) {
+            transform: translateY(-1px);
+            box-shadow: 0 4px 0 #075985;
+            filter: brightness(1.08);
+        }
+        .btn-request-otp:active:not(:disabled) {
+            transform: translateY(2px);
+            box-shadow: 0 1px 0 #075985;
+        }
+        .btn-request-otp:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            box-shadow: none;
+            transform: none;
+        }
+        .otp-timer-badge {
+            display: block;
+            color: #0284c7;
+            font-size: 11px;
+            font-weight: 800;
+            margin-top: 2px;
+        }
+
+        /* Nút Xác Nhận Đổi Mật Khẩu 3D Xúc Giác Nổi Bật */
+        .btn-save-password {
+            width: 100%;
+            height: 38px;
+            padding: 0 16px;
+            background: linear-gradient(180deg, #10b981 0%, #059669 100%);
+            border: 2px solid #34d399;
+            border-radius: 11px;
+            color: #ffffff;
+            font-family: inherit;
+            font-size: 13.5px;
+            font-weight: 900;
+            cursor: pointer;
+            box-shadow: 0 4px 0 #047857, 0 6px 14px rgba(16, 185, 129, 0.35);
+            transition: all 0.15s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            letter-spacing: 0.5px;
+            margin-top: 4px;
+        }
+        .btn-save-password:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 0 #047857, 0 8px 18px rgba(16, 185, 129, 0.45);
+        }
+        .btn-save-password:active {
+            transform: translateY(2px);
+            box-shadow: 0 2px 0 #047857;
+        }
+
         .app-sidebar {
             transition: width 0.22s cubic-bezier(0.4, 0, 0.2, 1), transform 0.25s ease, padding 0.22s ease !important;
         }
@@ -488,6 +1000,35 @@
             padding: 10px 0 !important;
         }
     </style>
+    <script>
+        window.openUserProfileModal = function() {
+            var modal = document.getElementById('user-profile-modal');
+            if (modal) {
+                modal.style.setProperty('display', 'flex', 'important');
+                modal.style.setProperty('opacity', '1', 'important');
+                modal.style.setProperty('visibility', 'visible', 'important');
+                modal.style.setProperty('pointer-events', 'auto', 'important');
+                modal.classList.add('open');
+                modal.setAttribute('aria-hidden', 'false');
+            }
+        };
+        window.closeUserProfileModal = function() {
+            var modal = document.getElementById('user-profile-modal');
+            if (modal) {
+                modal.classList.remove('open');
+                modal.setAttribute('aria-hidden', 'true');
+                modal.style.setProperty('display', 'none', 'important');
+                modal.style.setProperty('opacity', '0', 'important');
+                modal.style.setProperty('visibility', 'hidden', 'important');
+                modal.style.setProperty('pointer-events', 'none', 'important');
+            }
+            var alertBox = document.getElementById('pwd-alert');
+            if (alertBox) {
+                alertBox.className = 'profile-alert';
+                alertBox.textContent = '';
+            }
+        };
+    </script>
 </head>
 <body class="app-body">
     <canvas id="magic-canvas" aria-hidden="true"></canvas>
@@ -512,7 +1053,20 @@
             <a class="{{ request()->routeIs('games') ? 'active' : '' }}" href="{{ route('games') }}" title="Chơi nhận thưởng">
                 <i>🎮</i><span>Chơi nhận thưởng</span><b>›</b>
             </a>
+            <a class="{{ request()->routeIs('mistakes.*') ? 'active' : '' }}" href="{{ route('mistakes.index') }}" title="Sổ tay câu sai & Phục thù">
+                <i>📕</i><span>Sổ tay câu sai</span>
+                @if(auth()->check() && auth()->user()->isStudent())
+                    @php $badgeCount = auth()->user()->unresolvedMistakesCount(); @endphp
+                    @if($badgeCount > 0)
+                        <span style="background: #ef4444; color: #fff; font-size: 11px; font-weight: 1000; padding: 1px 7px; border-radius: 999px; margin-left: auto; margin-right: 4px;">{{ $badgeCount }}</span>
+                    @endif
+                @endif
+                <b>›</b>
+            </a>
             @if(auth()->user()?->canAccessAdmin())
+                <a class="{{ request()->routeIs('admin.mock-tests.*') ? 'active' : '' }}" href="{{ route('admin.mock-tests.index') }}" title="Quản trị Bộ đề thi thử">
+                    <i>📝</i><span>Đề thi thử IC3</span><b>›</b>
+                </a>
                 <a class="{{ request()->routeIs('pricing.*') ? 'active' : '' }}" href="{{ route('pricing.index') }}" title="Bảng giá các gói bản quyền IC3">
                     <i>💎</i><span>Gói bản quyền</span><b>›</b>
                 </a>
@@ -562,40 +1116,40 @@
             <!-- Thẻ người chơi / Giáo viên / Khách góc trái -->
             @auth
                 @if(auth()->user()->isTeacher())
-                    <a class="vip-player-pill" href="{{ route('admin.dashboard') }}" style="border-color: #6ee7b7; background: #ffffff; text-decoration: none;">
+                    <button type="button" class="vip-player-pill" onclick="window.openUserProfileModal();" data-open-profile-modal title="Bấm để xem hồ sơ và đổi mật khẩu" style="border-color: #6ee7b7; background: #ffffff;">
                         <div style="width: 44px; height: 44px; border-radius: 50%; background: linear-gradient(135deg, #10b981, #059669); display: grid; place-items: center; font-size: 20px; color: #fff; box-shadow: 0 3px 6px rgba(0,0,0,0.15); flex-shrink: 0;">
                             👩‍🏫
                         </div>
-                        <div class="player-details">
-                            <b style="color: #065f46; font-size: 13.5px;">{{ auth()->user()->name }}</b>
+                        <div class="player-details" style="text-align: left;">
+                            <b style="color: #065f46; font-size: 13.5px;">{{ auth()->user()->name }} ⚙️</b>
                             <small>
                                 <span class="player-level-badge" style="background: #ecfdf5; border-color: #a7f3d0; color: #047857; font-size: 10.5px; font-weight: 800;">👩‍🏫 Chế độ Giảng dạy</span>
                             </small>
                         </div>
-                    </a>
+                    </button>
                 @elseif(auth()->user()->isAdmin())
-                    <a class="vip-player-pill" href="{{ route('admin.dashboard') }}" style="border-color: #fca5a5; background: #ffffff; text-decoration: none;">
+                    <button type="button" class="vip-player-pill" onclick="window.openUserProfileModal();" data-open-profile-modal title="Bấm để xem hồ sơ và đổi mật khẩu" style="border-color: #fca5a5; background: #ffffff;">
                         <div style="width: 44px; height: 44px; border-radius: 50%; background: linear-gradient(135deg, #ef4444, #dc2626); display: grid; place-items: center; font-size: 20px; color: #fff; box-shadow: 0 3px 6px rgba(0,0,0,0.15); flex-shrink: 0;">
                             👑
                         </div>
-                        <div class="player-details">
-                            <b style="color: #991b1b; font-size: 13.5px;">{{ auth()->user()->name }}</b>
+                        <div class="player-details" style="text-align: left;">
+                            <b style="color: #991b1b; font-size: 13.5px;">{{ auth()->user()->name }} ⚙️</b>
                             <small>
                                 <span class="player-level-badge" style="background: #fef2f2; border-color: #fecaca; color: #b91c1c; font-size: 10px; font-weight: 800;">👑 Quản trị viên</span>
                             </small>
                         </div>
-                    </a>
+                    </button>
                 @else
-                    <a class="vip-player-pill" href="{{ route('home') }}">
+                    <button type="button" class="vip-player-pill" onclick="window.openUserProfileModal();" data-open-profile-modal title="Bấm để xem hồ sơ cá nhân và đổi mật khẩu">
                         <img src="{{ asset('images/student-avatar.jpg') }}" alt="Avatar" class="player-avatar-img">
-                        <div class="player-details">
-                            <b>Explorer {{ auth()->user()->name }}</b>
+                        <div class="player-details" style="text-align: left;">
+                            <b>Explorer {{ auth()->user()->name }} ⚙️</b>
                             <small>
                                 <span>{{ auth()->user()->classroom?->name ?? 'Học sinh' }}</span> · 
-                                <span class="player-level-badge" data-open-star-modal title="Tổng điểm bài thi tích lũy">🏆 {{ number_format(auth()->user()->attempts()->sum('score') ?? 0) }} Điểm</span>
+                                <span class="player-level-badge" title="Tổng điểm bài thi tích lũy">🏆 {{ number_format(auth()->user()->attempts()->sum('score') ?? 0) }} Điểm</span>
                             </small>
                         </div>
-                    </a>
+                    </button>
                 @endif
             @else
                 <a class="vip-player-pill" href="{{ route('login') }}" style="text-decoration:none;">
@@ -723,6 +1277,192 @@
         </div>
     </div>
 
+    @auth
+    <!-- Modal Hồ Sơ Cá Nhân & Đổi Mật Khẩu Chuẩn 3D Gamified (Không cuộn, vừa khít 1 màn hình) -->
+    <div id="user-profile-modal" class="user-profile-backdrop" aria-hidden="true">
+        <div class="user-profile-box">
+            <!-- Nút đóng góc phải -->
+            <button type="button" class="user-profile-close-btn" onclick="window.closeUserProfileModal();" data-close-profile-modal aria-label="Đóng" title="Đóng cửa sổ">✕</button>
+
+            <!-- Hero Header: Căn giữa dọc chuẩn tỉ lệ Dũng Sĩ -->
+            <div class="user-profile-hero">
+                <div class="user-profile-avatar-wrap">
+                    @if(auth()->user()->isStudent())
+                        <img src="{{ asset('images/student-avatar.jpg') }}" alt="Avatar" class="user-profile-avatar-img">
+                        <span class="user-profile-role-badge">⭐ Hiệp Sĩ</span>
+                    @elseif(auth()->user()->isTeacher())
+                        <div class="user-profile-avatar-img" style="display:grid; place-items:center; font-size:30px; background:linear-gradient(135deg, #10b981, #059669); color:#fff; border-color:#86efac;">
+                            👩‍🏫
+                        </div>
+                        <span class="user-profile-role-badge" style="background:#059669;">Giáo viên</span>
+                    @else
+                        <div class="user-profile-avatar-img" style="display:grid; place-items:center; font-size:30px; background:linear-gradient(135deg, #ef4444, #dc2626); color:#fff; border-color:#fca5a5;">
+                            👑
+                        </div>
+                        <span class="user-profile-role-badge" style="background:#dc2626;">Quản trị</span>
+                    @endif
+                </div>
+
+                <h2 class="user-profile-name">{{ auth()->user()->name }}</h2>
+
+                <div class="user-profile-meta">
+                    @if(auth()->user()->student_code)
+                        <span class="user-profile-code-tag">Mã HS: <b>{{ auth()->user()->student_code }}</b></span>
+                    @endif
+                    <span class="user-profile-email-tag" title="Địa chỉ email nhận mã OTP">
+                        📧 <b id="user-email-text">{{ auth()->user()->email }}</b>
+                        <button type="button" class="btn-edit-email-mini" onclick="promptUpdateEmail()" title="Bấm để đổi sang Email thật nhận mã OTP">✏️ Đổi</button>
+                    </span>
+                </div>
+            </div>
+
+            <!-- Tab Buttons -->
+            <div class="user-profile-tabs">
+                <button type="button" class="user-profile-tab-btn active" onclick="switchProfileTab('stats', this)">
+                    <span>🌟</span> Hồ Sơ Dũng Sĩ
+                </button>
+                <button type="button" class="user-profile-tab-btn tab-password" onclick="switchProfileTab('password', this)">
+                    <span>🔑</span> Đổi Mật Khẩu
+                </button>
+            </div>
+
+            <!-- Body Panels -->
+            <div class="user-profile-body">
+                <!-- Panel 1: Stats & Info -->
+                <div id="panel-profile-stats" class="user-tab-panel active">
+                    <div class="profile-stats-grid">
+                        <div class="profile-stat-pod">
+                            <div class="profile-stat-icon" style="background:#eff6ff; color:#2563eb;">🏆</div>
+                            <div class="profile-stat-info">
+                                <small>TỔNG ĐIỂM THI</small>
+                                <b>{{ number_format(auth()->user()->attempts()->sum('score') ?? 0) }}</b>
+                            </div>
+                        </div>
+
+                        <div class="profile-stat-pod">
+                            <div class="profile-stat-icon" style="background:#fefce8; color:#ca8a04;">⭐</div>
+                            <div class="profile-stat-info">
+                                <small>VÍ SAO THƯỞNG</small>
+                                <b style="color:#d97706;">{{ number_format(auth()->user()->reward_stars ?? 0) }}</b>
+                            </div>
+                        </div>
+
+                        <div class="profile-stat-pod">
+                            <div class="profile-stat-icon" style="background:#f0fdf4; color:#16a34a;">🎮</div>
+                            <div class="profile-stat-info">
+                                <small>GIỜ GAME HIỆP SĨ</small>
+                                <b style="color:#15803d;">{{ floor((auth()->user()->game_time_seconds ?? 0) / 60) }} Phút</b>
+                            </div>
+                        </div>
+
+                        <div class="profile-stat-pod">
+                            <div class="profile-stat-icon" style="background:#fdf2f8; color:#db2777;">🎯</div>
+                            <div class="profile-stat-info">
+                                <small>ĐÃ PHỤC THÙ</small>
+                                <b style="color:#be185d;">{{ auth()->user()->mistakes()->where('status', 'resolved')->count() }} Câu</b>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="profile-info-list">
+                        <div class="profile-info-row">
+                            <span>🏫 Lớp học / Nhóm:</span>
+                            <b>{{ auth()->user()->classroom?->name ?? 'Tự do / Chưa phân lớp' }}</b>
+                        </div>
+                        <div class="profile-info-row">
+                            <span>📚 Khối lớp IC3:</span>
+                            <b>{{ auth()->user()->classroom?->level ? 'Khối ' . auth()->user()->classroom->level->grade : 'Mặc định' }}</b>
+                        </div>
+                        <div class="profile-info-row">
+                            <span>🛡️ Vai trò:</span>
+                            <b>{{ auth()->user()->isStudent() ? 'Học sinh' : (auth()->user()->isTeacher() ? 'Giáo viên' : 'Quản trị viên') }}</b>
+                        </div>
+                        <div class="profile-info-row">
+                            <span>📅 Ngày tham gia:</span>
+                            <b>{{ auth()->user()->created_at?->format('d/m/Y') ?? 'Hôm nay' }}</b>
+                        </div>
+                        <div class="profile-info-row">
+                            <span>⚡ Trạng thái:</span>
+                            <span style="color:#16a34a; font-weight:1000; display:inline-flex; align-items:center; gap:5px;">
+                                <i style="font-size:10px;">●</i> Hoạt động bình thường
+                            </span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Panel 2: Change Password -->
+                <div id="panel-profile-password" class="user-tab-panel">
+                    <!-- Dòng nhắc bảo mật OTP tinh gọn -->
+                    <div class="profile-security-hint">
+                        <span style="font-size: 16px; flex-shrink: 0;">🛡️</span>
+                        <div>
+                            <b>Bảo mật 2 lớp:</b> Mã OTP 6 số sẽ gửi đến <u id="security-hint-email">{{ auth()->user()->email }}</u> để xác minh.
+                        </div>
+                    </div>
+
+                    <div id="pwd-alert" class="profile-alert"></div>
+
+                    <form id="form-change-password" onsubmit="handlePasswordSubmit(event)">
+                        @csrf
+                        <!-- 1. Mật khẩu hiện tại -->
+                        <div class="profile-field-compact">
+                            <label for="input-current-password">
+                                <span>🔑</span> Mật khẩu hiện tại <span class="req-star">*</span>
+                            </label>
+                            <div class="profile-input-wrap">
+                                <input type="password" id="input-current-password" name="current_password" class="profile-input" placeholder="Nhập mật khẩu đang dùng" required autocomplete="current-password">
+                                <button type="button" class="btn-toggle-pwd" onclick="togglePasswordVisibility('input-current-password', this)" title="Hiện/Ẩn mật khẩu">👁️</button>
+                            </div>
+                        </div>
+
+                        <!-- 2. Mật khẩu mới & Xác nhận (2 cột song song gọn gàng) -->
+                        <div class="profile-form-2cols">
+                            <div class="profile-field-compact">
+                                <label for="input-new-password">
+                                    <span>✨</span> Mật khẩu mới <span class="req-star">*</span>
+                                </label>
+                                <div class="profile-input-wrap">
+                                    <input type="password" id="input-new-password" name="password" class="profile-input" placeholder="Tối thiểu 6 ký tự" minlength="6" required autocomplete="new-password">
+                                    <button type="button" class="btn-toggle-pwd" onclick="togglePasswordVisibility('input-new-password', this)" title="Hiện/Ẩn mật khẩu">👁️</button>
+                                </div>
+                            </div>
+
+                            <div class="profile-field-compact">
+                                <label for="input-password-confirmation">
+                                    <span>🔁</span> Nhập lại mật khẩu <span class="req-star">*</span>
+                                </label>
+                                <div class="profile-input-wrap">
+                                    <input type="password" id="input-password-confirmation" name="password_confirmation" class="profile-input" placeholder="Gõ lại mật khẩu" minlength="6" required autocomplete="new-password">
+                                    <button type="button" class="btn-toggle-pwd" onclick="togglePasswordVisibility('input-password-confirmation', this)" title="Hiện/Ẩn mật khẩu">👁️</button>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- 3. Mã OTP & Nút Nhận OTP -->
+                        <div class="profile-field-compact">
+                            <label for="input-otp">
+                                <span>📨</span> Mã xác thực Email OTP (6 số) <span class="req-star">*</span>
+                            </label>
+                            <div class="otp-input-action-row">
+                                <input type="text" id="input-otp" name="otp" class="profile-input otp-field" placeholder="Nhập 6 số OTP" maxlength="6" pattern="[0-9]{6}" required autocomplete="one-time-code">
+                                <button type="button" id="btn-request-otp" onclick="requestPasswordOtp()" class="btn-request-otp" title="Bấm để nhận mã OTP gửi về Email">
+                                    <span>📨</span> Nhận OTP
+                                </button>
+                            </div>
+                            <small id="otp-timer-text" class="otp-timer-badge" style="display:none;"></small>
+                        </div>
+
+                        <!-- 4. Nút Xác Nhận Đổi Mật Khẩu -->
+                        <button type="submit" id="btn-submit-password" class="btn-save-password">
+                            <span>🔒</span> XÁC NHẬN ĐỔI MẬT KHẨU
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+    @endauth
+
     <script>
         function toggleUserSidebar() {
             if (window.innerWidth <= 760) {
@@ -748,6 +1488,249 @@
                 }
             }
         };
+
+        // --- XỬ LÝ MODAL HỒ SƠ & ĐỔI MẬT KHẨU ---
+        window.openUserProfileModal = function() {
+            var modal = document.getElementById('user-profile-modal');
+            if (modal) {
+                modal.style.setProperty('display', 'flex', 'important');
+                modal.style.setProperty('opacity', '1', 'important');
+                modal.style.setProperty('visibility', 'visible', 'important');
+                modal.style.setProperty('pointer-events', 'auto', 'important');
+                modal.classList.add('open');
+                modal.setAttribute('aria-hidden', 'false');
+            }
+        };
+
+        window.closeUserProfileModal = function() {
+            var modal = document.getElementById('user-profile-modal');
+            if (modal) {
+                modal.classList.remove('open');
+                modal.setAttribute('aria-hidden', 'true');
+                modal.style.setProperty('display', 'none', 'important');
+                modal.style.setProperty('opacity', '0', 'important');
+                modal.style.setProperty('visibility', 'hidden', 'important');
+                modal.style.setProperty('pointer-events', 'none', 'important');
+            }
+            var alertBox = document.getElementById('pwd-alert');
+            if (alertBox) {
+                alertBox.className = 'profile-alert';
+                alertBox.textContent = '';
+            }
+        };
+
+        document.querySelectorAll('[data-open-profile-modal]').forEach(el => {
+            el.addEventListener('click', (e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                window.openUserProfileModal();
+            });
+        });
+
+        document.querySelectorAll('[data-close-profile-modal]').forEach(el => {
+            el.addEventListener('click', window.closeUserProfileModal);
+        });
+
+        const profileModalEl = document.getElementById('user-profile-modal');
+        profileModalEl?.addEventListener('click', (e) => {
+            if (e.target === profileModalEl) window.closeUserProfileModal();
+        });
+
+        // Chuyển đổi giữa 2 tab: Hồ sơ & Đổi mật khẩu
+        window.switchProfileTab = function(tabName, btnEl) {
+            document.querySelectorAll('.user-profile-tab-btn').forEach(b => b.classList.remove('active'));
+            if (btnEl) btnEl.classList.add('active');
+
+            document.querySelectorAll('.user-tab-panel').forEach(p => p.classList.remove('active'));
+            const targetPanel = document.getElementById('panel-profile-' + tabName);
+            if (targetPanel) targetPanel.classList.add('active');
+        };
+
+        // Bật / tắt ẩn hiện mật khẩu
+        window.togglePasswordVisibility = function(inputId, btnEl) {
+            const input = document.getElementById(inputId);
+            if (!input) return;
+            const isPassword = input.type === 'password';
+            input.type = isPassword ? 'text' : 'password';
+            btnEl.textContent = isPassword ? '🙈' : '👁️';
+        };
+
+        // Gửi mã OTP qua Email
+        let otpCountdownTimer = null;
+        window.requestPasswordOtp = function() {
+            const btn = document.getElementById('btn-request-otp');
+            const timerText = document.getElementById('otp-timer-text');
+            const alertBox = document.getElementById('pwd-alert');
+            if (!btn || !alertBox) return;
+
+            btn.disabled = true;
+            const originalBtnHtml = btn.innerHTML;
+            btn.innerHTML = '<span>⏳</span> Đang gửi...';
+
+            alertBox.className = 'profile-alert';
+            alertBox.textContent = '';
+
+            fetch("{{ route('profile.send-otp') }}", {
+                method: 'POST',
+                headers: {
+                    'Accept': 'application/json',
+                    'Content-Type': 'application/json',
+                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || '{{ csrf_token() }}'
+                }
+            })
+            .then(async res => {
+                const data = await res.json();
+                if (!res.ok) {
+                    throw new Error(data.message || 'Không thể gửi mã OTP. Vui lòng thử lại sau.');
+                }
+                return data;
+            })
+            .then(data => {
+                alertBox.className = 'profile-alert success';
+                alertBox.textContent = '✓ ' + (data.message || 'Mã OTP đã được gửi về email!');
+
+                // Đếm ngược 60 giây
+                let countdown = 60;
+                if (timerText) {
+                    timerText.style.display = 'block';
+                    timerText.textContent = `⏱️ Gửi lại mã sau ${countdown} giây`;
+                }
+                if (otpCountdownTimer) clearInterval(otpCountdownTimer);
+                otpCountdownTimer = setInterval(() => {
+                    countdown--;
+                    if (countdown <= 0) {
+                        clearInterval(otpCountdownTimer);
+                        btn.disabled = false;
+                        btn.innerHTML = originalBtnHtml;
+                        if (timerText) timerText.style.display = 'none';
+                    } else {
+                        btn.innerHTML = `<span>⏳</span> ${countdown}s`;
+                        if (timerText) timerText.textContent = `⏱️ Gửi lại mã sau ${countdown} giây`;
+                    }
+                }, 1000);
+            })
+            .catch(err => {
+                btn.disabled = false;
+                btn.innerHTML = originalBtnHtml;
+                alertBox.className = 'profile-alert error';
+                alertBox.textContent = '✕ ' + err.message;
+            });
+        };
+
+        // Xử lý gửi form Đổi mật khẩu qua AJAX
+        window.handlePasswordSubmit = function(e) {
+            e.preventDefault();
+            const form = document.getElementById('form-change-password');
+            const btn = document.getElementById('btn-submit-password');
+            const alertBox = document.getElementById('pwd-alert');
+            if (!form || !btn || !alertBox) return;
+
+            const pwd = document.getElementById('input-new-password')?.value;
+            const pwdConf = document.getElementById('input-password-confirmation')?.value;
+            const otp = document.getElementById('input-otp')?.value;
+
+            if (!otp || otp.trim().length !== 6) {
+                alertBox.className = 'profile-alert error';
+                alertBox.textContent = '✕ Vui lòng bấm "Nhận OTP" và điền mã xác thực 6 số gửi về email.';
+                return;
+            }
+
+            if (pwd !== pwdConf) {
+                alertBox.className = 'profile-alert error';
+                alertBox.textContent = '✕ Xác nhận mật khẩu mới không trùng khớp. Vui lòng kiểm tra lại.';
+                return;
+            }
+
+            const formData = new FormData(form);
+            const originalBtnHtml = btn.innerHTML;
+            btn.disabled = true;
+            btn.style.opacity = '0.7';
+            btn.innerHTML = '<span>⏳</span> Đang xác thực & cập nhật...';
+
+            alertBox.className = 'profile-alert';
+            alertBox.textContent = '';
+
+            fetch("{{ route('profile.password') }}", {
+                method: 'POST',
+                headers: {
+                    'Accept': 'application/json',
+                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || formData.get('_token')
+                },
+                body: formData
+            })
+            .then(async res => {
+                const data = await res.json();
+                if (!res.ok) {
+                    throw new Error(data.message || (data.errors ? Object.values(data.errors).flat()[0] : 'Có lỗi xảy ra khi đổi mật khẩu.'));
+                }
+                return data;
+            })
+            .then(data => {
+                alertBox.className = 'profile-alert success';
+                alertBox.textContent = '✓ ' + (data.message || 'Chúc mừng bạn! Mật khẩu đã được đổi thành công!');
+                form.reset();
+                if (otpCountdownTimer) clearInterval(otpCountdownTimer);
+                const otpBtn = document.getElementById('btn-request-otp');
+                if (otpBtn) {
+                    otpBtn.disabled = false;
+                    otpBtn.innerHTML = '<span>📨</span> Nhận OTP';
+                }
+                const timerText = document.getElementById('otp-timer-text');
+                if (timerText) timerText.style.display = 'none';
+            })
+            .catch(err => {
+                alertBox.className = 'profile-alert error';
+                alertBox.textContent = '✕ ' + err.message;
+            })
+            .finally(() => {
+                btn.disabled = false;
+                btn.style.opacity = '1';
+                btn.innerHTML = originalBtnHtml;
+            });
+        };
+
+        // Cập nhật địa chỉ email thật của người dùng
+        window.promptUpdateEmail = function() {
+            const currentEmail = document.getElementById('user-email-text')?.textContent.trim() || '';
+            const newEmail = prompt('Nhập địa chỉ Email thật của bạn (ví dụ Gmail / Outlook) để nhận mã xác thực OTP:', currentEmail);
+            if (!newEmail || newEmail.trim() === '' || newEmail.trim() === currentEmail) {
+                return;
+            }
+
+            fetch("{{ route('profile.update-email') }}", {
+                method: 'POST',
+                headers: {
+                    'Accept': 'application/json',
+                    'Content-Type': 'application/json',
+                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || '{{ csrf_token() }}'
+                },
+                body: JSON.stringify({ email: newEmail.trim() })
+            })
+            .then(async res => {
+                const data = await res.json();
+                if (!res.ok) {
+                    throw new Error(data.message || (data.errors ? Object.values(data.errors).flat()[0] : 'Không thể cập nhật email.'));
+                }
+                return data;
+            })
+            .then(data => {
+                const updated = data.email;
+                const el1 = document.getElementById('user-email-text');
+                if (el1) el1.textContent = updated;
+                const el2 = document.getElementById('security-hint-email');
+                if (el2) el2.textContent = updated;
+                alert('✓ ' + data.message);
+            })
+            .catch(err => {
+                alert('✕ ' + err.message);
+            });
+        };
+
+        document.addEventListener('keydown', e => {
+            if (e.key === 'Escape') {
+                window.closeUserProfileModal();
+            }
+        });
     </script>
 </body>
 </html>

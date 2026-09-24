@@ -38,6 +38,74 @@
             </div>
         </section>
 
+        <!-- Khu vực Bộ Đề Thi Thử IC3 Chuẩn Quốc Tế & Sổ Tay Câu Sai -->
+        <section class="mock-tests-arena-section" style="margin-bottom: 30px;">
+            <div style="background: linear-gradient(135deg, #1e1b4b 0%, #312e81 50%, #1e3a8a 100%); border-radius: 26px; border: 3.5px solid #ffffff; box-shadow: 0 16px 36px rgba(0,0,0,0.18); padding: 24px 28px; color: #ffffff;">
+                <div style="display: flex; align-items: center; justify-content: space-between; gap: 20px; flex-wrap: wrap; margin-bottom: 20px;">
+                    <div style="display: flex; align-items: center; gap: 16px;">
+                        <div style="width: 56px; height: 56px; border-radius: 18px; background: rgba(255,255,255,0.12); border: 2px solid rgba(255,255,255,0.25); display: grid; place-items: center; font-size: 28px; flex-shrink: 0;">
+                            🏆
+                        </div>
+                        <div>
+                            <div style="display: flex; align-items: center; gap: 8px;">
+                                <h2 style="font-family: 'Fredoka', cursive; font-size: 22px; color: #ffe658; margin: 0; text-shadow: 0 2px 4px rgba(0,0,0,0.3);">
+                                    Đấu Trường Thi Thử IC3 GS6 Chuẩn Quốc Tế
+                                </h2>
+                                <span style="background: #ef4444; color: #ffffff; font-size: 10px; font-weight: 1000; padding: 2px 8px; border-radius: 999px; text-transform: uppercase;">
+                                    Tổng Hợp Khối {{ $level->grade }}
+                                </span>
+                            </div>
+                            <p style="margin: 4px 0 0; font-size: 13.5px; color: #cbd5e1; font-weight: 700;">
+                                Các bộ đề thi thử tổng hợp 7 chủ đề, thời gian áp lực như thi thật để kiểm tra toàn diện năng lực số!
+                            </p>
+                        </div>
+                    </div>
+
+                    <div style="display: flex; align-items: center; gap: 10px;">
+                        <a href="{{ route('mistakes.index', ['grade' => $level->grade]) }}" style="display: inline-flex; align-items: center; gap: 8px; padding: 11px 20px; border-radius: 16px; background: rgba(239, 68, 68, 0.2); border: 2px solid #f87171; color: #fecaca; text-decoration: none; font-weight: 900; font-size: 13.5px; transition: all 0.15s;">
+                            <span>📕</span> Sổ Tay Câu Sai (Khối {{ $level->grade }})
+                        </a>
+                    </div>
+                </div>
+
+                @if(isset($mockTests) && $mockTests->isNotEmpty())
+                <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 16px;">
+                    @foreach($mockTests as $mTest)
+                    <div style="background: rgba(255,255,255,0.08); border: 2px solid rgba(255,255,255,0.2); border-radius: 20px; padding: 18px 20px; display: flex; flex-direction: column; justify-content: space-between; transition: transform 0.2s; box-shadow: 0 8px 20px rgba(0,0,0,0.15);">
+                        <div style="margin-bottom: 14px;">
+                            <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 6px;">
+                                <span style="font-size: 11px; font-weight: 1000; color: #93c5fd; background: rgba(59, 130, 246, 0.25); padding: 2px 8px; border-radius: 999px;">
+                                    ĐỀ THI THỬ CHUẨN
+                                </span>
+                                <span style="font-size: 12px; font-weight: 900; color: #fde047;">
+                                    🎯 Đạt: {{ $mTest->pass_score }}/1000đ
+                                </span>
+                            </div>
+                            <h3 style="font-size: 17px; font-weight: 1000; color: #ffffff; margin: 0 0 6px; line-height: 1.35;">
+                                {{ $mTest->name }}
+                            </h3>
+                            <div style="font-size: 12.5px; color: #cbd5e1; font-weight: 700;">
+                                📝 {{ $mTest->mock_questions_count ?: $mTest->question_count }} câu hỏi · ⏱️ {{ $mTest->duration_minutes }} phút
+                            </div>
+                        </div>
+
+                        <a href="{{ route('tests.show', $mTest) }}" style="display: inline-flex; align-items: center; justify-content: center; gap: 8px; padding: 10px 18px; border-radius: 14px; background: linear-gradient(135deg, #f59e0b, #d97706); border: 2px solid #ffffff; color: #ffffff; font-weight: 1000; font-size: 13.5px; text-decoration: none; box-shadow: 0 4px 12px rgba(245, 158, 11, 0.35); transition: all 0.15s;">
+                            <span>▶</span> Vào Thi Thử Ngay
+                        </a>
+                    </div>
+                    @endforeach
+                </div>
+                @else
+                <div style="background: rgba(255,255,255,0.05); border: 1.5px dashed rgba(255,255,255,0.2); border-radius: 18px; padding: 24px; text-align: center; color: #cbd5e1;">
+                    <span style="font-size: 28px; display: block; margin-bottom: 6px;">🎯</span>
+                    <p style="margin: 0; font-size: 14px; font-weight: 700;">
+                        Thầy cô đang chuẩn bị các bộ đề thi thử tổng hợp cho Khối {{ $level->grade }}. Em hãy ôn luyện thật tốt 7 chủ đề bên dưới nhé!
+                    </p>
+                </div>
+                @endif
+            </div>
+        </section>
+
         <!-- Khu vực danh sách 7 chủ đề - Thu gọn mặc định -->
         <section class="topic-map-section">
             <div class="topic-toolbar">
@@ -117,7 +185,6 @@
                                     <div class="test-meta-row">
                                         <span>📝 {{ $test->question_count }} câu hỏi</span>
                                         <span>⏱️ {{ $test->duration_minutes ? $test->duration_minutes.' phút' : 'Không giới hạn' }}</span>
-                                        <span class="diff-badge diff-{{ $test->difficulty }}">{{ $test->difficulty }}</span>
                                     </div>
                                 </div>
                                 <div class="test-start-btn">

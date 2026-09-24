@@ -301,12 +301,12 @@ class AdminController extends Controller
         }
 
         if ($reply) {
-            $updateData['admin_reply'] = $reply;
-            $updateData['replied_at'] = now();
-            $updateData['status'] = 'replied';
-        }
-
-        if (! empty($updateData)) {
+            $supportMessage->appendConversationTurn('admin', $reply);
+            $supportMessage->admin_reply = $reply;
+            $supportMessage->replied_at = now();
+            $supportMessage->status = 'replied';
+            $supportMessage->save();
+        } elseif (! empty($updateData)) {
             $supportMessage->update($updateData);
         }
 
@@ -315,6 +315,7 @@ class AdminController extends Controller
                 'success' => true,
                 'status' => $supportMessage->status,
                 'admin_reply' => $supportMessage->admin_reply,
+                'conversation_history' => $supportMessage->conversation_history ?? [],
                 'replied_at' => $supportMessage->replied_at ? $supportMessage->replied_at->format('H:i d/m/Y') : null,
                 'message' => 'Đã lưu phản hồi thành công.'
             ]);
@@ -388,6 +389,7 @@ class AdminController extends Controller
                     'status' => $active->status,
                     'message' => $active->message,
                     'admin_reply' => $active->admin_reply,
+                    'conversation_history' => $active->conversation_history ?? [],
                     'replied_at' => $active->replied_at ? \Illuminate\Support\Carbon::parse($active->replied_at)->setTimezone('Asia/Ho_Chi_Minh')->format('H:i d/m/Y') : null,
                     'created_at' => $active->created_at ? $active->created_at->setTimezone('Asia/Ho_Chi_Minh')->format('H:i d/m/Y') : null,
                     'updated_at' => $active->updated_at ? $active->updated_at->timestamp : 0,

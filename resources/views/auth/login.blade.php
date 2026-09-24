@@ -31,7 +31,9 @@
         }
 
         html, body {
+            height: 100%;
             min-height: 100%;
+            overflow-x: hidden;
         }
 
         body {
@@ -42,9 +44,8 @@
             font-family: 'Plus Jakarta Sans', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
             background-color: #05020a;
             color: var(--text-main);
-            padding: 32px 16px 80px 16px;
+            padding: 16px;
             position: relative;
-            overflow-x: hidden;
         }
 
         /* ====== CINEMATIC VIDEO BACKGROUND ====== */
@@ -79,20 +80,20 @@
                 linear-gradient(180deg, rgba(5, 2, 10, 0.05) 0%, rgba(5, 2, 10, 0.38) 100%);
         }
 
-        /* ====== ULTRA-PREMIUM SINGLE GLASS CARD ====== */
+        /* ====== ULTRA-PREMIUM GOLDEN-RATIO GLASS CARD ====== */
         .login-wrapper {
             position: relative;
             z-index: 10;
             width: 100%;
-            max-width: 470px;
+            max-width: 495px;
             margin: auto;
-            animation: cardFadeUp 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+            animation: cardFadeUp 0.5s cubic-bezier(0.16, 1, 0.3, 1) forwards;
         }
 
         @keyframes cardFadeUp {
             from {
                 opacity: 0;
-                transform: translateY(24px) scale(0.96);
+                transform: translateY(20px) scale(0.97);
             }
             to {
                 opacity: 1;
@@ -106,10 +107,10 @@
             -webkit-backdrop-filter: blur(28px) saturate(190%);
             border: 1.5px solid var(--card-border);
             border-radius: 28px;
-            padding: 38px 36px;
+            padding: clamp(26px, 4vh, 38px) clamp(28px, 4.5vw, 42px) clamp(22px, 3.2vh, 30px) clamp(28px, 4.5vw, 42px);
             box-shadow: 
-                0 30px 80px -10px rgba(0, 0, 0, 0.85),
-                0 0 50px -10px rgba(236, 72, 153, 0.25),
+                0 24px 70px -10px rgba(0, 0, 0, 0.85),
+                0 0 45px -10px rgba(236, 72, 153, 0.25),
                 inset 0 1px 1px rgba(255, 255, 255, 0.25);
             position: relative;
             overflow: hidden;
@@ -130,23 +131,23 @@
         /* ====== HEADER SECTION ====== */
         .card-header {
             text-align: center;
-            margin-bottom: 26px;
+            margin-bottom: clamp(14px, 2.4vh, 22px);
         }
 
         .badge-pill {
             display: inline-flex;
             align-items: center;
-            gap: 7px;
-            padding: 6px 15px;
+            gap: 6px;
+            padding: clamp(4.5px, 0.8vh, 6px) clamp(13px, 1.8vw, 16px);
             background: rgba(244, 114, 182, 0.12);
             border: 1px solid rgba(244, 114, 182, 0.3);
             border-radius: 999px;
-            font-size: 12px;
+            font-size: clamp(11.5px, 1.4vh, 12.5px);
             font-weight: 750;
             color: #fbcfe8;
-            letter-spacing: 0.4px;
-            margin-bottom: 14px;
-            box-shadow: 0 0 18px rgba(244, 114, 182, 0.15);
+            letter-spacing: 0.35px;
+            margin-bottom: clamp(7px, 1.2vh, 11px);
+            box-shadow: 0 0 15px rgba(244, 114, 182, 0.15);
         }
 
         .badge-pill .sparkle {
@@ -159,12 +160,12 @@
         }
 
         .brand-name {
-            font-size: 34px;
+            font-size: clamp(30px, 4.2vh, 36px);
             font-weight: 900;
             letter-spacing: -0.5px;
             line-height: 1.15;
             color: #ffffff;
-            margin-bottom: 8px;
+            margin-bottom: clamp(4px, 0.8vh, 7px);
         }
 
         .brand-name span {
@@ -176,7 +177,7 @@
         }
 
         .brand-desc {
-            font-size: 13.5px;
+            font-size: clamp(12.5px, 1.6vh, 13.8px);
             color: var(--text-sub);
             font-weight: 500;
         }
@@ -185,15 +186,15 @@
         .alert-error {
             display: flex;
             align-items: center;
-            gap: 10px;
-            padding: 12px 16px;
+            gap: 8px;
+            padding: 9px 14px;
             background: rgba(239, 68, 68, 0.18);
             border: 1.2px solid rgba(248, 113, 113, 0.45);
-            border-radius: 14px;
+            border-radius: 12px;
             color: #fca5a5;
-            font-size: 13px;
+            font-size: 12.5px;
             font-weight: 650;
-            margin-bottom: 20px;
+            margin-bottom: 12px;
             backdrop-filter: blur(8px);
             animation: shake 0.4s ease-in-out;
         }
@@ -206,16 +207,16 @@
 
         /* ====== FORM INPUTS ====== */
         .form-group {
-            margin-bottom: 18px;
+            margin-bottom: clamp(12px, 2vh, 18px);
         }
 
         .form-label {
             display: block;
-            font-size: 13px;
+            font-size: clamp(12px, 1.5vh, 13px);
             font-weight: 750;
             color: #e2e8f0;
-            margin-bottom: 8px;
-            letter-spacing: 0.2px;
+            margin-bottom: clamp(5px, 0.8vh, 7px);
+            letter-spacing: 0.15px;
         }
 
         .input-box {
@@ -236,11 +237,11 @@
 
         .input-control {
             width: 100%;
-            padding: 13px 16px 13px 44px;
+            padding: clamp(11.5px, 1.6vh, 14px) 16px clamp(11.5px, 1.6vh, 14px) 44px;
             background: var(--input-bg);
             border: 1.5px solid var(--input-border);
             border-radius: 14px;
-            font-size: 14px;
+            font-size: clamp(13.8px, 1.7vh, 14.8px);
             font-family: inherit;
             font-weight: 600;
             color: #ffffff;
@@ -256,7 +257,7 @@
         .input-control:focus {
             background: rgba(255, 255, 255, 0.12);
             border-color: #f472b6;
-            box-shadow: 0 0 0 3.5px rgba(244, 114, 182, 0.22), 0 0 20px rgba(244, 114, 182, 0.15);
+            box-shadow: 0 0 0 3.5px rgba(244, 114, 182, 0.22), 0 0 18px rgba(244, 114, 182, 0.15);
         }
 
         .input-control:focus + .input-icon,
@@ -266,13 +267,13 @@
 
         .btn-toggle-eye {
             position: absolute;
-            right: 12px;
+            right: 14px;
             background: none;
             border: none;
             color: #94a3b8;
             cursor: pointer;
-            padding: 6px;
-            font-size: 16px;
+            padding: 5px;
+            font-size: 17px;
             display: flex;
             align-items: center;
             border-radius: 6px;
@@ -286,43 +287,106 @@
         /* ====== SUBMIT BUTTON ====== */
         .btn-submit {
             width: 100%;
-            margin-top: 6px;
-            padding: 14px 22px;
+            margin-top: clamp(4px, 0.8vh, 8px);
+            padding: clamp(12px, 1.8vh, 14.5px) 20px;
             border: none;
             border-radius: 14px;
             background: linear-gradient(135deg, #ec4899 0%, #8b5cf6 50%, #6366f1 100%);
             background-size: 200% auto;
             color: #ffffff;
             font-weight: 850;
-            font-size: 15px;
-            letter-spacing: 0.4px;
+            font-size: clamp(14px, 1.8vh, 15.5px);
+            letter-spacing: 0.35px;
             cursor: pointer;
-            box-shadow: 0 8px 25px -2px rgba(236, 72, 153, 0.5), inset 0 1px 1px rgba(255, 255, 255, 0.3);
+            box-shadow: 0 7px 22px -2px rgba(236, 72, 153, 0.48), inset 0 1px 1px rgba(255, 255, 255, 0.3);
             transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
             display: flex;
             align-items: center;
             justify-content: center;
-            gap: 9px;
+            gap: 8px;
             font-family: inherit;
         }
 
         .btn-submit:hover {
             background-position: right center;
             transform: translateY(-2px);
-            box-shadow: 0 12px 32px -2px rgba(236, 72, 153, 0.65), inset 0 1px 1px rgba(255, 255, 255, 0.4);
+            box-shadow: 0 11px 28px -2px rgba(236, 72, 153, 0.62), inset 0 1px 1px rgba(255, 255, 255, 0.4);
         }
 
         .btn-submit:active {
             transform: translateY(1px);
         }
 
+        /* ====== NÚT ĐĂNG NHẬP GOOGLE 3D TACTILE ====== */
+        .social-divider {
+            display: flex;
+            align-items: center;
+            margin: clamp(12px, 2vh, 18px) 0 clamp(10px, 1.5vh, 14px) 0;
+            color: rgba(255, 255, 255, 0.42);
+            font-size: clamp(10.5px, 1.3vh, 11px);
+            font-weight: 750;
+            letter-spacing: 0.8px;
+            text-transform: uppercase;
+        }
+
+        .social-divider::before,
+        .social-divider::after {
+            content: '';
+            flex: 1;
+            height: 1px;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.18), transparent);
+        }
+
+        .social-divider span {
+            padding: 0 9px;
+        }
+
+        .btn-google-login {
+            width: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            padding: clamp(11px, 1.6vh, 13.5px) 18px;
+            border-radius: 14px;
+            background: #ffffff;
+            color: #1e293b;
+            font-weight: 800;
+            font-size: clamp(13.8px, 1.7vh, 14.8px);
+            text-decoration: none;
+            box-shadow: 0 5px 18px rgba(0, 0, 0, 0.24), inset 0 -2px 0 rgba(0, 0, 0, 0.1);
+            border: 1.5px solid rgba(255, 255, 255, 0.85);
+            transition: all 0.22s cubic-bezier(0.16, 1, 0.3, 1);
+            position: relative;
+            overflow: hidden;
+            font-family: inherit;
+        }
+
+        .btn-google-login:hover {
+            background: #f8fafc;
+            color: #0f172a;
+            transform: translateY(-2px);
+            box-shadow: 0 9px 25px rgba(0, 0, 0, 0.32), 0 0 18px rgba(66, 133, 244, 0.3), inset 0 -2px 0 rgba(0, 0, 0, 0.12);
+        }
+
+        .btn-google-login:active {
+            transform: translateY(1px);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2), inset 0 -1px 0 rgba(0, 0, 0, 0.1);
+        }
+
+        .google-icon {
+            flex-shrink: 0;
+            width: clamp(19px, 2.4vh, 21px);
+            height: clamp(19px, 2.4vh, 21px);
+        }
+
         /* ====== DIVIDER ====== */
         .card-divider {
             display: flex;
             align-items: center;
-            margin: 24px 0 20px 0;
+            margin: clamp(12px, 2vh, 18px) 0 clamp(10px, 1.5vh, 14px) 0;
             color: rgba(255, 255, 255, 0.35);
-            font-size: 11.5px;
+            font-size: clamp(10.5px, 1.3vh, 11px);
             font-weight: 700;
             letter-spacing: 0.8px;
             text-transform: uppercase;
@@ -337,7 +401,7 @@
         }
 
         .card-divider span {
-            padding: 0 12px;
+            padding: 0 9px;
         }
 
         /* ====== 💎 SIÊU NÚT XEM GÓI & MUA BẢN QUYỀN ====== */
@@ -345,16 +409,16 @@
             display: flex;
             align-items: center;
             justify-content: space-between;
-            padding: 13px 18px;
-            border-radius: 16px;
+            padding: clamp(10px, 1.5vh, 13px) clamp(14px, 2vw, 18px);
+            border-radius: 14px;
             background: linear-gradient(135deg, rgba(245, 158, 11, 0.22) 0%, rgba(217, 119, 6, 0.16) 100%);
-            border: 1.5px solid rgba(251, 191, 36, 0.5);
+            border: 1.3px solid rgba(251, 191, 36, 0.48);
             text-decoration: none;
             color: #ffffff;
             transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
             position: relative;
             overflow: hidden;
-            box-shadow: 0 4px 20px rgba(245, 158, 11, 0.15);
+            box-shadow: 0 4px 16px rgba(245, 158, 11, 0.14);
         }
 
         .btn-pricing-cta::before {
@@ -375,27 +439,27 @@
 
         .btn-pricing-cta:hover {
             transform: translateY(-2px);
-            background: linear-gradient(135deg, rgba(245, 158, 11, 0.32) 0%, rgba(217, 119, 6, 0.25) 100%);
+            background: linear-gradient(135deg, rgba(245, 158, 11, 0.32) 0%, rgba(217, 119, 6, 0.24) 100%);
             border-color: #facc15;
-            box-shadow: 0 8px 25px rgba(245, 158, 11, 0.3), 0 0 15px rgba(250, 204, 21, 0.2);
+            box-shadow: 0 7px 22px rgba(245, 158, 11, 0.28), 0 0 14px rgba(250, 204, 21, 0.2);
         }
 
         .pricing-cta-left {
             display: flex;
             align-items: center;
-            gap: 12px;
+            gap: 10px;
         }
 
         .pricing-cta-icon {
-            width: 38px;
-            height: 38px;
-            border-radius: 12px;
+            width: clamp(32px, 4vh, 38px);
+            height: clamp(32px, 4vh, 38px);
+            border-radius: 10px;
             background: linear-gradient(135deg, #fbbf24 0%, #d97706 100%);
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 19px;
-            box-shadow: 0 4px 12px rgba(245, 158, 11, 0.4);
+            font-size: clamp(16px, 2vh, 18px);
+            box-shadow: 0 3px 10px rgba(245, 158, 11, 0.38);
             flex-shrink: 0;
         }
 
@@ -405,20 +469,20 @@
         }
 
         .pricing-cta-title {
-            font-size: 13.5px;
+            font-size: clamp(12.5px, 1.6vh, 13.8px);
             font-weight: 850;
             color: #fef08a;
-            letter-spacing: 0.2px;
+            letter-spacing: 0.15px;
         }
 
         .pricing-cta-desc {
-            font-size: 11.5px;
+            font-size: clamp(11px, 1.3vh, 12px);
             color: #cbd5e1;
             font-weight: 500;
         }
 
         .pricing-cta-arrow {
-            font-size: 16px;
+            font-size: 15px;
             color: #fde047;
             font-weight: 800;
             transition: transform 0.2s ease;
@@ -430,11 +494,11 @@
 
         /* ====== FOOTER LINKS ====== */
         .card-footer {
-            margin-top: 20px;
+            margin-top: clamp(12px, 1.8vh, 18px);
             text-align: center;
             display: flex;
             flex-direction: column;
-            gap: 10px;
+            gap: clamp(4px, 0.8vh, 6px);
         }
 
         .contact-admin-box {
@@ -442,7 +506,7 @@
             align-items: center;
             justify-content: center;
             gap: 6px;
-            font-size: 12.5px;
+            font-size: clamp(11.8px, 1.5vh, 12.8px);
             color: var(--text-dim);
             font-weight: 550;
         }
@@ -452,25 +516,25 @@
             border: none;
             color: #f472b6;
             font-weight: 750;
-            font-size: 12.5px;
+            font-size: clamp(11.8px, 1.5vh, 12.8px);
             font-family: inherit;
             cursor: pointer;
             display: inline-flex;
             align-items: center;
-            gap: 4px;
+            gap: 3px;
             transition: all 0.15s ease;
-            padding: 2px 4px;
+            padding: 1px 4px;
         }
 
         .btn-contact-trigger:hover {
             color: #fbcfe8;
             text-decoration: underline;
-            text-shadow: 0 0 10px rgba(244, 114, 182, 0.5);
+            text-shadow: 0 0 8px rgba(244, 114, 182, 0.5);
         }
 
         .copyright-text {
-            font-size: 11.5px;
-            color: rgba(255, 255, 255, 0.35);
+            font-size: clamp(10.5px, 1.3vh, 11.5px);
+            color: rgba(255, 255, 255, 0.3);
             font-weight: 500;
         }
 
@@ -829,27 +893,94 @@
             transform: scale(0.95);
         }
 
-        /* Responsive */
-        @media (max-width: 480px) {
+        /* ====== TỐI ƯU RESPONSIVE & KHÔNG CUỘN TRANG ====== */
+        @media (max-height: 720px) {
+            body {
+                padding: 6px 10px;
+            }
             .glass-card {
-                padding: 30px 22px;
-                border-radius: 22px;
+                padding: 16px 22px 14px 22px;
+                border-radius: 18px;
+            }
+            .badge-pill {
+                display: none;
+            }
+            .card-header {
+                margin-bottom: 8px;
             }
             .brand-name {
-                font-size: 28px;
+                font-size: 23px;
+                margin-bottom: 2px;
+            }
+            .brand-desc {
+                font-size: 11px;
+            }
+            .form-group {
+                margin-bottom: 7px;
+            }
+            .form-label {
+                font-size: 11.5px;
+                margin-bottom: 3px;
+            }
+            .input-control {
+                padding: 7px 12px 7px 34px;
+                font-size: 13px;
+                border-radius: 10px;
+            }
+            .btn-submit {
+                padding: 8px 16px;
+                font-size: 13px;
+                border-radius: 10px;
+            }
+            .social-divider, .card-divider {
+                margin: 7px 0 6px 0;
+            }
+            .btn-google-login {
+                padding: 7.5px 14px;
+                font-size: 12.5px;
+                border-radius: 10px;
+            }
+            .btn-pricing-cta {
+                padding: 6px 10px;
+                border-radius: 10px;
+            }
+            .pricing-cta-icon {
+                width: 26px;
+                height: 26px;
+                font-size: 13px;
+            }
+            .card-footer {
+                margin-top: 6px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            body {
+                padding: 12px 10px;
+                overflow-y: auto;
+            }
+            .login-wrapper {
+                max-width: 100%;
+            }
+            .glass-card {
+                padding: 18px 18px 14px 18px;
+                border-radius: 20px;
+            }
+            .brand-name {
+                font-size: 24px;
             }
             .floating-chat-btn {
-                bottom: 16px;
-                right: 16px;
-                padding: 10px 15px;
-                font-size: 12.5px;
+                bottom: 12px;
+                right: 12px;
+                padding: 8px 14px;
+                font-size: 12px;
             }
             .chat-popover {
-                bottom: 74px;
-                right: 12px;
-                left: 12px;
+                bottom: 64px;
+                right: 8px;
+                left: 8px;
                 width: auto;
-                height: 480px;
+                height: 440px;
             }
         }
     </style>
@@ -923,6 +1054,21 @@
                     <span>🚀</span>
                 </button>
             </form>
+
+            <div class="social-divider">
+                <span>HOẶC TIẾP TỤC VỚI</span>
+            </div>
+
+            <!-- 🔴 Nút Đăng Nhập Bằng Google 3D Tactile -->
+            <a href="{{ route('auth.google') }}" class="btn-google-login" id="btnGoogleLogin" title="Đăng nhập an toàn & nhanh chóng với tài khoản Google">
+                <svg class="google-icon" viewBox="0 0 24 24">
+                    <path fill="#4285F4" d="M23.745 12.27c0-.7-.06-1.4-.19-2.07H12v4.51h6.6c-.29 1.52-1.14 2.82-2.4 3.68v3.05h3.88c2.27-2.09 3.66-5.17 3.66-9.17z"/>
+                    <path fill="#34A853" d="M12 24c3.24 0 5.95-1.08 7.93-2.91l-3.88-3.05c-1.08.72-2.45 1.16-4.05 1.16-3.12 0-5.77-2.1-6.72-4.93H1.25v3.15C3.26 21.36 7.34 24 12 24z"/>
+                    <path fill="#FBBC05" d="M5.28 14.27c-.25-.72-.38-1.49-.38-2.27s.13-1.55.38-2.27V6.58H1.25C.45 8.18 0 9.99 0 12s.45 3.82 1.25 5.42l4.03-3.15z"/>
+                    <path fill="#EA4335" d="M12 4.75c1.77 0 3.35.61 4.6 1.8l3.42-3.42C17.95 1.19 15.24 0 12 0 7.34 0 3.26 2.64 1.25 6.58l4.03 3.15c.95-2.83 3.6-4.98 6.72-4.98z"/>
+                </svg>
+                <span>Đăng nhập bằng tài khoản Google</span>
+            </a>
 
             <div class="card-divider">
                 <span>Dành cho Giáo viên & Trường học</span>

@@ -552,15 +552,19 @@
             <div class="success-icon-badge">🎉</div>
             <h2>Thanh Toán & Kích Hoạt Thành Công!</h2>
             <p>
-                Gói bản quyền <b>{{ $cleanPkgName }}</b> của Thầy/Cô đã được kích hoạt thành công. Thầy/Cô có thể tạo lớp và phân quyền cho học sinh ngay bây giờ!
+                @if($order->isStudentOrder())
+                    Gói bản quyền <b>{{ $cleanPkgName }}</b> của bạn đã được kích hoạt thành công. Bạn đã được mở khóa toàn bộ bài luyện và đề thi chuẩn IC3 Spark!
+                @else
+                    Gói bản quyền <b>{{ $cleanPkgName }}</b> của Thầy/Cô đã được kích hoạt thành công. Thầy/Cô có thể tạo lớp và phân quyền cho học sinh ngay bây giờ!
+                @endif
             </p>
             <div class="countdown-bar-wrap">
                 <div class="countdown-bar" id="redirect-bar"></div>
             </div>
             <div style="margin-top: 24px;">
-                @if(auth()->user()?->canAccessAdmin())
+                @if(auth()->user()?->canAccessAdmin() || auth()->user()?->isTeacher())
                     <a href="{{ route('admin.dashboard') }}" class="btn-foot-confirm" style="text-decoration: none;">
-                        🏫 Đến Trang Quản Trị Ngay
+                        🏫 Đến Trang Quản Lý Lớp Ngay
                     </a>
                 @else
                     <a href="{{ route('programs') }}" class="btn-foot-confirm" style="text-decoration: none;">
