@@ -6022,6 +6022,15 @@
         border-bottom-color:#fed7aa;
     }
     .sai-ai-illustration.err strong { color:#b45309; }
+    .sai-ai-illustration.queued {
+        background:linear-gradient(135deg,#f5f3ff,#faf5ff);
+        border-bottom-color:#ddd6fe;
+    }
+    .sai-ai-queued-card {
+        width:160px; height:90px; border-radius:10px; border:2px dashed #a78bfa;
+        background:linear-gradient(135deg,#ede9fe,#f5f3ff); display:grid; place-items:center;
+        box-shadow:0 4px 10px rgba(124,58,237,.12); position:relative; overflow:hidden;
+    }
     @media (max-width:560px) {
         .sai-ai-illustration { grid-template-columns:1fr; }
         .sai-ai-illustration img { width:100%; height:auto; max-height:180px; }
@@ -6210,7 +6219,8 @@
                         <b style="display:inline-grid;place-items:center;width:23px;height:23px;border-radius:7px;background:#10b981;color:#fff;margin-right:5px;">3</b>
                         Kiểm tra <span id="sai-count">0</span> câu hỏi và chọn câu muốn lưu
                     </span>
-                    <div style="display:flex; gap:7px;">
+                    <div style="display:flex; gap:6px; flex-wrap:wrap; align-items:center;">
+                        <button type="button" onclick="saiGenerateAllIllustrations()" style="font-size:11.5px; font-weight:900; padding:5px 10px; border-radius:7px; background:#7c3aed; border:1px solid #c4b5fd; color:#fff; cursor:pointer; display:inline-flex; align-items:center; gap:4px; box-shadow:0 2px 6px rgba(124,58,237,0.25);">🎨 Tạo ảnh tất cả câu</button>
                         <button type="button" onclick="openAiStudentPreview()" style="font-size:11.5px; font-weight:900; padding:5px 10px; border-radius:7px; background:#0e7490; border:1px solid #67e8f9; color:#fff; cursor:pointer;">🎮 Xem thử học sinh</button>
                         <button type="button" onclick="saiAll(true)"  style="font-size:11.5px; font-weight:800; padding:3px 9px; border-radius:7px; background:#e0e7ff; border:1px solid #c7d2fe; color:#3730a3; cursor:pointer;">Chọn tất cả</button>
                         <button type="button" onclick="saiAll(false)" style="font-size:11.5px; font-weight:800; padding:3px 9px; border-radius:7px; background:#f1f5f9; border:1px solid #e2e8f0; color:#475569; cursor:pointer;">Bỏ chọn</button>
@@ -6251,6 +6261,12 @@ let saiFileUrls = new Map(); // Cache URL object để giải phóng bộ nhớ
 let saiQuestions = [];
 let saiGenerationRunId = 0;
 
+// ⚡ HÀNG ĐỢI ĐA LUỒNG THÔNG MINH (CONCURRENCY WORKER POOL) TẠO ẢNH MINH HỌA
+// Giữ tối đa 2 worker song song để đạt tốc độ cao nhất mà không bị rate limit hay nghẽn server
+const SAI_MAX_CONCURRENT_ILLUSTRATIONS = 2;
+let saiIllustrationQueue = [];        // Danh sách index câu hỏi đang xếp hàng chờ vẽ ảnh
+let saiActiveIllustrationWorkers = 0; // Số luồng vẽ ảnh đang chạy đồng thời
+
 function openStudioAiModal() {
     const modal = document.getElementById('modal-studio-ai');
     modal.classList.add('active');
@@ -6272,6 +6288,8 @@ function triggerSaiFileInput() {
 
 function saiReset() {
     saiGenerationRunId++;
+    saiIllustrationQueue = [];
+    saiActiveIllustrationWorkers = 0;
     saiCleanupUnusedIllustrations();
     saiClearFiles();
     saiQuestions = [];
@@ -6533,24 +6551,62 @@ async function saiGenerate() {
     }
 }
 
-async function saiStartIllustrationJobs(runId) {
-    let started = 0;
-    for (let i = 0; i < saiQuestions.length; i++) {
-        if (started >= 3) break;
-        const q = saiQuestions[i];
-        if (!q || !q.needs_image || q.illustration_path || q.image_status === 'loading') continue;
-        q.image_status = 'loading';
-        saiUpdateIllustration(i);
-        started++;
-        saiGenerateIllustration(i, runId);
-    }
+// Bắt đầu tạo ảnh cho các câu cần ảnh sau khi phân tích đề
+function saiStartIllustrationJobs(runId) {
+    saiQuestions.forEach((q, i) => {
+        if (q && q.needs_image && !q.illustration_path && q.image_status !== 'loading') {
+            saiEnqueueIllustration(i);
+        }
+    });
 }
 
-async function saiGenerateIllustration(index, runId) {
+// Đưa một câu hỏi vào hàng đợi vẽ ảnh minh họa đa luồng thông minh
+function saiEnqueueIllustration(index) {
     const question = saiQuestions[index];
     if (!question) return;
 
+    // Không thêm trùng lặp nếu câu hỏi đã có ảnh hoặc đang tải hoặc đã trong hàng đợi
+    if (question.illustration_path || question.image_status === 'loading') return;
+    if (saiIllustrationQueue.includes(index)) return;
+
+    question.needs_image = true;
+    question.image_status = 'queued';
+    saiIllustrationQueue.push(index);
+    saiUpdateIllustration(index);
+
+    // Kích hoạt worker phân phối hàng đợi
+    saiProcessIllustrationQueue();
+}
+
+// Xử lý hàng đợi: điều phối các worker tạo ảnh song song (tối đa SAI_MAX_CONCURRENT_ILLUSTRATIONS luồng)
+async function saiProcessIllustrationQueue() {
+    while (saiActiveIllustrationWorkers < SAI_MAX_CONCURRENT_ILLUSTRATIONS && saiIllustrationQueue.length > 0) {
+        const nextIndex = saiIllustrationQueue.shift();
+        const question = saiQuestions[nextIndex];
+        if (!question || question.illustration_path) continue;
+
+        saiActiveIllustrationWorkers++;
+        question.image_status = 'loading';
+        saiUpdateIllustration(nextIndex);
+
+        // Chạy worker ngầm độc lập (không await để các worker chạy song song thực sự)
+        saiRunIllustrationWorker(nextIndex, saiGenerationRunId);
+    }
+}
+
+// Worker thực thi vẽ ảnh cho 1 câu hỏi cụ thể với cơ chế bảo vệ timeout & retry
+async function saiRunIllustrationWorker(index, runId) {
+    const question = saiQuestions[index];
+    if (!question) {
+        saiActiveIllustrationWorkers = Math.max(0, saiActiveIllustrationWorkers - 1);
+        saiProcessIllustrationQueue();
+        return;
+    }
+
     try {
+        const controller = new AbortController();
+        const timeoutId = setTimeout(() => controller.abort(), 120000); // 120s timeout an toàn
+
         const r = await fetch('{{ route("admin.ai.questions.illustration") }}', {
             method: 'POST',
             headers: {
@@ -6559,7 +6615,10 @@ async function saiGenerateIllustration(index, runId) {
                 'Accept': 'application/json',
             },
             body: JSON.stringify({ question }),
+            signal: controller.signal,
         });
+        clearTimeout(timeoutId);
+
         const d = await r.json();
         saiLogAiTrace(d, 0, d.total_ms || 0);
 
@@ -6581,10 +6640,30 @@ async function saiGenerateIllustration(index, runId) {
     } catch (e) {
         if (runId !== saiGenerationRunId) return;
         saiQuestions[index].image_status = 'error';
-        console.error(e);
+        console.error(`Lỗi khi tạo ảnh cho câu ${index + 1}:`, e);
     } finally {
-        if (runId !== saiGenerationRunId) return;
-        saiUpdateIllustration(index);
+        saiActiveIllustrationWorkers = Math.max(0, saiActiveIllustrationWorkers - 1);
+        if (runId === saiGenerationRunId) {
+            saiUpdateIllustration(index);
+            saiProcessIllustrationQueue(); // Tự động kéo câu tiếp theo trong hàng đợi
+        }
+    }
+}
+
+// Nút "🎨 Tạo ảnh tất cả câu" trên thanh công cụ xem trước câu hỏi
+function saiGenerateAllIllustrations() {
+    let queuedCount = 0;
+    saiQuestions.forEach((q, i) => {
+        if (q && !q.illustration_path) {
+            saiEnqueueIllustration(i);
+            queuedCount++;
+        }
+    });
+
+    if (queuedCount === 0) {
+        saiMsg('Tất cả các câu hỏi đều đã có ảnh minh họa rồi Thầy/Cô nhé!', 'ok');
+    } else {
+        saiMsg(`Đã đưa ${queuedCount} câu hỏi vào hàng đợi vẽ ảnh đa luồng thông minh. Hệ thống đang tự động vẽ song song, Thầy/Cô có thể tiếp tục xem và sửa đề!`, 'ok');
     }
 }
 
@@ -6688,8 +6767,22 @@ function saiIllustrationHtml(q, i) {
     }
     if (q.image_status === 'loading') {
         return `<div class="sai-ai-illustration">
-                    <div class="sai-ai-loading-card" aria-hidden="true"><div class="sai-ai-loading-icon">🖼️</div></div>
-                    <div><strong>Đang tạo ảnh minh họa...</strong><span>Thầy/Cô vẫn có thể đọc, sửa và chọn câu hỏi trong lúc ảnh chạy nền.</span></div>
+                    <div class="sai-ai-loading-card" aria-hidden="true"><div class="sai-ai-loading-icon" style="font-size:18px;">🎨</div></div>
+                    <div>
+                        <strong style="color:#0284c7;font-size:12.5px;display:block;">🎨 Đang vẽ ảnh minh họa trực quan...</strong>
+                        <span style="font-size:11.5px;color:#0369a1;">Hệ thống AI đang thực hiện vẽ ảnh. Thầy/Cô vẫn có thể đọc, sửa và chọn câu hỏi bình thường.</span>
+                    </div>
+               </div>`;
+    }
+    if (q.image_status === 'queued') {
+        const queuePos = saiIllustrationQueue.indexOf(i) + 1;
+        const posText = queuePos > 0 ? ` (Vị trí #${queuePos})` : '';
+        return `<div class="sai-ai-illustration queued">
+                    <div class="sai-ai-queued-card" aria-hidden="true"><div class="sai-ai-loading-icon" style="background:linear-gradient(135deg,#8b5cf6,#6366f1);font-size:18px;">⏳</div></div>
+                    <div>
+                        <strong style="color:#6d28d9;font-size:12.5px;display:block;">⏳ Đang xếp hàng chờ vẽ ảnh minh họa${posText}...</strong>
+                        <span style="font-size:11.5px;color:#7c3aed;">Hệ thống đang chạy đa luồng thông minh (tối đa 2 luồng). Lượt vẽ câu này sẽ tự động bắt đầu ngay khi có luồng trống.</span>
+                    </div>
                </div>`;
     }
     if (q.image_status === 'error') {
@@ -6717,10 +6810,11 @@ function saiIllustrationHtml(q, i) {
 function saiRetryIllustration(index) {
     const question = saiQuestions[index];
     if (!question) return;
-    question.needs_image = true;
-    question.image_status = 'loading';
-    saiUpdateIllustration(index);
-    saiGenerateIllustration(index, saiGenerationRunId);
+    if (question.illustration_path) {
+        saiCleanupUnusedIllustrations([], [question.illustration_path]);
+        question.illustration_path = null;
+    }
+    saiEnqueueIllustration(index);
 }
 
 function saiRemoveIllustration(index) {

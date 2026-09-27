@@ -130,6 +130,10 @@ class AiQuestionController extends Controller
      */
     public function generateIllustration(Request $request): JsonResponse
     {
+        @set_time_limit(180);
+        @ini_set('max_execution_time', '180');
+        ignore_user_abort(true);
+
         $requestStartedAt = microtime(true);
         $data = $request->validate([
             'question' => 'required|array',
