@@ -387,31 +387,31 @@ class AiQuestionProviderTest extends TestCase
         $this->assertNotEmpty($response->json('illustration_path'));
     }
 
-    public function test_prompt_tao_anh_phan_biet_scratch_voi_php_va_khong_in_chu_rac(): void
+    public function test_prompt_tao_anh_theo_logic_chung_toan_nang_va_khong_in_chu_rac(): void
     {
         $service = app(GeminiService::class);
 
-        // Câu hỏi 5: Tiểu học làm quen lập trình (so sánh với PHP) -> Phải ra prompt Khối lệnh Scratch
-        $promptScratch = $service->buildOptimizedImagePrompt(
+        // Trường hợp 1: Câu hỏi ngẫu nhiên bất kỳ (ví dụ máy in, lập trình, web...)
+        $promptRandom = $service->buildOptimizedImagePrompt(
             '',
+            'Khi máy in bị kẹt giấy, bộ phận nào dưới đây cần kiểm tra trước tiên?'
+        );
+        $this->assertStringContainsString('3D gamified educational illustration', $promptRandom);
+        $this->assertStringContainsString('Pixar and Disney 3D animation feel', $promptRandom);
+        $this->assertStringContainsString('strictly NO text', $promptRandom);
+        $this->assertStringNotContainsString('wide 16:9 widescreen layout', $promptRandom);
+        $this->assertStringNotContainsString('educational diagram', $promptRandom);
+        $this->assertStringNotContainsString('clean flat vector', $promptRandom);
+
+        // Trường hợp 2: Có mô tả ngữ cảnh trực quan tiếng Anh phong phú từ AI soạn đề
+        $promptWithContext = $service->buildOptimizedImagePrompt(
+            'A cute computer screen displays colorful interlocking toy puzzle code blocks with a friendly toy robot',
             'Trước khi học các ngôn ngữ lập trình bằng chữ phức tạp như PHP, các bạn học sinh tiểu học nên làm quen với hình thức lập trình nào trước?'
         );
-        $this->assertStringContainsString('visual block programming', $promptScratch);
-        $this->assertStringContainsString('toy puzzle code blocks', $promptScratch);
-        $this->assertStringNotContainsString('wide 16:9 widescreen layout', $promptScratch);
-        $this->assertStringNotContainsString('educational diagram', $promptScratch);
-        $this->assertStringNotContainsString('clean flat vector', $promptScratch);
-
-        // Câu hỏi 2: PHP dùng để xây dựng nội dung nào -> Phải ra Website 3D rực rỡ
-        $promptPhp = $service->buildOptimizedImagePrompt(
-            '',
-            'Ngôn ngữ lập trình PHP thường được sử dụng phổ biến nhất để xây dựng nội dung nào dưới đây?'
-        );
-        $this->assertStringContainsString('World Wide Web', $promptPhp);
-        $this->assertStringContainsString('Internet globe', $promptPhp);
-        $this->assertStringNotContainsString('wide 16:9 widescreen layout', $promptPhp);
-        $this->assertStringNotContainsString('educational diagram', $promptPhp);
-        $this->assertStringNotContainsString('clean flat vector', $promptPhp);
+        $this->assertStringContainsString('toy puzzle code blocks', $promptWithContext);
+        $this->assertStringContainsString('friendly toy robot', $promptWithContext);
+        $this->assertStringContainsString('Pixar and Disney 3D animation feel', $promptWithContext);
+        $this->assertStringNotContainsString('wide 16:9 widescreen layout', $promptWithContext);
     }
 
     private function questionsJson(): string
