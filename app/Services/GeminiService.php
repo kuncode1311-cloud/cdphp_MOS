@@ -127,85 +127,79 @@ class GeminiService
     }
 
     /**
-     * Tối ưu hóa prompt tạo ảnh bối cảnh trung tính chuẩn kiến thức Tin học & IC3 Spark tiểu học.
-     * Bám sát TIÊU ĐỀ CÂU HỎI là chính, tuyệt đối không làm lộ đáp án của bài thi.
+     * Tối ưu hóa prompt tạo ảnh bối cảnh phong cách 3D hoạt hình rực rỡ, đáng yêu, chuẩn tiểu học.
+     * Bám sát TIÊU ĐỀ CÂU HỎI là chính, phong cách game 3D gamified, tuyệt đối không có chữ rác và không lộ đáp án.
      */
     public function buildOptimizedImagePrompt(string $description, string $questionTitle, array $question = []): string
     {
-        // Bám sát TIÊU ĐỀ CÂU HỎI là chính theo đúng yêu cầu sư phạm.
-        // Tuyệt đối không lấy các đáp án đúng hay đáp án nhiễu để tránh làm lộ đề thi hoặc vẽ sai lệch.
+        // Bám sát TIÊU ĐỀ CÂU HỎI là chính theo đúng yêu cầu sư phạm và phong cách giáo dục số.
         $primaryContext = mb_strtolower($questionTitle.' '.$description);
 
-        // 1. Soạn thảo văn bản (Word / Thẻ Ribbon chung / Soạn thảo)
-        if (preg_match('/soạn\s*thảo|văn\s*bản|word|wordpad|gõ\s*văn\s*bản/ui', $primaryContext)) {
-            return 'A realistic, clean computer screenshot of a modern word processing software interface (Microsoft Word style) in wide 16:9 landscape aspect ratio. '
-                .'The top displays a standard, neutral Ribbon toolbar with all typical tabs [File, Home, Insert, Draw, Design, Layout, References, Review, View] evenly displayed without any highlights or spoilers. '
-                .'Below the ribbon is a clean document editing page with a typing cursor on clean white paper. '
-                .'Neutral educational digital literacy graphic for elementary students, wide 16:9 widescreen layout, modern flat software UI, sharp text, no cartoon characters, no animal mascots, no highlight on any specific button, no blurry borders.';
+        $baseStyle = 'High quality cute 3D gamified digital art style, Pixar and Disney 3D animation feel, vibrant cheerful colors (amber orange, royal gold, emerald green, sky blue, vivid purple), glossy smooth 3D clay and plastic surfaces, warm welcoming studio lighting, delightful and friendly for elementary school children, clean 16:9 landscape composition, strictly NO text, NO letters, NO words, NO labels, NO watermark, NO diagrams, NO schematics.';
+
+        // 1. Lập trình trực quan cho trẻ em / Scratch / Kéo thả khối lệnh / Robot giáo dục
+        // Ưu tiên cao nhất để tránh bị dính vào PHP nếu câu hỏi so sánh hoặc hỏi về hình thức học trước
+        if (preg_match('/scratch|kéo\s*thả|khối\s*lệnh|blockly|robot|thuật\s*toán|(lập\s*trình.*(tiểu\s*học|trẻ\s*em|mới\s*bắt\s*đầu|làm\s*quen|trực\s*quan))/ui', $primaryContext)) {
+            return 'A delightful 3D scene of visual block programming for kids. On a bright colorful desk, a cute computer screen displays colorful interlocking toy puzzle code blocks (bright blue motion block, glowing orange control block, vivid purple sound block). Beside the monitor sits an adorable small friendly toy robot with cheerful glowing eyes. '.$baseStyle;
         }
 
-        // 2. Trình chiếu (PowerPoint / Slides / Trang chiếu)
-        if (preg_match('/trình\s*chiếu|powerpoint|slide|trang\s*chiếu|bài\s*trình\s*chiếu/ui', $primaryContext)) {
-            return 'A realistic, clean computer screenshot of presentation software (Microsoft PowerPoint style) in wide 16:9 landscape aspect ratio. '
-                .'Displays the standard top Ribbon toolbar with tabs [File, Home, Insert, Draw, Design, Transitions, Animations, Slide Show], '
-                .'a left slide thumbnail column, and a central widescreen presentation slide with editable title placeholders. '
-                .'Neutral software interface without highlighting any specific command, educational computer science graphic, wide 16:9 widescreen layout, no cartoon characters, no blurry borders.';
+        // 2. Lập trình Web / PHP / Xây dựng trang web / Website trực tuyến
+        if (preg_match('/php|trang\s*web|website|web\s*page|lập\s*trình\s*web/ui', $primaryContext)) {
+            return 'A playful 3D isometric scene of building and browsing the World Wide Web. A modern cute computer monitor displays a vibrant, colorful cartoon educational website layout with cheerful banners, colorful buttons, and playful picture cards. Next to the screen is a glowing colorful 3D Internet globe with friendly digital connection sparkles and cute floating clouds. '.$baseStyle;
         }
 
-        // 3. Bảng tính điện tử (Excel / Bảng tính / Ô tính)
-        if (preg_match('/bảng\s*tính|excel|ô\s*tính|hàng\s*và\s*cột/ui', $primaryContext)) {
-            return 'A realistic, clean computer screenshot of a spreadsheet software (Microsoft Excel style) in wide 16:9 landscape aspect ratio. '
-                .'Displays the top Ribbon menu with [File, Home, Insert, Page Layout, Formulas, Data], the Formula Bar, '
-                .'and a neat grid with column letters (A, B, C, D, E) and row numbers (1, 2, 3, 4, 5) with sample table data. '
-                .'Crisp modern flat UI, neutral layout without highlighting any specific cell or formula, wide 16:9 landscape layout, no cartoon characters, no blurry borders.';
+        // 3. Soạn thảo văn bản (Word / Gõ văn bản / Đánh máy / Bút viết)
+        if (preg_match('/soạn\s*thảo|văn\s*bản|word|wordpad|gõ\s*văn\s*bản|font\s*chữ|đánh\s*máy/ui', $primaryContext)) {
+            return 'A charming 3D children study desk scene of writing a digital document. A cute computer screen shows a clean paper page with neat colorful paragraph lines and a friendly blinking cursor. On the wooden desk rests a big cheerful yellow 3D pencil, a colorful eraser, and a playful candy-colored computer keyboard. '.$baseStyle;
         }
 
-        // 4. Vẽ & Đồ họa (MS Paint / Phần mềm vẽ)
-        if (preg_match('/paint|phần\s*mềm\s*vẽ|tập\s*vẽ|vẽ\s*hình\s*trên\s*máy/ui', $primaryContext)) {
-            return 'A realistic, clean computer screenshot of a digital drawing application (MS Paint style) in wide 16:9 landscape aspect ratio. '
-                .'Shows a complete top tool palette with Shapes palette, Brushes, Color Palette, '
-                .'and a clean white drawing canvas. '
-                .'Neutral software UI for elementary computer class, wide 16:9 widescreen layout, no blurry borders.';
+        // 4. Bài trình chiếu (PowerPoint / Slides / Trang chiếu / Thuyết trình)
+        if (preg_match('/trình\s*chiếu|powerpoint|slide|trang\s*chiếu|bài\s*trình\s*chiếu|thuyết\s*trình/ui', $primaryContext)) {
+            return 'A bright, fun 3D scene of a presentation slide show. An open cute laptop displays a vibrant presentation slide with a 3D colorful pie chart (emerald green, sunny yellow, vibrant purple), a golden star badge, and playful picture graphics, glowing warmly in a modern kids classroom. '.$baseStyle;
         }
 
-        // 5. Quản lý tệp và thư mục (File Explorer / Thư mục / Tệp tin trong máy tính)
-        if (preg_match('/thư\s*mục|tệp\s*tin|quản\s*lý\s*tệp|folder|file\s*explorer|ổ\s*đĩa/ui', $primaryContext)) {
-            return 'A realistic, clean computer screenshot of Windows File Explorer in wide 16:9 landscape aspect ratio. '
-                .'Displays folder tree navigation on the left, and organized folders and common file icons (.docx, .png, .pdf) on the right, with a standard top toolbar. '
-                .'Neutral operating system interface, educational computer literacy graphic, wide 16:9 horizontal layout, no blurry borders.';
+        // 5. Bảng tính điện tử (Excel / Ô tính / Hàng và cột / Bảng biểu)
+        if (preg_match('/bảng\s*tính|excel|ô\s*tính|hàng\s*và\s*cột|tính\s*toán\s*số\s*liệu/ui', $primaryContext)) {
+            return 'A delightful 3D scene of an electronic spreadsheet. A glossy cute computer screen displays a colorful grid table with cheerful pastel green header cells, and cute 3D bar graph pillars in amber orange, sky blue, and vibrant purple standing playfully on the desk. '.$baseStyle;
         }
 
-        // 6. Căn cước công dân gắn chip / Chip điện tử
-        if (preg_match('/căn\s*cước|cccd|chip\s*điện\s*tử|thẻ\s*gắn\s*chip/ui', $primaryContext)) {
-            return 'A realistic, high-resolution educational product photograph of a modern electronic citizen identity smart card in wide 16:9 landscape aspect ratio. '
-                .'The card features a metallic embedded microchip on the front, resting naturally on a clean wooden desk beside a closed laptop. '
-                .'Bright natural studio lighting, neutral technology photo without any promotional text or arrows, wide 16:9 widescreen layout, no blurry borders.';
+        // 6. Tập vẽ & Đồ họa số (Paint / Cọ vẽ / Tô màu / Vẽ hình trên máy tính)
+        if (preg_match('/paint|phần\s*mềm\s*vẽ|tập\s*vẽ|vẽ\s*hình|bút\s*vẽ|tô\s*màu|đồ\s*họa/ui', $primaryContext)) {
+            return 'An inspiring 3D creative digital art studio for children. A computer tablet screen displays a colorful drawing of a rainbow and happy sun. Next to the screen is a 3D artist paint palette with bright glossy color blobs (ruby red, lemon yellow, sky blue) and a magical soft paintbrush. '.$baseStyle;
         }
 
-        // 7. Bàn phím máy tính (CHỈ khi Tiêu đề câu hỏi thực sự hỏi về bàn phím)
-        if (preg_match('/bàn\s*phím|keyboard|gõ\s*phím|phím\s*trên\s*bàn\s*phím/ui', $primaryContext)) {
-            return 'A clear, top-down educational photograph of a modern computer keyboard resting naturally on a classroom desk in wide 16:9 landscape aspect ratio. '
-                .'Displays the full standard layout with alphanumeric keys and spacebar under soft natural studio lighting. '
-                .'Neutral computer hardware photo without highlighting any specific key, wide 16:9 horizontal layout, no blurry borders.';
+        // 7. Thư mục & Quản lý tệp tin (Folder / File Explorer / Lưu trữ tệp)
+        if (preg_match('/thư\s*mục|tệp\s*tin|quản\s*lý\s*tệp|folder|file\s*explorer|lưu\s*trữ/ui', $primaryContext)) {
+            return 'A tidy and colorful 3D scene of computer file organization. Several bright glossy 3D golden-yellow file folders are neatly arranged, with one folder open revealing cute miniature 3D picture cards, music note icons, and document sheets popping out playfully on a clean desk. '.$baseStyle;
         }
 
-        // 8. Chuột máy tính (CHỈ khi Tiêu đề câu hỏi thực sự hỏi về chuột)
-        if (preg_match('/chuột\s*máy\s*tính|con\s*chuột|thao\s*tác\s*chuột|con\s*trỏ\s*chuột/ui', $primaryContext)) {
-            return 'A clear, professional educational photograph of a modern optical computer mouse resting naturally on a mousepad on a clean desk in wide 16:9 landscape aspect ratio. '
-                .'Standard desktop setup under soft studio lighting, neutral hardware photo without arrows, wide 16:9 horizontal layout, no blurry borders.';
+        // 8. Bàn phím máy tính & Kỹ năng gõ phím
+        if (preg_match('/bàn\s*phím|keyboard|gõ\s*phím|phím\s*space|phím\s*enter/ui', $primaryContext)) {
+            return 'A vibrant, playful 3D mechanical keyboard on a sunny classroom desk. The keyboard features adorable candy-colored pastel keycaps in mint green, lilac purple, peach orange, and lemon yellow, with soft studio lighting and a clean, inviting aesthetic for young learners. '.$baseStyle;
         }
 
-        // 9. Máy chủ, mạng Internet, Lập trình web, PHP, hệ thống web
-        if (preg_match('/php|trang\s*web|website|máy\s*chủ|server|internet|mạng\s*máy\s*tính/ui', $primaryContext)) {
-            return 'A clean, neutral educational diagram in wide 16:9 landscape aspect ratio illustrating general web and network concepts. '
-                .'Depicts a student computer connected through an internet network cloud to modern server infrastructure. '
-                .'Balanced educational technology overview, wide 16:9 widescreen layout, clean flat vector graphics, no answer spoiler, no cartoon characters, no blurry borders.';
+        // 9. Chuột máy tính & Thao tác chuột
+        if (preg_match('/chuột\s*máy\s*tính|con\s*chuột|thao\s*tác\s*chuột|con\s*trỏ\s*chuột|nháy\s*chuột/ui', $primaryContext)) {
+            return 'A charming 3D scene featuring a cute, smooth ergonomic wireless computer mouse in cheerful sky-blue and white colors, resting on a colorful cosmic star-pattern mousepad next to a glowing computer display. '.$baseStyle;
         }
 
-        // Mặc định: Dựa trên bối cảnh của Tiêu đề câu hỏi, giữ tính trung lập sư phạm
-        return "A neutral, professional educational illustration or clean computer screenshot in wide 16:9 landscape aspect ratio for an elementary computer science / IC3 Spark test question. "
-            ."Context of question: {$questionTitle}. "
-            ."Educational computer environment, neutral perspective without revealing or highlighting any specific answer, crisp details, 16:9 widescreen presentation, strictly no cartoon animals, no answer spoilers, no blurry borders.";
+        // 10. Phần cứng máy tính (Màn hình, Thân máy Case, Loa, Tai nghe, USB)
+        if (preg_match('/màn\s*hình|thân\s*máy|case|usb|tai\s*nghe|loa\s*máy\s*tính|ổ\s*đĩa|phần\s*cứng/ui', $primaryContext)) {
+            return 'A complete, playful 3D desktop computer setup for elementary education. Features a friendly rounded desktop monitor, a sleek white computer tower with gentle rainbow RGB glow vents, cute colorful stereo speakers, and headphones resting nearby on a bright desk. '.$baseStyle;
+        }
+
+        // 11. Mạng máy tính, Internet, WiFi, An toàn mạng
+        if (preg_match('/máy\s*chủ|server|internet|mạng\s*máy\s*tính|wifi|kết\s*nối|an\s*toàn\s*mạng|trình\s*duyệt|mật\s*khẩu/ui', $primaryContext)) {
+            return 'A magical, friendly 3D visualization of the digital Internet world. A glowing 3D Earth globe surrounded by playful sparkling orbit trails connecting a cute laptop, tablet, and smartphone. A cheerful puffy 3D cloud hovers nearby with a cute golden digital lock symbol. '.$baseStyle;
+        }
+
+        // 12. Căn cước công dân gắn chip / Thẻ thông minh / Chip điện tử
+        if (preg_match('/căn\s*cước|cccd|chip\s*điện\s*tử|thẻ\s*gắn\s*chip|thẻ\s*thông\s*minh/ui', $primaryContext)) {
+            return 'A high-quality 3D digital illustration of a modern smart citizen identity card. The sleek cyan-blue card has a prominent gleaming golden microchip on its surface, resting on a clean high-tech wooden desk with a gentle protective shield icon nearby. '.$baseStyle;
+        }
+
+        // 13. Mặc định: Bám sát tiêu đề câu hỏi theo phong cách 3D gamified rực rỡ, trực quan
+        return "A vibrant, cute 3D gamified educational illustration for elementary school computer science. Topic context: {$questionTitle}. Colorful digital classroom setup, cheerful Pixar 3D style, glossy smooth 3D objects, playful vivid colors, warm studio lighting, highly engaging and visual. ".$baseStyle;
     }
 
     private function generateIllustration(string $description, string $questionTitle, array $question = []): ?string
@@ -312,16 +306,105 @@ class GeminiService
             return null;
         }
 
-        $extension = match ($matches[1]) {
-            'image/png' => 'png',
-            'image/webp' => 'webp',
-            default => 'jpg',
-        };
+        // Tự động cắt theo tỉ lệ vàng 16:9 trung tâm chuẩn HD (1280x720),
+        // loại bỏ hoàn toàn dải viền thừa và các chữ rác in ở mép đáy
+        $cropped = $this->cropToLandscape16x9($binary);
+        if ($cropped !== $binary) {
+            $binary = $cropped;
+            $extension = 'png';
+        } else {
+            $extension = match ($matches[1]) {
+                'image/png' => 'png',
+                'image/webp' => 'webp',
+                default => 'jpg',
+            };
+        }
 
         $path = 'question-assets/ai-'.Str::uuid().'.'.$extension;
         Storage::disk('public')->put($path, $binary);
 
         return Storage::url($path);
+    }
+
+    /**
+     * Tự động cắt ảnh về tỉ lệ 16:9 widescreen chuẩn HD (1280x720) lấy trọng tâm,
+     * loại bỏ hoàn toàn các viền thừa trắng/đen và chữ rác in ở mép đáy.
+     */
+    private function cropToLandscape16x9(string $binary): string
+    {
+        if (! extension_loaded('gd')) {
+            return $binary;
+        }
+
+        $srcImage = @imagecreatefromstring($binary);
+        if (! $srcImage) {
+            return $binary;
+        }
+
+        $origW = imagesx($srcImage);
+        $origH = imagesy($srcImage);
+
+        if ($origW <= 0 || $origH <= 0) {
+            imagedestroy($srcImage);
+            return $binary;
+        }
+
+        $currentRatio = $origW / $origH;
+        $targetRatio = 16 / 9;
+
+        // Nếu ảnh đã đúng chuẩn 16:9 (sai lệch < 3%) và đã đạt kích thước 1280x720
+        if (abs($currentRatio - $targetRatio) < 0.03 && $origW === 1280 && $origH === 720) {
+            imagedestroy($srcImage);
+            return $binary;
+        }
+
+        // Nếu ảnh hẹp hơn 16:9 (ví dụ ảnh vuông 1:1 hoặc ảnh dọc):
+        // Giữ nguyên chiều rộng $origW, cắt chiều cao ở giữa: $cropH = round($origW * 9 / 16)
+        if ($currentRatio < $targetRatio) {
+            $cropW = $origW;
+            $cropH = (int) round($origW * 9 / 16);
+            $cropX = 0;
+            $cropY = (int) max(0, round(($origH - $cropH) / 2));
+        } else {
+            // Nếu ảnh bè ngang hơn 16:9:
+            // Giữ nguyên chiều cao $origH, cắt chiều rộng ở giữa: $cropW = round($origH * 16 / 9)
+            $cropH = $origH;
+            $cropW = (int) round($origH * 16 / 9);
+            $cropX = (int) max(0, round(($origW - $cropW) / 2));
+            $cropY = 0;
+        }
+
+        $targetW = 1280;
+        $targetH = 720;
+        $dstImage = imagecreatetruecolor($targetW, $targetH);
+        if (! $dstImage) {
+            imagedestroy($srcImage);
+            return $binary;
+        }
+
+        // Giữ độ trong suốt nếu có
+        imagealphablending($dstImage, false);
+        imagesavealpha($dstImage, true);
+        $transparent = imagecolorallocatealpha($dstImage, 255, 255, 255, 127);
+        imagefilledrectangle($dstImage, 0, 0, $targetW, $targetH, $transparent);
+
+        imagecopyresampled(
+            $dstImage,
+            $srcImage,
+            0, 0,
+            $cropX, $cropY,
+            $targetW, $targetH,
+            $cropW, $cropH
+        );
+
+        ob_start();
+        imagepng($dstImage, null, 7);
+        $result = ob_get_clean();
+
+        imagedestroy($srcImage);
+        imagedestroy($dstImage);
+
+        return (! empty($result) && strlen($result) > 100) ? $result : $binary;
     }
 
     private function findImageDataUrl(mixed $value): ?string
