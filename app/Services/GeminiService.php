@@ -89,7 +89,7 @@ class GeminiService
             }
 
             try {
-                $question['illustration_path'] = $this->generateIllustration($imagePrompt, (string) ($question['title'] ?? ''));
+                $question['illustration_path'] = $this->generateIllustration($imagePrompt, (string) ($question['title'] ?? ''), $question);
                 if ($question['illustration_path']) {
                     $generatedCount++;
                 }
@@ -126,15 +126,106 @@ class GeminiService
             .'Ảnh nên thể hiện đúng tình huống thực tế hoặc thao tác số trong câu hỏi, rõ ràng, dễ quan sát, tuyệt đối không ghi đáp án, không làm nổi bật phương án đúng.');
     }
 
-    private function generateIllustration(string $description, string $questionTitle): ?string
+    /**
+     * Tối ưu hóa prompt tạo ảnh chuyên sâu chuẩn kiến thức Tin học & IC3 Spark tiểu học.
+     * Chuyển hóa sang tiếng Anh chuyên ngành UI/Hardware để mô hình tạo ảnh sinh ra hình ảnh sắc nét,
+     * đúng giao diện phần mềm thực tế, không vẽ hoạt hình mầm non linh tinh.
+     */
+    public function buildOptimizedImagePrompt(string $description, string $questionTitle, array $question = []): string
+    {
+        $combinedText = mb_strtolower($questionTitle.' '.$description);
+        $options = $question['options'] ?? [];
+        foreach ($options as $opt) {
+            $combinedText .= ' '.mb_strtolower(($opt['content'] ?? '').' '.($opt['left'] ?? '').' '.($opt['right'] ?? ''));
+        }
+
+        // 1. Soạn thảo văn bản (Word / Thẻ Ribbon: Insert, Home, Layout, Chèn ảnh, Bảng...)
+        if (preg_match('/soạn\s*thảo|văn\s*bản|word|thẻ\s*insert|thẻ\s*home|thẻ\s*file|chèn\s*ảnh|chèn\s*hình|chèn\s*bảng|đổi\s*màu\s*chữ|cỡ\s*chữ|font\s*chữ|căn\s*lề|kiểu\s*chữ/ui', $combinedText)) {
+            return 'A realistic, clean computer screenshot of a modern word processing software interface (Microsoft Word style) in wide 16:9 landscape aspect ratio. '
+                .'The top displays a sharp Ribbon toolbar with clearly labeled tabs: [File] [Home] [Insert] [Draw] [Design] [Layout] [References] [Review] [View]. '
+                .'The ribbon displays clean toolbar icons including Pictures, Shapes, Table, and Font formatting tools. '
+                .'Below the ribbon is a clean document editing page with a typing cursor on clean white paper. '
+                .'Authentic digital literacy educational graphic for elementary students, wide 16:9 widescreen layout, modern flat software UI, sharp text, no cartoon characters, no animal mascots, no gibberish text, no blurry borders.';
+        }
+
+        // 2. Trình chiếu (PowerPoint / Slides / Hiệu ứng)
+        if (preg_match('/trình\s*chiếu|powerpoint|slide|trang\s*chiếu|bài\s*trình\s*chiếu|transitions|animations/ui', $combinedText)) {
+            return 'A realistic, clean computer screenshot of presentation software (Microsoft PowerPoint style) in wide 16:9 landscape aspect ratio. '
+                .'Displays the top Ribbon toolbar with tabs [File] [Home] [Insert] [Draw] [Design] [Transitions] [Animations] [Slide Show], '
+                .'a left slide thumbnail column, and a central widescreen presentation slide with editable title and subtitle placeholders. '
+                .'Sharp modern computer software interface, educational computer science graphic, wide 16:9 widescreen layout, no cartoon characters, no blurry borders.';
+        }
+
+        // 3. Bảng tính điện tử (Excel / Ô tính / Hàng / Cột)
+        if (preg_match('/bảng\s*tính|excel|hàng|cột|ô\s*tính|công\s*thức|spreadsheet/ui', $combinedText)) {
+            return 'A realistic, clean computer screenshot of a spreadsheet software (Microsoft Excel style) in wide 16:9 landscape aspect ratio. '
+                .'Displays the top Ribbon menu with [File] [Home] [Insert] [Page Layout] [Formulas] [Data], the Formula Bar (fx), '
+                .'and a neat grid with column letters (A, B, C, D, E) and row numbers (1, 2, 3, 4, 5) with sample table data. '
+                .'Crisp modern flat UI, educational computer science graphic, wide 16:9 landscape layout, no cartoon characters, no blurry borders.';
+        }
+
+        // 4. Vẽ & Đồ họa (MS Paint / Hộp màu / Công cụ vẽ)
+        if (preg_match('/paint|vẽ\s*hình|tô\s*màu|bút\s*chì|công\s*cụ\s*vẽ|tẩy|hộp\s*màu/ui', $combinedText)) {
+            return 'A realistic, clean computer screenshot of a digital drawing application (MS Paint style) in wide 16:9 landscape aspect ratio. '
+                .'Shows a top tool palette with Pencil, Eraser, Fill bucket, Shapes palette (Rectangle, Circle, Star), Color Palette, '
+                .'and a clean white drawing canvas. '
+                .'Crisp modern software UI for elementary computer class, wide 16:9 widescreen layout, no blurry borders.';
+        }
+
+        // 5. Quản lý tệp và thư mục (File Explorer / Folders / Tệp tin)
+        if (preg_match('/thư\s*mục|tệp\s*tin|tệp|folder|file\s*explorer|đổi\s*tên\s*tệp|sao\s*chép\s*tệp|phần\s*mở\s*rộng|\.docx|\.xlsx|\.png|\.pdf/ui', $combinedText)) {
+            return 'A realistic, clean computer screenshot of Windows File Explorer in wide 16:9 landscape aspect ratio. '
+                .'Displays folder tree navigation on the left, and organized folders (Documents, School, Pictures) and clear file icons with recognizable extensions (.docx, .png, .pdf) on the right, with a top toolbar showing New Folder and Organize buttons. '
+                .'Crisp modern operating system interface, educational computer literacy graphic, wide 16:9 horizontal layout, no blurry borders.';
+        }
+
+        // 6. Căn cước công dân gắn chip / Dữ liệu số / Chip điện tử
+        if (preg_match('/căn\s*cước|cccd|chip\s*điện\s*tử|chip|thẻ\s*thông\s*minh|smart\s*card/ui', $combinedText)) {
+            return 'A realistic, high-resolution educational product photograph of a modern electronic citizen identity smart card in wide 16:9 landscape aspect ratio. '
+                .'The card clearly features a prominent yellow metallic embedded microchip on the front, resting neatly on a modern computer desk next to a sleek laptop and digital tablet. '
+                .'Bright studio lighting, sharp focus, clean technology illustration for elementary digital literacy, wide 16:9 widescreen layout, no blurry borders.';
+        }
+
+        // 7. Bàn phím máy tính (Keys / Enter / Spacebar)
+        if (preg_match('/bàn\s*phím|keyboard|phím\s*enter|phím\s*space|phím\s*cách|phím\s*backspace|phím\s*shift|gõ\s*phím/ui', $combinedText)) {
+            return 'A clear, top-down educational photograph of a modern desktop computer keyboard in wide 16:9 landscape aspect ratio. '
+                .'Displays clean alphanumeric keys, Spacebar, Enter, Backspace, and arrow keys with bright soft studio lighting on a classroom desk. '
+                .'Crisp details, educational computer hardware photo, wide 16:9 horizontal layout, no blurry borders.';
+        }
+
+        // 8. Chuột máy tính (Mouse / Nút chuột / Con lăn)
+        if (preg_match('/chuột\s*máy\s*tính|chuột|mouse|nút\s*cuộn|nhấp\s*chuột|con\s*trỏ\s*chuột/ui', $combinedText)) {
+            return 'A clear, professional educational photograph of a modern optical computer mouse resting on a mousepad on a clean desk in wide 16:9 landscape aspect ratio. '
+                .'Shows the left click button, right click button, and center scroll wheel clearly under bright soft studio lighting. '
+                .'Educational computer hardware photo, wide 16:9 horizontal layout, no blurry borders.';
+        }
+
+        // 9. Phần cứng: Màn hình, Thân máy (CPU), Máy in, Loa, USB
+        if (preg_match('/máy\s*in|màn\s*hình|thân\s*máy|cpu|ổ\s*cứng|usb|loa\s*máy\s*tính|tai\s*nghe|thiết\s*bị/ui', $combinedText)) {
+            return "A clear, realistic educational photograph of computer hardware and digital devices in wide 16:9 landscape aspect ratio. "
+                ."Context: {$questionTitle}. "
+                ."Clean modern desktop computer setup on a bright classroom desk, crisp studio lighting, wide 16:9 horizontal presentation, no blurry borders.";
+        }
+
+        // 10. Trình duyệt web & Mạng Internet an toàn
+        if (preg_match('/trình\s*duyệt|internet|web|google|tìm\s*kiếm|địa\s*chỉ\s*trang\s*web|url|mật\s*khẩu|an\s*toàn\s*số/ui', $combinedText)) {
+            return 'A realistic, clean computer screenshot of a modern web browser window in wide 16:9 landscape aspect ratio. '
+                .'Displays address URL bar, Back and Forward navigation buttons, and a clean safe educational web portal on the screen. '
+                .'Crisp modern flat UI, educational digital literacy graphic, wide 16:9 widescreen layout, no blurry borders.';
+        }
+
+        // Mặc định: Xây dựng prompt tiếng Anh chuẩn mô tả tình huống câu hỏi
+        return "A professional educational illustration or clean software screenshot in wide 16:9 landscape aspect ratio for an elementary computer science / IC3 Spark test question. "
+            ."Topic and Context: {$questionTitle}. "
+            ."Details: {$description}. "
+            ."Clean modern digital education visual, realistic computer environment, crisp details, 16:9 widescreen presentation, strictly no cartoon animals, no gibberish text, no blurry borders.";
+    }
+
+    private function generateIllustration(string $description, string $questionTitle, array $question = []): ?string
     {
         $baseUrl = rtrim(trim((string) config('services.question_ai.base_url')), '/');
         $model = trim((string) config('services.question_ai.image_model'));
-        $prompt = "Tạo một ảnh minh họa giáo dục rõ ràng, thân thiện với học sinh tiểu học. "
-            ."Bắt buộc xuất ảnh ngang đúng kích thước 1280x720 pixel, tỉ lệ 16:9, bố cục landscape. "
-            ."Không tạo ảnh dọc, không tạo ảnh vuông, không đặt ảnh dọc vào giữa nền mờ, không letterbox/pillarbox. "
-            ."Ảnh phải cung cấp dữ kiện trực quan cần thiết để trả lời câu hỏi, không ghi đáp án, không chèn chữ thừa. "
-            ."Câu hỏi: {$questionTitle}. Nội dung ảnh: {$description}";
+        $prompt = $this->buildOptimizedImagePrompt($description, $questionTitle, $question);
 
         if ($baseUrl !== '' && $model !== '') {
             $privateImage = $this->generatePrivateIllustration($baseUrl, $model, $prompt);
@@ -234,82 +325,16 @@ class GeminiService
             return null;
         }
 
-        $normalized = $this->normalizeImageToLandscape($binary);
-        if ($normalized !== null) {
-            $binary = $normalized;
-            $extension = 'jpg';
-        } else {
-            $extension = match ($matches[1]) {
-                'image/png' => 'png',
-                'image/webp' => 'webp',
-                default => 'jpg',
-            };
-        }
+        $extension = match ($matches[1]) {
+            'image/png' => 'png',
+            'image/webp' => 'webp',
+            default => 'jpg',
+        };
 
         $path = 'question-assets/ai-'.Str::uuid().'.'.$extension;
         Storage::disk('public')->put($path, $binary);
 
         return Storage::url($path);
-    }
-
-    private function normalizeImageToLandscape(string $binary): ?string
-    {
-        if (! function_exists('imagecreatefromstring') || ! function_exists('imagecreatetruecolor')) {
-            return null;
-        }
-
-        $source = @imagecreatefromstring($binary);
-        if (! $source) {
-            return null;
-        }
-
-        $sourceWidth = imagesx($source);
-        $sourceHeight = imagesy($source);
-        if ($sourceWidth <= 0 || $sourceHeight <= 0) {
-            imagedestroy($source);
-            return null;
-        }
-
-        $targetWidth = 1280;
-        $targetHeight = 720;
-        $sourceRatio = $sourceWidth / $sourceHeight;
-        $targetRatio = $targetWidth / $targetHeight;
-
-        $canvas = imagecreatetruecolor($targetWidth, $targetHeight);
-
-        // Nếu ảnh gốc đã xấp xỉ tỉ lệ chuẩn 16:9 (chênh lệch dưới 4%)
-        if (abs($sourceRatio - $targetRatio) < 0.05) {
-            imagecopyresampled($canvas, $source, 0, 0, 0, 0, $targetWidth, $targetHeight, $sourceWidth, $sourceHeight);
-        } else {
-            // Ảnh gốc tỉ lệ khác (vuông 1:1, 4:3...):
-            // 1. Tạo nền mờ nghệ thuật từ ảnh gốc để lấp đầy khung 16:9
-            $bgScale = max($targetWidth / $sourceWidth, $targetHeight / $sourceHeight);
-            $bgWidth = (int) ceil($sourceWidth * $bgScale);
-            $bgHeight = (int) ceil($sourceHeight * $bgScale);
-            $bgX = (int) floor(($targetWidth - $bgWidth) / 2);
-            $bgY = (int) floor(($targetHeight - $bgHeight) / 2);
-            imagecopyresampled($canvas, $source, $bgX, $bgY, 0, 0, $bgWidth, $bgHeight, $sourceWidth, $sourceHeight);
-            for ($b = 0; $b < 6; $b++) {
-                imagefilter($canvas, IMG_FILTER_GAUSSIAN_BLUR);
-            }
-
-            // 2. Đặt TOÀN BỘ ảnh gốc nguyên vẹn 100% vào chính giữa (tuyệt đối không cắt xén góc/chữ)
-            $fitScale = min($targetWidth / $sourceWidth, $targetHeight / $sourceHeight);
-            $fitWidth = (int) round($sourceWidth * $fitScale);
-            $fitHeight = (int) round($sourceHeight * $fitScale);
-            $fitX = (int) round(($targetWidth - $fitWidth) / 2);
-            $fitY = (int) round(($targetHeight - $fitHeight) / 2);
-            imagecopyresampled($canvas, $source, $fitX, $fitY, 0, 0, $fitWidth, $fitHeight, $sourceWidth, $sourceHeight);
-        }
-
-        ob_start();
-        imagejpeg($canvas, null, 90);
-        $normalized = ob_get_clean();
-
-        imagedestroy($source);
-        imagedestroy($canvas);
-
-        return is_string($normalized) && $normalized !== '' ? $normalized : null;
     }
 
     private function findImageDataUrl(mixed $value): ?string

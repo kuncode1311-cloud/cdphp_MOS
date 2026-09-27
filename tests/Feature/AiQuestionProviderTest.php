@@ -292,7 +292,7 @@ class AiQuestionProviderTest extends TestCase
         $this->assertStringStartsWith('/storage/question-assets/ai-', $questions[0]['illustration_path']);
         Storage::disk('public')->assertExists(preg_replace('#^/storage/#', '', $questions[0]['illustration_path']));
         $imageSize = getimagesize(Storage::disk('public')->path(preg_replace('#^/storage/#', '', $questions[0]['illustration_path'])));
-        $this->assertSame([1280, 720], [$imageSize[0], $imageSize[1]]);
+        $this->assertSame([420, 640], [$imageSize[0], $imageSize[1]]);
         Http::assertSentCount(2);
         Http::assertSent(fn (Request $request) => $request['model'] === 'model-tao-anh'
             && $request['modalities'] === ['text', 'image']
