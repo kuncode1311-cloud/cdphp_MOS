@@ -108,28 +108,18 @@ class GeminiService
     private function buildFallbackImagePrompt(array $question): string
     {
         $title = trim((string) ($question['title'] ?? ''));
-        $optionsContext = '';
-        if (! empty($question['options']) && is_array($question['options'])) {
-            $texts = [];
-            foreach (array_slice($question['options'], 0, 4) as $opt) {
-                $text = trim((string) ($opt['content'] ?? $opt['left'] ?? ''));
-                if ($text !== '') {
-                    $texts[] = $text;
-                }
-            }
-            if ($texts !== []) {
-                $optionsContext = ' Bối cảnh thao tác và khái niệm liên quan: '.implode(', ', $texts).'.';
-            }
-        }
 
-        return trim("Minh họa trực quan sinh động cho câu hỏi Tin học/IC3: {$title}.{$optionsContext} "
-            .'Ảnh nên thể hiện đúng tình huống thực tế hoặc thao tác số trong câu hỏi, rõ ràng, dễ quan sát, tuyệt đối không ghi đáp án, không làm nổi bật phương án đúng.');
+        // Chỉ lấy tiêu đề câu hỏi, tuyệt đối KHÔNG nối danh sách options (A, B, C, D) vào prompt
+        // để tránh việc AI hiểu lầm và vẽ nguyên bảng trắc nghiệm, ô chọn radio lên tranh.
+        return trim("Minh họa trực quan bối cảnh công nghệ sinh động cho câu hỏi: {$title}. "
+            .'Bức tranh 3D hoàn chỉnh bố cục banner ngang 16:9, tuyệt đối không có chữ, không có đề thi hay phương án lựa chọn.');
     }
 
     /**
      * Tạo một prompt phổ quát duy nhất đúng với mọi trường hợp câu hỏi ngẫu nhiên.
-     * Cung cấp toàn bộ câu hỏi và bối cảnh vào chỉ dẫn sư phạm để AI tự động suy luận
-     * công cụ số, thiết bị hoặc tình huống thực tế của câu hỏi đó mà không hardcode bất kỳ if-else nào.
+     * Cung cấp câu hỏi và chỉ dẫn sư phạm dạng banner 16:9 widescreen hoàn chỉnh,
+     * yêu cầu toàn bộ khung cảnh nằm trọn vẹn trong khung hình, không bị cắt xén biên,
+     * và nghiêm cấm AI vẽ đề thi, bảng trắc nghiệm hay chữ số lên tranh.
      */
     public function buildOptimizedImagePrompt(string $description, string $questionTitle, array $question = []): string
     {
@@ -139,8 +129,9 @@ class GeminiService
         return "Task: Generate a high quality cute 3D educational illustration for this school test question: "
             ."\"{$targetQuestion}\".{$contextHint} "
             ."Scene instruction: A delightful, vibrant 3D digital scene (Pixar/Disney 3D animation style) visually explaining the core computer science concept, digital tool, device, or practical situation in the question. "
-            ."Art style: Cute gamified 3D aesthetic, rich cheerful colors (amber orange, royal gold, emerald green, sky blue, vivid purple), smooth glossy 3D clay and plastic surfaces, warm welcoming studio lighting, playful and intuitive for elementary school kids, clean 16:9 landscape composition. "
-            ."Pedagogical rule: DO NOT reveal or highlight the correct answer. Strictly NO text, NO letters, NO words, NO labels, NO watermark, NO diagrams, NO schematics.";
+            ."Banner framing & composition: Complete 16:9 widescreen landscape banner composition. All characters, digital devices, and objects must fit comfortably and entirely within the horizontal 16:9 banner frame with generous safe margins on all sides. Strictly NO objects or characters cut off at top, bottom, or edges. "
+            ."Art style: Cute gamified 3D aesthetic, rich cheerful colors (amber orange, royal gold, emerald green, sky blue, vivid purple), smooth glossy 3D clay and plastic surfaces, warm welcoming studio lighting, playful and intuitive for elementary school kids. "
+            ."Pedagogical rule: DO NOT reveal or highlight the correct answer. Strictly NO text, NO letters, NO words, NO numbers, NO labels, NO watermark, NO diagrams, NO schematics, NO test questionnaires, NO worksheets, NO multiple choice buttons or checkboxes. Pure pictorial 3D scene.";
     }
 
     private function generateIllustration(string $description, string $questionTitle, array $question = []): ?string
@@ -177,6 +168,7 @@ class GeminiService
             'modalities' => ['text', 'image'],
             'size' => '1280x720',
             'aspect_ratio' => '16:9',
+            'image_config' => ['aspect_ratio' => '16:9'],
             'stream' => false,
         ]);
 
@@ -211,7 +203,12 @@ class GeminiService
                     ->withHeaders(['x-goog-api-key' => $key])
                     ->post("{$this->baseUrl}/models/{$model}:generateContent", [
                         'contents' => [['parts' => [['text' => $prompt]]]],
-                        'generationConfig' => ['responseModalities' => ['TEXT', 'IMAGE']],
+                        'generationConfig' => [
+                            'responseModalities' => ['TEXT', 'IMAGE'],
+                            'imageConfig' => [
+                                'aspectRatio' => '16:9',
+                            ],
+                        ],
                     ]);
                 if (! $response->successful()) {
                     $this->executionTrace[] = $this->traceRow('Google Gemini Image', $model, 'HTTP '.$response->status(), $startedAt, 'Thử khóa tiếp theo');
@@ -297,15 +294,20 @@ class GeminiService
         $currentRatio = $origW / $origH;
         $targetRatio = 16 / 9;
 
-        // Nếu ảnh đã đúng chuẩn 16:9 (sai lệch < 3%) và đã đạt kích thước 1280x720
-        if (abs($currentRatio - $targetRatio) < 0.03 && $origW === 1280 && $origH === 720) {
-            imagedestroy($srcImage);
-            return $binary;
-        }
-
-        // Nếu ảnh hẹp hơn 16:9 (ví dụ ảnh vuông 1:1 hoặc ảnh dọc):
-        // Giữ nguyên chiều rộng $origW, cắt chiều cao ở giữa: $cropH = round($origW * 9 / 16)
-        if ($currentRatio < $targetRatio) {
+        // Nếu ảnh đã đúng chuẩn 16:9 (sai lệch < 3%)
+        if (abs($currentRatio - $targetRatio) < 0.03) {
+            if ($origW === 1280 && $origH === 720) {
+                imagedestroy($srcImage);
+                return $binary;
+            }
+            // Giữ nguyên vẹn 100% khung hình banner 16:9 từ AI, không cắt xén biên
+            $cropW = $origW;
+            $cropH = $origH;
+            $cropX = 0;
+            $cropY = 0;
+        } elseif ($currentRatio < $targetRatio) {
+            // Nếu ảnh hẹp hơn 16:9 (ví dụ ảnh vuông 1:1 hoặc ảnh dọc):
+            // Giữ nguyên chiều rộng $origW, cắt chiều cao ở giữa: $cropH = round($origW * 9 / 16)
             $cropW = $origW;
             $cropH = (int) round($origW * 9 / 16);
             $cropX = 0;
@@ -367,13 +369,17 @@ class GeminiService
 
             $targetRatio = 16 / 9;
             $currentRatio = $origW / $origH;
-            if (abs($currentRatio - $targetRatio) < 0.03 && $origW === 1280 && $origH === 720) {
-                $im->clear();
-                $im->destroy();
-                return $binary;
-            }
-
-            if ($currentRatio < $targetRatio) {
+            if (abs($currentRatio - $targetRatio) < 0.03) {
+                if ($origW === 1280 && $origH === 720) {
+                    $im->clear();
+                    $im->destroy();
+                    return $binary;
+                }
+                $cropW = $origW;
+                $cropH = $origH;
+                $cropX = 0;
+                $cropY = 0;
+            } elseif ($currentRatio < $targetRatio) {
                 $cropW = $origW;
                 $cropH = (int) round($origW * 9 / 16);
                 $cropX = 0;
