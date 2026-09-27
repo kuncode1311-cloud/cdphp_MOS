@@ -85,7 +85,7 @@ class GeminiService
             'generationConfig' => $this->generationConfig(),
         ];
 
-        return $this->callWithKeyRotation($payload);
+        return $this->normalizeRequestedQuestionType($this->callWithKeyRotation($payload), $this->buildFilePrompt($context));
     }
 
     /**
@@ -136,7 +136,7 @@ class GeminiService
             'generationConfig' => $this->generationConfig(),
         ];
 
-        return $this->callWithKeyRotation($payload);
+        return $this->normalizeRequestedQuestionType($this->callWithKeyRotation($payload), $prompt);
     }
 
     // =========================================================================
