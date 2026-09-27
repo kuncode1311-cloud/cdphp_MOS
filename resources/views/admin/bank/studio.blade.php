@@ -5994,7 +5994,7 @@
         border-bottom:2px solid #bae6fd;
     }
     .sai-ai-illustration img {
-        width:160px; height:90px; object-fit:contain; background:#0f172a; border-radius:9px;
+        width:160px; height:90px; object-fit:contain; background:#f8fafc; border-radius:9px;
         border:2px solid #38bdf8; box-shadow:0 4px 10px rgba(2,132,199,.18);
         cursor:zoom-in; transition:transform 0.15s ease;
     }
@@ -6671,7 +6671,7 @@ function saiRenderList(qs) {
 function saiIllustrationHtml(q, i) {
     if (q.illustration_path) {
         return `<div class="sai-ai-illustration">
-                    <img src="${saiEsc(q.illustration_path)}" alt="Ảnh minh họa do AI tạo cho câu ${i + 1}" onclick="saiZoomImage('${saiEsc(q.illustration_path)}', 'Ảnh minh họa câu ${i + 1}')" title="Nhấp để xem ảnh lớn" style="cursor:zoom-in;">
+                    <img src="${saiEsc(q.illustration_path)}" alt="Ảnh minh họa do AI tạo cho câu ${i + 1}" onclick="saiZoomImage('${saiEsc(q.illustration_path)}', 'Ảnh minh họa câu ${i + 1}')" title="Nhấp để xem ảnh lớn" onerror="this.onerror=null;this.style.opacity='0.4';" style="cursor:zoom-in;">
                     <div style="display:flex;flex-direction:column;gap:5px;">
                         <strong>Ảnh minh họa đã tạo</strong>
                         <span>Ảnh này sẽ đi cùng câu hỏi khi lưu và hiển thị trong màn hình học sinh.</span>

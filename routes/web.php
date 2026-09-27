@@ -212,3 +212,14 @@ Route::prefix('quan-tri')->name('admin.')->middleware(['auth', 'admin'])->group(
     Route::post('/telegram/lay-chat-id', [AdminController::class, 'getTelegramChatId'])->name('telegram.get_chat_id');
     Route::post('/telegram/phan-hoi', [AdminController::class, 'sendAdminReplyViaTelegram'])->name('telegram.reply');
 });
+
+// Phục vụ tài nguyên tĩnh từ storage/app/public đảm bảo hiển thị ảnh 100% trên mọi môi trường (kể cả khi symlink bị lỗi)
+Route::get('/storage/{path}', function (string $path) {
+    $fullPath = storage_path('app/public/' . ltrim($path, '/'));
+    if (! file_exists($fullPath)) {
+        abort(404);
+    }
+    return response()->file($fullPath, [
+        'Cache-Control' => 'public, max-age=86400',
+    ]);
+})->where('path', '.*')->name('storage.file');
