@@ -5989,18 +5989,20 @@
         font-size:12px; font-weight:900; padding:7px 9px; outline:none; cursor:pointer;
     }
     .sai-ai-illustration {
-        display:grid; grid-template-columns:150px minmax(0,1fr); gap:12px; align-items:center;
+        display:grid; grid-template-columns:160px minmax(0,1fr); gap:12px; align-items:center;
         padding:10px 12px; background:linear-gradient(135deg,#eff6ff,#ecfeff);
         border-bottom:2px solid #bae6fd;
     }
     .sai-ai-illustration img {
-        width:150px; height:88px; object-fit:cover; border-radius:9px;
+        width:160px; height:90px; object-fit:contain; background:#0f172a; border-radius:9px;
         border:2px solid #38bdf8; box-shadow:0 4px 10px rgba(2,132,199,.18);
+        cursor:zoom-in; transition:transform 0.15s ease;
     }
+    .sai-ai-illustration img:hover { transform:scale(1.03); }
     .sai-ai-illustration strong { display:block; color:#075985; font-size:12px; margin-bottom:3px; }
     .sai-ai-illustration span { color:#475569; font-size:11px; line-height:1.35; }
     .sai-ai-loading-card {
-        width:150px; height:88px; border-radius:10px; border:2px dashed #38bdf8;
+        width:160px; height:90px; border-radius:10px; border:2px dashed #38bdf8;
         background:linear-gradient(135deg,#e0f2fe,#f0fdfa); display:grid; place-items:center;
         position:relative; overflow:hidden; box-shadow:0 4px 10px rgba(2,132,199,.16);
     }
@@ -6673,9 +6675,12 @@ function saiIllustrationHtml(q, i) {
                     <div style="display:flex;flex-direction:column;gap:5px;">
                         <strong>Ảnh minh họa đã tạo</strong>
                         <span>Ảnh này sẽ đi cùng câu hỏi khi lưu và hiển thị trong màn hình học sinh.</span>
-                        <div style="margin-top:4px;">
+                        <div style="display:flex;gap:6px;margin-top:4px;">
                             <button type="button" onclick="event.stopPropagation(); saiRetryIllustration(${i})" style="padding:4px 10px;border-radius:6px;border:1px solid #38bdf8;background:#ffffff;color:#0284c7;font-size:11px;font-weight:700;cursor:pointer;display:inline-flex;align-items:center;gap:4px;box-shadow:0 1px 3px rgba(0,0,0,0.06);transition:all 0.15s;" onmouseover="this.style.background='#f0f9ff'" onmouseout="this.style.background='#ffffff'">
                                 🔄 Đổi ảnh khác
+                            </button>
+                            <button type="button" onclick="event.stopPropagation(); saiRemoveIllustration(${i})" style="padding:4px 8px;border-radius:6px;border:1px solid #fecdd3;background:#fff1f2;color:#e11d48;font-size:11px;font-weight:700;cursor:pointer;display:inline-flex;align-items:center;gap:3px;transition:all 0.15s;" onmouseover="this.style.background='#ffe4e6'" onmouseout="this.style.background='#fff1f2'">
+                                ✕ Bỏ ảnh
                             </button>
                         </div>
                     </div>
@@ -6698,17 +6703,15 @@ function saiIllustrationHtml(q, i) {
                     </button>
                </div>`;
     }
-    return q.needs_image
-        ? `<div class="sai-ai-illustration" style="display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;">
-                <div style="display:flex;align-items:center;gap:10px;flex:1;min-width:200px;">
-                    <div class="sai-ai-loading-card" aria-hidden="true" style="width:48px;height:48px;"><div class="sai-ai-loading-icon" style="width:28px;height:28px;font-size:15px;">🖼️</div></div>
-                    <div><strong>Chưa có ảnh minh họa</strong><span>Thầy/Cô có thể yêu cầu AI vẽ ảnh minh họa cho câu này.</span></div>
-                </div>
-                <button type="button" onclick="event.stopPropagation(); saiRetryIllustration(${i})" style="padding:6px 12px;border-radius:8px;border:1.5px solid #0284c7;background:#f0f9ff;color:#0284c7;font-size:11.5px;font-weight:800;cursor:pointer;white-space:nowrap;display:inline-flex;align-items:center;gap:5px;">
-                    🎨 Tạo ảnh minh họa
+
+    // Khi câu hỏi chưa có ảnh (dù ban đầu có bật checkbox hay tắt):
+    // Luôn cung cấp tùy chọn cho phép giáo viên tạo ảnh theo yêu cầu từng câu
+    return `<div class="sai-ai-no-img" style="padding:6px 12px;background:#f8fafc;border-bottom:1px dashed #e2e8f0;display:flex;align-items:center;justify-content:space-between;gap:8px;flex-wrap:wrap;">
+                <span style="font-size:11.5px;color:#64748b;">💡 Câu hỏi dạng thuần chữ. Thầy/Cô có thể tạo thêm hình ảnh minh họa cho câu này nếu muốn.</span>
+                <button type="button" onclick="event.stopPropagation(); saiRetryIllustration(${i})" style="padding:4px 10px;border-radius:6px;border:1px dashed #0284c7;background:#f0f9ff;color:#0284c7;font-size:11px;font-weight:800;cursor:pointer;display:inline-flex;align-items:center;gap:4px;transition:all 0.15s;white-space:nowrap;" onmouseover="this.style.background='#e0f2fe'" onmouseout="this.style.background='#f0f9ff'">
+                    🎨 Tạo ảnh minh họa cho câu này
                 </button>
-           </div>`
-        : '';
+            </div>`;
 }
 
 function saiRetryIllustration(index) {
@@ -6718,6 +6721,18 @@ function saiRetryIllustration(index) {
     question.image_status = 'loading';
     saiUpdateIllustration(index);
     saiGenerateIllustration(index, saiGenerationRunId);
+}
+
+function saiRemoveIllustration(index) {
+    const question = saiQuestions[index];
+    if (!question) return;
+    if (question.illustration_path) {
+        saiCleanupUnusedIllustrations([], [question.illustration_path]);
+    }
+    question.illustration_path = null;
+    question.needs_image = false;
+    question.image_status = null;
+    saiUpdateIllustration(index);
 }
 
 function saiZoomImage(url, title = 'Ảnh minh họa') {

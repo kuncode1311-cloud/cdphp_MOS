@@ -108,9 +108,22 @@ class GeminiService
     private function buildFallbackImagePrompt(array $question): string
     {
         $title = trim((string) ($question['title'] ?? ''));
+        $optionsContext = '';
+        if (! empty($question['options']) && is_array($question['options'])) {
+            $texts = [];
+            foreach (array_slice($question['options'], 0, 4) as $opt) {
+                $text = trim((string) ($opt['content'] ?? $opt['left'] ?? ''));
+                if ($text !== '') {
+                    $texts[] = $text;
+                }
+            }
+            if ($texts !== []) {
+                $optionsContext = ' Bối cảnh thao tác và khái niệm liên quan: '.implode(', ', $texts).'.';
+            }
+        }
 
-        return trim("Minh họa trực quan cho câu hỏi Tin học/IC3: {$title}. "
-            .'Ảnh nên thể hiện đúng tình huống hoặc thao tác số trong câu hỏi, rõ ràng, dễ quan sát, không ghi đáp án, không làm nổi bật phương án đúng.');
+        return trim("Minh họa trực quan sinh động cho câu hỏi Tin học/IC3: {$title}.{$optionsContext} "
+            .'Ảnh nên thể hiện đúng tình huống thực tế hoặc thao tác số trong câu hỏi, rõ ràng, dễ quan sát, tuyệt đối không ghi đáp án, không làm nổi bật phương án đúng.');
     }
 
     private function generateIllustration(string $description, string $questionTitle): ?string
@@ -259,17 +272,38 @@ class GeminiService
 
         $targetWidth = 1280;
         $targetHeight = 720;
+        $sourceRatio = $sourceWidth / $sourceHeight;
+        $targetRatio = $targetWidth / $targetHeight;
+
         $canvas = imagecreatetruecolor($targetWidth, $targetHeight);
 
-        $coverScale = max($targetWidth / $sourceWidth, $targetHeight / $sourceHeight);
-        $coverWidth = (int) ceil($sourceWidth * $coverScale);
-        $coverHeight = (int) ceil($sourceHeight * $coverScale);
-        $coverX = (int) floor(($targetWidth - $coverWidth) / 2);
-        $coverY = (int) floor(($targetHeight - $coverHeight) / 2);
-        imagecopyresampled($canvas, $source, $coverX, $coverY, 0, 0, $coverWidth, $coverHeight, $sourceWidth, $sourceHeight);
+        // Nếu ảnh gốc đã xấp xỉ tỉ lệ chuẩn 16:9 (chênh lệch dưới 4%)
+        if (abs($sourceRatio - $targetRatio) < 0.05) {
+            imagecopyresampled($canvas, $source, 0, 0, 0, 0, $targetWidth, $targetHeight, $sourceWidth, $sourceHeight);
+        } else {
+            // Ảnh gốc tỉ lệ khác (vuông 1:1, 4:3...):
+            // 1. Tạo nền mờ nghệ thuật từ ảnh gốc để lấp đầy khung 16:9
+            $bgScale = max($targetWidth / $sourceWidth, $targetHeight / $sourceHeight);
+            $bgWidth = (int) ceil($sourceWidth * $bgScale);
+            $bgHeight = (int) ceil($sourceHeight * $bgScale);
+            $bgX = (int) floor(($targetWidth - $bgWidth) / 2);
+            $bgY = (int) floor(($targetHeight - $bgHeight) / 2);
+            imagecopyresampled($canvas, $source, $bgX, $bgY, 0, 0, $bgWidth, $bgHeight, $sourceWidth, $sourceHeight);
+            for ($b = 0; $b < 6; $b++) {
+                imagefilter($canvas, IMG_FILTER_GAUSSIAN_BLUR);
+            }
+
+            // 2. Đặt TOÀN BỘ ảnh gốc nguyên vẹn 100% vào chính giữa (tuyệt đối không cắt xén góc/chữ)
+            $fitScale = min($targetWidth / $sourceWidth, $targetHeight / $sourceHeight);
+            $fitWidth = (int) round($sourceWidth * $fitScale);
+            $fitHeight = (int) round($sourceHeight * $fitScale);
+            $fitX = (int) round(($targetWidth - $fitWidth) / 2);
+            $fitY = (int) round(($targetHeight - $fitHeight) / 2);
+            imagecopyresampled($canvas, $source, $fitX, $fitY, 0, 0, $fitWidth, $fitHeight, $sourceWidth, $sourceHeight);
+        }
 
         ob_start();
-        imagejpeg($canvas, null, 88);
+        imagejpeg($canvas, null, 90);
         $normalized = ob_get_clean();
 
         imagedestroy($source);

@@ -142,6 +142,11 @@ class AiQuestionController extends Controller
             'question.options.*.is_correct' => 'required|boolean',
         ]);
 
+        // Giải phóng khóa session để nhiều request tạo ảnh chạy song song thực sự (đa luồng)
+        if (session_status() === PHP_SESSION_ACTIVE) {
+            session_write_close();
+        }
+
         $questions = $this->gemini->generateRequiredIllustrations([$data['question']], true);
         $question = $questions[0] ?? [];
         $path = $question['illustration_path'] ?? null;
