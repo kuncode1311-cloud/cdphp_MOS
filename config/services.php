@@ -17,6 +17,12 @@ return [
         'image_model' => env('GEMINI_IMAGE_MODEL', 'gemini-3.1-flash-image'),
     ],
 
+    'brevo' => [
+        'key' => env('BREVO_API_KEY'),
+        'sender_email' => env('BREVO_SENDER_EMAIL', env('MAIL_FROM_ADDRESS', 'kun.code.1311@gmail.com')),
+        'sender_name' => env('MAIL_FROM_NAME', 'IC3 Adventure'),
+    ],
+
     /*
     |--------------------------------------------------------------------------
     | Third Party Services

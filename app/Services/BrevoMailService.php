@@ -16,18 +16,37 @@ use Illuminate\Support\Facades\Log;
 class BrevoMailService
 {
     /**
+     * Kiểm tra xem Brevo API Key đã được cấu hình hay chưa
+     */
+    public static function isConfigured(): bool
+    {
+        return ! empty(self::getApiKey());
+    }
+
+    public static function getApiKey(): ?string
+    {
+        $key = config('services.brevo.key');
+        if (! empty($key)) {
+            return (string) $key;
+        }
+
+        $envKey = env('BREVO_API_KEY');
+        return ! empty($envKey) ? (string) $envKey : null;
+    }
+
+    /**
      * Gửi email giao dịch (Transactional Email) qua Brevo API
      */
     public static function send(string $toEmail, string $toName, string $subject, string $htmlContent): bool
     {
-        $apiKey = env('BREVO_API_KEY');
+        $apiKey = self::getApiKey();
         if (empty($apiKey)) {
             Log::warning('Không tìm thấy BREVO_API_KEY trong cấu hình môi trường.');
             return false;
         }
 
-        $senderEmail = env('BREVO_SENDER_EMAIL', env('MAIL_FROM_ADDRESS', 'kun.code.1311@gmail.com'));
-        $senderName = env('MAIL_FROM_NAME', 'IC3 Adventure');
+        $senderEmail = config('services.brevo.sender_email') ?: env('BREVO_SENDER_EMAIL', env('MAIL_FROM_ADDRESS', 'kun.code.1311@gmail.com'));
+        $senderName = config('services.brevo.sender_name') ?: env('MAIL_FROM_NAME', 'IC3 Adventure');
 
         try {
             $response = Http::withHeaders([

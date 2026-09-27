@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Mail\PasswordChangedAlertMail;
 use App\Mail\PasswordResetOtpMail;
 use App\Services\BrevoMailService;
 use Illuminate\Http\JsonResponse;
@@ -53,7 +54,7 @@ class ProfileController extends Controller
 
         // Gửi email xác thực OTP qua hệ thống Mailer (Ưu tiên Brevo API v3, Fallback sang SMTP)
         $sent = false;
-        if (!empty(env('BREVO_API_KEY'))) {
+        if (BrevoMailService::isConfigured()) {
             try {
                 $htmlContent = view('emails.password-otp', [
                     'otp' => $otp,
@@ -174,6 +175,41 @@ class ProfileController extends Controller
 
         Cache::forget('pwd_otp_' . $user->id);
         Cache::forget('pwd_otp_time_' . $user->id);
+
+        // 4. Gửi email cảnh báo bảo mật đổi mật khẩu thành công (Ưu tiên Brevo API v3, Fallback sang SMTP)
+        $changedAt = now()->format('H:i:s d/m/Y');
+        $ipAddress = (string) ($request->ip() ?? 'Không xác định');
+        $userAgent = (string) ($request->userAgent() ?? 'Trình duyệt Web');
+
+        $alertSent = false;
+        if (BrevoMailService::isConfigured()) {
+            try {
+                $htmlContent = view('emails.password-changed', [
+                    'user' => $user,
+                    'changedAt' => $changedAt,
+                    'ipAddress' => $ipAddress,
+                    'userAgent' => $userAgent,
+                ])->render();
+
+                $alertSent = BrevoMailService::send(
+                    toEmail: $user->email,
+                    toName: $user->name,
+                    subject: '🛡️ [Cảnh báo bảo mật] Mật khẩu tài khoản IC3 Adventure vừa được thay đổi',
+                    htmlContent: $htmlContent
+                );
+            } catch (\Throwable $errBrevo) {
+                Log::warning("Gửi email cảnh báo đổi mật khẩu qua Brevo API không thành công: " . $errBrevo->getMessage());
+            }
+        }
+
+        if (! $alertSent) {
+            try {
+                Mail::to($user->email)->send(new PasswordChangedAlertMail($user, $changedAt, $ipAddress, $userAgent));
+                Log::info("Đã gửi email cảnh báo đổi mật khẩu cho user ID {$user->id} ({$user->email}) thành công qua SMTP.");
+            } catch (\Throwable $e) {
+                Log::error("Không thể gửi email cảnh báo đổi mật khẩu cho {$user->email}: " . $e->getMessage());
+            }
+        }
 
         if ($request->wantsJson() || $request->ajax()) {
             return response()->json([

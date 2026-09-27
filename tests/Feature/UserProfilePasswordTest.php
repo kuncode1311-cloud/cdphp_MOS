@@ -2,6 +2,7 @@
 
 namespace Tests\Feature;
 
+use App\Mail\PasswordChangedAlertMail;
 use App\Mail\PasswordResetOtpMail;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
@@ -16,6 +17,10 @@ class UserProfilePasswordTest extends TestCase
 
     public function test_user_can_send_otp_and_change_password_safely(): void
     {
+        config(['services.brevo.key' => '']);
+        putenv('BREVO_API_KEY=');
+        $_ENV['BREVO_API_KEY'] = '';
+
         Mail::fake();
         $this->seed();
         $user = User::where('student_code', 'HS001')->firstOrFail();
@@ -86,7 +91,12 @@ class UserProfilePasswordTest extends TestCase
         // 6. Xác nhận mật khẩu mới trong DB khớp
         $this->assertTrue(Hash::check('matkhau_moi_999', $user->fresh()->password));
 
-        // 7. Xác nhận OTP đã bị xóa sau khi sử dụng
+        // 7. Xác nhận email cảnh báo đổi mật khẩu đã được gửi đến hộp thư người dùng
+        Mail::assertSent(PasswordChangedAlertMail::class, function ($mail) use ($user) {
+            return $mail->hasTo($user->email);
+        });
+
+        // 8. Xác nhận OTP đã bị xóa sau khi sử dụng
         $this->assertNull(Cache::get('pwd_otp_' . $user->id));
     }
 
@@ -115,6 +125,7 @@ class UserProfilePasswordTest extends TestCase
             'https://api.brevo.com/v3/smtp/email' => \Illuminate\Support\Facades\Http::response(['messageId' => '<mocked-brevo-id-123>'], 200),
         ]);
 
+        config(['services.brevo.key' => 'test-fake-key']);
         putenv('BREVO_API_KEY=test-fake-key');
         $_ENV['BREVO_API_KEY'] = 'test-fake-key';
 
@@ -134,6 +145,47 @@ class UserProfilePasswordTest extends TestCase
                 && str_contains($request->body(), $user->email);
         });
 
+        config(['services.brevo.key' => '']);
+        putenv('BREVO_API_KEY');
+        unset($_ENV['BREVO_API_KEY']);
+    }
+
+    public function test_user_receives_password_changed_alert_via_brevo_api(): void
+    {
+        \Illuminate\Support\Facades\Http::fake([
+            'https://api.brevo.com/v3/smtp/email' => \Illuminate\Support\Facades\Http::response(['messageId' => '<mocked-brevo-alert-123>'], 200),
+        ]);
+
+        config(['services.brevo.key' => 'test-fake-key']);
+        putenv('BREVO_API_KEY=test-fake-key');
+        $_ENV['BREVO_API_KEY'] = 'test-fake-key';
+
+        $this->seed();
+        $user = User::where('student_code', 'HS001')->firstOrFail();
+        $this->actingAs($user);
+
+        // Chuẩn bị OTP
+        Cache::put('pwd_otp_' . $user->id, '123456', now()->addMinutes(10));
+
+        $response = $this->postJson(route('profile.password'), [
+            'current_password' => '123456',
+            'password' => 'new_pass_brevo_123',
+            'password_confirmation' => 'new_pass_brevo_123',
+            'otp' => '123456',
+        ]);
+
+        $response->assertOk()
+            ->assertJson([
+                'success' => true,
+            ]);
+
+        \Illuminate\Support\Facades\Http::assertSent(function ($request) use ($user) {
+            return $request->url() === 'https://api.brevo.com/v3/smtp/email'
+                && $request->hasHeader('api-key', 'test-fake-key')
+                && str_contains($request->body(), $user->email);
+        });
+
+        config(['services.brevo.key' => '']);
         putenv('BREVO_API_KEY');
         unset($_ENV['BREVO_API_KEY']);
     }
