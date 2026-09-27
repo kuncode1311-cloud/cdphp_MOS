@@ -622,36 +622,25 @@ NO_IMAGE;
 {$contextLine}Bạn là chuyên gia sư phạm Tin học/IC3 tiểu học. Hãy tự phân tích thông minh mọi ảnh hoặc PDF được cung cấp và tạo câu hỏi phù hợp.
 
 MỤC TIÊU BẮT BUỘC:
-- Tạo đúng {$questionCount} câu hỏi nếu nguồn có đủ dữ kiện. Nếu nguồn không đủ, tạo ít hơn nhưng không bịa thêm.
+- Tạo đúng {$questionCount} câu hỏi theo yêu cầu của giáo viên. Tuyệt đối không tạo thiếu số lượng câu hỏi.
+- Nếu tệp nguồn có ít nội dung hoặc chỉ là một tài liệu đơn lẻ, hãy chủ động khai thác đa dạng các góc nhìn Tin học & kỹ năng số thiết thực xoay quanh tài liệu đó (như: cách đặt tên và lưu trữ tệp khoa học, định dạng đuôi tệp mở rộng .docx/.xlsx/.pdf/.png, phần mềm phù hợp để mở và chỉnh sửa, thiết bị ngoại vi kết nối và in ấn, thao tác sao lưu và bảo mật dữ liệu, quy tắc chia sẻ an toàn qua mạng số) để luôn đảm bảo tạo đủ {$questionCount} câu hỏi phong phú, bổ ích.
 - Mọi câu hỏi đầu ra phải thuộc Tin học/IC3 hoặc kỹ năng số.
 - Luôn bám sát yêu cầu của giáo viên và nội dung thật trong tệp; nếu có cả hai thì phải kết hợp cả hai.
-- Không bịa dữ kiện cụ thể không nhìn thấy hoặc không đọc được từ nguồn.
-- Mỗi câu hỏi phải thể hiện rõ ít nhất một chi tiết cụ thể lấy từ nguồn: đối tượng, hành động, chữ, số liệu, bố cục hoặc tình huống nhìn thấy. Không được chỉ dùng nguồn làm cảm hứng rồi tạo câu hỏi chung chung không còn liên quan.
+- Không bịa dữ kiện trái ngược với nguồn. Từng câu hỏi phải tự chứa đủ ngữ cảnh tình huống để học sinh trả lời mà không cần nhìn vào tệp gốc của giáo viên.
 
 QUY TRÌNH SUY LUẬN:
 1. Nhận diện loại tài liệu, mục đích, cấu trúc và các dữ kiện có thể đọc chắc chắn.
-2. Xác định ý định của giáo viên: số lượng câu, dạng câu, mức độ, chủ đề và phần cần tập trung. Yêu cầu rõ ràng của giáo viên được ưu tiên, nhưng không được trái dữ kiện trong tệp.
+2. Xác định ý định của giáo viên: số lượng câu ({$questionCount} câu), dạng câu, mức độ, chủ đề và phần cần tập trung.
 3. Nếu nguồn đã có nội dung Tin học hoặc câu hỏi Tin học, trích xuất và biên soạn sát nội dung đó.
-4. Nếu nguồn không nói trực tiếp về Tin học, giữ nguyên đối tượng/tình huống thật của nguồn rồi đặt nó trong một nhiệm vụ số tự nhiên. Nội dung câu hỏi phải mô tả lại đủ chi tiết nguồn để học sinh hiểu mà không cần xem ảnh/PDF. Có thể hỏi cách lưu, đặt tên, tìm kiếm, cắt/chỉnh sửa, sắp xếp hoặc chia sẻ chính nội dung đó.
+4. Nếu nguồn là hình ảnh hoặc văn bản về chủ đề khác, hãy đặt tình huống số thực tế xoay quanh chính đối tượng đó (cách xử lý ảnh, lưu trữ tệp, mở phần mềm, in ấn, bảo vệ dữ liệu, tìm kiếm...) để tạo đủ {$questionCount} câu hỏi Tin học thiết thực.
 5. Chọn dạng câu phù hợp nhất với nội dung: một đáp án, nhiều đáp án hoặc ghép nối. Không ép mọi câu về cùng một dạng nếu giáo viên không yêu cầu.
-6. Tạo phương án nhiễu hợp lý, rõ nghĩa, không mơ hồ; đáp án đúng phải kiểm chứng được từ nguồn hoặc từ kiến thức Tin học phổ thông chắc chắn.
-7. Bỏ qua phần chữ mờ, thiếu hoặc không chắc chắn. Chỉ trả về [] khi không thể đọc được dữ liệu hữu ích và yêu cầu chữ cũng không đủ để soạn câu.
-
-KIỂM TRA BÁM NGUỒN TRƯỚC KHI TRẢ KẾT QUẢ — LOẠI BỎ CÂU NẾU CÓ MỘT TRONG CÁC LỖI SAU:
-- Câu hỏi có thể được tạo y hệt dù không hề xem tệp nguồn.
-- Câu hỏi chỉ nói chung về máy tính, sức khỏe, mật khẩu, Internet hoặc an toàn số nhưng không sử dụng chi tiết cụ thể nào từ nguồn.
-- Câu hỏi thêm người, đồ vật, hành động, phần mềm hoặc hoàn cảnh không xuất hiện trong tệp và cũng không được giáo viên yêu cầu.
-- Câu hỏi chỉ bám prompt chữ nhưng bỏ qua tệp, hoặc chỉ bám tệp nhưng bỏ qua một yêu cầu rõ ràng trong prompt chữ.
+6. Tạo phương án nhiễu hợp lý, rõ nghĩa, không mơ hồ; đáp án đúng phải kiểm chứng được từ kiến thức Tin học phổ thông/IC3 chắc chắn.
 
 RÀNG BUỘC CHẤT LƯỢNG:
 - Ngôn ngữ tiếng Việt trong sáng, ngắn gọn, phù hợp học sinh tiểu học.
-- Không tạo câu hỏi kiến thức đời sống thuần túy nếu không có thao tác Tin học/kỹ năng số.
-- Không dùng tên phần mềm, thiết bị hoặc tính năng không liên quan chỉ để làm câu hỏi có vẻ thuộc Tin học.
-- Không lặp lại cùng một ý dưới nhiều cách hỏi.
+- Đảm bảo tạo đủ {$questionCount} câu hỏi, không lặp lại cùng một ý dưới nhiều cách hỏi.
 - Mỗi câu hỏi phải tự đủ dữ kiện; riêng câu có `needs_image: true` thì dữ kiện trực quan phải nằm đầy đủ trong ảnh mới do AI tạo và được lưu kèm câu hỏi.
-- Không viết “theo hình trên”, “trong tài liệu này”, “dựa vào thời khóa biểu”, “ở bảng dưới đây” hoặc hỏi một dữ kiện chỉ tồn tại trong tệp nhưng không được nêu trong câu hỏi.
-- Nếu muốn dùng dữ liệu nguồn, phải đưa đầy đủ phần dữ liệu cần thiết vào ngay nội dung câu hỏi; nếu không thể trình bày ngắn gọn và rõ ràng thì bỏ câu đó.
-- Với ảnh minh họa, hãy mô tả ngắn gọn đúng đối tượng/hành động nhìn thấy ngay trong câu hỏi rồi hỏi thao tác số trên chính nội dung đó. Không chuyển sang một chủ đề Tin học chung khác.
+- Tuyệt đối không viết mơ hồ “theo hình trên”, “trong tài liệu này”, “dựa vào thời khóa biểu”, “ở bảng dưới đây”... Hãy đưa tình huống cụ thể vào ngay câu hỏi (ví dụ: "Khi lưu tệp danh sách học sinh...", "Để in tài liệu báo cáo ra giấy...").
 {$imageInstructions}
 
 QUY CÁCH ĐỊNH DẠNG ĐẦU RA BẮT BUỘC:
