@@ -1012,20 +1012,30 @@
             border-radius: 10px;
             box-shadow: 0 1px 6px rgba(15, 23, 42, 0.04);
             background: #ffffff;
-            overflow-x: hidden; /* Tuyệt đối chống thanh cuộn ngang gây trượt lẹm avatar trên Desktop */
+            overflow-x: auto; /* Cho phép cuộn ngang êm ái khi thu nhỏ cửa sổ hoặc trên thiết bị nhỏ */
             overflow-y: hidden;
             width: 100%;
             box-sizing: border-box;
             margin: 0;
         }
-        @media (max-width: 1023px) {
-            #tab-users .excel-table-wrap {
-                overflow-x: auto; /* Màn hình cảm ứng hoặc tablet nhỏ mới cuộn ngang */
-            }
+        #tab-users .excel-table-wrap::-webkit-scrollbar {
+            height: 6px;
+        }
+        #tab-users .excel-table-wrap::-webkit-scrollbar-track {
+            background: #f1f5f9;
+            border-radius: 999px;
+        }
+        #tab-users .excel-table-wrap::-webkit-scrollbar-thumb {
+            background: #cbd5e1;
+            border-radius: 999px;
+        }
+        #tab-users .excel-table-wrap::-webkit-scrollbar-thumb:hover {
+            background: #94a3b8;
         }
         #users-data-table {
             width: 100% !important;
             max-width: 100% !important;
+            min-width: 860px; /* Đảm bảo đủ không gian không bao giờ bị chèn ép nút thao tác */
             table-layout: fixed;
             border-collapse: collapse !important;
             border-spacing: 0 !important;
@@ -1071,29 +1081,29 @@
             background: #f0f9ff !important;
         }
 
-        /* ⚡ PHÂN BỔ ĐỘ RỘNG CỘT BẢNG NGƯỜI DÙNG CHUẨN XÁC THEO TỪNG CHẾ ĐỘ XEM (KHÔNG DÙNG COLGROUP TRÁNH LỆCH CỘT) */
-        #users-data-table th.col-user, #users-data-table td.col-user { width: 26% !important; }
+        /* ⚡ PHÂN BỔ ĐỘ RỘNG CỘT BẢNG NGƯỜI DÙNG CHUẨN XÁC THEO TỪNG CHẾ ĐỘ XEM (CÂN ĐỐI, GỌN ĐẸP, KHÔNG TRỐNG HOÁC) */
+        #users-data-table th.col-user, #users-data-table td.col-user { width: 33% !important; }
         #users-data-table th.col-role, #users-data-table td.col-role { width: 9% !important; }
         #users-data-table th.col-status, #users-data-table td.col-status { width: 10% !important; }
-        #users-data-table th.col-package, #users-data-table td.col-package { width: 23% !important; }
+        #users-data-table th.col-package, #users-data-table td.col-package { width: 16% !important; }
         #users-data-table th.col-attempts, #users-data-table td.col-attempts { width: 7% !important; }
         #users-data-table th.col-actions, #users-data-table td.col-actions { width: 25% !important; }
 
-        /* Chế độ xem Học sinh (Ẩn cột Vai trò thừa thãi, mở rộng cột Học sinh & Giáo viên/Khối) */
+        /* Chế độ xem Học sinh (Ẩn cột Vai trò, mở rộng Học sinh 41%, thu gọn Giáo viên & Khối lớp về 15% cân đối tuyệt đối) */
         #users-data-table.mode-student .col-role { display: none !important; }
-        #users-data-table.mode-student th.col-user, #users-data-table.mode-student td.col-user { width: 32% !important; }
-        #users-data-table.mode-student th.col-status, #users-data-table.mode-student td.col-status { width: 12% !important; }
-        #users-data-table.mode-student th.col-package, #users-data-table.mode-student td.col-package { width: 24% !important; }
-        #users-data-table.mode-student th.col-attempts, #users-data-table.mode-student td.col-attempts { width: 11% !important; }
-        #users-data-table.mode-student th.col-actions, #users-data-table.mode-student td.col-actions { width: 21% !important; }
+        #users-data-table.mode-student th.col-user, #users-data-table.mode-student td.col-user { width: 41% !important; }
+        #users-data-table.mode-student th.col-status, #users-data-table.mode-student td.col-status { width: 11% !important; }
+        #users-data-table.mode-student th.col-package, #users-data-table.mode-student td.col-package { width: 15% !important; }
+        #users-data-table.mode-student th.col-attempts, #users-data-table.mode-student td.col-attempts { width: 8% !important; }
+        #users-data-table.mode-student th.col-actions, #users-data-table.mode-student td.col-actions { width: 25% !important; }
 
-        /* Chế độ xem Giáo viên (Ẩn cột Vai trò & Cột Tiến độ thi học sinh) */
+        /* Chế độ xem Giáo viên (Ẩn cột Vai trò & Tiến độ thi, mở rộng Học sinh và Gói bản quyền & Quota) */
         #users-data-table.mode-teacher .col-role { display: none !important; }
         #users-data-table.mode-teacher .col-attempts { display: none !important; }
-        #users-data-table.mode-teacher th.col-user, #users-data-table.mode-teacher td.col-user { width: 32% !important; }
-        #users-data-table.mode-teacher th.col-status, #users-data-table.mode-teacher td.col-status { width: 13% !important; }
-        #users-data-table.mode-teacher th.col-package, #users-data-table.mode-teacher td.col-package { width: 27% !important; }
-        #users-data-table.mode-teacher th.col-actions, #users-data-table.mode-teacher td.col-actions { width: 28% !important; }
+        #users-data-table.mode-teacher th.col-user, #users-data-table.mode-teacher td.col-user { width: 37% !important; }
+        #users-data-table.mode-teacher th.col-status, #users-data-table.mode-teacher td.col-status { width: 11% !important; }
+        #users-data-table.mode-teacher th.col-package, #users-data-table.mode-teacher td.col-package { width: 25% !important; }
+        #users-data-table.mode-teacher th.col-actions, #users-data-table.mode-teacher td.col-actions { width: 27% !important; }
 
         /* Level Hero Cards VIP — Vibrant & High Contrast */
         .level-hero-card {
@@ -2570,11 +2580,11 @@
                             <table id="users-data-table" class="modal-roster-table" style="width:100% !important; table-layout:fixed;">
                                 <colgroup>
                                     <col style="width: 4%;">
-                                    <col style="width: 33%;">
-                                    <col style="width: 12%;">
-                                    <col style="width: 19%;">
-                                    <col style="width: 10%;">
-                                    <col style="width: 22%;">
+                                    <col style="width: 37%;">
+                                    <col style="width: 11%;">
+                                    <col style="width: 15%;">
+                                    <col style="width: 8%;">
+                                    <col style="width: 25%;">
                                 </colgroup>
                                 <thead>
                                     <tr>
@@ -2656,7 +2666,7 @@
                                             <td style="text-align:center; vertical-align:middle; padding:5px 4px;">
                                                 <div style="display:flex; gap:2.5px; flex-wrap:wrap; justify-content:center;">
                                                     @forelse($u->accessibleLevels as $lvl)
-                                                        <span class="pill-badge pill-grade" style="font-size:9px; padding:1px 4.5px;">Khối {{ $lvl->grade }}</span>
+                                                        <span class="pill-badge pill-grade" style="font-size:10px; padding:2px 7px; font-weight:800; border-radius:6px; border:1px solid #ddd6fe; box-shadow:0 1px 2px rgba(124,58,237,0.08);">Khối {{ $lvl->grade }}</span>
                                                     @empty
                                                         <span style="font-size:9.5px; color:#ef4444; font-weight:750;">🔒 Chưa mở</span>
                                                     @endforelse
@@ -2877,7 +2887,7 @@
                                                         @endif
                                                         <div style="display:flex; gap:2.5px; flex-wrap:wrap; justify-content:center;">
                                                             @forelse($u->accessibleLevels as $lvl)
-                                                                <span class="pill-badge pill-grade" style="font-size:9px; padding:1px 4.5px;">Khối {{ $lvl->grade }}</span>
+                                                                <span class="pill-badge pill-grade" style="font-size:10px; padding:2px 7px; font-weight:800; border-radius:6px; border:1px solid #ddd6fe; box-shadow:0 1px 2px rgba(124,58,237,0.08);">Khối {{ $lvl->grade }}</span>
                                                             @empty
                                                                 <span style="font-size:9.5px; color:#ef4444; font-weight:750;">🔒 Chưa mở</span>
                                                             @endforelse

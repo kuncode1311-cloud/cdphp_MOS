@@ -506,7 +506,8 @@
         .btn-action-clean {
             display: inline-flex;
             align-items: center;
-            gap: 4px;
+            justify-content: center;
+            gap: 5px;
             padding: 7px 12px;
             border-radius: 9px;
             font-size: 12px;
@@ -515,39 +516,51 @@
             border: 1.5px solid #cbd5e1;
             background: #ffffff;
             color: #334155;
-            transition: all 0.12s;
+            transition: all 0.15s ease;
             white-space: nowrap;
         }
         .btn-action-clean:hover {
             background: #f1f5f9;
             color: #0f172a;
+            border-color: #94a3b8;
         }
         .btn-action-pick {
-            background: linear-gradient(135deg, #f59e0b, #d97706);
-            border-color: #d97706;
-            color: #ffffff;
-            box-shadow: 0 2px 6px rgba(217, 119, 6, 0.25);
+            background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%) !important;
+            border: 1.5px solid #d97706 !important;
+            color: #ffffff !important;
+            box-shadow: 0 2px 8px rgba(217, 119, 6, 0.3) !important;
+            transition: all 0.15s ease !important;
         }
         .btn-action-pick:hover {
-            transform: translateY(-1px);
-            box-shadow: 0 4px 10px rgba(217, 119, 6, 0.35);
-            color: #ffffff;
+            background: linear-gradient(135deg, #d97706 0%, #b45309 100%) !important;
+            border-color: #b45309 !important;
+            color: #ffffff !important;
+            transform: translateY(-2px) !important;
+            box-shadow: 0 5px 14px rgba(217, 119, 6, 0.45) !important;
+        }
+        .btn-action-pick:active {
+            transform: translateY(1px) !important;
+            box-shadow: 0 2px 4px rgba(217, 119, 6, 0.3) !important;
         }
         .btn-action-blue {
-            background: #eff6ff;
-            border-color: #bfdbfe;
-            color: #1d4ed8;
+            background: #eff6ff !important;
+            border-color: #bfdbfe !important;
+            color: #1d4ed8 !important;
         }
         .btn-action-blue:hover {
-            background: #dbeafe;
+            background: #dbeafe !important;
+            border-color: #93c5fd !important;
+            color: #1e40af !important;
         }
         .btn-action-danger {
-            color: #dc2626;
-            border-color: #fecaca;
-            background: #fef2f2;
+            color: #dc2626 !important;
+            border-color: #fecaca !important;
+            background: #fef2f2 !important;
         }
         .btn-action-danger:hover {
-            background: #fee2e2;
+            background: #fee2e2 !important;
+            border-color: #fca5a5 !important;
+            color: #b91c1c !important;
         }
         /* ==========================================================================
            5. QUESTION CARDS - TƯƠNG PHẢN RÕ NÉT, NỔI KHỐI 3D TRÊN NỀN
@@ -837,6 +850,92 @@
             font-size: 13.5px;
             font-weight: 750;
         }
+
+        /* ==========================================================================
+           🍞 TOAST NOTIFICATION 3D GAMIFIED VIP (ĐỒNG BỘ CHUẨN ADMIN)
+           ========================================================================== */
+        .toast-container {
+            position: fixed;
+            top: 24px;
+            right: 28px;
+            z-index: 999999;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            pointer-events: none;
+        }
+        .toast-msg {
+            padding: 13px 18px;
+            font-size: 13.5px;
+            font-weight: 800;
+            border-radius: 16px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            animation: toastSlideIn 0.32s cubic-bezier(0.16, 1, 0.3, 1);
+            pointer-events: auto;
+            min-width: 320px;
+            max-width: 490px;
+            border: 2.5px solid #ffffff;
+            box-shadow: 0 16px 36px rgba(0, 0, 0, 0.2), inset 0 -3px 0 rgba(0, 0, 0, 0.14);
+            transition: all 0.25s ease;
+        }
+        .toast-msg.toast-success {
+            background: linear-gradient(135deg, #059669 0%, #047857 100%);
+            color: #ffffff;
+            border-color: #6ee7b7;
+            box-shadow: 0 14px 32px rgba(4, 120, 87, 0.4), inset 0 -3px 0 rgba(0, 0, 0, 0.15);
+        }
+        .toast-msg.toast-error {
+            background: linear-gradient(135deg, #dc2626 0%, #b91c1c 100%);
+            color: #ffffff;
+            border-color: #fca5a5;
+            box-shadow: 0 14px 32px rgba(220, 38, 38, 0.4), inset 0 -3px 0 rgba(0, 0, 0, 0.15);
+        }
+        .toast-msg.toast-warning {
+            background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+            color: #ffffff;
+            border-color: #fde68a;
+            box-shadow: 0 14px 32px rgba(217, 119, 6, 0.4), inset 0 -3px 0 rgba(0, 0, 0, 0.15);
+        }
+        .toast-msg.toast-info {
+            background: linear-gradient(135deg, #0284c7 0%, #0369a1 100%);
+            color: #ffffff;
+            border-color: #bae6fd;
+            box-shadow: 0 14px 32px rgba(2, 132, 199, 0.4), inset 0 -3px 0 rgba(0, 0, 0, 0.15);
+        }
+        .toast-icon-wrap {
+            width: 28px;
+            height: 28px;
+            border-radius: 9px;
+            background: rgba(255, 255, 255, 0.22);
+            border: 1.5px solid rgba(255, 255, 255, 0.45);
+            display: grid;
+            place-items: center;
+            font-size: 13.5px;
+            font-weight: 900;
+            flex-shrink: 0;
+            color: #ffffff;
+        }
+        .toast-close-btn {
+            margin-left: auto;
+            background: transparent;
+            border: none;
+            color: rgba(255, 255, 255, 0.85);
+            font-size: 16px;
+            cursor: pointer;
+            padding: 0 4px;
+            line-height: 1;
+            transition: color 0.15s ease, transform 0.15s ease;
+        }
+        .toast-close-btn:hover {
+            color: #ffffff;
+            transform: scale(1.2);
+        }
+        @keyframes toastSlideIn {
+            from { opacity: 0; transform: translateX(50px) scale(0.92); }
+            to { opacity: 1; transform: translateX(0) scale(1); }
+        }
     </style>
 </head>
 <body>
@@ -868,7 +967,7 @@
                         </div>
                     </div>
 
-                    <button type="button" class="btn-top-save-clean" onclick="document.getElementById('mock-test-form').submit()">
+                    <button type="button" class="btn-top-save-clean" id="btn-top-save" onclick="submitMockTestForm()">
                         💾 Lưu Bộ Đề
                     </button>
                 </div>
@@ -1006,7 +1105,7 @@
                                            style="width:56px;padding:5px 8px;border-radius:8px;border:1.5px solid #cbd5e1;font-size:13px;font-weight:700;text-align:center;color:#1e293b;background:#fff;outline:none;"
                                            title="Nhập số câu muốn bốc"
                                            onkeydown="if(event.key==='Enter'){autoPickQuestions(parseInt(this.value)||30);}">
-                                    <button type="button" class="btn-action-clean btn-action-pick"
+                                    <button type="button" class="btn-action-clean btn-action-pick" id="btn-quick-pick"
                                             onclick="autoPickQuestions(parseInt(document.getElementById('pick-count-input').value)||30)"
                                             title="Tự động bốc ngẫu nhiên đều từ 7 chủ đề">
                                         ⚡ Bốc Đề
@@ -1459,10 +1558,17 @@
         updateCounters();
     }
 
-    // 🎲 Bốc Đề Nhanh
+    // 🎲 Bốc Đề Nhanh Với Toast & Loading State Chống Đơ
     function autoPickQuestions(targetCount) {
         const levelId = document.getElementById('level_select').value;
         const csrfToken = document.querySelector('meta[name="csrf-token"]')?.getAttribute('content');
+        const pickBtn = document.getElementById('btn-quick-pick') || document.querySelector('.btn-action-pick');
+
+        if (pickBtn) {
+            pickBtn.disabled = true;
+            pickBtn.style.opacity = '0.7';
+            pickBtn.innerHTML = '⚡ Đang bốc...';
+        }
 
         fetch('{{ route("admin.mock-tests.quick-random") }}', {
             method: 'POST',
@@ -1490,25 +1596,100 @@
                     }
                 });
                 updateCounters();
-                alert(`✓ Đã tự động bốc thành công ${data.count} câu hỏi phân bổ đều từ 7 chủ đề trong khối!`);
+                showToast(`🎉 Đã tự động bốc thành công ${data.count} câu hỏi phân bổ đều từ 7 chủ đề trong khối!`, 'success');
             } else {
-                alert(data.message || 'Không thể bốc câu hỏi tự động.');
+                showToast(data.message || 'Không thể bốc câu hỏi tự động.', 'error');
             }
         })
         .catch(err => {
             console.error(err);
-            alert('Có lỗi xảy ra khi kết nối máy chủ.');
+            showToast('Có lỗi xảy ra khi kết nối máy chủ.', 'error');
+        })
+        .finally(() => {
+            if (pickBtn) {
+                pickBtn.disabled = false;
+                pickBtn.style.opacity = '1';
+                pickBtn.innerHTML = '⚡ Bốc Đề';
+            }
         });
     }
 
+    // 🗑️ Bỏ chọn toàn bộ câu hỏi
     function clearAllSelections() {
-        if (!confirm('Bạn có chắc muốn bỏ chọn tất cả câu hỏi?')) return;
-        document.querySelectorAll('.q-checkbox-input').forEach(cb => {
+        const checkedBoxes = document.querySelectorAll('.q-checkbox-input:checked');
+        if (checkedBoxes.length === 0) {
+            showToast('Hiện tại chưa có câu hỏi nào được chọn.', 'info');
+            return;
+        }
+
+        if (!confirm('Bạn có chắc muốn bỏ chọn tất cả câu hỏi đã chọn?')) return;
+        
+        checkedBoxes.forEach(cb => {
             cb.checked = false;
             const card = document.getElementById(`q-card-${cb.value}`);
             if (card) card.classList.remove('is-checked');
         });
         updateCounters();
+        showToast('✓ Đã bỏ chọn tất cả câu hỏi!', 'info');
+    }
+
+    // 💾 Kiểm tra dữ liệu trước khi nộp Form Lưu Bộ Đề
+    function submitMockTestForm() {
+        const nameInput = document.querySelector('input[name="name"]');
+        if (!nameInput || !nameInput.value.trim()) {
+            showToast('⚠️ Vui lòng nhập tên cho bộ đề thi thử!', 'warning');
+            nameInput?.focus();
+            return;
+        }
+
+        const checkedBoxes = document.querySelectorAll('.q-checkbox-input:checked');
+        if (checkedBoxes.length === 0) {
+            showToast('⚠️ Vui lòng chọn ít nhất 1 câu hỏi để đưa vào bộ đề thi thử!', 'warning');
+            return;
+        }
+
+        const saveBtn = document.getElementById('btn-top-save');
+        if (saveBtn) {
+            saveBtn.disabled = true;
+            saveBtn.innerHTML = '⏳ Đang lưu...';
+        }
+
+        document.getElementById('mock-test-form').submit();
+    }
+
+    // 🍞 Hàm Hiển Thị Toast Thông Báo Chuẩn Gamified 3D VIP
+    function showToast(message, type = 'success') {
+        let container = document.getElementById('toast-container');
+        if (!container) {
+            container = document.createElement('div');
+            container.id = 'toast-container';
+            container.className = 'toast-container';
+            document.body.appendChild(container);
+        }
+
+        const toast = document.createElement('div');
+        toast.className = `toast-msg toast-${type}`;
+
+        let icon = '✓';
+        if (type === 'error') icon = '✕';
+        else if (type === 'warning') icon = '⚠️';
+        else if (type === 'info') icon = 'ℹ️';
+
+        toast.innerHTML = `
+            <div class="toast-icon-wrap">${icon}</div>
+            <div style="flex:1; line-height:1.4; font-size:13px; font-weight:800;">${message}</div>
+            <button type="button" class="toast-close-btn" onclick="this.closest('.toast-msg').remove()" title="Đóng">✕</button>
+        `;
+
+        container.appendChild(toast);
+
+        setTimeout(() => {
+            if (toast.parentElement) {
+                toast.style.opacity = '0';
+                toast.style.transform = 'translateX(50px) scale(0.92)';
+                setTimeout(() => toast.remove(), 280);
+            }
+        }, 4200);
     }
 
     function switchLevel(levelId) {
@@ -1517,10 +1698,25 @@
         window.location.href = `{{ route('admin.mock-tests.create') }}?grade=${grade}`;
     }
 
-    // Khởi động
+    // Khởi động trang & Lắng nghe Session Messages
     document.addEventListener('DOMContentLoaded', () => {
         updateCounters();
+
+        @if(session('ok'))
+            showToast(@json(session('ok')), 'success');
+        @endif
+        @if(session('error'))
+            showToast(@json(session('error')), 'error');
+        @endif
+        @if($errors->any())
+            @foreach($errors->all() as $error)
+                showToast(@json($error), 'error');
+            @endforeach
+        @endif
     });
 </script>
+
+<!-- Toast Container 3D Gamified -->
+<div id="toast-container" class="toast-container"></div>
 </body>
 </html>
