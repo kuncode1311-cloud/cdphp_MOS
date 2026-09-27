@@ -391,33 +391,17 @@ class AiQuestionProviderTest extends TestCase
     {
         $service = app(GeminiService::class);
 
-        // Trường hợp 1: Câu hỏi ngẫu nhiên bất kỳ (ví dụ máy in, lập trình, web...)
-        $promptRandom = $service->buildOptimizedImagePrompt(
-            '',
-            'Khi máy in bị kẹt giấy, bộ phận nào dưới đây cần kiểm tra trước tiên?'
-        );
-        $this->assertStringContainsString('3D gamified educational illustration', $promptRandom);
-        $this->assertStringContainsString('Pixar and Disney 3D animation feel', $promptRandom);
-        $this->assertStringContainsString('strictly NO text', $promptRandom);
-        $this->assertStringNotContainsString('wide 16:9 widescreen layout', $promptRandom);
-        $this->assertStringNotContainsString('educational diagram', $promptRandom);
-        $this->assertStringNotContainsString('clean flat vector', $promptRandom);
+        // Kiểm tra với câu hỏi ngẫu nhiên bất kỳ:
+        $questionTitle = 'Khi máy in bị kẹt giấy, bộ phận nào dưới đây cần kiểm tra trước tiên?';
+        $prompt = $service->buildOptimizedImagePrompt('', $questionTitle);
 
-        // Trường hợp 3: Câu hỏi về tên biến PHP -> Phải ra giao diện code editor IDE trực quan (không phải rương báu)
-        $promptVariable = $service->buildOptimizedImagePrompt(
-            '',
-            'Trong ngôn ngữ lập trình PHP, tất cả các tên biến (dùng để lưu trữ dữ liệu) bắt buộc phải bắt đầu bằng ký tự nào?'
-        );
-        $this->assertStringContainsString('code editor IDE', $promptVariable);
-        $this->assertStringNotContainsString('treasure', $promptVariable);
-
-        // Trường hợp 4: Câu hỏi về máy chủ Web Server -> Phải ra web server tower và browser
-        $promptServer = $service->buildOptimizedImagePrompt(
-            '',
-            'Mã lệnh PHP thường được đặt trên máy chủ (Web Server) để làm nhiệm vụ gì khi em duyệt web?'
-        );
-        $this->assertStringContainsString('web server tower', $promptServer);
-        $this->assertStringContainsString('web browser window', $promptServer);
+        $this->assertStringContainsString($questionTitle, $prompt);
+        $this->assertStringContainsString('3D educational illustration', $prompt);
+        $this->assertStringContainsString('Pixar/Disney 3D animation style', $prompt);
+        $this->assertStringContainsString('Strictly NO text', $prompt);
+        $this->assertStringNotContainsString('wide 16:9 widescreen layout', $prompt);
+        $this->assertStringNotContainsString('educational diagram', $prompt);
+        $this->assertStringNotContainsString('clean flat vector', $prompt);
     }
 
     private function questionsJson(): string

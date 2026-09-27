@@ -127,118 +127,20 @@ class GeminiService
     }
 
     /**
-     * Tối ưu hóa prompt tạo ảnh phong cách 3D gamified rực rỡ, đáng yêu chuẩn tiểu học.
-     * Bám sát 100% vật thể và bối cảnh của câu hỏi, loại bỏ hoàn toàn tiếng Việt khỏi Image Prompt
-     * để Image Model không bị hiểu nhầm (như vẽ rương kho báu).
+     * Tạo một prompt phổ quát duy nhất đúng với mọi trường hợp câu hỏi ngẫu nhiên.
+     * Cung cấp toàn bộ câu hỏi và bối cảnh vào chỉ dẫn sư phạm để AI tự động suy luận
+     * công cụ số, thiết bị hoặc tình huống thực tế của câu hỏi đó mà không hardcode bất kỳ if-else nào.
      */
     public function buildOptimizedImagePrompt(string $description, string $questionTitle, array $question = []): string
     {
-        $baseStyle = 'High quality cute 3D gamified digital art style, Pixar and Disney 3D animation feel, vibrant cheerful colors (amber orange, royal gold, emerald green, sky blue, vivid purple), glossy smooth 3D clay and plastic surfaces, warm welcoming studio lighting, delightful and friendly for elementary school children, clean 16:9 landscape composition, strictly NO text, NO letters, NO words, NO labels, NO watermark, NO diagrams, NO schematics.';
+        $targetQuestion = trim($questionTitle !== '' ? $questionTitle : $description);
+        $contextHint = ($description !== '' && $description !== $questionTitle) ? " Context details: {$description}." : '';
 
-        // 1. Nếu câu hỏi đã có sẵn mô tả trực quan cụ thể bằng tiếng Anh (từ AI soạn đề)
-        $cleanDesc = trim($description);
-        if ($cleanDesc !== '' && preg_match('/[a-zA-Z]{4,}/', $cleanDesc) && ! preg_match('/minh\s*họa|câu\s*hỏi/ui', $cleanDesc)) {
-            return rtrim($cleanDesc, '. ').'. '.$baseStyle;
-        }
-
-        // 2. Chuyển hóa câu hỏi tiếng Việt sang bối cảnh trực quan 3D chuẩn xác 100% bằng tiếng Anh
-        $target = trim($questionTitle !== '' ? $questionTitle : $description);
-        $visualConcept = $this->resolveVisualConcept($target);
-
-        return "A vibrant, cute 3D gamified educational illustration for elementary school computer science, Pixar 3D animation feel. A bright and playful digital classroom environment featuring an engaging 3D scene of {$visualConcept}. {$baseStyle}";
-    }
-
-    /**
-     * Chuyển hóa câu hỏi Tin học sang mô tả bối cảnh trực quan 3D bằng tiếng Anh chuẩn xác.
-     * Đảm bảo Image Model hiểu 100% và vẽ ĐÚNG VẬT THỂ / TÌNH HUỐNG của câu hỏi,
-     * tuyệt đối không để tiếng Việt lọt vào khiến AI vẽ sai lệch (như vẽ rương kho báu).
-     */
-    private function resolveVisualConcept(string $text): string
-    {
-        $normalized = mb_strtolower($text);
-
-        // 1. Máy chủ Web, Web Server, duyệt web, trang web, website, Internet
-        if (preg_match('/máy\s*chủ|web\s*server|duyệt\s*web|trang\s*web|website|web\s*page|tải\s*trang|trình\s*duyệt/ui', $normalized)) {
-            return 'a cute laptop displaying a vibrant educational website inside a colorful web browser window, connected by glowing digital data streams to a sleek web server tower and an illuminated 3D internet globe';
-        }
-
-        // 2. Lập trình trực quan cho trẻ em / Scratch / Khối lệnh kéo thả / Robot
-        if (preg_match('/scratch|kéo\s*thả|khối\s*lệnh|blockly|thuật\s*toán|robot|(lập\s*trình.*(tiểu\s*học|trẻ\s*em|mới\s*bắt\s*đầu|làm\s*quen|trực\s*quan))/ui', $normalized)) {
-            return 'a bright computer screen displaying colorful interlocking toy puzzle code blocks (bright blue motion, glowing orange control, purple sound) with an adorable small friendly toy robot beside the monitor';
-        }
-
-        // 3. Lập trình mã nguồn / Code editor / Biến, hàm, cú pháp PHP, Python, v.v.
-        if (preg_match('/tên\s*biến|cú\s*pháp|mã\s*lệnh|code|lập\s*trình\s*php|ngôn\s*ngữ\s*php|lập\s*trình\s*bằng\s*chữ|biến\s*lưu\s*trữ|hàm|lệnh\s*echo|dấu\s*đô\s*la/ui', $normalized)) {
-            return 'a modern cute desktop computer displaying a colorful code editor IDE interface with syntax-highlighted code lines in glowing orange, emerald green, and purple, resting on a clean wooden desk with a coding notebook';
-        }
-
-        // 4. Soạn thảo văn bản, Word, gõ chữ, font chữ, văn bản
-        if (preg_match('/soạn\s*thảo|văn\s*bản|word|wordpad|gõ\s*văn\s*bản|font\s*chữ|đánh\s*máy/ui', $normalized)) {
-            return 'a charming study desk with a computer monitor showing a clean document editing page with neat paragraph lines, a big cheerful yellow 3D pencil, and a colorful keyboard';
-        }
-
-        // 5. Bài trình chiếu, PowerPoint, slide, trang chiếu, thuyết trình
-        if (preg_match('/trình\s*chiếu|powerpoint|slide|trang\s*chiếu|bài\s*trình\s*chiếu|thuyết\s*trình/ui', $normalized)) {
-            return 'an open cute laptop presenting a vibrant presentation slide with a 3D colorful pie chart, a golden star badge, and playful graphics in a modern classroom';
-        }
-
-        // 6. Bảng tính điện tử, Excel, ô tính, hàng và cột
-        if (preg_match('/bảng\s*tính|excel|ô\s*tính|hàng\s*và\s*cột/ui', $normalized)) {
-            return 'a glossy computer screen showing a neat spreadsheet table with pastel green grid cells and cute 3D bar graph pillars standing on the desk';
-        }
-
-        // 7. Tập vẽ, MS Paint, cọ vẽ, tô màu, vẽ hình
-        if (preg_match('/paint|phần\s*mềm\s*vẽ|tập\s*vẽ|vẽ\s*hình|bút\s*vẽ|tô\s*màu/ui', $normalized)) {
-            return 'a digital drawing tablet displaying a colorful rainbow painting beside an artist paint palette with bright glossy color blobs and a soft paintbrush';
-        }
-
-        // 8. Thư mục, tệp tin, quản lý tệp, Folder, File Explorer
-        if (preg_match('/thư\s*mục|tệp\s*tin|quản\s*lý\s*tệp|folder|file\s*explorer/ui', $normalized)) {
-            return 'bright glossy golden 3D file folders neatly arranged on a desk, with one folder open revealing colorful miniature image cards and document sheets';
-        }
-
-        // 9. Bàn phím máy tính, gõ phím, phím bấm
-        if (preg_match('/bàn\s*phím|keyboard|gõ\s*phím|phím\s*space|phím\s*enter|phím\s*caps/ui', $normalized)) {
-            return 'a vibrant, playful 3D mechanical keyboard with adorable candy-colored pastel keycaps resting on a clean sunny study desk';
-        }
-
-        // 10. Chuột máy tính, thao tác chuột, con trỏ chuột
-        if (preg_match('/chuột\s*máy\s*tính|con\s*chuột|thao\s*tác\s*chuột|con\s*trỏ\s*chuột|nháy\s*chuột/ui', $normalized)) {
-            return 'a cute, smooth wireless optical computer mouse resting on a colorful cosmic star-pattern mousepad next to a glowing desktop display';
-        }
-
-        // 11. Máy in, in ấn, in giấy, kẹt giấy, mực in
-        if (preg_match('/máy\s*in|in\s*ấn|in\s*giấy|kẹt\s*giấy|khay\s*giấy/ui', $normalized)) {
-            return 'a friendly colorful desktop paper printer with a clean paper tray on a bright classroom table next to freshly printed colorful pages';
-        }
-
-        // 12. Thiết bị lưu trữ ngoài: USB, thẻ nhớ, ổ đĩa di động
-        if (preg_match('/usb|thẻ\s*nhớ|ổ\s*cứng|lưu\s*trữ\s*di\s*động|ổ\s*đĩa/ui', $normalized)) {
-            return 'a sleek colorful 3D USB flash drive with a glowing LED indicator resting beside a modern laptop on a clean wooden desk';
-        }
-
-        // 13. Mạng Internet, WiFi, router, kết nối mạng
-        if (preg_match('/wifi|router|cáp\s*mạng|kết\s*nối\s*mạng|mạng\s*máy\s*tính/ui', $normalized)) {
-            return 'a glowing 3D Earth globe with sparkling wireless orbit trails connecting a laptop, tablet, and a cute WiFi router with antennas';
-        }
-
-        // 14. An toàn mạng, mật khẩu, bảo mật, virus
-        if (preg_match('/an\s*toàn|mật\s*khẩu|bảo\s*mật|virus|lừa\s*đảo/ui', $normalized)) {
-            return 'a modern laptop with a glowing golden 3D security shield icon and a cute digital padlock symbolizing cyber safety';
-        }
-
-        // 15. Tư thế ngồi học, khoảng cách mắt, bảo vệ sức khỏe
-        if (preg_match('/tư\s*thế|bảo\s*vệ\s*mắt|khoảng\s*cách\s*màn\s*hình/ui', $normalized)) {
-            return 'a cute cartoon elementary student sitting upright happily with good ergonomic posture at a brightly lit computer desk';
-        }
-
-        // 16. Căn cước công dân gắn chip, thẻ thông minh
-        if (preg_match('/căn\s*cước|cccd|chip\s*điện\s*tử|thẻ\s*gắn\s*chip|thẻ\s*thông\s*minh/ui', $normalized)) {
-            return 'a modern smart citizen identity card with an embedded gleaming golden microchip on a sleek wooden desk';
-        }
-
-        // 17. Mặc định chung cho giáo dục số tiểu học
-        return 'an inspiring interactive digital learning setup with a modern desktop computer, colorful educational software, and playful tech accessories on a sunny desk';
+        return "Task: Generate a high quality cute 3D educational illustration for this school test question: "
+            ."\"{$targetQuestion}\".{$contextHint} "
+            ."Scene instruction: A delightful, vibrant 3D digital scene (Pixar/Disney 3D animation style) visually explaining the core computer science concept, digital tool, device, or practical situation in the question. "
+            ."Art style: Cute gamified 3D aesthetic, rich cheerful colors (amber orange, royal gold, emerald green, sky blue, vivid purple), smooth glossy 3D clay and plastic surfaces, warm welcoming studio lighting, playful and intuitive for elementary school kids, clean 16:9 landscape composition. "
+            ."Pedagogical rule: DO NOT reveal or highlight the correct answer. Strictly NO text, NO letters, NO words, NO labels, NO watermark, NO diagrams, NO schematics.";
     }
 
     private function generateIllustration(string $description, string $questionTitle, array $question = []): ?string
