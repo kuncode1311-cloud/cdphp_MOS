@@ -2,6 +2,19 @@
 
 return [
 
+    // API riêng được ưu tiên; Gemini là dịch vụ dự phòng khi API riêng gặp lỗi.
+    'question_ai' => [
+        'base_url' => env('QUESTION_AI_BASE_URL', ''),
+        'api_key' => env('QUESTION_AI_API_KEY', ''),
+        'model' => env('QUESTION_AI_MODEL', ''),
+        'timeout' => (int) env('QUESTION_AI_TIMEOUT', 60),
+        'connect_timeout' => (int) env('QUESTION_AI_CONNECT_TIMEOUT', 10),
+    ],
+
+    'gemini' => [
+        'api_keys' => env('GEMINI_API_KEYS', env('GEMINI_API_KEY', '')),
+    ],
+
     /*
     |--------------------------------------------------------------------------
     | Third Party Services

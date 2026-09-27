@@ -2342,6 +2342,12 @@
                         <button type="button" class="btn-nav-primary" onclick="switchToNewQuestionMode()" style="background:linear-gradient(135deg, #10b981, #059669); border:1px solid #34d399; color:#fff; padding:6px 14px; border-radius:8px; font-weight:900; font-size:12px; cursor:pointer; display:flex; align-items:center; gap:5px; box-shadow:0 2px 6px rgba(16,185,129,0.35);" title="Thêm câu hỏi mới vào bài luyện">
                             <span>＋</span> Thêm câu hỏi
                         </button>
+                        {{-- 🤖 Nút AI Soạn Câu Hỏi Tự Động --}}
+                        <button type="button" onclick="openStudioAiModal()"
+                                style="background:linear-gradient(135deg,#7c3aed,#4f46e5);border:1px solid #6d28d9;color:#fff;padding:6px 14px;border-radius:8px;font-weight:900;font-size:12px;cursor:pointer;display:flex;align-items:center;gap:5px;box-shadow:0 2px 8px rgba(109,40,217,0.4);"
+                                title="Trợ lý AI phân tích hình ảnh/tài liệu và tự động soạn thảo câu hỏi vào bài luyện">
+                            🤖 AI Soạn Đề
+                        </button>
                         <button type="button" class="btn-nav-primary" onclick="openModal('modal-edit-test')" style="background:linear-gradient(135deg, #6366f1, #4f46e5); border:1px solid #818cf8; color:#fff; padding:6px 14px; border-radius:8px; font-weight:900; font-size:12px; cursor:pointer; display:flex; align-items:center; gap:5px; box-shadow:0 2px 6px rgba(99,102,241,0.35);" title="Cài đặt bộ đề (Xáo trộn câu hỏi, đáp án, thời gian...)">
                             <span>⚙️</span> Cài đặt đề
                         </button>
@@ -5653,5 +5659,841 @@
             captureInitialSnapshot(initialQData);
         });
     </script>
+
+@if($selectedTest)
+{{-- ====================================================================
+     🤖 TRỢ LÝ SOẠN ĐỀ TỰ ĐỘNG BẰNG AI — QUESTION STUDIO
+     Hỗ trợ tải lên nhiều hình ảnh/PDF, xem trước thumbnail, phóng to ảnh,
+     xóa từng ảnh khi chọn nhầm và soạn câu hỏi trực tiếp vào bài luyện.
+     ==================================================================== --}}
+<style>
+    /* 🌌 MODAL TRỢ LÝ AI SOẠN ĐỀ */
+    .sai-overlay {
+        position: fixed; inset: 0;
+        background: rgba(9, 9, 30, 0.85);
+        backdrop-filter: blur(6px);
+        display: none; place-items: center;
+        z-index: 99999; padding: 18px;
+    }
+    .sai-overlay.active { display: grid; }
+    .sai-box {
+        width: min(780px, 96vw); max-height: 92vh; overflow-y: auto;
+        background: #ffffff; border-radius: 20px;
+        border: 2px solid #e0e7ff;
+        box-shadow: 0 24px 64px rgba(79, 70, 229, 0.22);
+        display: flex; flex-direction: column;
+    }
+    .sai-header {
+        padding: 16px 22px 14px; border-bottom: 1.5px solid #e0e7ff;
+        display: flex; align-items: center; justify-content: space-between;
+        background: linear-gradient(135deg, #f5f3ff, #ede9fe);
+        border-radius: 20px 20px 0 0; flex-shrink: 0;
+    }
+    .sai-title {
+        font-size: 16px; font-weight: 900; color: #4c1d95;
+        display: flex; align-items: center; gap: 8px;
+    }
+    .sai-badge-friendly {
+        font-size: 11px; font-weight: 800;
+        background: linear-gradient(135deg, #7c3aed, #4f46e5);
+        color: #ffffff; padding: 3px 9px; border-radius: 999px;
+        box-shadow: 0 2px 6px rgba(124, 58, 237, 0.3);
+    }
+    .sai-body {
+        padding: 18px 22px; display: flex; flex-direction: column; gap: 14px;
+    }
+    .sai-dest-badge {
+        background: #f8fafc; border: 1.5px solid #e2e8f0; border-radius: 10px;
+        padding: 9px 14px; font-size: 12.5px; font-weight: 700; color: #334155;
+        display: flex; align-items: center; gap: 6px;
+    }
+    .sai-dest-badge strong { color: #4338ca; }
+
+    /* Vùng thả tệp */
+    .sai-upload-zone {
+        border: 2.5px dashed #a78bfa; border-radius: 14px; background: #faf5ff;
+        padding: 24px 20px; text-align: center; cursor: pointer; transition: all 0.15s ease;
+    }
+    .sai-upload-zone:hover, .sai-upload-zone.drag-over {
+        border-color: #7c3aed; background: #f3e8ff;
+    }
+    .sai-upload-zone input[type="file"] { display: none; }
+
+    /* Thanh công cụ danh sách ảnh đã chọn */
+    .sai-files-toolbar {
+        display: flex; align-items: center; justify-content: space-between;
+        background: #f1f5f9; padding: 8px 12px; border-radius: 10px;
+        font-size: 12px; font-weight: 800; color: #334155;
+    }
+    .sai-btn-subaction {
+        font-size: 11.5px; font-weight: 800; padding: 4px 10px;
+        border-radius: 7px; cursor: pointer; border: 1px solid transparent;
+        transition: all 0.12s ease;
+    }
+    .sai-btn-addmore {
+        background: #e0e7ff; color: #3730a3; border-color: #c7d2fe;
+    }
+    .sai-btn-addmore:hover { background: #c7d2fe; }
+    .sai-btn-clearall {
+        background: #fee2e2; color: #b91c1c; border-color: #fecaca;
+    }
+    .sai-btn-clearall:hover { background: #fecaca; }
+
+    /* Lưới Thumbnail ảnh trực quan */
+    .sai-files-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(130px, 1fr));
+        gap: 10px;
+    }
+    .sai-file-card {
+        background: #ffffff; border: 1.5px solid #cbd5e1; border-radius: 10px;
+        padding: 6px; position: relative; display: flex; flex-direction: column;
+        gap: 4px; box-shadow: 0 2px 6px rgba(15, 23, 42, 0.05);
+        transition: transform 0.12s ease, border-color 0.12s ease;
+    }
+    .sai-file-card:hover {
+        border-color: #7c3aed; transform: translateY(-1px);
+    }
+    .sai-thumb-wrap {
+        position: relative; width: 100%; height: 86px; border-radius: 7px;
+        overflow: hidden; background: #0f172a; display: flex; align-items: center; justify-content: center;
+    }
+    .sai-thumb-img {
+        width: 100%; height: 100%; object-fit: cover; display: block;
+    }
+    .sai-thumb-pdf {
+        display: flex; flex-direction: column; align-items: center; justify-content: center;
+        width: 100%; height: 100%; background: linear-gradient(135deg, #fee2e2, #fecaca);
+        color: #b91c1c; font-weight: 800; font-size: 11px; gap: 4px;
+    }
+    .sai-thumb-overlay {
+        position: absolute; inset: 0; background: rgba(15, 23, 42, 0.65);
+        display: flex; align-items: center; justify-content: center; gap: 6px;
+        opacity: 0; transition: opacity 0.15s ease;
+    }
+    .sai-thumb-wrap:hover .sai-thumb-overlay { opacity: 1; }
+    .sai-btn-zoom {
+        background: #ffffff; color: #1e293b; border: none; border-radius: 6px;
+        font-size: 11px; font-weight: 800; padding: 4px 8px; cursor: pointer;
+        display: flex; align-items: center; gap: 3px; box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+    }
+    .sai-btn-zoom:hover { background: #f8fafc; color: #4338ca; }
+    .sai-btn-del-file {
+        position: absolute; top: -6px; right: -6px; width: 22px; height: 22px;
+        background: #ef4444; color: #ffffff; border: 2px solid #ffffff;
+        border-radius: 50%; font-size: 12px; font-weight: 900; line-height: 1;
+        display: flex; align-items: center; justify-content: center;
+        cursor: pointer; box-shadow: 0 2px 6px rgba(239, 68, 68, 0.4);
+        z-index: 2; transition: transform 0.12s ease;
+    }
+    .sai-btn-del-file:hover { transform: scale(1.15); background: #dc2626; }
+    .sai-file-name {
+        font-size: 11px; font-weight: 700; color: #0f172a;
+        white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+    }
+    .sai-file-size {
+        font-size: 10px; font-weight: 600; color: #64748b;
+    }
+
+    /* Ô Thêm tệp nhỏ trong lưới */
+    .sai-grid-add-btn {
+        border: 2px dashed #cbd5e1; border-radius: 10px; background: #f8fafc;
+        display: flex; flex-direction: column; align-items: center; justify-content: center;
+        height: 100%; min-height: 116px; cursor: pointer; color: #64748b;
+        font-size: 11px; font-weight: 800; gap: 4px; transition: all 0.12s ease;
+    }
+    .sai-grid-add-btn:hover {
+        border-color: #7c3aed; color: #7c3aed; background: #faf5ff;
+    }
+
+    /* Gợi ý thêm cho AI */
+    .sai-ctx {
+        width: 100%; padding: 10px 13px; border-radius: 10px; border: 1.5px solid #cbd5e1;
+        font-size: 13px; font-weight: 600; color: #1e293b; outline: none; resize: none;
+        background: #faf5ff; font-family: inherit; transition: border-color 0.15s ease;
+    }
+    .sai-ctx:focus { border-color: #7c3aed; background: #ffffff; }
+    .sai-divider {
+        display: flex; align-items: center; gap: 12px;
+        font-size: 11.5px; font-weight: 800; color: #94a3b8;
+    }
+    .sai-divider::before, .sai-divider::after { content: ''; flex: 1; height: 1px; background: #e2e8f0; }
+
+    /* Nút chính */
+    .sai-gen-btn {
+        display: flex; align-items: center; justify-content: center; gap: 8px;
+        padding: 12px 20px; border-radius: 11px;
+        background: linear-gradient(135deg, #7c3aed, #4f46e5);
+        border: none; color: #ffffff; font-size: 14px; font-weight: 900; cursor: pointer;
+        transition: all 0.15s ease; box-shadow: 0 4px 14px rgba(109, 40, 217, 0.35); width: 100%;
+    }
+    .sai-gen-btn:hover { background: linear-gradient(135deg, #6d28d9, #4338ca); transform: translateY(-1px); }
+    .sai-gen-btn:disabled { opacity: 0.6; cursor: not-allowed; transform: none; }
+
+    .sai-imp-btn {
+        display: flex; align-items: center; justify-content: center; gap: 8px;
+        padding: 12px 20px; border-radius: 11px;
+        background: linear-gradient(135deg, #10b981, #059669);
+        border: none; color: #ffffff; font-size: 14px; font-weight: 900; cursor: pointer;
+        transition: all 0.15s ease; box-shadow: 0 4px 14px rgba(16, 185, 129, 0.3); width: 100%;
+    }
+    .sai-imp-btn:hover { background: linear-gradient(135deg, #059669, #047857); transform: translateY(-1px); }
+    .sai-imp-btn:disabled { opacity: 0.6; cursor: not-allowed; transform: none; }
+
+    /* Thông báo thân thiện */
+    .sai-status {
+        padding: 10px 14px; border-radius: 10px; font-size: 13px; font-weight: 700;
+        text-align: center; display: none; line-height: 1.45;
+    }
+    .sai-status.err { background: #fef2f2; color: #dc2626; border: 1.5px solid #fecaca; display: block; }
+    .sai-status.ok  { background: #f0fdf4; color: #15803d; border: 1.5px solid #86efac; display: block; }
+
+    /* 🎨 DANH SÁCH CÂU HỎI AI SOẠN — GAMIFIED 3D UI */
+    .sai-preview { display: none; flex-direction: column; gap: 14px; margin-top: 6px; }
+    .sai-preview.vis { display: flex; }
+    .sai-prev-hd {
+        display: flex; align-items: center; justify-content: space-between;
+        padding: 12px 18px; background: linear-gradient(135deg, #ecfdf5, #f0fdf4);
+        border-radius: 12px; border: 1.5px solid #86efac;
+        box-shadow: 0 2px 8px rgba(16, 185, 129, 0.08);
+    }
+    .sai-qcard {
+        background: #ffffff; border-radius: 14px;
+        border: 2px solid #e2e8f0;
+        box-shadow: 0 4px 12px rgba(15, 23, 42, 0.04);
+        overflow: hidden; transition: all 0.15s ease;
+        display: flex; flex-direction: column;
+    }
+    .sai-qcard.sel {
+        border-color: #8b5cf6;
+        box-shadow: 0 6px 18px rgba(124, 58, 237, 0.12);
+    }
+    .sai-qhdr {
+        display: flex; align-items: flex-start; gap: 12px;
+        padding: 14px 16px 10px; cursor: pointer;
+        background: #fafafa; border-bottom: 1px solid #f1f5f9;
+        transition: background 0.12s ease;
+    }
+    .sai-qcard.sel .sai-qhdr {
+        background: linear-gradient(135deg, #fbf9ff, #f5f3ff);
+    }
+    .sai-qchk {
+        width: 19px; height: 19px; accent-color: #7c3aed;
+        flex-shrink: 0; margin-top: 4px; cursor: pointer;
+    }
+    .sai-qmeta {
+        display: flex; align-items: center; gap: 8px; margin-bottom: 8px;
+    }
+    .sai-qnum-pill {
+        background: linear-gradient(135deg, #7c3aed, #4f46e5);
+        color: #ffffff; font-size: 11px; font-weight: 900;
+        padding: 3px 10px; border-radius: 999px;
+        box-shadow: 0 2px 5px rgba(124, 58, 237, 0.3);
+    }
+    .sai-qtype-pill {
+        background: #f1f5f9; color: #475569; font-size: 11px; font-weight: 700;
+        padding: 3px 9px; border-radius: 999px; border: 1px solid #e2e8f0;
+    }
+    .sai-qtinput {
+        width: 100%; border: 1.5px solid #cbd5e1; background: #ffffff;
+        border-radius: 8px; padding: 8px 12px;
+        font-size: 13.5px; font-weight: 700; color: #0f172a;
+        outline: none; resize: vertical; font-family: inherit; line-height: 1.5;
+        transition: all 0.12s ease;
+    }
+    .sai-qtinput:focus {
+        border-color: #7c3aed; box-shadow: 0 0 0 3px rgba(124, 58, 237, 0.15);
+    }
+
+    /* Lưới các phương án lựa chọn A, B, C, D */
+    .sai-qopts {
+        padding: 12px 16px 14px;
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+        gap: 8px;
+    }
+    .sai-opt-card {
+        display: flex; align-items: center; gap: 9px;
+        padding: 9px 12px; border-radius: 10px;
+        border: 1.5px solid #e2e8f0; background: #ffffff;
+        transition: all 0.12s ease;
+    }
+    .sai-opt-card.correct {
+        background: linear-gradient(135deg, #f0fdf4, #ecfdf5);
+        border-color: #10b981;
+        box-shadow: 0 2px 6px rgba(16, 185, 129, 0.12);
+    }
+    .sai-opt-badge {
+        width: 24px; height: 24px; border-radius: 6px;
+        display: flex; align-items: center; justify-content: center;
+        font-size: 11.5px; font-weight: 900; flex-shrink: 0;
+        background: #f1f5f9; color: #64748b; border: 1px solid #cbd5e1;
+    }
+    .sai-opt-card.correct .sai-opt-badge {
+        background: #10b981; color: #ffffff; border-color: #059669;
+        box-shadow: 0 2px 4px rgba(16, 185, 129, 0.3);
+    }
+    .sai-opt-text {
+        font-size: 13px; font-weight: 600; color: #334155; flex: 1;
+        line-height: 1.35;
+    }
+    .sai-opt-card.correct .sai-opt-text {
+        color: #065f46; font-weight: 800;
+    }
+    .sai-opt-correct-tag {
+        font-size: 10px; font-weight: 800; color: #059669;
+        background: #d1fae5; padding: 2px 7px; border-radius: 999px;
+        display: flex; align-items: center; gap: 2px; flex-shrink: 0;
+    }
+
+    /* Spinner */
+    .sai-spin {
+        width: 17px; height: 17px; border: 2.5px solid rgba(255,255,255,0.3);
+        border-top-color: #ffffff; border-radius: 50%; animation: spin 0.7s linear infinite; display: none;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    /* 🔍 LIGHTBOX XEM PHÓNG TO HÌNH ẢNH */
+    .sai-lightbox-overlay {
+        position: fixed; inset: 0; background: rgba(15, 23, 42, 0.92);
+        backdrop-filter: blur(8px); display: none; place-items: center;
+        z-index: 100000; padding: 24px;
+    }
+    .sai-lightbox-overlay.active { display: grid; }
+    .sai-lightbox-content {
+        max-width: 90vw; max-height: 90vh; display: flex; flex-direction: column;
+        align-items: center; gap: 10px; position: relative;
+    }
+    .sai-lightbox-header {
+        width: 100%; display: flex; align-items: center; justify-content: space-between;
+        color: #ffffff; font-size: 13px; font-weight: 800;
+    }
+    .sai-lightbox-img {
+        max-width: 88vw; max-height: 82vh; object-fit: contain;
+        border-radius: 12px; box-shadow: 0 16px 48px rgba(0,0,0,0.5);
+        border: 2px solid rgba(255,255,255,0.2);
+    }
+    .sai-lightbox-close {
+        background: rgba(255,255,255,0.2); border: none; color: #ffffff;
+        font-size: 18px; font-weight: 900; width: 32px; height: 32px;
+        border-radius: 50%; cursor: pointer; display: flex; align-items: center; justify-content: center;
+        transition: background 0.12s ease;
+    }
+    .sai-lightbox-close:hover { background: #ef4444; }
+</style>
+
+<div id="modal-studio-ai" class="sai-overlay" role="dialog" aria-modal="true">
+    <div class="sai-box">
+        <!-- Header -->
+        <div class="sai-header">
+            <div class="sai-title">
+                <span>🤖</span> Trợ Lý Soạn Đề Tự Động
+                <span class="sai-badge-friendly">✨ Trí Tuệ Nhân Tạo</span>
+            </div>
+            <button type="button" onclick="closeStudioAiModal()"
+                    style="background:none; border:none; font-size:20px; cursor:pointer; color:#6b7280; padding:4px;"
+                    title="Đóng cửa sổ">✕</button>
+        </div>
+
+        <div class="sai-body">
+            <!-- Nơi lưu câu hỏi -->
+            <div class="sai-dest-badge">
+                📂 Câu hỏi mới sẽ được lưu vào: <strong>{{ $selectedTest->name }}</strong>
+                <span style="color:#64748b; font-weight:600;">(Chủ đề: {{ $selectedTest->topic?->name }})</span>
+            </div>
+
+            <!-- VÙNG TẢI ẢNH / TÀI LIỆU -->
+            <div id="sai-upload-area">
+                <!-- Dropzone khi chưa có file -->
+                <div class="sai-upload-zone" id="sai-zone"
+                     onclick="triggerSaiFileInput()"
+                     ondragover="event.preventDefault(); this.classList.add('drag-over');"
+                     ondragleave="this.classList.remove('drag-over');"
+                     ondrop="saiDrop(event)">
+                    <input type="file" id="sai-file" accept=".jpg,.jpeg,.png,.webp,.pdf" multiple onchange="saiPickFiles(event)">
+                    <div style="font-size:36px; margin-bottom:8px;">🖼️ 📄</div>
+                    <div style="font-size:14px; font-weight:800; color:#5b21b6;">Kéo thả hoặc bấm để chọn ảnh chụp / đề thi PDF</div>
+                    <div style="font-size:12px; color:#7c3aed; margin-top:4px;">
+                        Hỗ trợ tải nhiều ảnh cùng lúc (tối đa 10 tệp) · Ảnh JPG, PNG hoặc tài liệu PDF (mỗi tệp ≤ 20MB)
+                    </div>
+                </div>
+
+                <!-- Danh sách xem trước ảnh đã chọn (Ẩn khi chưa chọn) -->
+                <div id="sai-files-preview-wrap" style="display:none; flex-direction:column; gap:8px;">
+                    <div class="sai-files-toolbar">
+                        <span id="sai-files-count-badge">📷 Đã chọn 0 tệp (tối đa 10)</span>
+                        <div style="display:flex; gap:6px;">
+                            <button type="button" class="sai-btn-subaction sai-btn-addmore" onclick="triggerSaiFileInput()" title="Chọn thêm ảnh khác">
+                                ＋ Chọn thêm tệp
+                            </button>
+                            <button type="button" class="sai-btn-subaction sai-btn-clearall" onclick="saiClearFiles()" title="Xóa toàn bộ tệp đã chọn">
+                                ✕ Xóa tất cả
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Lưới Thumbnail ảnh trực quan -->
+                    <div class="sai-files-grid" id="sai-files-grid"></div>
+                </div>
+            </div>
+
+            <!-- Gợi ý thêm cho Trợ lý AI -->
+            <div class="sai-divider">HOẶC NHẬP Ý TƯỞNG / ĐỀ CƯƠNG (Không cần tải ảnh vẫn soạn được)</div>
+            <textarea class="sai-ctx" id="sai-ctx" rows="3"
+                      placeholder="Thầy/Cô có thể chỉ cần nhập ý tưởng tại đây (không cần tải ảnh). Ví dụ: Soạn cho tôi 3 câu hỏi trắc nghiệm IC3 tiểu học về các thiết bị công nghệ chuẩn IC3..."></textarea>
+
+            <!-- Thông báo trạng thái -->
+            <div class="sai-status" id="sai-msg"></div>
+
+            <!-- Nút Bắt đầu phân tích -->
+            <button type="button" class="sai-gen-btn" id="sai-gen-btn" onclick="saiGenerate()">
+                <div class="sai-spin" id="sai-gen-spin"></div>
+                <span id="sai-gen-lbl">✨ Bắt đầu phân tích & Soạn câu hỏi</span>
+            </button>
+
+            <!-- KHU VỰC XEM TRƯỚC CÂU HỎI TRƯỚC KHI LƯU -->
+            <div class="sai-preview" id="sai-preview">
+                <div class="sai-prev-hd">
+                    <span style="font-size:13px; font-weight:800; color:#15803d;">
+                        ✅ Trợ lý AI đã tìm thấy <span id="sai-count">0</span> câu hỏi — Thầy/Cô chọn các câu muốn lưu:
+                    </span>
+                    <div style="display:flex; gap:7px;">
+                        <button type="button" onclick="saiAll(true)"  style="font-size:11.5px; font-weight:800; padding:3px 9px; border-radius:7px; background:#e0e7ff; border:1px solid #c7d2fe; color:#3730a3; cursor:pointer;">Chọn tất cả</button>
+                        <button type="button" onclick="saiAll(false)" style="font-size:11.5px; font-weight:800; padding:3px 9px; border-radius:7px; background:#f1f5f9; border:1px solid #e2e8f0; color:#475569; cursor:pointer;">Bỏ chọn</button>
+                    </div>
+                </div>
+
+                <div id="sai-list" style="display:flex; flex-direction:column; gap:7px;"></div>
+
+                <!-- Nút Lưu vào bài luyện -->
+                <button type="button" class="sai-imp-btn" id="sai-imp-btn" onclick="saiImport()">
+                    <div class="sai-spin" id="sai-imp-spin"></div>
+                    <span id="sai-imp-lbl">💾 Lưu các câu hỏi đã chọn vào bài luyện</span>
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- 🔍 LIGHTBOX MODAL XEM PHÓNG TO HÌNH ẢNH -->
+<div id="sai-lightbox" class="sai-lightbox-overlay" onclick="closeSaiLightbox()">
+    <div class="sai-lightbox-content" onclick="event.stopPropagation()">
+        <div class="sai-lightbox-header">
+            <span id="sai-lightbox-title">Xem trước hình ảnh</span>
+            <button type="button" class="sai-lightbox-close" onclick="closeSaiLightbox()" title="Đóng phóng to">✕</button>
+        </div>
+        <img id="sai-lightbox-img" class="sai-lightbox-img" src="" alt="Hình ảnh phóng to">
+    </div>
+</div>
+
+<script>
+// ======================================================================
+// 🤖 TRỢ LÝ SOẠN ĐỀ BẰNG AI — QUESTION STUDIO
+// ======================================================================
+const SAI_PRACTICE_TEST_ID = {{ $selectedTest->id }};
+const SAI_MAX_FILES = 10;
+let saiFiles = [];         // Mảng chứa các File object đã chọn
+let saiFileUrls = new Map(); // Cache URL object để giải phóng bộ nhớ
+let saiQuestions = [];
+
+function openStudioAiModal() {
+    document.getElementById('modal-studio-ai').classList.add('active');
+    document.body.style.overflow = 'hidden';
+}
+
+function closeStudioAiModal() {
+    document.getElementById('modal-studio-ai').classList.remove('active');
+    document.body.style.overflow = '';
+    closeSaiLightbox();
+    saiReset();
+}
+
+function triggerSaiFileInput() {
+    const input = document.getElementById('sai-file');
+    if (input) input.click();
+}
+
+function saiReset() {
+    saiClearFiles();
+    saiQuestions = [];
+    document.getElementById('sai-ctx').value = '';
+    document.getElementById('sai-list').innerHTML = '';
+    document.getElementById('sai-preview').classList.remove('vis');
+    document.getElementById('sai-count').textContent = '0';
+    saiMsg('', '');
+    saiGenLoad(false);
+    saiImpLoad(false);
+}
+
+// Xử lý khi chọn file qua hộp thoại
+function saiPickFiles(e) {
+    if (e.target.files && e.target.files.length) {
+        saiAddFiles(Array.from(e.target.files));
+        e.target.value = ''; // Reset input để chọn lại file cùng tên nếu muốn
+    }
+}
+
+// Xử lý kéo thả tệp
+function saiDrop(e) {
+    e.preventDefault();
+    document.getElementById('sai-zone').classList.remove('drag-over');
+    if (e.dataTransfer && e.dataTransfer.files && e.dataTransfer.files.length) {
+        saiAddFiles(Array.from(e.dataTransfer.files));
+    }
+}
+
+// Thêm tệp vào danh sách, kiểm tra giới hạn 10 tệp
+function saiAddFiles(newFiles) {
+    const allowedExtensions = ['jpg', 'jpeg', 'png', 'webp', 'pdf'];
+    let rejectedCount = 0;
+
+    for (const f of newFiles) {
+        const ext = f.name.split('.').pop().toLowerCase();
+        if (!allowedExtensions.includes(ext)) {
+            rejectedCount++;
+            continue;
+        }
+
+        if (f.size > 20 * 1024 * 1024) {
+            saiMsg(`Tệp "${f.name}" vượt quá dung lượng cho phép (tối đa 20MB).`, 'err');
+            return;
+        }
+
+        if (saiFiles.length >= SAI_MAX_FILES) {
+            saiMsg(`Thầy/Cô chỉ có thể chọn tối đa ${SAI_MAX_FILES} tệp mỗi lần để đảm bảo AI phân tích chính xác nhất.`, 'err');
+            break;
+        }
+
+        // Tránh trùng tệp cùng tên và cùng dung lượng
+        const isDuplicate = saiFiles.some(existing => existing.name === f.name && existing.size === f.size);
+        if (!isDuplicate) {
+            saiFiles.push(f);
+        }
+    }
+
+    if (rejectedCount > 0) {
+        saiMsg(`Hệ thống đã bỏ qua ${rejectedCount} tệp không đúng định dạng hình ảnh (JPG, PNG, WEBP) hoặc PDF.`, 'err');
+    } else {
+        saiMsg('', '');
+    }
+
+    saiRenderFileList();
+}
+
+// Xóa 1 tệp cụ thể khỏi danh sách (khi lỡ chọn nhầm)
+function saiRemoveFile(index) {
+    if (index >= 0 && index < saiFiles.length) {
+        const file = saiFiles[index];
+        if (saiFileUrls.has(file)) {
+            URL.revokeObjectURL(saiFileUrls.get(file));
+            saiFileUrls.delete(file);
+        }
+        saiFiles.splice(index, 1);
+        saiRenderFileList();
+    }
+}
+
+// Xóa tất cả tệp
+function saiClearFiles() {
+    saiFileUrls.forEach(url => URL.revokeObjectURL(url));
+    saiFileUrls.clear();
+    saiFiles = [];
+    saiRenderFileList();
+}
+
+// Hiển thị danh sách thumbnail ảnh trực quan
+function saiRenderFileList() {
+    const dropzone = document.getElementById('sai-zone');
+    const previewWrap = document.getElementById('sai-files-preview-wrap');
+    const grid = document.getElementById('sai-files-grid');
+    const countBadge = document.getElementById('sai-files-count-badge');
+
+    if (!saiFiles.length) {
+        dropzone.style.display = 'block';
+        previewWrap.style.display = 'none';
+        grid.innerHTML = '';
+        return;
+    }
+
+    dropzone.style.display = 'none';
+    previewWrap.style.display = 'flex';
+    countBadge.textContent = `📷 Đã chọn ${saiFiles.length} / ${SAI_MAX_FILES} tệp`;
+    grid.innerHTML = '';
+
+    saiFiles.forEach((file, idx) => {
+        const ext = file.name.split('.').pop().toLowerCase();
+        const isPdf = ext === 'pdf';
+        const card = document.createElement('div');
+        card.className = 'sai-file-card';
+
+        // Lấy hoặc tạo Object URL để xem trước
+        let fileUrl = '';
+        if (!isPdf) {
+            if (!saiFileUrls.has(file)) {
+                saiFileUrls.set(file, URL.createObjectURL(file));
+            }
+            fileUrl = saiFileUrls.get(file);
+        }
+
+        const sizeKb = (file.size / 1024).toFixed(0);
+        const sizeFormatted = sizeKb > 1024 ? `${(sizeKb / 1024).toFixed(1)} MB` : `${sizeKb} KB`;
+
+        card.innerHTML = `
+            <button type="button" class="sai-btn-del-file" onclick="saiRemoveFile(${idx})" title="Xóa tệp này (chọn nhầm)">✕</button>
+            <div class="sai-thumb-wrap">
+                ${isPdf 
+                    ? `<div class="sai-thumb-pdf"><span>📄</span><span>TÀI LIỆU PDF</span></div>` 
+                    : `<img src="${fileUrl}" class="sai-thumb-img" alt="${saiEsc(file.name)}">
+                       <div class="sai-thumb-overlay">
+                           <button type="button" class="sai-btn-zoom" onclick="saiPreviewImage(${idx})">🔍 Phóng to</button>
+                       </div>`
+                }
+            </div>
+            <div class="sai-file-name" title="${saiEsc(file.name)}">${saiEsc(file.name)}</div>
+            <div class="sai-file-size">${sizeFormatted}</div>
+        `;
+
+        grid.appendChild(card);
+    });
+
+    // Thêm ô "+ Thêm tệp" nhỏ nếu chưa chạm mốc 10 tệp
+    if (saiFiles.length < SAI_MAX_FILES) {
+        const addCard = document.createElement('div');
+        addCard.className = 'sai-grid-add-btn';
+        addCard.onclick = triggerSaiFileInput;
+        addCard.title = 'Bấm để chọn thêm ảnh/tài liệu';
+        addCard.innerHTML = `<span style="font-size:22px;">＋</span><span>Thêm tệp</span>`;
+        grid.appendChild(addCard);
+    }
+}
+
+// Phóng to ảnh trong Lightbox
+function saiPreviewImage(index) {
+    if (index >= 0 && index < saiFiles.length) {
+        const file = saiFiles[index];
+        if (saiFileUrls.has(file)) {
+            const url = saiFileUrls.get(file);
+            document.getElementById('sai-lightbox-img').src = url;
+            document.getElementById('sai-lightbox-title').textContent = file.name;
+            document.getElementById('sai-lightbox').classList.add('active');
+        }
+    }
+}
+
+function closeSaiLightbox() {
+    const box = document.getElementById('sai-lightbox');
+    if (box) box.classList.remove('active');
+}
+
+// Gửi yêu cầu phân tích tới máy chủ
+async function saiGenerate() {
+    const ctx = document.getElementById('sai-ctx').value.trim();
+
+    if (!saiFiles.length && !ctx) {
+        saiMsg('Thầy/Cô vui lòng tải lên hình ảnh hoặc nhập ý tưởng/yêu cầu vào ô bên dưới nhé!', 'err');
+        return;
+    }
+
+    saiGenLoad(true);
+    saiMsg('', '');
+    document.getElementById('sai-preview').classList.remove('vis');
+
+    const fd = new FormData();
+    saiFiles.forEach(file => {
+        fd.append('files[]', file);
+    });
+    if (ctx) {
+        fd.append('text', ctx);
+        fd.append('context', ctx);
+    }
+    fd.append('_token', document.querySelector('meta[name="csrf-token"]').content);
+
+    try {
+        const r = await fetch('{{ route("admin.ai.questions.generate") }}', { method: 'POST', body: fd });
+        const d = await r.json();
+
+        if (!d.success) {
+            saiMsg(d.message || 'Chưa thể phân tích nội dung. Thầy/Cô vui lòng thử lại sau giây lát nhé!', 'err');
+            return;
+        }
+
+        saiQuestions = d.questions;
+        document.getElementById('sai-count').textContent = d.count;
+        saiRenderList(d.questions);
+        document.getElementById('sai-preview').classList.add('vis');
+
+    } catch (e) {
+        saiMsg('Kết nối máy chủ bị gián đoạn. Thầy/Cô vui lòng kiểm tra lại mạng và thử lại nhé!', 'err');
+        console.error(e);
+    } finally {
+        saiGenLoad(false);
+    }
+}
+
+// Hiển thị danh sách câu hỏi AI soạn thảo với giao diện thẻ 3D Gamified UI
+function saiRenderList(qs) {
+    const list = document.getElementById('sai-list');
+    list.innerHTML = '';
+    const letters = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H'];
+
+    qs.forEach((q, i) => {
+        // Tạo thẻ cho từng phương án A, B, C, D
+        const optsHtml = q.options.map((o, optIdx) => {
+            const letter = letters[optIdx] || (optIdx + 1);
+            const isCorrect = Boolean(o.is_correct);
+            return `
+                <div class="sai-opt-card ${isCorrect ? 'correct' : ''}">
+                    <div class="sai-opt-badge">${letter}</div>
+                    <div class="sai-opt-text">${saiEsc(o.content)}</div>
+                    ${isCorrect ? `<div class="sai-opt-correct-tag"><span>✓</span> Đáp án đúng</div>` : ''}
+                </div>
+            `;
+        }).join('');
+
+        const card = document.createElement('div');
+        card.className = 'sai-qcard sel';
+        card.id = `sai-qc-${i}`;
+
+        const typeLabel = q.type === 'MultipleChoice' ? 'Trắc nghiệm (1 đáp án)' : 'Nhiều đáp án đúng';
+
+        card.innerHTML = `
+            <div class="sai-qhdr" onclick="saiToggle(${i})">
+                <input type="checkbox" id="sai-chk-${i}" class="sai-qchk" checked
+                       onchange="saiSync(${i})" onclick="event.stopPropagation()">
+                <div style="flex:1;">
+                    <div class="sai-qmeta">
+                        <span class="sai-qnum-pill">Câu ${i+1}</span>
+                        <span class="sai-qtype-pill">${typeLabel}</span>
+                    </div>
+                    <textarea class="sai-qtinput" rows="2" id="sai-qt-${i}"
+                              placeholder="Nội dung câu hỏi..."
+                              onclick="event.stopPropagation()"
+                              onchange="saiQuestions[${i}].title=this.value">${saiEsc(q.title)}</textarea>
+                </div>
+            </div>
+            <div class="sai-qopts">${optsHtml}</div>`;
+        list.appendChild(card);
+    });
+}
+
+function saiToggle(i) {
+    const c = document.getElementById(`sai-chk-${i}`);
+    if (c) {
+        c.checked = !c.checked;
+        saiSync(i);
+    }
+}
+
+function saiSync(i) {
+    const card = document.getElementById(`sai-qc-${i}`);
+    const chk = document.getElementById(`sai-chk-${i}`);
+    if (card && chk) {
+        chk.checked ? card.classList.add('sel') : card.classList.remove('sel');
+    }
+}
+
+function saiAll(v) {
+    saiQuestions.forEach((_, i) => {
+        const c = document.getElementById(`sai-chk-${i}`);
+        if (c) {
+            c.checked = v;
+            saiSync(i);
+        }
+    });
+}
+
+// Lưu câu hỏi đã chọn vào bài luyện
+async function saiImport() {
+    const sel = saiQuestions
+        .filter((_, i) => {
+            const c = document.getElementById(`sai-chk-${i}`);
+            return c && c.checked;
+        })
+        .map(q => {
+            const realIdx = saiQuestions.indexOf(q);
+            const te = document.getElementById(`sai-qt-${realIdx}`);
+            return { ...q, title: te ? te.value : q.title };
+        });
+
+    if (!sel.length) {
+        saiMsg('Thầy/Cô vui lòng tick chọn ít nhất 1 câu hỏi muốn lưu vào bài luyện nhé!', 'err');
+        return;
+    }
+
+    saiImpLoad(true);
+    saiMsg('', '');
+
+    try {
+        const r = await fetch('{{ route("admin.ai.questions.import") }}', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
+                'Accept': 'application/json',
+            },
+            body: JSON.stringify({ practice_test_id: SAI_PRACTICE_TEST_ID, questions: sel }),
+        });
+        const d = await r.json();
+
+        if (d.success) {
+            saiMsg(`🎉 ${d.message} Đang tải lại bài luyện để hiển thị câu hỏi mới...`, 'ok');
+            setTimeout(() => window.location.reload(), 2000);
+        } else {
+            saiMsg(d.message || 'Lưu câu hỏi chưa thành công. Thầy/Cô vui lòng thử lại nhé!', 'err');
+        }
+    } catch (e) {
+        saiMsg('Kết nối máy chủ bị gián đoạn. Thầy/Cô vui lòng thử lại sau giây lát!', 'err');
+        console.error(e);
+    } finally {
+        saiImpLoad(false);
+    }
+}
+
+function saiMsg(t, type) {
+    const e = document.getElementById('sai-msg');
+    if (!e) return;
+    e.textContent = t;
+    e.className = 'sai-status' + (type ? ` ${type}` : '');
+}
+
+function saiGenLoad(on) {
+    const btn = document.getElementById('sai-gen-btn');
+    const spin = document.getElementById('sai-gen-spin');
+    const lbl = document.getElementById('sai-gen-lbl');
+    if (btn) btn.disabled = on;
+    if (spin) spin.style.display = on ? 'block' : 'none';
+    if (lbl) lbl.textContent = on ? 'Đang phân tích hình ảnh và soạn câu hỏi...' : '✨ Bắt đầu phân tích & Soạn câu hỏi';
+}
+
+function saiImpLoad(on) {
+    const btn = document.getElementById('sai-imp-btn');
+    const spin = document.getElementById('sai-imp-spin');
+    const lbl = document.getElementById('sai-imp-lbl');
+    if (btn) btn.disabled = on;
+    if (spin) spin.style.display = on ? 'block' : 'none';
+    if (lbl) lbl.textContent = on ? 'Đang lưu vào bài luyện...' : '💾 Lưu các câu hỏi đã chọn vào bài luyện';
+}
+
+function saiEsc(s) {
+    return String(s ?? '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+}
+
+// Đóng modal khi bấm ra ngoài hoặc nhấn phím ESC
+document.getElementById('modal-studio-ai').addEventListener('click', e => {
+    if (e.target === e.currentTarget) closeStudioAiModal();
+});
+
+document.addEventListener('keydown', e => {
+    if (e.key === 'Escape') {
+        if (document.getElementById('sai-lightbox')?.classList.contains('active')) {
+            closeSaiLightbox();
+        } else if (document.getElementById('modal-studio-ai')?.classList.contains('active')) {
+            closeStudioAiModal();
+        }
+    }
+});
+</script>
+@endif
 </body>
 </html>
+

@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\Admin\ClassroomController;
 use App\Http\Controllers\Admin\GameSettingController;
+use App\Http\Controllers\Admin\AiQuestionController;
 use App\Http\Controllers\Admin\MockTestController;
 use App\Http\Controllers\Admin\PackageController as AdminPackageController;
 use App\Http\Controllers\Admin\PracticeTestController;
@@ -165,6 +166,10 @@ Route::prefix('quan-tri')->name('admin.')->middleware(['auth', 'admin'])->group(
     Route::put('/bo-de-thi-thu/{mockTest}', [MockTestController::class, 'update'])->name('mock-tests.update');
     Route::delete('/bo-de-thi-thu/{mockTest}', [MockTestController::class, 'destroy'])->name('mock-tests.destroy');
     Route::post('/bo-de-thi-thu/boc-ngau-nhien', [MockTestController::class, 'quickRandom'])->name('mock-tests.quick-random');
+
+    // 🤖 AI Soạn Câu Hỏi Tự Động (Gemini)
+    Route::post('/ai/tao-cau-hoi', [AiQuestionController::class, 'generate'])->name('ai.questions.generate');
+    Route::post('/ai/import-cau-hoi', [AiQuestionController::class, 'import'])->name('ai.questions.import');
 
     // Quản lý Chủ đề (Topic)
     Route::post('/topics', [TopicController::class, 'store'])->name('topics.store');

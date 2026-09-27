@@ -549,7 +549,6 @@
         .btn-action-danger:hover {
             background: #fee2e2;
         }
-
         /* ==========================================================================
            5. QUESTION CARDS - TƯƠNG PHẢN RÕ NÉT, NỔI KHỐI 3D TRÊN NỀN
            ========================================================================== */
@@ -863,7 +862,7 @@
                 <div class="sub-header-right">
                     <div class="counter-pill">
                         <span>Đã chọn:</span>
-                        <b id="top-count-badge">0</b> / <span id="top-target-count">30</span> câu
+                        <b id="top-count-badge">0</b> / <span id="top-total-available">{{ $selectedLevel?->topics->flatMap->tests->flatMap->questions->count() ?? 0 }}</span> câu
                         <div class="counter-bar-track">
                             <div class="counter-bar-fill" id="top-progress-fill"></div>
                         </div>
@@ -1001,14 +1000,19 @@
 
                             <!-- Cụm nút hành động tinh gọn -->
                             <div class="bar-actions-group">
-                                <!-- Nút Bốc đề chuẩn 30 câu -->
-                                <button type="button" class="btn-action-clean btn-action-pick" onclick="autoPickQuestions(30)" title="Tự động bốc đều 30 câu hỏi từ 7 chủ đề">
-                                    ⚡ Bốc 30 câu
-                                </button>
-                                <!-- Nút Bốc 35 câu -->
-                                <button type="button" class="btn-action-clean" onclick="autoPickQuestions(35)" title="Bốc 35 câu">
-                                    35 câu
-                                </button>
+                                <!-- Bốc Đề: Input số + Nút bốc ngẫu nhiên -->
+                                <div style="display:flex;align-items:center;gap:4px;">
+                                    <input type="number" id="pick-count-input" value="30" min="1"
+                                           style="width:56px;padding:5px 8px;border-radius:8px;border:1.5px solid #cbd5e1;font-size:13px;font-weight:700;text-align:center;color:#1e293b;background:#fff;outline:none;"
+                                           title="Nhập số câu muốn bốc"
+                                           onkeydown="if(event.key==='Enter'){autoPickQuestions(parseInt(this.value)||30);}">
+                                    <button type="button" class="btn-action-clean btn-action-pick"
+                                            onclick="autoPickQuestions(parseInt(document.getElementById('pick-count-input').value)||30)"
+                                            title="Tự động bốc ngẫu nhiên đều từ 7 chủ đề">
+                                        ⚡ Bốc Đề
+                                    </button>
+                                </div>
+
                                 <!-- Nút Chọn hết CĐ -->
                                 <button type="button" class="btn-action-clean" onclick="toggleCurrentTopicAll()" id="btn-select-topic-all">
                                     ✓ Chọn hết
@@ -1164,12 +1168,14 @@
         const badge = document.getElementById('top-count-badge');
         if (badge) badge.textContent = totalChecked;
 
-        const targetCount = 30;
-        const percent = Math.min(100, Math.round((totalChecked / targetCount) * 100));
+        // Progress bar tính theo tổng câu available thực tế
+        const totalAvailableEl = document.getElementById('top-total-available');
+        const totalAvailable = totalAvailableEl ? parseInt(totalAvailableEl.textContent) || 1 : 1;
+        const percent = Math.min(100, Math.round((totalChecked / totalAvailable) * 100));
         const fillBar = document.getElementById('top-progress-fill');
         if (fillBar) {
             fillBar.style.width = percent + '%';
-            if (totalChecked >= 25) {
+            if (totalChecked >= Math.floor(totalAvailable * 0.8)) {
                 fillBar.style.background = '#10b981';
             } else {
                 fillBar.style.background = '#f59e0b';
