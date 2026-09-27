@@ -403,15 +403,21 @@ class AiQuestionProviderTest extends TestCase
         $this->assertStringNotContainsString('educational diagram', $promptRandom);
         $this->assertStringNotContainsString('clean flat vector', $promptRandom);
 
-        // Trường hợp 2: Có mô tả ngữ cảnh trực quan tiếng Anh phong phú từ AI soạn đề
-        $promptWithContext = $service->buildOptimizedImagePrompt(
-            'A cute computer screen displays colorful interlocking toy puzzle code blocks with a friendly toy robot',
-            'Trước khi học các ngôn ngữ lập trình bằng chữ phức tạp như PHP, các bạn học sinh tiểu học nên làm quen với hình thức lập trình nào trước?'
+        // Trường hợp 3: Câu hỏi về tên biến PHP -> Phải ra giao diện code editor IDE trực quan (không phải rương báu)
+        $promptVariable = $service->buildOptimizedImagePrompt(
+            '',
+            'Trong ngôn ngữ lập trình PHP, tất cả các tên biến (dùng để lưu trữ dữ liệu) bắt buộc phải bắt đầu bằng ký tự nào?'
         );
-        $this->assertStringContainsString('toy puzzle code blocks', $promptWithContext);
-        $this->assertStringContainsString('friendly toy robot', $promptWithContext);
-        $this->assertStringContainsString('Pixar and Disney 3D animation feel', $promptWithContext);
-        $this->assertStringNotContainsString('wide 16:9 widescreen layout', $promptWithContext);
+        $this->assertStringContainsString('code editor IDE', $promptVariable);
+        $this->assertStringNotContainsString('treasure', $promptVariable);
+
+        // Trường hợp 4: Câu hỏi về máy chủ Web Server -> Phải ra web server tower và browser
+        $promptServer = $service->buildOptimizedImagePrompt(
+            '',
+            'Mã lệnh PHP thường được đặt trên máy chủ (Web Server) để làm nhiệm vụ gì khi em duyệt web?'
+        );
+        $this->assertStringContainsString('web server tower', $promptServer);
+        $this->assertStringContainsString('web browser window', $promptServer);
     }
 
     private function questionsJson(): string
