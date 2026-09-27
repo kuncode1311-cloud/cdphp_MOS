@@ -6669,8 +6669,16 @@ function saiRenderList(qs) {
 function saiIllustrationHtml(q, i) {
     if (q.illustration_path) {
         return `<div class="sai-ai-illustration">
-                    <img src="${saiEsc(q.illustration_path)}" alt="Ảnh minh họa do AI tạo cho câu ${i + 1}">
-                    <div><strong>Ảnh minh họa đã tạo</strong><span>Ảnh này sẽ đi cùng câu hỏi khi lưu và hiển thị trong màn hình học sinh.</span></div>
+                    <img src="${saiEsc(q.illustration_path)}" alt="Ảnh minh họa do AI tạo cho câu ${i + 1}" onclick="saiZoomImage('${saiEsc(q.illustration_path)}', 'Ảnh minh họa câu ${i + 1}')" title="Nhấp để xem ảnh lớn" style="cursor:zoom-in;">
+                    <div style="display:flex;flex-direction:column;gap:5px;">
+                        <strong>Ảnh minh họa đã tạo</strong>
+                        <span>Ảnh này sẽ đi cùng câu hỏi khi lưu và hiển thị trong màn hình học sinh.</span>
+                        <div style="margin-top:4px;">
+                            <button type="button" onclick="event.stopPropagation(); saiRetryIllustration(${i})" style="padding:4px 10px;border-radius:6px;border:1px solid #38bdf8;background:#ffffff;color:#0284c7;font-size:11px;font-weight:700;cursor:pointer;display:inline-flex;align-items:center;gap:4px;box-shadow:0 1px 3px rgba(0,0,0,0.06);transition:all 0.15s;" onmouseover="this.style.background='#f0f9ff'" onmouseout="this.style.background='#ffffff'">
+                                🔄 Đổi ảnh khác
+                            </button>
+                        </div>
+                    </div>
                </div>`;
     }
     if (q.image_status === 'loading') {
@@ -6680,13 +6688,47 @@ function saiIllustrationHtml(q, i) {
                </div>`;
     }
     if (q.image_status === 'error') {
-        return `<div class="sai-ai-illustration err">
-                    <div><strong>Chưa tạo được ảnh minh họa</strong><span>Câu hỏi vẫn dùng được; Thầy/Cô có thể lưu câu chữ hoặc bỏ chọn câu này.</span></div>
+        return `<div class="sai-ai-illustration err" style="display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;">
+                    <div style="min-width:200px;flex:1;">
+                        <strong>Chưa tạo được ảnh minh họa</strong>
+                        <span>Câu hỏi vẫn dùng được; Thầy/Cô có thể bấm thử tạo lại hoặc lưu câu chữ.</span>
+                    </div>
+                    <button type="button" onclick="event.stopPropagation(); saiRetryIllustration(${i})" style="padding:7px 14px;border-radius:8px;border:1.5px solid #f97316;background:#fff7ed;color:#ea580c;font-size:12px;font-weight:800;cursor:pointer;display:inline-flex;align-items:center;gap:6px;box-shadow:0 3px 8px rgba(234,88,12,0.18);transition:all 0.15s;" onmouseover="this.style.background='#ffedd5'" onmouseout="this.style.background='#fff7ed'">
+                        🎨 Thử tạo lại ảnh
+                    </button>
                </div>`;
     }
     return q.needs_image
-        ? `<div class="sai-ai-illustration"><div class="sai-ai-loading-card" aria-hidden="true"><div class="sai-ai-loading-icon">🖼️</div></div><div><strong>Đang chờ tạo ảnh minh họa</strong><span>Ảnh sẽ được cập nhật tự động nếu hệ thống tạo thành công.</span></div></div>`
+        ? `<div class="sai-ai-illustration" style="display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;">
+                <div style="display:flex;align-items:center;gap:10px;flex:1;min-width:200px;">
+                    <div class="sai-ai-loading-card" aria-hidden="true" style="width:48px;height:48px;"><div class="sai-ai-loading-icon" style="width:28px;height:28px;font-size:15px;">🖼️</div></div>
+                    <div><strong>Chưa có ảnh minh họa</strong><span>Thầy/Cô có thể yêu cầu AI vẽ ảnh minh họa cho câu này.</span></div>
+                </div>
+                <button type="button" onclick="event.stopPropagation(); saiRetryIllustration(${i})" style="padding:6px 12px;border-radius:8px;border:1.5px solid #0284c7;background:#f0f9ff;color:#0284c7;font-size:11.5px;font-weight:800;cursor:pointer;white-space:nowrap;display:inline-flex;align-items:center;gap:5px;">
+                    🎨 Tạo ảnh minh họa
+                </button>
+           </div>`
         : '';
+}
+
+function saiRetryIllustration(index) {
+    const question = saiQuestions[index];
+    if (!question) return;
+    question.needs_image = true;
+    question.image_status = 'loading';
+    saiUpdateIllustration(index);
+    saiGenerateIllustration(index, saiGenerationRunId);
+}
+
+function saiZoomImage(url, title = 'Ảnh minh họa') {
+    const box = document.getElementById('sai-lightbox');
+    const img = document.getElementById('sai-lightbox-img');
+    const tit = document.getElementById('sai-lightbox-title');
+    if (box && img) {
+        img.src = url;
+        if (tit) tit.textContent = title;
+        box.classList.add('active');
+    }
 }
 
 function saiUpdateIllustration(i) {
