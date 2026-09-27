@@ -6565,8 +6565,8 @@ function saiEnqueueIllustration(index) {
     const question = saiQuestions[index];
     if (!question) return;
 
-    // Không thêm trùng lặp nếu câu hỏi đã có ảnh hoặc đang tải hoặc đã trong hàng đợi
-    if (question.illustration_path || question.image_status === 'loading') return;
+    // Không thêm trùng lặp nếu câu hỏi đang tải hoặc đã trong hàng đợi
+    if (question.image_status === 'loading' || question.image_status === 'queued') return;
     if (saiIllustrationQueue.includes(index)) return;
 
     question.needs_image = true;
@@ -6583,7 +6583,7 @@ async function saiProcessIllustrationQueue() {
     while (saiActiveIllustrationWorkers < SAI_MAX_CONCURRENT_ILLUSTRATIONS && saiIllustrationQueue.length > 0) {
         const nextIndex = saiIllustrationQueue.shift();
         const question = saiQuestions[nextIndex];
-        if (!question || question.illustration_path) continue;
+        if (!question) continue;
 
         saiActiveIllustrationWorkers++;
         question.image_status = 'loading';
@@ -6748,6 +6748,26 @@ function saiRenderList(qs) {
 }
 
 function saiIllustrationHtml(q, i) {
+    if (q.image_status === 'loading') {
+        return `<div class="sai-ai-illustration">
+                    <div class="sai-ai-loading-card" aria-hidden="true"><div class="sai-ai-loading-icon" style="font-size:18px;">🎨</div></div>
+                    <div>
+                        <strong style="color:#0284c7;font-size:12.5px;display:block;">🎨 Đang vẽ ảnh minh họa trực quan...</strong>
+                        <span style="font-size:11.5px;color:#0369a1;">Hệ thống AI đang thực hiện vẽ ảnh mới. Thầy/Cô vẫn có thể đọc, sửa và chọn câu hỏi bình thường.</span>
+                    </div>
+               </div>`;
+    }
+    if (q.image_status === 'queued') {
+        const queuePos = saiIllustrationQueue.indexOf(i) + 1;
+        const posText = queuePos > 0 ? ` (Vị trí #${queuePos})` : '';
+        return `<div class="sai-ai-illustration queued">
+                    <div class="sai-ai-queued-card" aria-hidden="true"><div class="sai-ai-loading-icon" style="background:linear-gradient(135deg,#8b5cf6,#6366f1);font-size:18px;">⏳</div></div>
+                    <div>
+                        <strong style="color:#6d28d9;font-size:12.5px;display:block;">⏳ Đang xếp hàng chờ vẽ ảnh minh họa${posText}...</strong>
+                        <span style="font-size:11.5px;color:#7c3aed;">Hệ thống đang chạy đa luồng thông minh (tối đa 2 luồng). Lượt vẽ câu này sẽ tự động bắt đầu ngay khi có luồng trống.</span>
+                    </div>
+               </div>`;
+    }
     if (q.illustration_path) {
         return `<div class="sai-ai-illustration">
                     <img src="${saiEsc(q.illustration_path)}" alt="Ảnh minh họa do AI tạo cho câu ${i + 1}" onclick="saiZoomImage('${saiEsc(q.illustration_path)}', 'Ảnh minh họa câu ${i + 1}')" title="Nhấp để xem ảnh lớn" onerror="this.onerror=null;this.style.opacity='0.4';" style="cursor:zoom-in;">
@@ -6762,26 +6782,6 @@ function saiIllustrationHtml(q, i) {
                                 ✕ Bỏ ảnh
                             </button>
                         </div>
-                    </div>
-               </div>`;
-    }
-    if (q.image_status === 'loading') {
-        return `<div class="sai-ai-illustration">
-                    <div class="sai-ai-loading-card" aria-hidden="true"><div class="sai-ai-loading-icon" style="font-size:18px;">🎨</div></div>
-                    <div>
-                        <strong style="color:#0284c7;font-size:12.5px;display:block;">🎨 Đang vẽ ảnh minh họa trực quan...</strong>
-                        <span style="font-size:11.5px;color:#0369a1;">Hệ thống AI đang thực hiện vẽ ảnh. Thầy/Cô vẫn có thể đọc, sửa và chọn câu hỏi bình thường.</span>
-                    </div>
-               </div>`;
-    }
-    if (q.image_status === 'queued') {
-        const queuePos = saiIllustrationQueue.indexOf(i) + 1;
-        const posText = queuePos > 0 ? ` (Vị trí #${queuePos})` : '';
-        return `<div class="sai-ai-illustration queued">
-                    <div class="sai-ai-queued-card" aria-hidden="true"><div class="sai-ai-loading-icon" style="background:linear-gradient(135deg,#8b5cf6,#6366f1);font-size:18px;">⏳</div></div>
-                    <div>
-                        <strong style="color:#6d28d9;font-size:12.5px;display:block;">⏳ Đang xếp hàng chờ vẽ ảnh minh họa${posText}...</strong>
-                        <span style="font-size:11.5px;color:#7c3aed;">Hệ thống đang chạy đa luồng thông minh (tối đa 2 luồng). Lượt vẽ câu này sẽ tự động bắt đầu ngay khi có luồng trống.</span>
                     </div>
                </div>`;
     }
@@ -6814,6 +6814,8 @@ function saiRetryIllustration(index) {
         saiCleanupUnusedIllustrations([], [question.illustration_path]);
         question.illustration_path = null;
     }
+    question.needs_image = true;
+    question.image_status = 'queued';
     saiEnqueueIllustration(index);
 }
 
