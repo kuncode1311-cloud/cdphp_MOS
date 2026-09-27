@@ -143,7 +143,11 @@ class AiQuestionController extends Controller
             'question.image_prompt' => 'nullable|string|max:2000',
             'question.options' => 'required|array|min:2',
             'question.options.*.content' => 'nullable|string|max:1000',
-            'question.options.*.is_correct' => 'required|boolean',
+            'question.options.*.left' => 'nullable|string|max:1000',
+            'question.options.*.right' => 'nullable|string|max:1000',
+            'question.options.*.is_correct' => 'nullable|boolean',
+            'question.options.*.position' => 'nullable|integer',
+            'question.options.*.metadata' => 'nullable|array',
         ]);
 
         // Giải phóng khóa session để nhiều request tạo ảnh chạy song song thực sự (đa luồng)

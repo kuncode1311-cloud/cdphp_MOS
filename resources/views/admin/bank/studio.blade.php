@@ -6565,9 +6565,8 @@ function saiEnqueueIllustration(index) {
     const question = saiQuestions[index];
     if (!question) return;
 
-    // Không thêm trùng lặp nếu câu hỏi đang tải hoặc đã trong hàng đợi
-    if (question.image_status === 'loading' || question.image_status === 'queued') return;
-    if (saiIllustrationQueue.includes(index)) return;
+    // Không thêm trùng lặp nếu câu hỏi đang bận vẽ hoặc đã nằm trong hàng đợi
+    if (saiIllustrationQueue.includes(index) || question.image_status === 'loading') return;
 
     question.needs_image = true;
     question.image_status = 'queued';
@@ -6633,13 +6632,16 @@ async function saiRunIllustrationWorker(index, runId) {
                 ...(d.question || {}),
                 illustration_path: d.illustration_path,
                 image_status: 'done',
+                image_error_message: null,
             };
         } else {
             saiQuestions[index].image_status = 'error';
+            saiQuestions[index].image_error_message = d.message || 'Chưa tạo được ảnh minh họa cho câu này.';
         }
     } catch (e) {
         if (runId !== saiGenerationRunId) return;
         saiQuestions[index].image_status = 'error';
+        saiQuestions[index].image_error_message = 'Kết nối mạng bị gián đoạn khi tạo ảnh.';
         console.error(`Lỗi khi tạo ảnh cho câu ${index + 1}:`, e);
     } finally {
         saiActiveIllustrationWorkers = Math.max(0, saiActiveIllustrationWorkers - 1);
@@ -6786,10 +6788,11 @@ function saiIllustrationHtml(q, i) {
                </div>`;
     }
     if (q.image_status === 'error') {
+        const errorMsg = q.image_error_message || 'Chưa tạo được ảnh minh họa';
         return `<div class="sai-ai-illustration err" style="display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;">
                     <div style="min-width:200px;flex:1;">
-                        <strong>Chưa tạo được ảnh minh họa</strong>
-                        <span>Câu hỏi vẫn dùng được; Thầy/Cô có thể bấm thử tạo lại hoặc lưu câu chữ.</span>
+                        <strong style="color:#b91c1c;font-size:12.5px;display:block;">⚠️ ${saiEsc(errorMsg)}</strong>
+                        <span style="font-size:11.5px;color:#475569;display:block;margin-top:2px;">Câu hỏi vẫn dùng được; Thầy/Cô có thể bấm thử tạo lại hoặc lưu câu chữ vào bài luyện.</span>
                     </div>
                     <button type="button" onclick="event.stopPropagation(); saiRetryIllustration(${i})" style="padding:7px 14px;border-radius:8px;border:1.5px solid #f97316;background:#fff7ed;color:#ea580c;font-size:12px;font-weight:800;cursor:pointer;display:inline-flex;align-items:center;gap:6px;box-shadow:0 3px 8px rgba(234,88,12,0.18);transition:all 0.15s;" onmouseover="this.style.background='#ffedd5'" onmouseout="this.style.background='#fff7ed'">
                         🎨 Thử tạo lại ảnh
@@ -6801,21 +6804,37 @@ function saiIllustrationHtml(q, i) {
     // Luôn cung cấp tùy chọn cho phép giáo viên tạo ảnh theo yêu cầu từng câu
     return `<div class="sai-ai-no-img" style="padding:6px 12px;background:#f8fafc;border-bottom:1px dashed #e2e8f0;display:flex;align-items:center;justify-content:space-between;gap:8px;flex-wrap:wrap;">
                 <span style="font-size:11.5px;color:#64748b;">💡 Câu hỏi dạng thuần chữ. Thầy/Cô có thể tạo thêm hình ảnh minh họa cho câu này nếu muốn.</span>
-                <button type="button" onclick="event.stopPropagation(); saiRetryIllustration(${i})" style="padding:4px 10px;border-radius:6px;border:1px dashed #0284c7;background:#f0f9ff;color:#0284c7;font-size:11px;font-weight:800;cursor:pointer;display:inline-flex;align-items:center;gap:4px;transition:all 0.15s;white-space:nowrap;" onmouseover="this.style.background='#e0f2fe'" onmouseout="this.style.background='#f0f9ff'">
+                <button type="button" onclick="event.stopPropagation(); saiRequestIllustrationForIndex(${i})" style="padding:4px 10px;border-radius:6px;border:1px dashed #0284c7;background:#f0f9ff;color:#0284c7;font-size:11px;font-weight:800;cursor:pointer;display:inline-flex;align-items:center;gap:4px;transition:all 0.15s;white-space:nowrap;" onmouseover="this.style.background='#e0f2fe'" onmouseout="this.style.background='#f0f9ff'">
                     🎨 Tạo ảnh minh họa cho câu này
                 </button>
             </div>`;
 }
 
+function saiRequestIllustrationForIndex(index) {
+    const question = saiQuestions[index];
+    if (!question) return;
+    const titleEl = document.getElementById(`sai-qt-${index}`);
+    if (titleEl && titleEl.value.trim()) {
+        question.title = titleEl.value.trim();
+    }
+    question.needs_image = true;
+    question.image_status = null;
+    saiEnqueueIllustration(index);
+}
+
 function saiRetryIllustration(index) {
     const question = saiQuestions[index];
     if (!question) return;
+    const titleEl = document.getElementById(`sai-qt-${index}`);
+    if (titleEl && titleEl.value.trim()) {
+        question.title = titleEl.value.trim();
+    }
     if (question.illustration_path) {
         saiCleanupUnusedIllustrations([], [question.illustration_path]);
         question.illustration_path = null;
     }
     question.needs_image = true;
-    question.image_status = 'queued';
+    question.image_status = null;
     saiEnqueueIllustration(index);
 }
 

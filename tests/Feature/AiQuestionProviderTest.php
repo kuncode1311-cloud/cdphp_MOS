@@ -3,6 +3,7 @@
 namespace Tests\Feature;
 
 use App\Services\GeminiService;
+use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Http\Client\Request;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Storage;
@@ -11,6 +12,7 @@ use Tests\TestCase;
 
 class AiQuestionProviderTest extends TestCase
 {
+    use RefreshDatabase;
     protected function setUp(): void
     {
         parent::setUp();
@@ -350,6 +352,39 @@ class AiQuestionProviderTest extends TestCase
             $request['messages'][0]['content'][0]['text'],
             'Tạo đúng 7 câu hỏi'
         ));
+    }
+
+    public function test_endpoint_illustration_chap_nhan_cau_hoi_matching(): void
+    {
+        Storage::fake('public');
+        $admin = \App\Models\User::factory()->create(['role' => 'admin']);
+
+        Http::fake([
+            'ai.example.test/*' => Http::response([
+                'choices' => [[
+                    'message' => [
+                        'content' => $this->fakePngDataUrl(1280, 720),
+                    ],
+                ]],
+            ]),
+        ]);
+
+        $response = $this->actingAs($admin)->postJson(route('admin.ai.questions.illustration'), [
+            'question' => [
+                'title' => 'Em hãy nối thông tin trên thẻ Căn cước công dân với dạng dữ liệu tương ứng trong Tin học:',
+                'type' => 'Matching',
+                'needs_image' => true,
+                'options' => [
+                    ['left' => 'Họ và tên, Quê quán', 'right' => 'Dữ liệu dạng chữ (văn bản)'],
+                    ['left' => 'Số Căn cước công dân', 'right' => 'Dữ liệu dạng số'],
+                    ['left' => 'Ảnh chân dung', 'right' => 'Dữ liệu dạng hình ảnh'],
+                ],
+            ],
+        ]);
+
+        $response->assertOk()
+            ->assertJsonPath('success', true);
+        $this->assertNotEmpty($response->json('illustration_path'));
     }
 
     private function questionsJson(): string
