@@ -21,7 +21,7 @@ return new class extends Migration
     public function up(): void
     {
         // Bỏ qua khi đang chạy test suite tự động với SQLite in-memory
-        if (app()->runningUnitTests()) {
+        if (app()->environment('testing') || app()->runningUnitTests() || config('database.default') === 'sqlite') {
             return;
         }
 
