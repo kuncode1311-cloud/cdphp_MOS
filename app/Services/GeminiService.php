@@ -221,8 +221,19 @@ class GeminiService
             return null;
         }
 
-        $binary = $this->normalizeImageToLandscape($binary) ?? $binary;
-        $path = 'question-assets/ai-'.Str::uuid().'.jpg';
+        $normalized = $this->normalizeImageToLandscape($binary);
+        if ($normalized !== null) {
+            $binary = $normalized;
+            $extension = 'jpg';
+        } else {
+            $extension = match ($matches[1]) {
+                'image/png' => 'png',
+                'image/webp' => 'webp',
+                default => 'jpg',
+            };
+        }
+
+        $path = 'question-assets/ai-'.Str::uuid().'.'.$extension;
         Storage::disk('public')->put($path, $binary);
 
         return Storage::url($path);
@@ -230,6 +241,10 @@ class GeminiService
 
     private function normalizeImageToLandscape(string $binary): ?string
     {
+        if (! function_exists('imagecreatefromstring') || ! function_exists('imagecreatetruecolor')) {
+            return null;
+        }
+
         $source = @imagecreatefromstring($binary);
         if (! $source) {
             return null;
