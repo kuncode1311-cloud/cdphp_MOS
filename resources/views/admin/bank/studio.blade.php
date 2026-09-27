@@ -5994,7 +5994,7 @@
         border-bottom:2px solid #bae6fd;
     }
     .sai-ai-illustration img {
-        width:160px; height:90px; object-fit:contain; background:#f8fafc; border-radius:9px;
+        width:160px; height:90px; object-fit:cover; object-position:center; background:#f8fafc; border-radius:9px;
         border:2px solid #38bdf8; box-shadow:0 4px 10px rgba(2,132,199,.18);
         cursor:zoom-in; transition:transform 0.15s ease;
     }
@@ -6033,7 +6033,7 @@
     }
     @media (max-width:560px) {
         .sai-ai-illustration { grid-template-columns:1fr; }
-        .sai-ai-illustration img { width:100%; height:auto; max-height:180px; }
+        .sai-ai-illustration img { width:100%; height:auto; aspect-ratio:16/9; object-fit:cover; object-position:center; max-height:180px; }
         .sai-ai-loading-card { width:100%; height:150px; }
     }
     @keyframes saiShimmer { to { transform:translateX(120%); } }

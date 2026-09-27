@@ -274,6 +274,10 @@ class GeminiService
     private function cropToLandscape16x9(string $binary): string
     {
         if (! extension_loaded('gd')) {
+            if (extension_loaded('imagick')) {
+                return $this->cropWithImagick16x9($binary);
+            }
+            Log::warning('GeminiService: PHP GD/Imagick extension chưa được kích hoạt, ảnh minh họa sẽ giữ nguyên tỉ lệ gốc của AI.');
             return $binary;
         }
 
@@ -346,6 +350,54 @@ class GeminiService
         imagedestroy($dstImage);
 
         return (! empty($result) && strlen($result) > 100) ? $result : $binary;
+    }
+
+    private function cropWithImagick16x9(string $binary): string
+    {
+        try {
+            $im = new \Imagick();
+            $im->readImageBlob($binary);
+            $origW = $im->getImageWidth();
+            $origH = $im->getImageHeight();
+            if ($origW <= 0 || $origH <= 0) {
+                $im->clear();
+                $im->destroy();
+                return $binary;
+            }
+
+            $targetRatio = 16 / 9;
+            $currentRatio = $origW / $origH;
+            if (abs($currentRatio - $targetRatio) < 0.03 && $origW === 1280 && $origH === 720) {
+                $im->clear();
+                $im->destroy();
+                return $binary;
+            }
+
+            if ($currentRatio < $targetRatio) {
+                $cropW = $origW;
+                $cropH = (int) round($origW * 9 / 16);
+                $cropX = 0;
+                $cropY = (int) max(0, round(($origH - $cropH) / 2));
+            } else {
+                $cropH = $origH;
+                $cropW = (int) round($origH * 16 / 9);
+                $cropX = (int) max(0, round(($origW - $cropW) / 2));
+                $cropY = 0;
+            }
+
+            $im->cropImage($cropW, $cropH, $cropX, $cropY);
+            $im->setImagePage(0, 0, 0, 0);
+            $im->resizeImage(1280, 720, \Imagick::FILTER_LANCZOS, 1);
+            $im->setImageFormat('png');
+            $result = $im->getImageBlob();
+            $im->clear();
+            $im->destroy();
+
+            return (! empty($result) && strlen($result) > 100) ? $result : $binary;
+        } catch (\Throwable $e) {
+            Log::warning('GeminiService: Cắt ảnh 16:9 bằng Imagick thất bại: '.$e->getMessage());
+            return $binary;
+        }
     }
 
     private function findImageDataUrl(mixed $value): ?string
