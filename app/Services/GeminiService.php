@@ -127,98 +127,85 @@ class GeminiService
     }
 
     /**
-     * Tối ưu hóa prompt tạo ảnh chuyên sâu chuẩn kiến thức Tin học & IC3 Spark tiểu học.
-     * Chuyển hóa sang tiếng Anh chuyên ngành UI/Hardware để mô hình tạo ảnh sinh ra hình ảnh sắc nét,
-     * đúng giao diện phần mềm thực tế, không vẽ hoạt hình mầm non linh tinh.
+     * Tối ưu hóa prompt tạo ảnh bối cảnh trung tính chuẩn kiến thức Tin học & IC3 Spark tiểu học.
+     * Bám sát TIÊU ĐỀ CÂU HỎI là chính, tuyệt đối không làm lộ đáp án của bài thi.
      */
     public function buildOptimizedImagePrompt(string $description, string $questionTitle, array $question = []): string
     {
-        $combinedText = mb_strtolower($questionTitle.' '.$description);
-        $options = $question['options'] ?? [];
-        foreach ($options as $opt) {
-            $combinedText .= ' '.mb_strtolower(($opt['content'] ?? '').' '.($opt['left'] ?? '').' '.($opt['right'] ?? ''));
-        }
+        // Bám sát TIÊU ĐỀ CÂU HỎI là chính theo đúng yêu cầu sư phạm.
+        // Tuyệt đối không lấy các đáp án đúng hay đáp án nhiễu để tránh làm lộ đề thi hoặc vẽ sai lệch.
+        $primaryContext = mb_strtolower($questionTitle.' '.$description);
 
-        // 1. Soạn thảo văn bản (Word / Thẻ Ribbon: Insert, Home, Layout, Chèn ảnh, Bảng...)
-        if (preg_match('/soạn\s*thảo|văn\s*bản|word|thẻ\s*insert|thẻ\s*home|thẻ\s*file|chèn\s*ảnh|chèn\s*hình|chèn\s*bảng|đổi\s*màu\s*chữ|cỡ\s*chữ|font\s*chữ|căn\s*lề|kiểu\s*chữ/ui', $combinedText)) {
+        // 1. Soạn thảo văn bản (Word / Thẻ Ribbon chung / Soạn thảo)
+        if (preg_match('/soạn\s*thảo|văn\s*bản|word|wordpad|gõ\s*văn\s*bản/ui', $primaryContext)) {
             return 'A realistic, clean computer screenshot of a modern word processing software interface (Microsoft Word style) in wide 16:9 landscape aspect ratio. '
-                .'The top displays a sharp Ribbon toolbar with clearly labeled tabs: [File] [Home] [Insert] [Draw] [Design] [Layout] [References] [Review] [View]. '
-                .'The ribbon displays clean toolbar icons including Pictures, Shapes, Table, and Font formatting tools. '
+                .'The top displays a standard, neutral Ribbon toolbar with all typical tabs [File, Home, Insert, Draw, Design, Layout, References, Review, View] evenly displayed without any highlights or spoilers. '
                 .'Below the ribbon is a clean document editing page with a typing cursor on clean white paper. '
-                .'Authentic digital literacy educational graphic for elementary students, wide 16:9 widescreen layout, modern flat software UI, sharp text, no cartoon characters, no animal mascots, no gibberish text, no blurry borders.';
+                .'Neutral educational digital literacy graphic for elementary students, wide 16:9 widescreen layout, modern flat software UI, sharp text, no cartoon characters, no animal mascots, no highlight on any specific button, no blurry borders.';
         }
 
-        // 2. Trình chiếu (PowerPoint / Slides / Hiệu ứng)
-        if (preg_match('/trình\s*chiếu|powerpoint|slide|trang\s*chiếu|bài\s*trình\s*chiếu|transitions|animations/ui', $combinedText)) {
+        // 2. Trình chiếu (PowerPoint / Slides / Trang chiếu)
+        if (preg_match('/trình\s*chiếu|powerpoint|slide|trang\s*chiếu|bài\s*trình\s*chiếu/ui', $primaryContext)) {
             return 'A realistic, clean computer screenshot of presentation software (Microsoft PowerPoint style) in wide 16:9 landscape aspect ratio. '
-                .'Displays the top Ribbon toolbar with tabs [File] [Home] [Insert] [Draw] [Design] [Transitions] [Animations] [Slide Show], '
-                .'a left slide thumbnail column, and a central widescreen presentation slide with editable title and subtitle placeholders. '
-                .'Sharp modern computer software interface, educational computer science graphic, wide 16:9 widescreen layout, no cartoon characters, no blurry borders.';
+                .'Displays the standard top Ribbon toolbar with tabs [File, Home, Insert, Draw, Design, Transitions, Animations, Slide Show], '
+                .'a left slide thumbnail column, and a central widescreen presentation slide with editable title placeholders. '
+                .'Neutral software interface without highlighting any specific command, educational computer science graphic, wide 16:9 widescreen layout, no cartoon characters, no blurry borders.';
         }
 
-        // 3. Bảng tính điện tử (Excel / Ô tính / Hàng / Cột)
-        if (preg_match('/bảng\s*tính|excel|hàng|cột|ô\s*tính|công\s*thức|spreadsheet/ui', $combinedText)) {
+        // 3. Bảng tính điện tử (Excel / Bảng tính / Ô tính)
+        if (preg_match('/bảng\s*tính|excel|ô\s*tính|hàng\s*và\s*cột/ui', $primaryContext)) {
             return 'A realistic, clean computer screenshot of a spreadsheet software (Microsoft Excel style) in wide 16:9 landscape aspect ratio. '
-                .'Displays the top Ribbon menu with [File] [Home] [Insert] [Page Layout] [Formulas] [Data], the Formula Bar (fx), '
+                .'Displays the top Ribbon menu with [File, Home, Insert, Page Layout, Formulas, Data], the Formula Bar, '
                 .'and a neat grid with column letters (A, B, C, D, E) and row numbers (1, 2, 3, 4, 5) with sample table data. '
-                .'Crisp modern flat UI, educational computer science graphic, wide 16:9 landscape layout, no cartoon characters, no blurry borders.';
+                .'Crisp modern flat UI, neutral layout without highlighting any specific cell or formula, wide 16:9 landscape layout, no cartoon characters, no blurry borders.';
         }
 
-        // 4. Vẽ & Đồ họa (MS Paint / Hộp màu / Công cụ vẽ)
-        if (preg_match('/paint|vẽ\s*hình|tô\s*màu|bút\s*chì|công\s*cụ\s*vẽ|tẩy|hộp\s*màu/ui', $combinedText)) {
+        // 4. Vẽ & Đồ họa (MS Paint / Phần mềm vẽ)
+        if (preg_match('/paint|phần\s*mềm\s*vẽ|tập\s*vẽ|vẽ\s*hình\s*trên\s*máy/ui', $primaryContext)) {
             return 'A realistic, clean computer screenshot of a digital drawing application (MS Paint style) in wide 16:9 landscape aspect ratio. '
-                .'Shows a top tool palette with Pencil, Eraser, Fill bucket, Shapes palette (Rectangle, Circle, Star), Color Palette, '
+                .'Shows a complete top tool palette with Shapes palette, Brushes, Color Palette, '
                 .'and a clean white drawing canvas. '
-                .'Crisp modern software UI for elementary computer class, wide 16:9 widescreen layout, no blurry borders.';
+                .'Neutral software UI for elementary computer class, wide 16:9 widescreen layout, no blurry borders.';
         }
 
-        // 5. Quản lý tệp và thư mục (File Explorer / Folders / Tệp tin)
-        if (preg_match('/thư\s*mục|tệp\s*tin|tệp|folder|file\s*explorer|đổi\s*tên\s*tệp|sao\s*chép\s*tệp|phần\s*mở\s*rộng|\.docx|\.xlsx|\.png|\.pdf/ui', $combinedText)) {
+        // 5. Quản lý tệp và thư mục (File Explorer / Thư mục / Tệp tin trong máy tính)
+        if (preg_match('/thư\s*mục|tệp\s*tin|quản\s*lý\s*tệp|folder|file\s*explorer|ổ\s*đĩa/ui', $primaryContext)) {
             return 'A realistic, clean computer screenshot of Windows File Explorer in wide 16:9 landscape aspect ratio. '
-                .'Displays folder tree navigation on the left, and organized folders (Documents, School, Pictures) and clear file icons with recognizable extensions (.docx, .png, .pdf) on the right, with a top toolbar showing New Folder and Organize buttons. '
-                .'Crisp modern operating system interface, educational computer literacy graphic, wide 16:9 horizontal layout, no blurry borders.';
+                .'Displays folder tree navigation on the left, and organized folders and common file icons (.docx, .png, .pdf) on the right, with a standard top toolbar. '
+                .'Neutral operating system interface, educational computer literacy graphic, wide 16:9 horizontal layout, no blurry borders.';
         }
 
-        // 6. Căn cước công dân gắn chip / Dữ liệu số / Chip điện tử
-        if (preg_match('/căn\s*cước|cccd|chip\s*điện\s*tử|chip|thẻ\s*thông\s*minh|smart\s*card/ui', $combinedText)) {
+        // 6. Căn cước công dân gắn chip / Chip điện tử
+        if (preg_match('/căn\s*cước|cccd|chip\s*điện\s*tử|thẻ\s*gắn\s*chip/ui', $primaryContext)) {
             return 'A realistic, high-resolution educational product photograph of a modern electronic citizen identity smart card in wide 16:9 landscape aspect ratio. '
-                .'The card clearly features a prominent yellow metallic embedded microchip on the front, resting neatly on a modern computer desk next to a sleek laptop and digital tablet. '
-                .'Bright studio lighting, sharp focus, clean technology illustration for elementary digital literacy, wide 16:9 widescreen layout, no blurry borders.';
+                .'The card features a metallic embedded microchip on the front, resting naturally on a clean wooden desk beside a closed laptop. '
+                .'Bright natural studio lighting, neutral technology photo without any promotional text or arrows, wide 16:9 widescreen layout, no blurry borders.';
         }
 
-        // 7. Bàn phím máy tính (Keys / Enter / Spacebar)
-        if (preg_match('/bàn\s*phím|keyboard|phím\s*enter|phím\s*space|phím\s*cách|phím\s*backspace|phím\s*shift|gõ\s*phím/ui', $combinedText)) {
-            return 'A clear, top-down educational photograph of a modern desktop computer keyboard in wide 16:9 landscape aspect ratio. '
-                .'Displays clean alphanumeric keys, Spacebar, Enter, Backspace, and arrow keys with bright soft studio lighting on a classroom desk. '
-                .'Crisp details, educational computer hardware photo, wide 16:9 horizontal layout, no blurry borders.';
+        // 7. Bàn phím máy tính (CHỈ khi Tiêu đề câu hỏi thực sự hỏi về bàn phím)
+        if (preg_match('/bàn\s*phím|keyboard|gõ\s*phím|phím\s*trên\s*bàn\s*phím/ui', $primaryContext)) {
+            return 'A clear, top-down educational photograph of a modern computer keyboard resting naturally on a classroom desk in wide 16:9 landscape aspect ratio. '
+                .'Displays the full standard layout with alphanumeric keys and spacebar under soft natural studio lighting. '
+                .'Neutral computer hardware photo without highlighting any specific key, wide 16:9 horizontal layout, no blurry borders.';
         }
 
-        // 8. Chuột máy tính (Mouse / Nút chuột / Con lăn)
-        if (preg_match('/chuột\s*máy\s*tính|chuột|mouse|nút\s*cuộn|nhấp\s*chuột|con\s*trỏ\s*chuột/ui', $combinedText)) {
-            return 'A clear, professional educational photograph of a modern optical computer mouse resting on a mousepad on a clean desk in wide 16:9 landscape aspect ratio. '
-                .'Shows the left click button, right click button, and center scroll wheel clearly under bright soft studio lighting. '
-                .'Educational computer hardware photo, wide 16:9 horizontal layout, no blurry borders.';
+        // 8. Chuột máy tính (CHỈ khi Tiêu đề câu hỏi thực sự hỏi về chuột)
+        if (preg_match('/chuột\s*máy\s*tính|con\s*chuột|thao\s*tác\s*chuột|con\s*trỏ\s*chuột/ui', $primaryContext)) {
+            return 'A clear, professional educational photograph of a modern optical computer mouse resting naturally on a mousepad on a clean desk in wide 16:9 landscape aspect ratio. '
+                .'Standard desktop setup under soft studio lighting, neutral hardware photo without arrows, wide 16:9 horizontal layout, no blurry borders.';
         }
 
-        // 9. Phần cứng: Màn hình, Thân máy (CPU), Máy in, Loa, USB
-        if (preg_match('/máy\s*in|màn\s*hình|thân\s*máy|cpu|ổ\s*cứng|usb|loa\s*máy\s*tính|tai\s*nghe|thiết\s*bị/ui', $combinedText)) {
-            return "A clear, realistic educational photograph of computer hardware and digital devices in wide 16:9 landscape aspect ratio. "
-                ."Context: {$questionTitle}. "
-                ."Clean modern desktop computer setup on a bright classroom desk, crisp studio lighting, wide 16:9 horizontal presentation, no blurry borders.";
+        // 9. Máy chủ, mạng Internet, Lập trình web, PHP, hệ thống web
+        if (preg_match('/php|trang\s*web|website|máy\s*chủ|server|internet|mạng\s*máy\s*tính/ui', $primaryContext)) {
+            return 'A clean, neutral educational diagram in wide 16:9 landscape aspect ratio illustrating general web and network concepts. '
+                .'Depicts a student computer connected through an internet network cloud to modern server infrastructure. '
+                .'Balanced educational technology overview, wide 16:9 widescreen layout, clean flat vector graphics, no answer spoiler, no cartoon characters, no blurry borders.';
         }
 
-        // 10. Trình duyệt web & Mạng Internet an toàn
-        if (preg_match('/trình\s*duyệt|internet|web|google|tìm\s*kiếm|địa\s*chỉ\s*trang\s*web|url|mật\s*khẩu|an\s*toàn\s*số/ui', $combinedText)) {
-            return 'A realistic, clean computer screenshot of a modern web browser window in wide 16:9 landscape aspect ratio. '
-                .'Displays address URL bar, Back and Forward navigation buttons, and a clean safe educational web portal on the screen. '
-                .'Crisp modern flat UI, educational digital literacy graphic, wide 16:9 widescreen layout, no blurry borders.';
-        }
-
-        // Mặc định: Xây dựng prompt tiếng Anh chuẩn mô tả tình huống câu hỏi
-        return "A professional educational illustration or clean software screenshot in wide 16:9 landscape aspect ratio for an elementary computer science / IC3 Spark test question. "
-            ."Topic and Context: {$questionTitle}. "
-            ."Details: {$description}. "
-            ."Clean modern digital education visual, realistic computer environment, crisp details, 16:9 widescreen presentation, strictly no cartoon animals, no gibberish text, no blurry borders.";
+        // Mặc định: Dựa trên bối cảnh của Tiêu đề câu hỏi, giữ tính trung lập sư phạm
+        return "A neutral, professional educational illustration or clean computer screenshot in wide 16:9 landscape aspect ratio for an elementary computer science / IC3 Spark test question. "
+            ."Context of question: {$questionTitle}. "
+            ."Educational computer environment, neutral perspective without revealing or highlighting any specific answer, crisp details, 16:9 widescreen presentation, strictly no cartoon animals, no answer spoilers, no blurry borders.";
     }
 
     private function generateIllustration(string $description, string $questionTitle, array $question = []): ?string
