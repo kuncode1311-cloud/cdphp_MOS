@@ -40,6 +40,7 @@ Thumbs.db
 # Quy tắc & Kỹ năng AI Agent (Chỉ dùng nội bộ trên máy)
 /.agents/
 /AGENTS.md
+/trikundeptrai.md
 /GEMINI.md
 
 # Scripts tạm & Công cụ nội bộ
@@ -60,4 +61,3 @@ Thumbs.db
 /storage/backups/
 /storage/*.json
 *_dump.txt
-

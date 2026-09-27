@@ -2,4 +2,5 @@
 !.gitignore
 !question-assets/
 !question-assets/**
+question-assets/ai-*
 

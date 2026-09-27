@@ -169,6 +169,8 @@ Route::prefix('quan-tri')->name('admin.')->middleware(['auth', 'admin'])->group(
 
     // 🤖 AI Soạn Câu Hỏi Tự Động (Gemini)
     Route::post('/ai/tao-cau-hoi', [AiQuestionController::class, 'generate'])->name('ai.questions.generate');
+    Route::post('/ai/tao-anh-cau-hoi', [AiQuestionController::class, 'generateIllustration'])->name('ai.questions.illustration');
+    Route::post('/ai/don-anh-tam', [AiQuestionController::class, 'cleanupIllustrations'])->name('ai.questions.cleanup-illustrations');
     Route::post('/ai/import-cau-hoi', [AiQuestionController::class, 'import'])->name('ai.questions.import');
 
     // Quản lý Chủ đề (Topic)

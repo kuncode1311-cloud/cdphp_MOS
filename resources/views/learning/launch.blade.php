@@ -330,21 +330,46 @@
 
         .quest-image-box {
             text-align: center;
-            padding: 6px;
-            background: rgba(0, 0, 0, 0.35);
-            border: 2px solid rgba(0, 242, 254, 0.3);
-            border-radius: 14px;
-            max-width: 480px;
+            padding: 10px;
+            background: linear-gradient(180deg, rgba(8, 30, 55, 0.78), rgba(5, 18, 36, 0.72));
+            border: 2px solid rgba(0, 242, 254, 0.42);
+            border-radius: 18px;
+            width: min(100%, 760px);
+            aspect-ratio: 16 / 9;
+            max-height: clamp(180px, 32vh, 360px);
             margin: 0 auto;
             flex-shrink: 0;
+            box-shadow: 0 14px 34px rgba(0, 0, 0, 0.24), inset 0 0 0 1px rgba(255, 255, 255, 0.06);
+            position: relative;
+            overflow: hidden;
+            display: grid;
+            place-items: center;
+        }
+        .quest-image-box::before {
+            content: "";
+            position: absolute;
+            inset: 10px;
+            border-radius: 12px;
+            background-image: var(--quest-image-bg);
+            background-size: cover;
+            background-position: center;
+            filter: blur(18px) saturate(1.15);
+            opacity: .32;
+            transform: scale(1.08);
         }
         .quest-image-box img {
+            display: block;
+            position: relative;
+            z-index: 1;
             max-width: 100%;
-            max-height: 120px;
+            max-height: 100%;
+            width: auto;
+            height: auto;
             object-fit: contain;
-            border-radius: 8px;
+            border-radius: 12px;
             cursor: zoom-in;
             transition: transform 0.2s;
+            background: rgba(255, 255, 255, 0.08);
         }
         .quest-image-box img:hover { transform: scale(1.03); }
 
@@ -1035,6 +1060,15 @@
             flex-direction: column !important;
             justify-content: center !important;
         }
+        body.is-single-preview .quest-image-box {
+            width: min(100%, 680px) !important;
+            max-height: clamp(160px, 30vh, 300px) !important;
+            padding: 8px !important;
+            margin-bottom: 6px !important;
+        }
+        body.is-single-preview .quest-image-box img {
+            max-height: 100% !important;
+        }
         body.is-single-preview .quest-footer {
             background: transparent !important;
             border-top: none !important;
@@ -1384,8 +1418,8 @@
     <script>
         // 1. Dữ liệu câu hỏi chuẩn hóa từ Database MOS
         const questions = @json($questions);
-        const adminAnswerKeys = @json($adminAnswerKeys ?? []);
-        const rawQuestions = questions;
+        let adminAnswerKeys = @json($adminAnswerKeys ?? []);
+        let rawQuestions = questions;
         const submitUrl = "{{ route('attempts.store', $practiceTest->slug) }}";
         const csrfToken = document.querySelector('meta[name="csrf-token"]')?.getAttribute('content');
 
@@ -1600,8 +1634,10 @@
 
             if (promptImgPath && q.type !== 'Hotspot') {
                 promptImg.src = promptImgPath;
+                imgBox.style.setProperty('--quest-image-bg', `url("${promptImgPath}")`);
                 imgBox.style.display = 'block';
             } else {
+                imgBox.style.removeProperty('--quest-image-bg');
                 imgBox.style.display = 'none';
             }
 
@@ -2610,7 +2646,20 @@
 
         if (window.self !== window.top) {
             window.addEventListener('message', (event) => {
-                if (event.data?.action === 'admin-autofill') window.adminAutofillAnswer();
+                if (event.data?.action === 'admin-load-questions' && Array.isArray(event.data.questions)) {
+                    rawQuestions = event.data.questions;
+                    adminAnswerKeys = event.data.answerKeys || {};
+                    correctAnswersData = adminAnswerKeys;
+                    currentIndex = Math.max(0, Math.min(Number(event.data.startIndex) || 0, rawQuestions.length - 1));
+                    userSelections = {};
+                    answers = userSelections;
+                    questionResults = {};
+                    reviewResults = questionResults;
+                    isReviewMode = false;
+                    isSubmitted = false;
+                    document.getElementById('feedback-banner').className = 'feedback-banner';
+                    renderQuestion();
+                } else if (event.data?.action === 'admin-autofill') window.adminAutofillAnswer();
                 else if (event.data?.action === 'admin-check') window.adminCheckAnswer();
                 else if (event.data?.action === 'admin-reset') window.adminResetAnswer();
             });

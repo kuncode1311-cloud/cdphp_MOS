@@ -5,6 +5,7 @@ namespace Tests\Feature;
 use App\Services\GeminiService;
 use Illuminate\Http\Client\Request;
 use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Facades\Storage;
 use PHPUnit\Framework\Attributes\DataProvider;
 use Tests\TestCase;
 
@@ -141,6 +142,85 @@ class AiQuestionProviderTest extends TestCase
         }
     }
 
+    public function test_pdf_chuyen_sang_gemini_khi_api_rieng_tra_mang_rong(): void
+    {
+        Http::fake([
+            'ai.example.test/*' => Http::response($this->privateResponse('[]')),
+            'generativelanguage.googleapis.com/upload/v1beta/files' => Http::response([], 200, [
+                'X-Goog-Upload-URL' => 'https://generativelanguage.googleapis.com/upload/session-empty-test',
+            ]),
+            'generativelanguage.googleapis.com/upload/session-empty-test' => Http::response([
+                'file' => ['uri' => 'https://generativelanguage.googleapis.com/v1beta/files/empty-test'],
+            ]),
+            'generativelanguage.googleapis.com/v1beta/models/*' => Http::response($this->geminiResponse()),
+        ]);
+        $path = tempnam(sys_get_temp_dir(), 'mos-ai-empty-');
+
+        try {
+            file_put_contents($path, '%PDF-thoi-khoa-bieu');
+            $questions = app(GeminiService::class)->generateQuestionsFromPdf($path);
+
+            $this->assertCount(1, $questions);
+            Http::assertSentCount(4);
+        } finally {
+            unlink($path);
+        }
+    }
+
+    public function test_tai_lieu_loai_bo_cau_hoi_cong_nghe_khong_phai_tin_hoc(): void
+    {
+        $wrongQuestions = json_encode([[
+            'title' => 'Môn Công nghệ của lớp 6B1 học vào buổi nào?',
+            'type' => 'MultipleChoice',
+            'options' => [
+                ['content' => 'Buổi sáng thứ Hai', 'is_correct' => true],
+                ['content' => 'Buổi chiều thứ Hai', 'is_correct' => false],
+            ],
+        ]], JSON_UNESCAPED_UNICODE | JSON_THROW_ON_ERROR);
+
+        Http::fake([
+            'ai.example.test/*' => Http::response($this->privateResponse($wrongQuestions)),
+            'generativelanguage.googleapis.com/*' => Http::response($this->geminiResponse($wrongQuestions)),
+        ]);
+        $path = tempnam(sys_get_temp_dir(), 'mos-ai-filter-');
+
+        try {
+            file_put_contents($path, 'anh-thoi-khoa-bieu');
+            $questions = app(GeminiService::class)->generateQuestionsFromImage($path);
+
+            $this->assertSame([], $questions);
+            Http::assertSentCount(2);
+        } finally {
+            unlink($path);
+        }
+    }
+
+    public function test_tai_lieu_loai_bo_cau_hoi_phu_thuoc_anh_nguon_khong_dinh_kem(): void
+    {
+        $dependentQuestions = json_encode([[
+            'title' => 'Môn Tin học của lớp 6B1 được học vào thời gian nào trong tuần?',
+            'type' => 'MultipleChoice',
+            'options' => [
+                ['content' => 'Buổi sáng thứ Hai', 'is_correct' => true],
+                ['content' => 'Buổi chiều thứ Ba', 'is_correct' => false],
+            ],
+        ]], JSON_UNESCAPED_UNICODE | JSON_THROW_ON_ERROR);
+
+        Http::fake([
+            'ai.example.test/*' => Http::response($this->privateResponse($dependentQuestions)),
+            'generativelanguage.googleapis.com/*' => Http::response($this->geminiResponse($dependentQuestions)),
+        ]);
+        $path = tempnam(sys_get_temp_dir(), 'mos-ai-context-');
+
+        try {
+            file_put_contents($path, 'anh-thoi-khoa-bieu');
+            $this->assertSame([], app(GeminiService::class)->generateQuestionsFromImage($path));
+            Http::assertSentCount(2);
+        } finally {
+            unlink($path);
+        }
+    }
+
     public function test_ket_qua_rong_hop_le_khong_goi_them_gemini(): void
     {
         Http::fake(['ai.example.test/*' => Http::response($this->privateResponse('[]'))]);
@@ -184,6 +264,94 @@ class AiQuestionProviderTest extends TestCase
         app(GeminiService::class)->generateQuestionsFromText('Bàn phím');
     }
 
+    public function test_chi_tao_va_luu_anh_khi_cau_hoi_thuc_su_can_minh_hoa(): void
+    {
+        Storage::fake('public');
+        config(['services.question_ai.image_model' => 'model-tao-anh']);
+        $questionJson = json_encode([[
+            'title' => 'Quan sát hình minh họa, biểu tượng nào dùng để lưu tệp?',
+            'type' => 'MultipleChoice',
+            'needs_image' => true,
+            'image_prompt' => 'Thanh công cụ có biểu tượng đĩa mềm và ba biểu tượng gây nhiễu.',
+            'options' => [
+                ['content' => 'Biểu tượng đĩa mềm', 'is_correct' => true],
+                ['content' => 'Biểu tượng thùng rác', 'is_correct' => false],
+            ],
+        ]], JSON_UNESCAPED_UNICODE | JSON_THROW_ON_ERROR);
+        $imageData = $this->fakePngDataUrl(420, 640);
+        Http::fakeSequence('ai.example.test/*')
+            ->push($this->privateResponse($questionJson))
+            ->push(['choices' => [['message' => ['images' => [['image_url' => ['url' => $imageData]]]]]]]);
+
+        $service = app(GeminiService::class);
+        $questions = $service->generateRequiredIllustrations($service->generateQuestionsFromText('Soạn câu hỏi về nút lưu tệp.'));
+
+        $this->assertNotEmpty($questions[0]['illustration_path']);
+        $this->assertStringStartsWith('/storage/question-assets/ai-', $questions[0]['illustration_path']);
+        Storage::disk('public')->assertExists(preg_replace('#^/storage/#', '', $questions[0]['illustration_path']));
+        $imageSize = getimagesize(Storage::disk('public')->path(preg_replace('#^/storage/#', '', $questions[0]['illustration_path'])));
+        $this->assertSame([1280, 720], [$imageSize[0], $imageSize[1]]);
+        Http::assertSentCount(2);
+        Http::assertSent(fn (Request $request) => $request['model'] === 'model-tao-anh'
+            && $request['modalities'] === ['text', 'image']
+            && $request['size'] === '1280x720'
+            && $request['aspect_ratio'] === '16:9');
+    }
+
+    public function test_bat_tao_anh_thi_van_co_anh_khi_ai_quen_danh_dau(): void
+    {
+        Storage::fake('public');
+        config(['services.question_ai.image_model' => 'model-tao-anh']);
+        $questionJson = json_encode([[
+            'title' => 'Quan sát ảnh chân dung trong tệp, nên đặt tên tệp nào để dễ nhận biết?',
+            'type' => 'MultipleChoice',
+            'needs_image' => false,
+            'image_prompt' => null,
+            'options' => [
+                ['content' => 'anh_chan_dung_deo_khau_trang.jpg', 'is_correct' => true],
+                ['content' => 'tai_lieu_hoc_toan.docx', 'is_correct' => false],
+            ],
+        ]], JSON_UNESCAPED_UNICODE | JSON_THROW_ON_ERROR);
+        $imageData = $this->fakePngDataUrl(420, 640);
+        Http::fakeSequence('ai.example.test/*')
+            ->push($this->privateResponse($questionJson))
+            ->push(['choices' => [['message' => ['images' => [['image_url' => ['url' => $imageData]]]]]]]);
+
+        $service = app(GeminiService::class);
+        $questions = $service->generateRequiredIllustrations(
+            $service->generateQuestionsFromText('Soạn câu hỏi từ ảnh chân dung.', '', true),
+            true
+        );
+
+        $this->assertTrue($questions[0]['needs_image']);
+        $this->assertNotEmpty($questions[0]['illustration_path']);
+        $this->assertStringStartsWith('/storage/question-assets/ai-', $questions[0]['illustration_path']);
+    }
+
+    public function test_prompt_chi_yeu_cau_anh_khi_giao_vien_bat_tuy_chon(): void
+    {
+        Http::fake(['ai.example.test/*' => Http::response($this->privateResponse())]);
+
+        app(GeminiService::class)->generateQuestionsFromText('Soạn câu hỏi về biểu tượng lưu.', '', true);
+
+        Http::assertSent(fn (Request $request) => str_contains(
+            $request['messages'][0]['content'][0]['text'],
+            'Chế độ tạo ảnh đang BẬT'
+        ));
+    }
+
+    public function test_prompt_nhan_so_cau_giao_vien_muon_tao(): void
+    {
+        Http::fake(['ai.example.test/*' => Http::response($this->privateResponse())]);
+
+        app(GeminiService::class)->generateQuestionsFromText('Soạn câu hỏi về bàn phím.', '', false, 7);
+
+        Http::assertSent(fn (Request $request) => str_contains(
+            $request['messages'][0]['content'][0]['text'],
+            'Tạo đúng 7 câu hỏi'
+        ));
+    }
+
     private function questionsJson(): string
     {
         return json_encode([[
@@ -203,8 +371,24 @@ class AiQuestionProviderTest extends TestCase
         return ['choices' => [['message' => ['content' => $content ?? $this->questionsJson()], 'finish_reason' => 'stop']]];
     }
 
-    private function geminiResponse(): array
+    private function geminiResponse(?string $content = null): array
     {
-        return ['candidates' => [['content' => ['parts' => [['text' => $this->questionsJson()]]]]]];
+        return ['candidates' => [['content' => ['parts' => [['text' => $content ?? $this->questionsJson()]]]]]];
+    }
+
+    private function fakePngDataUrl(int $width = 420, int $height = 640): string
+    {
+        $image = imagecreatetruecolor($width, $height);
+        $bg = imagecolorallocate($image, 219, 234, 254);
+        $fg = imagecolorallocate($image, 37, 99, 235);
+        imagefilledrectangle($image, 0, 0, $width, $height, $bg);
+        imagefilledellipse($image, (int) ($width / 2), (int) ($height / 2), 160, 160, $fg);
+
+        ob_start();
+        imagepng($image);
+        $binary = ob_get_clean();
+        imagedestroy($image);
+
+        return 'data:image/png;base64,'.base64_encode($binary);
     }
 }

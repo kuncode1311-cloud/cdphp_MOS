@@ -116,7 +116,7 @@
             border: 1.5px solid #e2e8f0;
             color: #475569;
             display: grid;
-            place-items: center;
+            place-items: stretch;
             font-size: 13px;
             font-weight: 800;
             cursor: pointer;
@@ -1343,7 +1343,7 @@
             display: none;
             place-items: center;
             z-index: 10000;
-            padding: 20px;
+            padding: 0;
         }
         .confirm-modal-overlay.active { display: grid; }
         .confirm-modal-card {
@@ -1384,7 +1384,8 @@
             backdrop-filter: blur(4px);
             display: none;
             place-items: center;
-            z-index: 9999;
+            /* Popup xem thử phải nổi trên cả modal AI (z-index: 99999). */
+            z-index: 100100;
             padding: 20px;
         }
         .preview-modal-overlay.active { display: grid; }
@@ -2601,8 +2602,8 @@
     </div>
 
     <!-- 3. STUDENT PREVIEW MODAL (100% GIAO DIỆN HỌC SINH THẬT - TÁI SỬ DỤNG VIEW USER) -->
-    <div id="modal-student-sim" class="preview-modal-overlay">
-        <div class="preview-simulator-box" style="width: min(1200px, 98vw); height: 95vh; max-height: 95vh; display: flex; flex-direction: column; padding: 0; border-radius: 20px; overflow: hidden; background: #061021; border: 3px solid #00f2fe; box-shadow: 0 0 45px rgba(0, 242, 254, 0.45); position: relative;">
+    <div id="modal-student-sim" class="preview-modal-overlay" style="padding:18px;">
+        <div class="preview-simulator-box" style="width: min(1240px, calc(100vw - 36px)); height: min(900px, calc(100vh - 36px)); max-height: calc(100vh - 36px); display: flex; flex-direction: column; padding: 0; border-radius: 18px; overflow: hidden; background: #061021; border: 2px solid #00f2fe; box-shadow: 0 18px 55px rgba(0,0,0,.5); position: relative;">
             <!-- Top Control Strip for Admin Preview -->
             <div style="background: linear-gradient(90deg, #091a33, #0f274a); padding: 9px 20px; border-bottom: 2px solid #00f2fe; display: flex; align-items: center; justify-content: space-between; z-index: 10; flex-shrink: 0; flex-wrap: wrap; gap: 10px;">
                 <div style="display: flex; align-items: center; gap: 10px;">
@@ -2979,8 +2980,22 @@
             }
         });
 
-        function openModal(id) { document.getElementById(id)?.classList.add('active'); }
-        function closeModal(id) { document.getElementById(id)?.classList.remove('active'); }
+        function openModal(id) {
+            const modal = document.getElementById(id);
+            if (!modal) return;
+            modal.classList.add('active');
+
+            // Modal xem thử có thể được mở từ trong modal AI, luôn đưa nó lên lớp cao nhất.
+            if (id === 'modal-student-sim') {
+                modal.style.zIndex = '100100';
+            }
+        }
+        function closeModal(id) {
+            const modal = document.getElementById(id);
+            if (!modal) return;
+            modal.classList.remove('active');
+            if (id === 'modal-student-sim') modal.style.removeProperty('z-index');
+        }
         window.addEventListener('click', e => { 
             if (e.target.classList.contains('modal-overlay') || e.target.classList.contains('preview-modal-overlay') || e.target.classList.contains('confirm-modal-overlay')) {
                 e.target.classList.remove('active'); 
@@ -4510,11 +4525,18 @@
 
                     if (isCreating) {
                         window.location.href = `?grade={{ $selectedGrade }}&topic={{ $selectedTopic?->id }}&test={{ $selectedTest?->id }}&q=${data.question.id}`;
-                    } else {
-                        const previewEl = document.getElementById(`q-preview-text-${data.question.id}`);
-                        if (previewEl) previewEl.textContent = data.question.title;
-                        captureInitialSnapshot(data.question);
+                } else {
+                    const previewEl = document.getElementById(`q-preview-text-${data.question.id}`);
+                    if (previewEl) previewEl.textContent = data.question.title;
+                    captureInitialSnapshot(data.question);
+                    // Làm mới iframe xem thử ngay sau khi lưu, không cần tải lại trang.
+                    const simIframe = document.getElementById('sim-user-view-iframe');
+                    if (simIframe && simIframe.src) {
+                        const freshUrl = new URL(simIframe.src, window.location.origin);
+                        freshUrl.searchParams.set('preview_refresh', Date.now().toString());
+                        simIframe.src = freshUrl.toString();
                     }
+                }
                 } else {
                     alert('Lỗi: ' + (data.message || 'Không thể lưu câu hỏi.'));
                 }
@@ -5677,17 +5699,20 @@
     }
     .sai-overlay.active { display: grid; }
     .sai-box {
-        width: min(780px, 96vw); max-height: 92vh; overflow-y: auto;
-        background: #ffffff; border-radius: 20px;
-        border: 2px solid #e0e7ff;
-        box-shadow: 0 24px 64px rgba(79, 70, 229, 0.22);
-        display: flex; flex-direction: column;
+        width: min(780px, calc(100vw - 24px)); height: auto;
+        max-height: calc(100vh - 28px); overflow: hidden;
+        background: #ffffff; border-radius: 18px;
+        border: 1px solid #dbe3f0;
+        box-shadow: 0 18px 48px rgba(15, 23, 42, 0.22);
+        display: flex; flex-direction: column; position: relative; isolation: isolate;
+        transition:width .2s ease;
     }
+    .sai-box.has-results { width:min(900px, calc(100vw - 24px)); }
     .sai-header {
-        padding: 16px 22px 14px; border-bottom: 1.5px solid #e0e7ff;
+        min-height: 54px; box-sizing: border-box; padding: 10px 16px; border-bottom: 1.5px solid #e0e7ff;
         display: flex; align-items: center; justify-content: space-between;
         background: linear-gradient(135deg, #f5f3ff, #ede9fe);
-        border-radius: 20px 20px 0 0; flex-shrink: 0;
+        border-radius: 16px 16px 0 0; flex-shrink: 0; position: sticky; top: 0; z-index: 20;
     }
     .sai-title {
         font-size: 16px; font-weight: 900; color: #4c1d95;
@@ -5700,19 +5725,34 @@
         box-shadow: 0 2px 6px rgba(124, 58, 237, 0.3);
     }
     .sai-body {
-        padding: 18px 22px; display: flex; flex-direction: column; gap: 14px;
+        min-height: 0; overflow-y: auto; scrollbar-gutter: stable;
+        padding: 10px 14px 14px; display: flex; flex-direction: column; gap: 8px;
+        border-radius: 0 0 16px 16px; background: #f8fafc;
     }
+    .sai-body > * { flex-shrink: 0; }
+    .sai-body::-webkit-scrollbar { width: 8px; }
+    .sai-body::-webkit-scrollbar-track { background: transparent; margin: 5px 0 10px; }
+    .sai-body::-webkit-scrollbar-thumb { background: #94a3b8; border-radius: 999px; border: 2px solid #ffffff; }
     .sai-dest-badge {
         background: #f8fafc; border: 1.5px solid #e2e8f0; border-radius: 10px;
         padding: 9px 14px; font-size: 12.5px; font-weight: 700; color: #334155;
         display: flex; align-items: center; gap: 6px;
     }
     .sai-dest-badge strong { color: #4338ca; }
+    .sai-source-grid { display:flex; flex-direction:column; gap:10px; }
+    .sai-source-pane { min-width:0; border:1.5px solid #dbe3f0; border-radius:12px; padding:11px; background:#fff; box-shadow:0 2px 8px rgba(15,23,42,.04); }
+    .sai-source-pane:first-child { border-color:#c4b5fd; background:linear-gradient(180deg,#faf8ff,#fff 42%); }
+    .sai-note-pane { border-color:#bae6fd; background:linear-gradient(180deg,#f0f9ff,#fff 52%); }
+    .sai-source-label { display:flex; align-items:center; gap:7px; margin:0 0 9px; color:#334155; font-size:12px; font-weight:900; text-transform:uppercase; letter-spacing:.35px; }
+    .sai-source-label::before { display:grid; place-items:center; width:23px; height:23px; border-radius:7px; color:#fff; font-size:11px; box-shadow:0 2px 5px rgba(79,70,229,.22); }
+    .sai-upload-label::before { content:'1'; background:linear-gradient(135deg,#8b5cf6,#6366f1); }
+    .sai-note-label::before { content:'2'; background:linear-gradient(135deg,#0ea5e9,#0284c7); }
+    .sai-note-pane { display:flex; flex-direction:column; gap:7px; }
 
     /* Vùng thả tệp */
     .sai-upload-zone {
         border: 2.5px dashed #a78bfa; border-radius: 14px; background: #faf5ff;
-        padding: 24px 20px; text-align: center; cursor: pointer; transition: all 0.15s ease;
+        min-height:132px; box-sizing:border-box; padding:18px 16px; text-align: center; cursor: pointer; transition: all 0.15s ease;
     }
     .sai-upload-zone:hover, .sai-upload-zone.drag-over {
         border-color: #7c3aed; background: #f3e8ff;
@@ -5742,8 +5782,8 @@
     /* Lưới Thumbnail ảnh trực quan */
     .sai-files-grid {
         display: grid;
-        grid-template-columns: repeat(auto-fill, minmax(130px, 1fr));
-        gap: 10px;
+        grid-template-columns: repeat(auto-fill, minmax(105px, 1fr));
+        gap: 7px;
     }
     .sai-file-card {
         background: #ffffff; border: 1.5px solid #cbd5e1; border-radius: 10px;
@@ -5755,7 +5795,7 @@
         border-color: #7c3aed; transform: translateY(-1px);
     }
     .sai-thumb-wrap {
-        position: relative; width: 100%; height: 86px; border-radius: 7px;
+        position: relative; width: 100%; height: 52px; border-radius: 7px;
         overflow: hidden; background: #0f172a; display: flex; align-items: center; justify-content: center;
     }
     .sai-thumb-img {
@@ -5799,7 +5839,7 @@
     .sai-grid-add-btn {
         border: 2px dashed #cbd5e1; border-radius: 10px; background: #f8fafc;
         display: flex; flex-direction: column; align-items: center; justify-content: center;
-        height: 100%; min-height: 116px; cursor: pointer; color: #64748b;
+        height: 100%; min-height: 82px; cursor: pointer; color: #64748b;
         font-size: 11px; font-weight: 800; gap: 4px; transition: all 0.12s ease;
     }
     .sai-grid-add-btn:hover {
@@ -5809,10 +5849,12 @@
     /* Gợi ý thêm cho AI */
     .sai-ctx {
         width: 100%; padding: 10px 13px; border-radius: 10px; border: 1.5px solid #cbd5e1;
-        font-size: 13px; font-weight: 600; color: #1e293b; outline: none; resize: none;
-        background: #faf5ff; font-family: inherit; transition: border-color 0.15s ease;
+        font-size: 13px; font-weight: 600; color: #1e293b; outline: none; resize: vertical;
+        background: #ffffff; font-family: inherit; transition: border-color 0.15s ease;
+        min-height: 118px; max-height: 360px; box-sizing: border-box;
     }
     .sai-ctx:focus { border-color: #7c3aed; background: #ffffff; }
+    .sai-ctx-meter { margin:4px 2px 0; text-align:right; color:#64748b; font-size:10.5px; font-weight:700; }
     .sai-divider {
         display: flex; align-items: center; gap: 12px;
         font-size: 11.5px; font-weight: 800; color: #94a3b8;
@@ -5849,82 +5891,164 @@
     .sai-status.ok  { background: #f0fdf4; color: #15803d; border: 1.5px solid #86efac; display: block; }
 
     /* 🎨 DANH SÁCH CÂU HỎI AI SOẠN — GAMIFIED 3D UI */
-    .sai-preview { display: none; flex-direction: column; gap: 14px; margin-top: 6px; }
+    .sai-preview { display: none; flex-direction: column; gap: 10px; margin-top: 2px; padding-top:12px; border-top:2px solid #cbd5e1; }
     .sai-preview.vis { display: flex; }
+    .sai-list { display:flex; flex-direction:column; gap:9px; }
     .sai-prev-hd {
-        display: flex; align-items: center; justify-content: space-between;
-        padding: 12px 18px; background: linear-gradient(135deg, #ecfdf5, #f0fdf4);
-        border-radius: 12px; border: 1.5px solid #86efac;
-        box-shadow: 0 2px 8px rgba(16, 185, 129, 0.08);
+        display: grid; grid-template-columns: minmax(0, 1fr) auto; align-items: center;
+        padding: 10px 12px; background: linear-gradient(135deg, #ecfdf5, #f0fdf4);
+        border-radius: 11px; border: 2px solid #4ade80;
+        box-shadow: 0 3px 10px rgba(16, 185, 129, 0.12);
+        gap: 12px;
+    }
+    .sai-prev-hd > span { min-width: 0; line-height: 1.35; }
+    .sai-prev-hd > div { display:grid; grid-template-columns:auto auto auto; align-items:center; gap:6px !important; }
+    .sai-prev-hd button { white-space:nowrap; min-height:32px; display:inline-flex; align-items:center; justify-content:center; }
+    @media (max-width: 640px) {
+        .sai-box { width: calc(100vw - 20px); border-radius: 14px; }
+        .sai-header { border-radius: 12px 12px 0 0; padding: 12px 14px; }
+        .sai-prev-hd { padding: 10px 12px; }
+        .sai-prev-hd { grid-template-columns: 1fr; }
+        .sai-prev-hd > div { width:100%; grid-template-columns:1fr 1fr; }
+        .sai-prev-hd > div button:first-child { grid-column:1 / -1; }
     }
     .sai-qcard {
-        background: #ffffff; border-radius: 14px;
-        border: 2px solid #e2e8f0;
-        box-shadow: 0 4px 12px rgba(15, 23, 42, 0.04);
+        background: #ffffff; border-radius: 11px;
+        border: 2px solid #c4b5fd;
+        box-shadow: 0 4px 12px rgba(76, 29, 149, 0.08);
         overflow: hidden; transition: all 0.15s ease;
         display: flex; flex-direction: column;
     }
     .sai-qcard.sel {
-        border-color: #8b5cf6;
-        box-shadow: 0 6px 18px rgba(124, 58, 237, 0.12);
+        border-color: #7c3aed;
+        box-shadow: 0 5px 14px rgba(124, 58, 237, 0.14);
+    }
+    .sai-qhdr { display:flex; align-items:flex-start; gap:9px; padding:12px 14px; }
+    .sai-qhdr > div[style*="flex:1"] { min-width:0; }
+    .sai-qhdr .sai-qtinput { box-sizing:border-box; }
+    @media (max-width: 760px) {
+        .sai-overlay { padding:8px; }
+        .sai-box { width:100%; max-height:96vh; border-radius:12px; }
+        .sai-qhdr { display:grid; grid-template-columns:auto 1fr auto; align-items:start; padding:10px; }
+        .sai-qhdr .sai-qtinput { font-size:12px; }
+        .sai-qopts { grid-template-columns:1fr !important; }
+        .sai-prev-hd > span { font-size:12px !important; }
+        .sai-prev-hd > div { justify-content:flex-start; }
     }
     .sai-qhdr {
-        display: flex; align-items: flex-start; gap: 12px;
-        padding: 14px 16px 10px; cursor: pointer;
-        background: #fafafa; border-bottom: 1px solid #f1f5f9;
+        display: grid; grid-template-columns: auto minmax(0, 1fr) auto; align-items: start; gap: 9px;
+        padding: 9px 11px; cursor: pointer;
+        background: linear-gradient(135deg, #f5f3ff, #eef2ff); border-bottom: 2px solid #ddd6fe;
         transition: background 0.12s ease;
     }
     .sai-qcard.sel .sai-qhdr {
-        background: linear-gradient(135deg, #fbf9ff, #f5f3ff);
+        background: linear-gradient(135deg, #ede9fe, #eef2ff);
     }
     .sai-qchk {
-        width: 19px; height: 19px; accent-color: #7c3aed;
-        flex-shrink: 0; margin-top: 4px; cursor: pointer;
+        width: 17px; height: 17px; accent-color: #7c3aed;
+        flex-shrink: 0; margin-top: 3px; cursor: pointer;
     }
     .sai-qmeta {
-        display: flex; align-items: center; gap: 8px; margin-bottom: 8px;
+        display: flex; align-items: center; gap: 6px; margin-bottom: 5px;
     }
     .sai-qnum-pill {
         background: linear-gradient(135deg, #7c3aed, #4f46e5);
         color: #ffffff; font-size: 11px; font-weight: 900;
-        padding: 3px 10px; border-radius: 999px;
+        padding: 2px 8px; border-radius: 999px;
         box-shadow: 0 2px 5px rgba(124, 58, 237, 0.3);
     }
     .sai-qtype-pill {
-        background: #f1f5f9; color: #475569; font-size: 11px; font-weight: 700;
-        padding: 3px 9px; border-radius: 999px; border: 1px solid #e2e8f0;
+        background: #ffffff; color: #475569; font-size: 11px; font-weight: 800;
+        padding: 2px 8px; border-radius: 999px; border: 1px solid #c7d2fe;
     }
     .sai-qtinput {
-        width: 100%; border: 1.5px solid #cbd5e1; background: #ffffff;
-        border-radius: 8px; padding: 8px 12px;
-        font-size: 13.5px; font-weight: 700; color: #0f172a;
-        outline: none; resize: vertical; font-family: inherit; line-height: 1.5;
+        width: 100%; border: 1.5px solid #a5b4fc; background: #ffffff;
+        min-height: 58px; border-radius: 7px; padding: 8px 10px;
+        font-size: 13px; font-weight: 750; color: #0f172a;
+        outline: none; resize: vertical; overflow:auto; font-family: inherit; line-height: 1.45;
         transition: all 0.12s ease;
     }
     .sai-qtinput:focus {
         border-color: #7c3aed; box-shadow: 0 0 0 3px rgba(124, 58, 237, 0.15);
     }
+    .sai-image-mode {
+        display:flex; align-items:flex-start; gap:9px; padding:9px 11px; margin-top:9px;
+        border:1.5px solid #c4b5fd; border-radius:9px; background:linear-gradient(135deg,#faf5ff,#eef2ff);
+        cursor:pointer; color:#4338ca;
+    }
+    .sai-image-mode input { width:17px; height:17px; margin:1px 0 0; accent-color:#7c3aed; flex:0 0 auto; }
+    .sai-image-mode strong { display:block; font-size:12px; line-height:1.25; }
+    .sai-image-mode small { display:block; margin-top:2px; color:#64748b; font-size:10.5px; line-height:1.35; }
+    .sai-count-control {
+        display:flex; align-items:center; justify-content:space-between; gap:10px; margin:0 0 9px;
+        padding:8px 10px; border:1.5px solid #bae6fd; border-radius:9px; background:linear-gradient(135deg,#f0f9ff,#f8fafc);
+    }
+    .sai-count-control label { font-size:12px; font-weight:900; color:#075985; display:flex; align-items:center; gap:6px; }
+    .sai-count-control select {
+        min-width:96px; border:1.5px solid #7dd3fc; border-radius:8px; background:#fff; color:#0f172a;
+        font-size:12px; font-weight:900; padding:7px 9px; outline:none; cursor:pointer;
+    }
+    .sai-ai-illustration {
+        display:grid; grid-template-columns:150px minmax(0,1fr); gap:12px; align-items:center;
+        padding:10px 12px; background:linear-gradient(135deg,#eff6ff,#ecfeff);
+        border-bottom:2px solid #bae6fd;
+    }
+    .sai-ai-illustration img {
+        width:150px; height:88px; object-fit:cover; border-radius:9px;
+        border:2px solid #38bdf8; box-shadow:0 4px 10px rgba(2,132,199,.18);
+    }
+    .sai-ai-illustration strong { display:block; color:#075985; font-size:12px; margin-bottom:3px; }
+    .sai-ai-illustration span { color:#475569; font-size:11px; line-height:1.35; }
+    .sai-ai-loading-card {
+        width:150px; height:88px; border-radius:10px; border:2px dashed #38bdf8;
+        background:linear-gradient(135deg,#e0f2fe,#f0fdfa); display:grid; place-items:center;
+        position:relative; overflow:hidden; box-shadow:0 4px 10px rgba(2,132,199,.16);
+    }
+    .sai-ai-loading-card::before {
+        content:""; position:absolute; inset:0;
+        background:linear-gradient(110deg, transparent 0%, rgba(255,255,255,.75) 45%, transparent 70%);
+        transform:translateX(-120%); animation:saiShimmer 1.25s ease-in-out infinite;
+    }
+    .sai-ai-loading-icon {
+        width:40px; height:40px; border-radius:12px; display:grid; place-items:center;
+        background:linear-gradient(135deg,#0ea5e9,#14b8a6); color:#fff; font-size:21px;
+        box-shadow:0 8px 18px rgba(14,165,233,.28); position:relative; z-index:1;
+        animation:saiFloat 1.2s ease-in-out infinite;
+    }
+    .sai-ai-illustration.err {
+        background:linear-gradient(135deg,#fff7ed,#fef2f2);
+        border-bottom-color:#fed7aa;
+    }
+    .sai-ai-illustration.err strong { color:#b45309; }
+    @media (max-width:560px) {
+        .sai-ai-illustration { grid-template-columns:1fr; }
+        .sai-ai-illustration img { width:100%; height:auto; max-height:180px; }
+        .sai-ai-loading-card { width:100%; height:150px; }
+    }
+    @keyframes saiShimmer { to { transform:translateX(120%); } }
+    @keyframes saiFloat { 0%,100% { transform:translateY(0); } 50% { transform:translateY(-3px); } }
 
     /* Lưới các phương án lựa chọn A, B, C, D */
     .sai-qopts {
-        padding: 12px 16px 14px;
+        padding: 10px 11px 11px;
         display: grid;
-        grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+        grid-template-columns: repeat(2, minmax(0, 1fr));
         gap: 8px;
+        background:#f8fafc;
     }
     .sai-opt-card {
         display: flex; align-items: center; gap: 9px;
-        padding: 9px 12px; border-radius: 10px;
-        border: 1.5px solid #e2e8f0; background: #ffffff;
+        min-height: 40px; box-sizing: border-box; padding: 7px 10px; border-radius: 8px;
+        border: 1.5px solid #cbd5e1; background: #ffffff;
         transition: all 0.12s ease;
     }
     .sai-opt-card.correct {
-        background: linear-gradient(135deg, #f0fdf4, #ecfdf5);
+        background: linear-gradient(135deg, #dcfce7, #ecfdf5);
         border-color: #10b981;
-        box-shadow: 0 2px 6px rgba(16, 185, 129, 0.12);
+        box-shadow: 0 2px 7px rgba(16, 185, 129, 0.16);
     }
     .sai-opt-badge {
-        width: 24px; height: 24px; border-radius: 6px;
+        width: 22px; height: 22px; border-radius: 6px;
         display: flex; align-items: center; justify-content: center;
         font-size: 11.5px; font-weight: 900; flex-shrink: 0;
         background: #f1f5f9; color: #64748b; border: 1px solid #cbd5e1;
@@ -5934,12 +6058,20 @@
         box-shadow: 0 2px 4px rgba(16, 185, 129, 0.3);
     }
     .sai-opt-text {
-        font-size: 13px; font-weight: 600; color: #334155; flex: 1;
-        line-height: 1.35;
+        font-size: 12px; font-weight: 650; color: #334155; flex: 1;
+        line-height: 1.3;
     }
     .sai-opt-card.correct .sai-opt-text {
         color: #065f46; font-weight: 800;
     }
+    .sai-qopts > .sai-matching-grid { grid-column:1 / -1; width:100%; box-sizing:border-box; }
+    .sai-matching-grid { display:flex; flex-direction:column; gap:7px; padding:10px; border:1px solid #e9d5ff; border-radius:10px; background:#fcfaff; }
+    .sai-match-head { display:grid; grid-template-columns:minmax(0,1fr) 30px minmax(0,1fr); gap:8px; align-items:center; font-size:11px; font-weight:900; color:#5b21b6; text-transform:uppercase; letter-spacing:.45px; }
+    .sai-match-head span:first-child { grid-column:1; }
+    .sai-match-head span:last-child { grid-column:3; }
+    .sai-match-row { display:grid; grid-template-columns:minmax(0,1fr) 30px minmax(0,1fr); gap:8px; align-items:stretch; width:100%; }
+    .sai-match-cell { min-width:0; min-height:42px; box-sizing:border-box; display:flex; align-items:center; padding:8px 11px; border:1px solid #a7f3d0; border-radius:8px; background:#f0fdf4; font-size:13px; line-height:1.35; font-weight:750; color:#134e4a; }
+    .sai-match-arrow { display:flex; align-items:center; justify-content:center; color:#7c3aed; font-size:17px; font-weight:900; }
     .sai-opt-correct-tag {
         font-size: 10px; font-weight: 800; color: #059669;
         background: #d1fae5; padding: 2px 7px; border-radius: 999px;
@@ -6002,8 +6134,10 @@
                 <span style="color:#64748b; font-weight:600;">(Chủ đề: {{ $selectedTest->topic?->name }})</span>
             </div>
 
+            <div class="sai-source-grid">
             <!-- VÙNG TẢI ẢNH / TÀI LIỆU -->
-            <div id="sai-upload-area">
+            <div id="sai-upload-area" class="sai-source-pane">
+                <span class="sai-source-label sai-upload-label">Tài liệu nguồn</span>
                 <!-- Dropzone khi chưa có file -->
                 <div class="sai-upload-zone" id="sai-zone"
                      onclick="triggerSaiFileInput()"
@@ -6011,10 +6145,10 @@
                      ondragleave="this.classList.remove('drag-over');"
                      ondrop="saiDrop(event)">
                     <input type="file" id="sai-file" accept=".jpg,.jpeg,.png,.webp,.pdf" multiple onchange="saiPickFiles(event)">
-                    <div style="font-size:36px; margin-bottom:8px;">🖼️ 📄</div>
-                    <div style="font-size:14px; font-weight:800; color:#5b21b6;">Kéo thả hoặc bấm để chọn ảnh chụp / đề thi PDF</div>
-                    <div style="font-size:12px; color:#7c3aed; margin-top:4px;">
-                        Hỗ trợ tải nhiều ảnh cùng lúc (tối đa 10 tệp) · Ảnh JPG, PNG hoặc tài liệu PDF (mỗi tệp ≤ 20MB)
+                    <div style="font-size:25px; margin-bottom:4px;">🖼️ 📄</div>
+                    <div style="font-size:13px; font-weight:800; color:#5b21b6;">Chọn ảnh hoặc tài liệu PDF</div>
+                    <div style="font-size:11px; color:#64748b; margin-top:3px;">
+                        Tối đa 10 tệp · mỗi tệp không quá 20MB
                     </div>
                 </div>
 
@@ -6037,33 +6171,51 @@
                 </div>
             </div>
 
-            <!-- Gợi ý thêm cho Trợ lý AI -->
-            <div class="sai-divider">HOẶC NHẬP Ý TƯỞNG / ĐỀ CƯƠNG (Không cần tải ảnh vẫn soạn được)</div>
-            <textarea class="sai-ctx" id="sai-ctx" rows="3"
-                      placeholder="Thầy/Cô có thể chỉ cần nhập ý tưởng tại đây (không cần tải ảnh). Ví dụ: Soạn cho tôi 3 câu hỏi trắc nghiệm IC3 tiểu học về các thiết bị công nghệ chuẩn IC3..."></textarea>
+            <div class="sai-source-pane sai-note-pane">
+                <span class="sai-source-label sai-note-label">Yêu cầu thêm <small style="font-size:10px;color:#64748b;text-transform:none;letter-spacing:0;">(không bắt buộc)</small></span>
+                <div class="sai-count-control">
+                    <label for="sai-question-count">🔢 Số câu muốn tạo</label>
+                    <select id="sai-question-count">
+                        @for($i = 1; $i <= 10; $i++)
+                            <option value="{{ $i }}" @selected($i === 5)>{{ $i }} câu</option>
+                        @endfor
+                    </select>
+                </div>
+                <textarea class="sai-ctx" id="sai-ctx" rows="6" maxlength="50000" oninput="saiUpdateCtxMeter()"
+                          placeholder="Nhập yêu cầu để AI soạn đúng ý hơn: số lượng câu, dạng câu và nội dung cần tập trung. Ví dụ: Tạo 5 câu hỏi Tin học từ tài liệu, gồm 3 câu trắc nghiệm và 2 câu ghép nối."></textarea>
+                <div class="sai-ctx-meter" id="sai-ctx-meter">0 / 50.000 ký tự</div>
 
-            <!-- Thông báo trạng thái -->
-            <div class="sai-status" id="sai-msg"></div>
+                <label class="sai-image-mode" for="sai-generate-images">
+                    <input type="checkbox" id="sai-generate-images" value="1">
+                    <span><strong>🖼️ Thêm hình minh họa cho câu hỏi phù hợp</strong><small>Bật lựa chọn này nếu Thầy/Cô muốn câu hỏi sinh động và dễ quan sát hơn. Thời gian soạn có thể lâu hơn một chút.</small></span>
+                </label>
 
-            <!-- Nút Bắt đầu phân tích -->
-            <button type="button" class="sai-gen-btn" id="sai-gen-btn" onclick="saiGenerate()">
-                <div class="sai-spin" id="sai-gen-spin"></div>
-                <span id="sai-gen-lbl">✨ Bắt đầu phân tích & Soạn câu hỏi</span>
-            </button>
+                <!-- Thông báo trạng thái -->
+                <div class="sai-status" id="sai-msg"></div>
+
+                <!-- Nút Bắt đầu phân tích -->
+                <button type="button" class="sai-gen-btn" id="sai-gen-btn" onclick="saiGenerate()">
+                    <div class="sai-spin" id="sai-gen-spin"></div>
+                    <span id="sai-gen-lbl">✨ Phân tích và soạn câu hỏi</span>
+                </button>
+            </div>
+            </div>
 
             <!-- KHU VỰC XEM TRƯỚC CÂU HỎI TRƯỚC KHI LƯU -->
             <div class="sai-preview" id="sai-preview">
                 <div class="sai-prev-hd">
                     <span style="font-size:13px; font-weight:800; color:#15803d;">
-                        ✅ Trợ lý AI đã tìm thấy <span id="sai-count">0</span> câu hỏi — Thầy/Cô chọn các câu muốn lưu:
+                        <b style="display:inline-grid;place-items:center;width:23px;height:23px;border-radius:7px;background:#10b981;color:#fff;margin-right:5px;">3</b>
+                        Kiểm tra <span id="sai-count">0</span> câu hỏi và chọn câu muốn lưu
                     </span>
                     <div style="display:flex; gap:7px;">
+                        <button type="button" onclick="openAiStudentPreview()" style="font-size:11.5px; font-weight:900; padding:5px 10px; border-radius:7px; background:#0e7490; border:1px solid #67e8f9; color:#fff; cursor:pointer;">🎮 Xem thử học sinh</button>
                         <button type="button" onclick="saiAll(true)"  style="font-size:11.5px; font-weight:800; padding:3px 9px; border-radius:7px; background:#e0e7ff; border:1px solid #c7d2fe; color:#3730a3; cursor:pointer;">Chọn tất cả</button>
                         <button type="button" onclick="saiAll(false)" style="font-size:11.5px; font-weight:800; padding:3px 9px; border-radius:7px; background:#f1f5f9; border:1px solid #e2e8f0; color:#475569; cursor:pointer;">Bỏ chọn</button>
                     </div>
                 </div>
 
-                <div id="sai-list" style="display:flex; flex-direction:column; gap:7px;"></div>
+                <div id="sai-list" class="sai-list"></div>
 
                 <!-- Nút Lưu vào bài luyện -->
                 <button type="button" class="sai-imp-btn" id="sai-imp-btn" onclick="saiImport()">
@@ -6095,9 +6247,12 @@ const SAI_MAX_FILES = 10;
 let saiFiles = [];         // Mảng chứa các File object đã chọn
 let saiFileUrls = new Map(); // Cache URL object để giải phóng bộ nhớ
 let saiQuestions = [];
+let saiGenerationRunId = 0;
 
 function openStudioAiModal() {
-    document.getElementById('modal-studio-ai').classList.add('active');
+    const modal = document.getElementById('modal-studio-ai');
+    modal.classList.add('active');
+    modal.querySelector('.sai-body')?.scrollTo({ top: 0, behavior: 'auto' });
     document.body.style.overflow = 'hidden';
 }
 
@@ -6114,15 +6269,52 @@ function triggerSaiFileInput() {
 }
 
 function saiReset() {
+    saiGenerationRunId++;
+    saiCleanupUnusedIllustrations();
     saiClearFiles();
     saiQuestions = [];
     document.getElementById('sai-ctx').value = '';
+    saiUpdateCtxMeter();
+    document.getElementById('sai-question-count').value = '5';
+    document.getElementById('sai-generate-images').checked = false;
     document.getElementById('sai-list').innerHTML = '';
     document.getElementById('sai-preview').classList.remove('vis');
+    document.querySelector('#modal-studio-ai .sai-box')?.classList.remove('has-results');
     document.getElementById('sai-count').textContent = '0';
     saiMsg('', '');
     saiGenLoad(false);
     saiImpLoad(false);
+}
+
+function saiUpdateCtxMeter() {
+    const input = document.getElementById('sai-ctx');
+    const meter = document.getElementById('sai-ctx-meter');
+    if (!input || !meter) return;
+    meter.textContent = `${input.value.length.toLocaleString('vi-VN')} / 50.000 ký tự`;
+}
+
+function saiGeneratedIllustrationPaths() {
+    return saiQuestions
+        .map(q => q?.illustration_path)
+        .filter(path => typeof path === 'string' && path.startsWith('/storage/question-assets/ai-'));
+}
+
+function saiCleanupUnusedIllustrations(keepPaths = [], explicitPaths = null) {
+    const keep = new Set(keepPaths);
+    const sourcePaths = Array.isArray(explicitPaths) ? explicitPaths : saiGeneratedIllustrationPaths();
+    const paths = sourcePaths.filter(path => !keep.has(path));
+    if (!paths.length) return;
+
+    fetch('{{ route("admin.ai.questions.cleanup-illustrations") }}', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
+            'Accept': 'application/json',
+        },
+        body: JSON.stringify({ paths }),
+        keepalive: true,
+    }).catch(() => {});
 }
 
 // Xử lý khi chọn file qua hộp thoại
@@ -6287,6 +6479,8 @@ function closeSaiLightbox() {
 
 // Gửi yêu cầu phân tích tới máy chủ
 async function saiGenerate() {
+    const clientStartedAt = performance.now();
+    const runId = ++saiGenerationRunId;
     const ctx = document.getElementById('sai-ctx').value.trim();
 
     if (!saiFiles.length && !ctx) {
@@ -6306,11 +6500,14 @@ async function saiGenerate() {
         fd.append('text', ctx);
         fd.append('context', ctx);
     }
+    fd.append('generate_images', document.getElementById('sai-generate-images').checked ? '1' : '0');
+    fd.append('question_count', document.getElementById('sai-question-count').value || '5');
     fd.append('_token', document.querySelector('meta[name="csrf-token"]').content);
 
     try {
         const r = await fetch('{{ route("admin.ai.questions.generate") }}', { method: 'POST', body: fd });
         const d = await r.json();
+        saiLogAiTrace(d, saiFiles.length, Math.round(performance.now() - clientStartedAt));
 
         if (!d.success) {
             saiMsg(d.message || 'Chưa thể phân tích nội dung. Thầy/Cô vui lòng thử lại sau giây lát nhé!', 'err');
@@ -6321,6 +6518,10 @@ async function saiGenerate() {
         document.getElementById('sai-count').textContent = d.count;
         saiRenderList(d.questions);
         document.getElementById('sai-preview').classList.add('vis');
+        document.querySelector('#modal-studio-ai .sai-box')?.classList.add('has-results');
+        if (d.image_generation_enabled && runId === saiGenerationRunId) {
+            saiStartIllustrationJobs(runId);
+        }
 
     } catch (e) {
         saiMsg('Kết nối máy chủ bị gián đoạn. Thầy/Cô vui lòng kiểm tra lại mạng và thử lại nhé!', 'err');
@@ -6330,6 +6531,77 @@ async function saiGenerate() {
     }
 }
 
+async function saiStartIllustrationJobs(runId) {
+    let started = 0;
+    for (let i = 0; i < saiQuestions.length; i++) {
+        if (started >= 3) break;
+        const q = saiQuestions[i];
+        if (!q || !q.needs_image || q.illustration_path || q.image_status === 'loading') continue;
+        q.image_status = 'loading';
+        saiUpdateIllustration(i);
+        started++;
+        saiGenerateIllustration(i, runId);
+    }
+}
+
+async function saiGenerateIllustration(index, runId) {
+    const question = saiQuestions[index];
+    if (!question) return;
+
+    try {
+        const r = await fetch('{{ route("admin.ai.questions.illustration") }}', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
+                'Accept': 'application/json',
+            },
+            body: JSON.stringify({ question }),
+        });
+        const d = await r.json();
+        saiLogAiTrace(d, 0, d.total_ms || 0);
+
+        if (runId !== saiGenerationRunId) {
+            if (d.illustration_path) saiCleanupUnusedIllustrations([], [d.illustration_path]);
+            return;
+        }
+
+        if (d.success && d.illustration_path) {
+            saiQuestions[index] = {
+                ...saiQuestions[index],
+                ...(d.question || {}),
+                illustration_path: d.illustration_path,
+                image_status: 'done',
+            };
+        } else {
+            saiQuestions[index].image_status = 'error';
+        }
+    } catch (e) {
+        if (runId !== saiGenerationRunId) return;
+        saiQuestions[index].image_status = 'error';
+        console.error(e);
+    } finally {
+        if (runId !== saiGenerationRunId) return;
+        saiUpdateIllustration(index);
+    }
+}
+
+function saiLogAiTrace(data, fileCount, clientTotalMs) {
+    const rows = Array.isArray(data?.ai_trace) ? data.ai_trace : [];
+    const title = data?.success ? '✅ AI SOẠN ĐỀ — THÀNH CÔNG' : '⚠️ AI SOẠN ĐỀ — CHƯA CÓ KẾT QUẢ';
+    console.groupCollapsed(`%c${title} %c${data?.total_ms ?? clientTotalMs} ms`, 'color:#7c3aed;font-weight:900;font-size:13px', 'color:#0f766e;font-weight:800');
+    if (rows.length) console.table(rows);
+    console.table([{
+        'Số tệp': fileCount,
+        'Số câu tạo được': data?.count ?? 0,
+        'Thời gian máy chủ (ms)': data?.total_ms ?? '—',
+        'Tổng thời gian trình duyệt (ms)': clientTotalMs,
+        'Kết quả': data?.message ?? 'Không có thông báo',
+    }]);
+    console.info('Luồng gọi: 9Router trước → Gemini File API khi 9Router lỗi hoặc không đọc được tệp.');
+    console.groupEnd();
+}
+
 // Hiển thị danh sách câu hỏi AI soạn thảo với giao diện thẻ 3D Gamified UI
 function saiRenderList(qs) {
     const list = document.getElementById('sai-list');
@@ -6337,8 +6609,10 @@ function saiRenderList(qs) {
     const letters = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H'];
 
     qs.forEach((q, i) => {
-        // Tạo thẻ cho từng phương án A, B, C, D
-        const optsHtml = q.options.map((o, optIdx) => {
+        // Hiển thị riêng dạng ghép nối thành hai vế để giáo viên dễ kiểm tra.
+        const optsHtml = q.type === 'Matching'
+            ? `<div class="sai-matching-grid"><div class="sai-match-head"><span>Vế trái</span><span>Vế phải</span></div>${q.options.map(o => { const pair = String(o.content || '').split(/\s+[–—-]\s+/); const left = o.left || o.metadata?.left || pair[0] || ''; const right = o.right || o.metadata?.right || pair[1] || 'Chưa có mô tả'; return `<div class="sai-match-row"><div class="sai-match-cell">${saiEsc(left)}</div><div class="sai-match-arrow">↔</div><div class="sai-match-cell">${saiEsc(right)}</div></div>`; }).join('')}</div>`
+            : q.options.map((o, optIdx) => {
             const letter = letters[optIdx] || (optIdx + 1);
             const isCorrect = Boolean(o.is_correct);
             return `
@@ -6354,13 +6628,20 @@ function saiRenderList(qs) {
         card.className = 'sai-qcard sel';
         card.id = `sai-qc-${i}`;
 
-        const typeLabel = q.type === 'MultipleChoice' ? 'Trắc nghiệm (1 đáp án)' : 'Nhiều đáp án đúng';
+        const typeLabel = q.type === 'MultipleChoice'
+            ? 'Trắc nghiệm (1 đáp án)'
+            : q.type === 'MultipleResponse'
+                ? 'Nhiều đáp án đúng'
+                : q.type === 'Matching'
+                    ? 'Ghép nối hai vế'
+                    : q.type;
+        const illustrationHtml = saiIllustrationHtml(q, i);
 
         card.innerHTML = `
             <div class="sai-qhdr" onclick="saiToggle(${i})">
                 <input type="checkbox" id="sai-chk-${i}" class="sai-qchk" checked
                        onchange="saiSync(${i})" onclick="event.stopPropagation()">
-                <div style="flex:1;">
+                    <div style="flex:1;">
                     <div class="sai-qmeta">
                         <span class="sai-qnum-pill">Câu ${i+1}</span>
                         <span class="sai-qtype-pill">${typeLabel}</span>
@@ -6369,11 +6650,48 @@ function saiRenderList(qs) {
                               placeholder="Nội dung câu hỏi..."
                               onclick="event.stopPropagation()"
                               onchange="saiQuestions[${i}].title=this.value">${saiEsc(q.title)}</textarea>
+                    </div>
+                    <button type="button" onclick="event.stopPropagation(); openAiStudentPreview(${i})" style="padding:5px 9px;border-radius:7px;border:1px solid #38bdf8;background:#e0f2fe;color:#0369a1;font-size:11px;font-weight:900;cursor:pointer;white-space:nowrap;">🎮 Xem thử</button>
                 </div>
-            </div>
+            <div id="sai-illus-${i}">${illustrationHtml}</div>
             <div class="sai-qopts">${optsHtml}</div>`;
         list.appendChild(card);
+
+        // Tự nới ô câu hỏi theo nội dung ban đầu; giáo viên vẫn có thể kéo giãn thêm.
+        const titleInput = card.querySelector('.sai-qtinput');
+        if (titleInput) {
+            titleInput.style.height = 'auto';
+            titleInput.style.height = `${Math.min(Math.max(titleInput.scrollHeight, 58), 140)}px`;
+        }
     });
+}
+
+function saiIllustrationHtml(q, i) {
+    if (q.illustration_path) {
+        return `<div class="sai-ai-illustration">
+                    <img src="${saiEsc(q.illustration_path)}" alt="Ảnh minh họa do AI tạo cho câu ${i + 1}">
+                    <div><strong>Ảnh minh họa đã tạo</strong><span>Ảnh này sẽ đi cùng câu hỏi khi lưu và hiển thị trong màn hình học sinh.</span></div>
+               </div>`;
+    }
+    if (q.image_status === 'loading') {
+        return `<div class="sai-ai-illustration">
+                    <div class="sai-ai-loading-card" aria-hidden="true"><div class="sai-ai-loading-icon">🖼️</div></div>
+                    <div><strong>Đang tạo ảnh minh họa...</strong><span>Thầy/Cô vẫn có thể đọc, sửa và chọn câu hỏi trong lúc ảnh chạy nền.</span></div>
+               </div>`;
+    }
+    if (q.image_status === 'error') {
+        return `<div class="sai-ai-illustration err">
+                    <div><strong>Chưa tạo được ảnh minh họa</strong><span>Câu hỏi vẫn dùng được; Thầy/Cô có thể lưu câu chữ hoặc bỏ chọn câu này.</span></div>
+               </div>`;
+    }
+    return q.needs_image
+        ? `<div class="sai-ai-illustration"><div class="sai-ai-loading-card" aria-hidden="true"><div class="sai-ai-loading-icon">🖼️</div></div><div><strong>Đang chờ tạo ảnh minh họa</strong><span>Ảnh sẽ được cập nhật tự động nếu hệ thống tạo thành công.</span></div></div>`
+        : '';
+}
+
+function saiUpdateIllustration(i) {
+    const box = document.getElementById(`sai-illus-${i}`);
+    if (box) box.innerHTML = saiIllustrationHtml(saiQuestions[i] || {}, i);
 }
 
 function saiToggle(i) {
@@ -6400,6 +6718,51 @@ function saiAll(v) {
             saiSync(i);
         }
     });
+}
+
+function openAiStudentPreview(startIndex = 0) {
+    if (!saiQuestions.length) { saiMsg('Chưa có câu hỏi AI để xem thử.', 'err'); return; }
+    const iframe = document.getElementById('sim-user-view-iframe');
+    if (!iframe) return;
+
+    const questions = saiQuestions.map((question, questionIndex) => ({
+        id: `ai-${questionIndex}`,
+        title: document.getElementById(`sai-qt-${questionIndex}`)?.value || question.title,
+        type: question.type,
+        points: 1,
+        configuration: {},
+        assets: question.illustration_path
+            ? [{ kind: 'question_image', path: question.illustration_path }]
+            : [],
+        options: (question.options || []).map((option, optionIndex) => ({
+            id: `ai-${questionIndex}-${optionIndex}`,
+            content: option.content || option.left || '',
+            is_correct: Boolean(option.is_correct),
+            position: optionIndex,
+            metadata: question.type === 'Matching'
+                ? { left: option.left || option.content || '', right: option.right || '' }
+                : (option.metadata || {}),
+        })),
+    }));
+    const answerKeys = {};
+    questions.forEach((question, questionIndex) => {
+        answerKeys[questionIndex] = question.type === 'Matching'
+            ? Object.fromEntries(question.options.map((_, optionIndex) => [optionIndex, optionIndex]))
+            : question.options.flatMap((option, optionIndex) => option.is_correct ? [optionIndex] : []);
+    });
+    const payload = { action: 'admin-load-questions', questions, answerKeys, startIndex };
+    const sendPayload = () => iframe.contentWindow?.postMessage(payload, window.location.origin);
+
+    @if($selectedTest)
+        const targetPath = `/bai-luyen/{{ $selectedTest->slug }}/lam-bai?preview=1`;
+        if (!iframe.src || !iframe.src.includes(`/bai-luyen/{{ $selectedTest->slug }}/lam-bai`)) {
+            iframe.addEventListener('load', sendPayload, { once: true });
+            iframe.src = targetPath;
+        } else {
+            sendPayload();
+        }
+        openModal('modal-student-sim');
+    @endif
 }
 
 // Lưu câu hỏi đã chọn vào bài luyện
@@ -6436,6 +6799,7 @@ async function saiImport() {
         const d = await r.json();
 
         if (d.success) {
+            saiCleanupUnusedIllustrations(sel.map(q => q.illustration_path).filter(Boolean));
             saiMsg(`🎉 ${d.message} Đang tải lại bài luyện để hiển thị câu hỏi mới...`, 'ok');
             setTimeout(() => window.location.reload(), 2000);
         } else {
@@ -6462,7 +6826,7 @@ function saiGenLoad(on) {
     const lbl = document.getElementById('sai-gen-lbl');
     if (btn) btn.disabled = on;
     if (spin) spin.style.display = on ? 'block' : 'none';
-    if (lbl) lbl.textContent = on ? 'Đang phân tích hình ảnh và soạn câu hỏi...' : '✨ Bắt đầu phân tích & Soạn câu hỏi';
+    if (lbl) lbl.textContent = on ? 'Đang đọc tài liệu và soạn câu hỏi...' : '✨ Phân tích và soạn câu hỏi';
 }
 
 function saiImpLoad(on) {
@@ -6496,4 +6860,3 @@ document.addEventListener('keydown', e => {
 @endif
 </body>
 </html>
-

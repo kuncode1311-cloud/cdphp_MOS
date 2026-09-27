@@ -7,12 +7,14 @@ return [
         'base_url' => env('QUESTION_AI_BASE_URL', ''),
         'api_key' => env('QUESTION_AI_API_KEY', ''),
         'model' => env('QUESTION_AI_MODEL', ''),
+        'image_model' => env('QUESTION_AI_IMAGE_MODEL', 'ag/gemini-3.1-flash-image'),
         'timeout' => (int) env('QUESTION_AI_TIMEOUT', 60),
         'connect_timeout' => (int) env('QUESTION_AI_CONNECT_TIMEOUT', 10),
     ],
 
     'gemini' => [
         'api_keys' => env('GEMINI_API_KEYS', env('GEMINI_API_KEY', '')),
+        'image_model' => env('GEMINI_IMAGE_MODEL', 'gemini-3.1-flash-image'),
     ],
 
     /*

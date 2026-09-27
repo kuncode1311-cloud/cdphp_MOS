@@ -253,17 +253,43 @@
         /* Ảnh minh họa đề bài */
         .quest-image-box {
             text-align: center;
-            margin-bottom: 16px;
+            width: min(100%, 760px);
+            aspect-ratio: 16 / 9;
+            max-height: clamp(180px, 32vh, 360px);
+            margin: 0 auto 16px;
+            padding: 10px;
+            border-radius: 18px;
+            border: 2px solid rgba(56, 189, 248, 0.42);
+            background: linear-gradient(180deg, rgba(8, 30, 55, 0.78), rgba(5, 18, 36, 0.72));
+            box-shadow: 0 14px 34px rgba(0, 0, 0, 0.24), inset 0 0 0 1px rgba(255, 255, 255, 0.06);
+            position: relative;
+            overflow: hidden;
+            display: grid;
+            place-items: center;
+        }
+        .quest-image-box::before {
+            content: "";
+            position: absolute;
+            inset: 10px;
+            border-radius: 12px;
+            background-image: var(--quest-image-bg);
+            background-size: cover;
+            background-position: center;
+            filter: blur(18px) saturate(1.15);
+            opacity: .32;
+            transform: scale(1.08);
         }
         .quest-image-box img {
-            max-height: 150px;
+            display: block;
+            position: relative;
+            z-index: 1;
             max-width: 100%;
+            max-height: 100%;
+            width: auto;
+            height: auto;
             object-fit: contain;
             border-radius: 12px;
-            background: #ffffff;
-            border: 2px solid #cbd5e1;
-            padding: 6px;
-            box-shadow: 0 6px 18px rgba(0,0,0,0.3);
+            background: rgba(255, 255, 255, 0.08);
             cursor: zoom-in;
             transition: transform 0.18s;
         }
@@ -984,6 +1010,7 @@
             if (promptImg && q.type !== 'Hotspot') {
                 const imgBox = document.createElement('div');
                 imgBox.className = 'quest-image-box';
+                imgBox.style.setProperty('--quest-image-bg', `url("${promptImg}")`);
                 imgBox.innerHTML = `<img src="${promptImg}" alt="Minh họa đề bài" onclick="zoomImage('${promptImg}')" title="Nhấp để xem ảnh lớn">`;
                 container.appendChild(imgBox);
             }

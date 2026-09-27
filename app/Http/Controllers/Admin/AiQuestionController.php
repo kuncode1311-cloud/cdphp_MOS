@@ -11,6 +11,7 @@ use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Storage;
 
 /**
  * Controller Soạn Câu Hỏi Bằng AI (AI Question Generator Controller)
@@ -27,12 +28,15 @@ class AiQuestionController extends Controller
      */
     public function generate(Request $request): JsonResponse
     {
+        $requestStartedAt = microtime(true);
         $request->validate([
             'files' => 'nullable|array|max:10',
             'files.*' => 'file|max:20480|mimes:jpg,jpeg,png,webp,pdf',
             'file' => 'nullable|file|max:20480|mimes:jpg,jpeg,png,webp,pdf',
-            'text' => 'nullable|string|max:8000',
-            'context' => 'nullable|string|max:8000',
+            'text' => 'nullable|string|max:50000',
+            'context' => 'nullable|string|max:50000',
+            'generate_images' => 'nullable|boolean',
+            'question_count' => 'nullable|integer|min:1|max:10',
         ], [
             'files.max' => 'Thầy/Cô có thể tải lên tối đa 10 tệp cùng lúc.',
             'files.*.max' => 'Mỗi tệp không được vượt quá 20MB.',
@@ -44,6 +48,8 @@ class AiQuestionController extends Controller
         $promptText = trim((string) $request->input('text', $request->input('context', '')));
         $hasText = ! empty($promptText);
         $hasFiles = $request->hasFile('files') || $request->hasFile('file');
+        $generateImages = $request->boolean('generate_images');
+        $questionCount = max(1, min(10, $request->integer('question_count', 5)));
 
         if (! $hasFiles && ! $hasText) {
             return response()->json([
@@ -69,17 +75,25 @@ class AiQuestionController extends Controller
                         'name' => $file->getClientOriginalName(),
                     ];
                 }
-                $questions = $this->gemini->generateQuestionsFromFiles($fileItems, $promptText);
+                $questions = $this->gemini->generateQuestionsFromFiles($fileItems, $promptText, $generateImages, $questionCount);
             } else {
                 // Chế độ giáo viên chỉ nhập ý tưởng / đề cương thuần chữ không kèm ảnh
-                $questions = $this->gemini->generateQuestionsFromText($promptText);
+                $questions = $this->gemini->generateQuestionsFromText($promptText, '', $generateImages, $questionCount);
             }
 
             if (empty($questions)) {
                 return response()->json([
                     'success' => false,
-                    'message' => 'Chưa nhận diện được nội dung bài học. Thầy/Cô có thể nhập thêm vài từ khóa gợi ý chi tiết hơn để AI soạn đúng theo ý nhé!',
+                    'message' => $hasFiles
+                        ? 'Chưa đọc rõ nội dung trong tệp. Thầy/Cô vui lòng kiểm tra tệp có chữ rõ nét hoặc nhập thêm yêu cầu mô tả tài liệu.'
+                        : 'Chưa nhận diện được nội dung bài học. Thầy/Cô có thể nhập thêm vài từ khóa gợi ý chi tiết hơn để AI soạn đúng theo ý nhé!',
+                    'ai_trace' => $this->gemini->executionTrace(),
+                    'total_ms' => (int) round((microtime(true) - $requestStartedAt) * 1000),
                 ], 422);
+            }
+
+            if ($generateImages) {
+                $questions = $this->gemini->prepareIllustrationRequests($questions, true);
             }
 
             $count = count($questions);
@@ -89,6 +103,9 @@ class AiQuestionController extends Controller
                 'questions' => $questions,
                 'count' => $count,
                 'message' => "Đã phân tích xong và tìm thấy {$count} câu hỏi chất lượng!",
+                'ai_trace' => $this->gemini->executionTrace(),
+                'total_ms' => (int) round((microtime(true) - $requestStartedAt) * 1000),
+                'image_generation_enabled' => $generateImages,
             ]);
 
         } catch (\RuntimeException $e) {
@@ -109,6 +126,62 @@ class AiQuestionController extends Controller
     }
 
     /**
+     * Tạo ảnh minh họa cho một câu hỏi sau khi danh sách câu hỏi đã hiện lên giao diện.
+     */
+    public function generateIllustration(Request $request): JsonResponse
+    {
+        $requestStartedAt = microtime(true);
+        $data = $request->validate([
+            'question' => 'required|array',
+            'question.title' => 'required|string|max:2000',
+            'question.type' => 'required|string|in:MultipleChoice,MultipleResponse,Matching',
+            'question.needs_image' => 'nullable|boolean',
+            'question.image_prompt' => 'nullable|string|max:2000',
+            'question.options' => 'required|array|min:2',
+            'question.options.*.content' => 'nullable|string|max:1000',
+            'question.options.*.is_correct' => 'required|boolean',
+        ]);
+
+        $questions = $this->gemini->generateRequiredIllustrations([$data['question']], true);
+        $question = $questions[0] ?? [];
+        $path = $question['illustration_path'] ?? null;
+
+        return response()->json([
+            'success' => is_string($path) && $path !== '',
+            'question' => $question,
+            'illustration_path' => $path,
+            'message' => $path ? 'Đã tạo ảnh minh họa.' : 'Chưa tạo được ảnh minh họa cho câu này.',
+            'ai_trace' => $this->gemini->executionTrace(),
+            'total_ms' => (int) round((microtime(true) - $requestStartedAt) * 1000),
+        ], $path ? 200 : 422);
+    }
+
+    /**
+     * Dọn ảnh AI tạm nếu giáo viên không lưu câu hỏi vào bài luyện.
+     */
+    public function cleanupIllustrations(Request $request): JsonResponse
+    {
+        $data = $request->validate([
+            'paths' => 'required|array|max:20',
+            'paths.*' => ['required', 'string', 'regex:#^/storage/question-assets/ai-[a-f0-9-]+\.(?:png|jpg|webp)$#i'],
+        ]);
+
+        $deleted = 0;
+        foreach ($data['paths'] as $path) {
+            $relativePath = ltrim(preg_replace('#^/storage/#', '', $path), '/');
+            if (Storage::disk('public')->exists($relativePath)) {
+                Storage::disk('public')->delete($relativePath);
+                $deleted++;
+            }
+        }
+
+        return response()->json([
+            'success' => true,
+            'deleted' => $deleted,
+        ]);
+    }
+
+    /**
      * Nhận danh sách câu hỏi đã review → lưu vào DB (questions + question_options)
      */
     public function import(Request $request): JsonResponse
@@ -121,6 +194,7 @@ class AiQuestionController extends Controller
             'questions.*.options' => 'required|array|min:2',
             'questions.*.options.*.content' => 'required|string|max:1000',
             'questions.*.options.*.is_correct' => 'required|boolean',
+            'questions.*.illustration_path' => ['nullable', 'string', 'regex:#^/storage/question-assets/ai-[a-f0-9-]+\.(?:png|jpg|webp)$#i'],
         ], [
             'practice_test_id.required' => 'Chưa xác định bài luyện cần lưu câu hỏi.',
             'questions.required' => 'Danh sách câu hỏi chọn lưu không được để trống.',
@@ -157,6 +231,20 @@ class AiQuestionController extends Controller
                             ? ['left' => $optData['left'], 'right' => $optData['right']]
                             : null,
                     ]);
+                }
+
+                $illustrationPath = $qData['illustration_path'] ?? null;
+                if (is_string($illustrationPath) && $illustrationPath !== '') {
+                    $relativePath = ltrim(preg_replace('#^/storage/#', '', $illustrationPath), '/');
+                    if (\Illuminate\Support\Facades\Storage::disk('public')->exists($relativePath)) {
+                        $question->assets()->create([
+                            'kind' => 'question_image',
+                            'path' => $illustrationPath,
+                            'original_name' => basename($relativePath),
+                            'mime_type' => \Illuminate\Support\Facades\Storage::disk('public')->mimeType($relativePath),
+                            'metadata' => ['generated_by_ai' => true],
+                        ]);
+                    }
                 }
 
                 $importedCount++;
