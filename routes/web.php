@@ -148,6 +148,7 @@ Route::prefix('quan-tri')->name('admin.')->middleware(['auth', 'admin'])->group(
 
     // IC3 QUESTION STUDIO - Quản trị Bộ đề & Soạn thảo câu hỏi trọn gói
     Route::get('/bo-de-cau-hoi', [QuestionController::class, 'index'])->name('questions.studio');
+    Route::get('/xem-thu/phong-thi', [LearningController::class, 'previewSimulator'])->name('preview.simulator');
     Route::post('/questions', [QuestionController::class, 'store'])->name('questions.store');
     Route::get('/questions/{question}', [QuestionController::class, 'show'])->name('questions.show');
     Route::put('/questions/{question}', [QuestionController::class, 'update'])->name('questions.update');

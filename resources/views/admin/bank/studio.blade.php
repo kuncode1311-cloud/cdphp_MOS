@@ -4752,6 +4752,9 @@
                 const iframe = document.getElementById('sim-user-view-iframe');
                 try {
                     iframe?.contentWindow?.postMessage(window.pendingAiPreviewPayload, '*');
+                    if (iframe?.contentWindow?.loadQuestionsFromAdmin) {
+                        iframe.contentWindow.loadQuestionsFromAdmin(window.pendingAiPreviewPayload);
+                    }
                 } catch (e) {}
             }
         });
@@ -6922,37 +6925,62 @@ function openAiStudentPreview(startIndex = 0) {
     const iframe = document.getElementById('sim-user-view-iframe');
     if (!iframe) return;
 
-    const questions = saiQuestions.map((question, questionIndex) => ({
-        id: `ai-${questionIndex}`,
-        title: document.getElementById(`sai-qt-${questionIndex}`)?.value || question.title,
-        type: question.type,
-        points: 1,
-        configuration: {},
-        assets: question.illustration_path
-            ? [{ kind: 'question_image', path: question.illustration_path }]
-            : [],
-        options: (question.options || []).map((option, optionIndex) => ({
-            id: `ai-${questionIndex}-${optionIndex}`,
-            content: option.content || option.left || '',
-            is_correct: Boolean(option.is_correct),
-            position: optionIndex,
-            metadata: question.type === 'Matching'
-                ? { left: option.left || option.content || '', right: option.right || '' }
-                : (option.metadata || {}),
-        })),
-    }));
+    const questions = saiQuestions.map((question, questionIndex) => {
+        const options = (question.options || []).map((option, optionIndex) => {
+            let left = option.left || option.metadata?.left || '';
+            let right = option.right || option.metadata?.right || '';
+            if ((!left || !right) && option.content) {
+                const parts = String(option.content).split(/\s*[–—\-:]+\s*/);
+                if (!left) left = parts[0] || '';
+                if (!right) right = parts[1] || '';
+            }
+            return {
+                id: `ai-${questionIndex}-${optionIndex}`,
+                content: option.content || `${left} ::: ${right}`,
+                is_correct: Boolean(option.is_correct),
+                position: optionIndex,
+                metadata: question.type === 'Matching'
+                    ? { left, right }
+                    : (option.metadata || {}),
+            };
+        });
+
+        return {
+            id: `ai-${questionIndex}`,
+            title: document.getElementById(`sai-qt-${questionIndex}`)?.value || question.title,
+            type: question.type,
+            points: 1,
+            configuration: {},
+            assets: question.illustration_path
+                ? [{ kind: 'question_image', path: question.illustration_path }]
+                : [],
+            options: options,
+        };
+    });
+
     const answerKeys = {};
     questions.forEach((question, questionIndex) => {
-        answerKeys[questionIndex] = question.type === 'Matching'
-            ? Object.fromEntries(question.options.map((_, optionIndex) => [optionIndex, optionIndex]))
-            : question.options.flatMap((option, optionIndex) => option.is_correct ? [optionIndex] : []);
+        if (question.type === 'Matching') {
+            answerKeys[questionIndex] = Object.fromEntries(question.options.map((_, optionIndex) => [optionIndex, optionIndex]));
+        } else {
+            answerKeys[questionIndex] = question.options.flatMap((option, optionIndex) => option.is_correct ? [optionIndex] : []);
+        }
     });
+
     const payload = { action: 'admin-load-questions', questions, answerKeys, startIndex };
     window.pendingAiPreviewPayload = payload;
+    try {
+        sessionStorage.setItem('mos_preview_questions', JSON.stringify(payload));
+    } catch (e) {
+        console.warn('Lỗi lưu sessionStorage preview:', e);
+    }
 
     const sendPayload = () => {
         try {
             iframe.contentWindow?.postMessage(payload, '*');
+            if (iframe.contentWindow?.loadQuestionsFromAdmin) {
+                iframe.contentWindow.loadQuestionsFromAdmin(payload);
+            }
         } catch (e) {
             console.error('Lỗi khi gửi payload xem thử:', e);
         }
@@ -6960,31 +6988,25 @@ function openAiStudentPreview(startIndex = 0) {
 
     const sendPayloadWithRetry = () => {
         sendPayload();
-        setTimeout(sendPayload, 120);
-        setTimeout(sendPayload, 280);
-        setTimeout(sendPayload, 600);
+        setTimeout(sendPayload, 80);
+        setTimeout(sendPayload, 220);
+        setTimeout(sendPayload, 500);
+        setTimeout(sendPayload, 1000);
     };
 
-    @php
-        $simTestSlug = $selectedTest?->slug ?? \App\Models\PracticeTest::whereNotNull('slug')->value('slug');
-    @endphp
+    const targetPath = "{{ route('admin.preview.simulator') }}?grade={{ $selectedGrade }}&preview=1";
+    const targetRelative = '{{ route("admin.preview.simulator", [], false) }}';
 
-    @if($simTestSlug)
-        const targetPath = `/bai-luyen/{{ $simTestSlug }}/lam-bai?preview=1`;
-        const isSimulatorReady = Boolean(iframe.contentWindow && iframe.contentWindow.rawQuestions !== undefined);
+    iframe.onload = () => {
+        sendPayloadWithRetry();
+    };
 
-        if (!isSimulatorReady || !iframe.src || !iframe.src.includes(`/bai-luyen/{{ $simTestSlug }}/lam-bai`)) {
-            iframe.addEventListener('load', () => {
-                sendPayloadWithRetry();
-            }, { once: true });
-            iframe.src = targetPath;
-        } else {
-            sendPayloadWithRetry();
-        }
-        openModal('modal-student-sim');
-    @else
-        saiMsg('Chưa tìm thấy bộ đề luyện tập để khởi chạy phòng thi xem thử.', 'err');
-    @endif
+    if (!iframe.src || !iframe.src.includes(targetRelative)) {
+        iframe.src = targetPath;
+    } else {
+        sendPayloadWithRetry();
+    }
+    openModal('modal-student-sim');
 }
 
 // Lưu câu hỏi đã chọn vào bài luyện

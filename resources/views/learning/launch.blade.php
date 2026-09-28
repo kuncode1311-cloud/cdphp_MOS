@@ -1420,6 +1420,7 @@
         const questions = @json($questions);
         let adminAnswerKeys = @json($adminAnswerKeys ?? []);
         let rawQuestions = questions;
+        window.rawQuestions = rawQuestions;
         const submitUrl = "{{ route('attempts.store', $practiceTest->slug) }}";
         const csrfToken = document.querySelector('meta[name="csrf-token"]')?.getAttribute('content');
 
@@ -1453,6 +1454,27 @@
         const isSinglePreview = urlParams.get('single') === '1';
         if (isSinglePreview) {
             document.body.classList.add('is-single-preview');
+        }
+
+        // Tự động khôi phục dữ liệu câu hỏi xem thử từ Studio trong sessionStorage (0ms tức thì)
+        if (isIframePreview || isSinglePreview) {
+            try {
+                const storedPayload = sessionStorage.getItem('mos_preview_questions');
+                if (storedPayload) {
+                    const data = JSON.parse(storedPayload);
+                    if (data && Array.isArray(data.questions) && data.questions.length > 0) {
+                        rawQuestions = data.questions;
+                        window.rawQuestions = rawQuestions;
+                        adminAnswerKeys = data.answerKeys || {};
+                        correctAnswersData = adminAnswerKeys;
+                        if (data.startIndex !== undefined) {
+                            currentIndex = Math.max(0, Math.min(Number(data.startIndex) || 0, rawQuestions.length - 1));
+                        }
+                    }
+                }
+            } catch (e) {
+                console.warn('Không thể đọc sessionStorage preview:', e);
+            }
         }
 
         // Đọc tham số câu hỏi từ URL (?qId=X hoặc ?q=X)
@@ -1756,13 +1778,21 @@
             const rightList = [];
 
             (q.options || []).forEach((opt, idx) => {
-                let leftVal = opt.metadata?.left || opt.content || `Mục ${idx + 1}`;
-                let rightVal = opt.metadata?.right || `Định nghĩa ${idx + 1}`;
-                if (opt.content && opt.content.includes(':::')) {
-                    const parts = opt.content.split(':::');
-                    leftVal = parts[0].trim();
-                    rightVal = parts[1].trim();
+                let leftVal = opt.metadata?.left || opt.left || '';
+                let rightVal = opt.metadata?.right || opt.right || '';
+                if ((!leftVal || !rightVal) && opt.content) {
+                    if (opt.content.includes(':::')) {
+                        const parts = opt.content.split(':::');
+                        if (!leftVal) leftVal = parts[0]?.trim() || '';
+                        if (!rightVal) rightVal = parts[1]?.trim() || '';
+                    } else {
+                        const parts = String(opt.content).split(/\s*[–—\-:]+\s*/);
+                        if (!leftVal) leftVal = parts[0]?.trim() || '';
+                        if (!rightVal) rightVal = parts[1]?.trim() || '';
+                    }
                 }
+                if (!leftVal) leftVal = opt.content || `Mục ${idx + 1}`;
+                if (!rightVal) rightVal = `Định nghĩa ${idx + 1}`;
                 leftList.push({ id: idx, text: leftVal });
                 rightList.push({ id: idx, text: rightVal });
             });
@@ -2661,26 +2691,32 @@
             renderQuestion();
         };
 
+        window.loadQuestionsFromAdmin = function(data) {
+            if (!data || !Array.isArray(data.questions)) return;
+            rawQuestions = data.questions;
+            window.rawQuestions = rawQuestions;
+            adminAnswerKeys = data.answerKeys || {};
+            correctAnswersData = adminAnswerKeys;
+            currentIndex = Math.max(0, Math.min(Number(data.startIndex) || 0, rawQuestions.length - 1));
+            userSelections = {};
+            answers = userSelections;
+            questionResults = {};
+            reviewResults = questionResults;
+            isReviewMode = false;
+            isSubmitted = false;
+            const fb = document.getElementById('feedback-banner');
+            if (fb) fb.className = 'feedback-banner';
+            renderQuestion();
+        };
+
         if (window.self !== window.top) {
             try {
                 window.parent.postMessage({ action: 'simulator-ready' }, '*');
             } catch (e) {}
 
             window.addEventListener('message', (event) => {
-                if (event.data?.action === 'admin-load-questions' && Array.isArray(event.data.questions)) {
-                    rawQuestions = event.data.questions;
-                    adminAnswerKeys = event.data.answerKeys || {};
-                    correctAnswersData = adminAnswerKeys;
-                    currentIndex = Math.max(0, Math.min(Number(event.data.startIndex) || 0, rawQuestions.length - 1));
-                    userSelections = {};
-                    answers = userSelections;
-                    questionResults = {};
-                    reviewResults = questionResults;
-                    isReviewMode = false;
-                    isSubmitted = false;
-                    const fb = document.getElementById('feedback-banner');
-                    if (fb) fb.className = 'feedback-banner';
-                    renderQuestion();
+                if (event.data?.action === 'admin-load-questions') {
+                    window.loadQuestionsFromAdmin(event.data);
                 } else if (event.data?.action === 'admin-autofill') window.adminAutofillAnswer();
                 else if (event.data?.action === 'admin-check') window.adminCheckAnswer();
                 else if (event.data?.action === 'admin-reset') window.adminResetAnswer();

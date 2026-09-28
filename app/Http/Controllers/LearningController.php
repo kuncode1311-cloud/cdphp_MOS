@@ -473,6 +473,36 @@ class LearningController extends Controller
     }
 
     /**
+     * Khởi chạy phòng thi xem thử Simulator chuyên dụng cho Quản trị viên & Trợ lý AI
+     */
+    public function previewSimulator(Request $request): View
+    {
+        abort_unless(auth()->user()?->isAdmin(), 403, 'Chức năng chỉ dành cho Quản trị viên.');
+
+        $grade = (int) $request->input('grade', 3);
+        $level = Level::where('grade', $grade)->first() ?? Level::first();
+
+        // Tạo một đối tượng PracticeTest tạm thời an toàn trong bộ nhớ để layout phòng thi chạy chuẩn xác
+        $practiceTest = new PracticeTest([
+            'name' => 'Phòng Thi Xem Thử IC3 GS6',
+            'slug' => 'xem-thu',
+            'duration_minutes' => 0,
+            'pass_score' => 700,
+            'max_score' => 1000,
+            'is_published' => true,
+            'is_mock' => false,
+        ]);
+        if ($level) {
+            $practiceTest->setRelation('level', $level);
+        }
+
+        $questions = collect();
+        $adminAnswerKeys = [];
+
+        return view('learning.launch', compact('practiceTest', 'questions', 'adminAnswerKeys'));
+    }
+
+    /**
      * Góc Phụ Huynh — Bảng điều khiển phân tích & theo dõi tiến độ học tập chi tiết của con
      *
      * - Dữ liệu thực tế 100% từ bảng test_attempts.
