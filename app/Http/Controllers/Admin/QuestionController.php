@@ -121,34 +121,53 @@ class QuestionController extends Controller
     public function store(SaveQuestionRequest $request): RedirectResponse|JsonResponse
     {
         $validated = $request->validated();
-        $test = PracticeTest::findOrFail($validated['practice_test_id']);
 
-        $options = $request->all()['options'] ?? [];
-        $assetFile = $request->file('asset_file');
-        $assetKind = $request->input('asset_kind', 'image');
+        try {
+            $test = PracticeTest::with('topic.level')->findOrFail($validated['practice_test_id']);
 
-        $question = $this->questionService->createQuestion(
-            $test,
-            $validated,
-            $options,
-            $assetFile,
-            $assetKind
-        );
+            $options = $request->all()['options'] ?? [];
+            $assetFile = $request->file('asset_file');
+            $assetKind = $request->input('asset_kind', 'image');
 
-        if ($request->wantsJson()) {
-            return response()->json([
-                'success' => true,
-                'message' => 'Đã thêm câu hỏi thành công!',
-                'question' => $question->studioData(),
+            $question = $this->questionService->createQuestion(
+                $test,
+                $validated,
+                $options,
+                $assetFile,
+                $assetKind
+            );
+
+            if ($request->wantsJson() || $request->ajax()) {
+                return response()->json([
+                    'success' => true,
+                    'message' => 'Đã thêm câu hỏi thành công!',
+                    'question' => $question->studioData(),
+                ]);
+            }
+
+            $grade = $test->topic?->level?->grade ?? 3;
+
+            return redirect()->route('admin.questions.studio', [
+                'grade' => $grade,
+                'topic' => $test->topic_id,
+                'test' => $test->id,
+                'q' => $question->id,
+            ])->with('ok', 'Đã thêm câu hỏi mới thành công!');
+        } catch (\Throwable $e) {
+            \Illuminate\Support\Facades\Log::error('Lỗi khi thêm câu hỏi mới: ' . $e->getMessage(), [
+                'request' => $request->except(['asset_file']),
+                'trace' => $e->getTraceAsString(),
             ]);
-        }
 
-        return redirect()->route('admin.questions.studio', [
-            'grade' => $test->topic->level->grade,
-            'topic' => $test->topic_id,
-            'test' => $test->id,
-            'q' => $question->id,
-        ])->with('ok', 'Đã thêm câu hỏi mới thành công!');
+            if ($request->wantsJson() || $request->ajax()) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Lỗi khi tạo câu hỏi: ' . $e->getMessage(),
+                ], 500);
+            }
+
+            return back()->withInput()->with('error', 'Có lỗi xảy ra khi tạo câu hỏi: ' . $e->getMessage());
+        }
     }
 
     /**
@@ -157,34 +176,52 @@ class QuestionController extends Controller
     public function update(SaveQuestionRequest $request, Question $question): RedirectResponse|JsonResponse
     {
         $validated = $request->validated();
-        $options = $request->all()['options'] ?? [];
-        $assetFile = $request->file('asset_file');
-        $assetKind = $request->input('asset_kind', 'image');
 
-        $updatedQuestion = $this->questionService->updateQuestion(
-            $question,
-            $validated,
-            $options,
-            $assetFile,
-            $assetKind
-        );
+        try {
+            $options = $request->all()['options'] ?? [];
+            $assetFile = $request->file('asset_file');
+            $assetKind = $request->input('asset_kind', 'image');
 
-        if ($request->wantsJson()) {
-            return response()->json([
-                'success' => true,
-                'message' => 'Đã cập nhật câu hỏi thành công!',
-                'question' => $updatedQuestion->studioData(),
+            $updatedQuestion = $this->questionService->updateQuestion(
+                $question,
+                $validated,
+                $options,
+                $assetFile,
+                $assetKind
+            );
+
+            if ($request->wantsJson() || $request->ajax()) {
+                return response()->json([
+                    'success' => true,
+                    'message' => 'Đã cập nhật câu hỏi thành công!',
+                    'question' => $updatedQuestion->studioData(),
+                ]);
+            }
+
+            $test = $question->practiceTest()->with('topic.level')->first();
+            $grade = $test?->topic?->level?->grade ?? 3;
+
+            return redirect()->route('admin.questions.studio', [
+                'grade' => $grade,
+                'topic' => $test?->topic_id,
+                'test' => $test?->id,
+                'q' => $question->id,
+            ])->with('ok', "Đã cập nhật thành công câu hỏi số #{$question->position}!");
+        } catch (\Throwable $e) {
+            \Illuminate\Support\Facades\Log::error('Lỗi khi cập nhật câu hỏi: ' . $e->getMessage(), [
+                'question_id' => $question->id,
+                'trace' => $e->getTraceAsString(),
             ]);
+
+            if ($request->wantsJson() || $request->ajax()) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Lỗi khi cập nhật câu hỏi: ' . $e->getMessage(),
+                ], 500);
+            }
+
+            return back()->withInput()->with('error', 'Có lỗi xảy ra khi cập nhật câu hỏi: ' . $e->getMessage());
         }
-
-        $test = $question->practiceTest;
-
-        return redirect()->route('admin.questions.studio', [
-            'grade' => $test->topic->level->grade,
-            'topic' => $test->topic_id,
-            'test' => $test->id,
-            'q' => $question->id,
-        ])->with('ok', "Đã cập nhật thành công câu hỏi số #{$question->position}!");
     }
 
     /**
@@ -192,13 +229,23 @@ class QuestionController extends Controller
      */
     public function destroy(Question $question): RedirectResponse
     {
-        $test = $question->practiceTest;
-        $this->questionService->deleteQuestion($question);
+        try {
+            $test = $question->practiceTest()->with('topic.level')->first();
+            $grade = $test?->topic?->level?->grade ?? 3;
+            $topicId = $test?->topic_id;
+            $testId = $test?->id;
 
-        return redirect()->route('admin.questions.studio', [
-            'grade' => $test->topic->level->grade,
-            'topic' => $test->topic_id,
-            'test' => $test->id,
-        ])->with('ok', 'Đã xóa câu hỏi thành công.');
+            $this->questionService->deleteQuestion($question);
+
+            return redirect()->route('admin.questions.studio', [
+                'grade' => $grade,
+                'topic' => $topicId,
+                'test' => $testId,
+            ])->with('ok', 'Đã xóa câu hỏi thành công.');
+        } catch (\Throwable $e) {
+            \Illuminate\Support\Facades\Log::error('Lỗi khi xóa câu hỏi: ' . $e->getMessage());
+
+            return back()->with('error', 'Có lỗi khi xóa câu hỏi: ' . $e->getMessage());
+        }
     }
 }

@@ -43,27 +43,40 @@ class QuestionService
     ): Question {
         // Database cùng lưu hoặc cùng rollback; file upload không được rollback theo.
         return DB::transaction(function () use ($test, $data, $options, $assetFile, $assetKind) {
-            // 1. Tự động tính thứ tự tiếp theo nếu chưa có
-            $position = $data['position'] ?? ((int) $test->questions()->max('position') + 1);
+            // 1. Tự động tính thứ tự an toàn, đảm bảo không trùng unique(practice_test_id, position)
+            $requestedPosition = isset($data['position']) && $data['position'] !== null ? (int) $data['position'] : null;
+            $maxPosition = (int) $test->questions()->max('position');
 
-            // 3. Tạo bản ghi Question
+            if ($requestedPosition === null || $requestedPosition < 0 || $test->questions()->where('position', $requestedPosition)->exists()) {
+                $position = $maxPosition + 1;
+                while ($test->questions()->where('position', $position)->exists()) {
+                    $position++;
+                }
+            } else {
+                $position = $requestedPosition;
+            }
+
+            // 2. Tạo bản ghi Question
             /** @var Question $question */
             $question = $test->questions()->create([
                 'title' => $data['title'] ?? '',
                 'type' => $data['type'] ?? 'MultipleChoice',
                 'configuration' => $data['configuration'] ?? [],
                 'position' => $position,
-                'points' => $data['points'] ?? 1,
+                'points' => (isset($data['points']) && $data['points'] !== null) ? (int) $data['points'] : 1,
                 'is_published' => (bool) ($data['is_published'] ?? true),
             ]);
 
-            // 4. Lưu danh sách các lựa chọn (QuestionOptions)
+            // 3. Lưu danh sách các lựa chọn (QuestionOptions)
             $this->syncOptions($question, $options);
 
-            // 5. Lưu file đính kèm nếu người dùng tải lên
+            // 4. Lưu file đính kèm nếu người dùng tải lên
             if ($assetFile instanceof UploadedFile) {
                 $this->assetService->uploadAsset($question, $assetFile, $assetKind);
             }
+
+            // 5. Cập nhật lại tổng số câu hỏi thực tế trong bộ đề
+            $test->update(['question_count' => $test->questions()->count()]);
 
             return $question->load(['options', 'assets', 'practiceTest']);
         });
@@ -80,19 +93,33 @@ class QuestionService
         string $assetKind = 'image'
     ): Question {
         return DB::transaction(function () use ($question, $data, $options, $assetFile, $assetKind) {
-            // 1. Cập nhật các trường cơ bản của câu hỏi
+            // 1. Kiểm tra vị trí an toàn tránh trùng unique
+            $updatePosition = $question->position;
+            if (isset($data['position']) && $data['position'] !== null) {
+                $candidatePos = (int) $data['position'];
+                $isConflict = $question->practiceTest?->questions()
+                    ->where('position', $candidatePos)
+                    ->where('id', '!=', $question->id)
+                    ->exists();
+
+                if (! $isConflict) {
+                    $updatePosition = $candidatePos;
+                }
+            }
+
+            // 2. Cập nhật các trường cơ bản của câu hỏi
             $question->update([
                 'title' => $data['title'] ?? $question->title,
                 'type' => $data['type'] ?? $question->type,
-                'position' => isset($data['position']) ? (int) $data['position'] : $question->position,
+                'position' => $updatePosition,
                 'points' => isset($data['points']) ? (int) $data['points'] : $question->points,
                 'is_published' => isset($data['is_published']) ? (bool) $data['is_published'] : $question->is_published,
             ]);
 
-            // 2. Đồng bộ danh sách options thuộc schema nội bộ.
+            // 3. Đồng bộ danh sách options thuộc schema nội bộ.
             $this->syncOptions($question, $options);
 
-            // 3. Tải lên file mới nếu có
+            // 4. Tải lên file mới nếu có
             if ($assetFile instanceof UploadedFile) {
                 $this->assetService->uploadAsset($question, $assetFile, $assetKind);
             }
@@ -107,12 +134,20 @@ class QuestionService
     public function deleteQuestion(Question $question): bool
     {
         return DB::transaction(function () use ($question) {
+            $test = $question->practiceTest;
+
             // Xóa toàn bộ file vật lý của câu hỏi
             foreach ($question->assets as $asset) {
                 $this->assetService->deleteAsset($asset);
             }
 
-            return (bool) $question->delete();
+            $deleted = (bool) $question->delete();
+
+            if ($test) {
+                $test->update(['question_count' => $test->questions()->count()]);
+            }
+
+            return $deleted;
         });
     }
 

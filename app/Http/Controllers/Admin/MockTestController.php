@@ -102,47 +102,65 @@ class MockTestController extends Controller
             'question_ids.min' => 'Vui lòng chọn ít nhất 1 câu hỏi để đưa vào bộ đề thi thử.',
         ]);
 
-        $level = Level::findOrFail($validated['level_id']);
+        try {
+            $level = Level::findOrFail($validated['level_id']);
 
-        // Sinh slug chuẩn không dấu và duy nhất
-        $baseSlug = Str::slug($validated['name']);
-        $slug = $baseSlug ?: 'de-thi-thu-k'.$level->grade;
-        if (PracticeTest::where('slug', $slug)->exists()) {
-            $slug .= '-'.Str::lower(Str::random(4));
-        }
+            // Sinh slug chuẩn không dấu và duy nhất
+            $baseSlug = Str::slug($validated['name']) ?: ('de-thi-thu-k'.$level->grade);
+            $slug = $baseSlug;
+            $counter = 1;
+            while (PracticeTest::where('slug', $slug)->exists()) {
+                $counter++;
+                $slug = "{$baseSlug}-{$counter}";
+            }
 
-        $mockTest = PracticeTest::create([
-            'level_id' => $level->id,
-            'topic_id' => null, // Đề thi thử tổng hợp cấp Khối không thuộc riêng 1 chủ đề
-            'is_mock' => true,
-            'name' => $validated['name'],
-            'slug' => $slug,
-            'duration_minutes' => $validated['duration_minutes'],
-            'question_count' => count($validated['question_ids']),
-            'pass_score' => $validated['pass_score'],
-            'max_score' => 1000,
-            'is_published' => $request->boolean('is_published', true),
-            'shuffle_questions' => $request->boolean('shuffle_questions', true),
-            'shuffle_options' => $request->boolean('shuffle_options', true),
-        ]);
-
-        // Gắn danh sách câu hỏi vào bảng pivot
-        $syncData = [];
-        foreach ($validated['question_ids'] as $position => $questionId) {
-            $syncData[$questionId] = ['position' => $position + 1];
-        }
-        $mockTest->mockQuestions()->sync($syncData);
-
-        if ($request->wantsJson()) {
-            return response()->json([
-                'success' => true,
-                'message' => "Đã tạo bộ đề thi thử '{$mockTest->name}' thành công!",
-                'redirect' => route('admin.mock-tests.index', ['grade' => $level->grade]),
+            $mockTest = PracticeTest::create([
+                'level_id' => $level->id,
+                'topic_id' => null, // Đề thi thử tổng hợp cấp Khối không thuộc riêng 1 chủ đề
+                'is_mock' => true,
+                'name' => $validated['name'],
+                'slug' => $slug,
+                'duration_minutes' => $validated['duration_minutes'],
+                'question_count' => count($validated['question_ids']),
+                'pass_score' => $validated['pass_score'],
+                'max_score' => 1000,
+                'position' => 0,
+                'is_published' => $request->boolean('is_published', true),
+                'shuffle_questions' => $request->boolean('shuffle_questions', true),
+                'shuffle_options' => $request->boolean('shuffle_options', true),
             ]);
-        }
 
-        return redirect()->route('admin.mock-tests.index', ['grade' => $level->grade])
-            ->with('ok', "Đã tạo bộ đề thi thử '{$mockTest->name}' với {$mockTest->question_count} câu hỏi thành công!");
+            // Gắn danh sách câu hỏi vào bảng pivot
+            $syncData = [];
+            foreach ($validated['question_ids'] as $position => $questionId) {
+                $syncData[$questionId] = ['position' => $position + 1];
+            }
+            $mockTest->mockQuestions()->sync($syncData);
+
+            if ($request->wantsJson()) {
+                return response()->json([
+                    'success' => true,
+                    'message' => "Đã tạo bộ đề thi thử '{$mockTest->name}' thành công!",
+                    'redirect' => route('admin.mock-tests.index', ['grade' => $level->grade]),
+                ]);
+            }
+
+            return redirect()->route('admin.mock-tests.index', ['grade' => $level->grade])
+                ->with('ok', "Đã tạo bộ đề thi thử '{$mockTest->name}' với {$mockTest->question_count} câu hỏi thành công!");
+        } catch (\Throwable $e) {
+            \Illuminate\Support\Facades\Log::error('Lỗi khi tạo bộ đề thi thử: ' . $e->getMessage(), [
+                'trace' => $e->getTraceAsString(),
+            ]);
+
+            if ($request->wantsJson()) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Lỗi khi tạo bộ đề thi thử: ' . $e->getMessage(),
+                ], 500);
+            }
+
+            return back()->withInput()->with('error', 'Có lỗi khi tạo bộ đề thi thử: ' . $e->getMessage());
+        }
     }
 
     /**

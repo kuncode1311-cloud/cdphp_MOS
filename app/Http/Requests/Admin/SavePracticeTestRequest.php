@@ -20,12 +20,10 @@ class SavePracticeTestRequest extends FormRequest
 
     public function rules(): array
     {
-        $test = $this->route('practiceTest') ?? $this->route('test');
-
         return [
             'topic_id' => ['required', 'exists:topics,id'],
             'name' => ['required', 'string', 'max:150'],
-            'slug' => ['nullable', 'string', 'max:180', Rule::unique('practice_tests')->ignore($test)],
+            'slug' => ['nullable', 'string', 'max:180'],
             'duration_minutes' => ['nullable', 'integer', 'min:0', 'max:300'],
             'pass_score' => ['nullable', 'integer', 'between:0,1000'],
             'max_score' => ['nullable', 'integer', 'min:1', 'max:1000'],
@@ -39,11 +37,25 @@ class SavePracticeTestRequest extends FormRequest
 
     protected function prepareForValidation(): void
     {
-        $this->merge([
-            'is_published' => $this->boolean('is_published'),
-            'shuffle_questions' => $this->boolean('shuffle_questions'),
-            'shuffle_options' => $this->boolean('shuffle_options'),
-        ]);
+        $mergeData = [
+            'is_published' => $this->boolean('is_published', true),
+            'shuffle_questions' => $this->boolean('shuffle_questions', false),
+            'shuffle_options' => $this->boolean('shuffle_options', false),
+        ];
+
+        if ($this->has('duration_minutes') && $this->input('duration_minutes') !== null && $this->input('duration_minutes') !== '') {
+            $mergeData['duration_minutes'] = (int) $this->input('duration_minutes');
+        }
+
+        if ($this->has('pass_score') && $this->input('pass_score') !== null && $this->input('pass_score') !== '') {
+            $mergeData['pass_score'] = (int) $this->input('pass_score');
+        }
+
+        if ($this->has('max_score') && $this->input('max_score') !== null && $this->input('max_score') !== '') {
+            $mergeData['max_score'] = (int) $this->input('max_score');
+        }
+
+        $this->merge($mergeData);
     }
 
     public function messages(): array

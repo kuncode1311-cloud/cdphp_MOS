@@ -191,10 +191,34 @@ class AdminManagementController extends Controller
             'icon' => 'nullable|max:50',
             'position' => 'nullable|integer|min:0',
         ]);
-        $data['slug'] = $data['slug'] ?: Str::slug($data['name']);
-        Topic::create($data);
 
-        return $this->ok('Đã thêm chủ đề.');
+        $baseSlug = !empty($data['slug']) ? Str::slug($data['slug']) : Str::slug($data['name']);
+        if (empty($baseSlug)) {
+            $baseSlug = 'chu-de';
+        }
+
+        $slug = $baseSlug;
+        $counter = 1;
+        while (Topic::where('level_id', $data['level_id'])->where('slug', $slug)->exists()) {
+            $counter++;
+            $slug = "{$baseSlug}-{$counter}";
+        }
+        $data['slug'] = $slug;
+
+        if (!isset($data['position']) || $data['position'] === null) {
+            $maxPos = Topic::where('level_id', $data['level_id'])->max('position');
+            $data['position'] = ($maxPos !== null) ? ((int) $maxPos + 1) : 0;
+        }
+
+        $data['icon'] = !empty($data['icon']) ? $data['icon'] : 'sparkles';
+
+        try {
+            Topic::create($data);
+            return $this->ok('Đã thêm chủ đề.');
+        } catch (\Throwable $e) {
+            \Illuminate\Support\Facades\Log::error('Lỗi khi thêm chủ đề AdminManagement: ' . $e->getMessage());
+            return back()->withInput()->with('error', 'Có lỗi khi tạo chủ đề: ' . $e->getMessage());
+        }
     }
 
     /**
@@ -210,9 +234,27 @@ class AdminManagementController extends Controller
             'icon' => 'nullable|max:50',
             'position' => 'nullable|integer|min:0',
         ]);
-        $topic->update($data);
 
-        return $this->ok('Đã cập nhật chủ đề.');
+        $baseSlug = !empty($data['slug']) ? Str::slug($data['slug']) : Str::slug($data['name']);
+        $slug = $baseSlug ?: 'chu-de';
+        $counter = 1;
+        while (Topic::where('level_id', $topic->level_id)->where('slug', $slug)->where('id', '!=', $topic->id)->exists()) {
+            $counter++;
+            $slug = "{$baseSlug}-{$counter}";
+        }
+        $data['slug'] = $slug;
+
+        if (empty($data['icon'])) {
+            $data['icon'] = $topic->icon ?: 'sparkles';
+        }
+
+        try {
+            $topic->update($data);
+            return $this->ok('Đã cập nhật chủ đề.');
+        } catch (\Throwable $e) {
+            \Illuminate\Support\Facades\Log::error('Lỗi khi cập nhật chủ đề AdminManagement: ' . $e->getMessage());
+            return back()->withInput()->with('error', 'Có lỗi khi cập nhật chủ đề: ' . $e->getMessage());
+        }
     }
 
     /**
@@ -220,9 +262,12 @@ class AdminManagementController extends Controller
      */
     public function destroyTopic(Topic $topic): RedirectResponse
     {
-        $topic->delete();
-
-        return $this->ok('Đã xóa chủ đề và dữ liệu con.');
+        try {
+            $topic->delete();
+            return $this->ok('Đã xóa chủ đề và dữ liệu con.');
+        } catch (\Throwable $e) {
+            return back()->with('error', 'Có lỗi khi xóa chủ đề: ' . $e->getMessage());
+        }
     }
 
     // =========================================================================
@@ -235,10 +280,37 @@ class AdminManagementController extends Controller
     public function storeTest(Request $request): RedirectResponse
     {
         $data = $this->testData($request);
-        $data['slug'] = $data['slug'] ?: Str::slug($data['name']).'-'.Str::lower(Str::random(4));
-        PracticeTest::create($data);
+        $topic = Topic::findOrFail($data['topic_id']);
 
-        return $this->ok('Đã thêm bộ đề.');
+        $data['level_id'] = $topic->level_id;
+        $data['is_mock'] = false;
+
+        $baseSlug = !empty($data['slug']) ? Str::slug($data['slug']) : (Str::slug($data['name']) ?: 'bai-luyen');
+        $slug = $baseSlug;
+        $counter = 1;
+        while (PracticeTest::where('topic_id', $topic->id)->where('slug', $slug)->exists()) {
+            $counter++;
+            $slug = "{$baseSlug}-{$counter}";
+        }
+        $data['slug'] = $slug;
+
+        if (!isset($data['position']) || $data['position'] === null) {
+            $maxPos = PracticeTest::where('topic_id', $topic->id)->max('position');
+            $data['position'] = ($maxPos !== null) ? ((int) $maxPos + 1) : 0;
+        }
+
+        $data['duration_minutes'] = isset($data['duration_minutes']) && $data['duration_minutes'] !== null ? (int) $data['duration_minutes'] : 20;
+        $data['pass_score'] = isset($data['pass_score']) && $data['pass_score'] !== null ? (int) $data['pass_score'] : 700;
+        $data['max_score'] = isset($data['max_score']) && $data['max_score'] !== null ? (int) $data['max_score'] : 1000;
+        $data['question_count'] = 0;
+
+        try {
+            PracticeTest::create($data);
+            return $this->ok('Đã thêm bộ đề.');
+        } catch (\Throwable $e) {
+            \Illuminate\Support\Facades\Log::error('Lỗi khi thêm bộ đề AdminManagement: ' . $e->getMessage());
+            return back()->withInput()->with('error', 'Có lỗi khi tạo bộ đề: ' . $e->getMessage());
+        }
     }
 
     /**
@@ -246,9 +318,24 @@ class AdminManagementController extends Controller
      */
     public function updateTest(Request $request, PracticeTest $practiceTest): RedirectResponse
     {
-        $practiceTest->update($this->testData($request, $practiceTest));
+        $data = $this->testData($request, $practiceTest);
+        $topicId = $data['topic_id'] ?? $practiceTest->topic_id;
 
-        return $this->ok('Đã cập nhật bộ đề.');
+        $baseSlug = !empty($data['slug']) ? Str::slug($data['slug']) : Str::slug($data['name']);
+        $slug = $baseSlug ?: 'bai-luyen';
+        $counter = 1;
+        while (PracticeTest::where('topic_id', $topicId)->where('slug', $slug)->where('id', '!=', $practiceTest->id)->exists()) {
+            $counter++;
+            $slug = "{$baseSlug}-{$counter}";
+        }
+        $data['slug'] = $slug;
+
+        try {
+            $practiceTest->update($data);
+            return $this->ok('Đã cập nhật bộ đề.');
+        } catch (\Throwable $e) {
+            return back()->withInput()->with('error', 'Có lỗi khi cập nhật bộ đề: ' . $e->getMessage());
+        }
     }
 
     /**
@@ -256,9 +343,12 @@ class AdminManagementController extends Controller
      */
     public function destroyTest(PracticeTest $practiceTest): RedirectResponse
     {
-        $practiceTest->delete();
-
-        return $this->ok('Đã xóa bộ đề và câu hỏi.');
+        try {
+            $practiceTest->delete();
+            return $this->ok('Đã xóa bộ đề và câu hỏi.');
+        } catch (\Throwable $e) {
+            return back()->with('error', 'Có lỗi khi xóa bộ đề: ' . $e->getMessage());
+        }
     }
 
     // =========================================================================
@@ -272,11 +362,21 @@ class AdminManagementController extends Controller
     {
         $data = $this->questionData($request);
         $test = PracticeTest::findOrFail($data['practice_test_id']);
-        $data['position'] = $request->integer('position', (int) $test->questions()->max('position') + 1);
-        $test->questions()->create($data);
-        $test->update(['question_count' => $test->questions()->count()]);
 
-        return $this->ok('Đã thêm câu hỏi.');
+        $reqPos = $request->integer('position', (int) $test->questions()->max('position') + 1);
+        while ($test->questions()->where('position', $reqPos)->exists()) {
+            $reqPos++;
+        }
+        $data['position'] = $reqPos;
+
+        try {
+            $test->questions()->create($data);
+            $test->update(['question_count' => $test->questions()->count()]);
+
+            return $this->ok('Đã thêm câu hỏi.');
+        } catch (\Throwable $e) {
+            return back()->withInput()->with('error', 'Có lỗi khi thêm câu hỏi: ' . $e->getMessage());
+        }
     }
 
     /**

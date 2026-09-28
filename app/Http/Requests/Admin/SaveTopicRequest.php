@@ -29,6 +29,13 @@ class SaveTopicRequest extends FormRequest
         ];
     }
 
+    protected function prepareForValidation(): void
+    {
+        if (!$this->filled('icon')) {
+            $this->merge(['icon' => 'sparkles']);
+        }
+    }
+
     public function messages(): array
     {
         return [

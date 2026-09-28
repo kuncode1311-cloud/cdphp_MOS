@@ -4515,36 +4515,51 @@
                 },
                 body: formData
             })
-            .then(res => res.json())
-            .then(data => {
+            .then(async res => {
+                let data;
+                try {
+                    data = await res.json();
+                } catch(e) {
+                    data = { success: false, message: 'Lỗi phản hồi từ máy chủ (' + res.status + ')' };
+                }
+                return { ok: res.ok, status: res.status, data };
+            })
+            .then(({ ok, data }) => {
                 if (btnTop) btnTop.disabled = false;
                 if (btnBottom) btnBottom.disabled = false;
 
-                if (data.success && data.question) {
+                if (ok && data.success && data.question) {
                     showToast('🎉 Đã lưu câu hỏi thành công!', 'success');
 
                     if (isCreating) {
                         window.location.href = `?grade={{ $selectedGrade }}&topic={{ $selectedTopic?->id }}&test={{ $selectedTest?->id }}&q=${data.question.id}`;
-                } else {
-                    const previewEl = document.getElementById(`q-preview-text-${data.question.id}`);
-                    if (previewEl) previewEl.textContent = data.question.title;
-                    captureInitialSnapshot(data.question);
-                    // Làm mới iframe xem thử ngay sau khi lưu, không cần tải lại trang.
-                    const simIframe = document.getElementById('sim-user-view-iframe');
-                    if (simIframe && simIframe.src) {
-                        const freshUrl = new URL(simIframe.src, window.location.origin);
-                        freshUrl.searchParams.set('preview_refresh', Date.now().toString());
-                        simIframe.src = freshUrl.toString();
+                    } else {
+                        const previewEl = document.getElementById(`q-preview-text-${data.question.id}`);
+                        if (previewEl) previewEl.textContent = data.question.title;
+                        captureInitialSnapshot(data.question);
+                        // Làm mới iframe xem thử ngay sau khi lưu, không cần tải lại trang.
+                        const simIframe = document.getElementById('sim-user-view-iframe');
+                        if (simIframe && simIframe.src) {
+                            const freshUrl = new URL(simIframe.src, window.location.origin);
+                            freshUrl.searchParams.set('preview_refresh', Date.now().toString());
+                            simIframe.src = freshUrl.toString();
+                        }
                     }
-                }
                 } else {
-                    alert('Lỗi: ' + (data.message || 'Không thể lưu câu hỏi.'));
+                    let errMsg = data.message || 'Không thể lưu câu hỏi.';
+                    if (data.errors) {
+                        const details = Object.values(data.errors).flat().join('\n• ');
+                        errMsg += '\n• ' + details;
+                    }
+                    showToast('❌ ' + (data.message || 'Không thể lưu câu hỏi.'), 'error');
+                    alert('Lỗi khi lưu câu hỏi:\n' + errMsg);
                 }
             })
             .catch(err => {
                 if (btnTop) btnTop.disabled = false;
                 if (btnBottom) btnBottom.disabled = false;
-                form.submit();
+                console.error(err);
+                showToast('❌ Mất kết nối mạng hoặc lỗi máy chủ.', 'error');
             });
         }
 
