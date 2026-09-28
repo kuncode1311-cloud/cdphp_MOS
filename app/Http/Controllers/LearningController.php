@@ -426,14 +426,18 @@ class LearningController extends Controller
             }
         }
 
-        abort_if($questionsCollection->isEmpty(), 404, 'Bộ đề chưa có câu hỏi trong cơ sở dữ liệu.');
+        $isPreview = request()->boolean('preview') || ($isAdmin && request()->has('preview'));
 
+        // Chỉ chặn học sinh khi bộ đề chưa có câu hỏi; cho phép chế độ xem thử (Preview) hoạt động bình thường để nạp câu hỏi từ Studio / Trợ lý AI
+        if (! $isPreview) {
+            abort_if($questionsCollection->isEmpty(), 404, 'Bộ đề chưa có câu hỏi trong cơ sở dữ liệu.');
+        }
 
-        if ($practiceTest->shuffle_questions) {
+        if ($practiceTest->shuffle_questions && $questionsCollection->isNotEmpty()) {
             $questionsCollection = $questionsCollection->shuffle();
         }
 
-        if ($isAdmin) {
+        if ($isAdmin && $questionsCollection->isNotEmpty()) {
             foreach ($questionsCollection->values() as $index => $q) {
                 $options = $q->options;
                 if (in_array($q->type, ['MultipleChoice', 'MultipleResponse'], true)) {
@@ -454,14 +458,16 @@ class LearningController extends Controller
             }
         }
 
-        $questions = $questionsCollection->map(function ($q) use ($practiceTest) {
-            $data = $q->runtimeData();
-            if ($practiceTest->shuffle_options && in_array($q->type, ['MultipleChoice', 'MultipleResponse'], true)) {
-                $data['options'] = collect($data['options'])->shuffle()->values()->all();
-            }
+        $questions = $questionsCollection->isNotEmpty()
+            ? $questionsCollection->map(function ($q) use ($practiceTest) {
+                $data = $q->runtimeData();
+                if ($practiceTest->shuffle_options && in_array($q->type, ['MultipleChoice', 'MultipleResponse'], true)) {
+                    $data['options'] = collect($data['options'])->shuffle()->values()->all();
+                }
 
-            return $data;
-        })->values();
+                return $data;
+            })->values()
+            : collect();
 
         return view('learning.launch', compact('practiceTest', 'questions', 'adminAnswerKeys'));
     }

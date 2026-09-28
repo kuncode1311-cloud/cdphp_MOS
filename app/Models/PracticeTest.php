@@ -129,6 +129,9 @@ class PracticeTest extends Model
                 $q->where('slug', $value)
                   ->orWhere('slug', $cleaned)
                   ->orWhere('slug', $normalized);
+                if (is_numeric($value)) {
+                    $q->orWhere('id', (int) $value);
+                }
             });
         }
 

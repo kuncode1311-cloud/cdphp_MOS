@@ -4723,7 +4723,7 @@
 
                 if (iframe) {
                     // Nếu iframe đã tải sẵn bộ đề này, chuyển câu trực tiếp trong bộ nhớ (0ms, không reload, không nhấp nháy!)
-                    if (iframe.contentWindow && iframe.contentWindow.rawQuestions) {
+                    if (iframe.contentWindow && iframe.contentWindow.rawQuestions && Array.isArray(iframe.contentWindow.rawQuestions) && iframe.contentWindow.rawQuestions.length > 0) {
                         try {
                             iframe.contentWindow.currentIndex = currentQIdx;
                             iframe.contentWindow.isReviewMode = false;
@@ -4745,6 +4745,16 @@
                 showToast('Chưa chọn bài luyện để xem thử!', 'error');
             @endif
         }
+
+        // Lắng nghe tín hiệu khi Simulator trong iframe đã nạp xong để đẩy câu hỏi AI tức thời
+        window.addEventListener('message', (event) => {
+            if (event.data?.action === 'simulator-ready' && window.pendingAiPreviewPayload) {
+                const iframe = document.getElementById('sim-user-view-iframe');
+                try {
+                    iframe?.contentWindow?.postMessage(window.pendingAiPreviewPayload, '*');
+                } catch (e) {}
+            }
+        });
 
         function openStudentViewInNewTab() {
             const iframe = document.getElementById('sim-user-view-iframe');
@@ -6938,17 +6948,42 @@ function openAiStudentPreview(startIndex = 0) {
             : question.options.flatMap((option, optionIndex) => option.is_correct ? [optionIndex] : []);
     });
     const payload = { action: 'admin-load-questions', questions, answerKeys, startIndex };
-    const sendPayload = () => iframe.contentWindow?.postMessage(payload, window.location.origin);
+    window.pendingAiPreviewPayload = payload;
 
-    @if($selectedTest)
-        const targetPath = `/bai-luyen/{{ $selectedTest->slug }}/lam-bai?preview=1`;
-        if (!iframe.src || !iframe.src.includes(`/bai-luyen/{{ $selectedTest->slug }}/lam-bai`)) {
-            iframe.addEventListener('load', sendPayload, { once: true });
+    const sendPayload = () => {
+        try {
+            iframe.contentWindow?.postMessage(payload, '*');
+        } catch (e) {
+            console.error('Lỗi khi gửi payload xem thử:', e);
+        }
+    };
+
+    const sendPayloadWithRetry = () => {
+        sendPayload();
+        setTimeout(sendPayload, 120);
+        setTimeout(sendPayload, 280);
+        setTimeout(sendPayload, 600);
+    };
+
+    @php
+        $simTestSlug = $selectedTest?->slug ?? \App\Models\PracticeTest::whereNotNull('slug')->value('slug');
+    @endphp
+
+    @if($simTestSlug)
+        const targetPath = `/bai-luyen/{{ $simTestSlug }}/lam-bai?preview=1`;
+        const isSimulatorReady = Boolean(iframe.contentWindow && iframe.contentWindow.rawQuestions !== undefined);
+
+        if (!isSimulatorReady || !iframe.src || !iframe.src.includes(`/bai-luyen/{{ $simTestSlug }}/lam-bai`)) {
+            iframe.addEventListener('load', () => {
+                sendPayloadWithRetry();
+            }, { once: true });
             iframe.src = targetPath;
         } else {
-            sendPayload();
+            sendPayloadWithRetry();
         }
         openModal('modal-student-sim');
+    @else
+        saiMsg('Chưa tìm thấy bộ đề luyện tập để khởi chạy phòng thi xem thử.', 'err');
     @endif
 }
 

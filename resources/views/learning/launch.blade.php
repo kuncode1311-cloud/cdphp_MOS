@@ -1601,7 +1601,24 @@
 
         // Render Current Question
         function renderQuestion() {
-            if (rawQuestions.length === 0) return;
+            if (rawQuestions.length === 0) {
+                const curNumEl = document.getElementById('q-curr-num');
+                const totalNumEl = document.getElementById('q-total-num');
+                const promptTitle = document.getElementById('quest-prompt-title');
+                const dynArea = document.getElementById('dynamic-content-area');
+                if (curNumEl) curNumEl.textContent = '0';
+                if (totalNumEl) totalNumEl.textContent = '0';
+                if (promptTitle) promptTitle.textContent = 'Đang tải câu hỏi...';
+                if (dynArea) {
+                    dynArea.innerHTML = `
+                        <div style="text-align: center; padding: 40px 20px; color: #94a3b8;">
+                            <div style="font-size: 36px; margin-bottom: 10px;">⏳</div>
+                            <div style="font-size: 14px; font-weight: 700; color: #f1f5f9;">Đang nạp câu hỏi vào phòng thi...</div>
+                        </div>
+                    `;
+                }
+                return;
+            }
             const q = rawQuestions[currentIndex];
 
             // 1. Meta & Title
@@ -2645,6 +2662,10 @@
         };
 
         if (window.self !== window.top) {
+            try {
+                window.parent.postMessage({ action: 'simulator-ready' }, '*');
+            } catch (e) {}
+
             window.addEventListener('message', (event) => {
                 if (event.data?.action === 'admin-load-questions' && Array.isArray(event.data.questions)) {
                     rawQuestions = event.data.questions;
@@ -2657,7 +2678,8 @@
                     reviewResults = questionResults;
                     isReviewMode = false;
                     isSubmitted = false;
-                    document.getElementById('feedback-banner').className = 'feedback-banner';
+                    const fb = document.getElementById('feedback-banner');
+                    if (fb) fb.className = 'feedback-banner';
                     renderQuestion();
                 } else if (event.data?.action === 'admin-autofill') window.adminAutofillAnswer();
                 else if (event.data?.action === 'admin-check') window.adminCheckAnswer();
