@@ -237,3 +237,8 @@ Route::get('/storage/{path}', function (string $path) {
 // Webhook Stringee (Answer URL và Event URL), xác thực bằng chữ ký trên URL, nằm dưới api/* nên không cần CSRF
 Route::match(['get', 'post'], '/api/stringee/answer', [SupportCallController::class, 'answer'])->name('stringee.answer');
 Route::post('/api/stringee/event', [SupportCallController::class, 'event'])->name('stringee.event');
+
+// Giao diện Swagger UI cho tài liệu API (chỉ Quản trị viên tổng, cùng điều kiện với /docs/api)
+Route::get('/docs/swagger', fn () => view('docs.swagger'))
+    ->middleware(['web', 'can:viewApiDocs'])
+    ->name('docs.swagger');

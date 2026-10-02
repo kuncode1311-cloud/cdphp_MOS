@@ -27,8 +27,15 @@ class ApiDocsTest extends TestCase
         $paths = $this->actingAs(User::where('role', 'admin')->firstOrFail())
             ->getJson('/docs/api.json')->assertOk()->json('paths');
 
-        foreach (['/ho-tro/gui-tin-nhan', '/quan-tri/cuoc-goi', '/quan-tri/tin-nhan/{supportMessage}/anh', '/stringee/answer'] as $path) {
+        foreach (['/ho-tro/gui-tin-nhan', '/quan-tri/cuoc-goi', '/quan-tri/tin-nhan/{supportMessage}/anh', '/api/stringee/answer'] as $path) {
             $this->assertArrayHasKey($path, $paths, "Thiếu {$path} trong tài liệu API");
         }
+    }
+
+    public function test_swagger_ui_chi_danh_cho_admin_tong(): void
+    {
+        $this->seed();
+        $this->get("/docs/swagger")->assertForbidden();
+        $this->actingAs(User::where("role", "admin")->firstOrFail())->get("/docs/swagger")->assertOk()->assertSee("swagger-ui", false);
     }
 }
