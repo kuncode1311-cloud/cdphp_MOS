@@ -48,7 +48,7 @@ class SupportMessage extends Model
     /**
      * Thêm một lượt tin nhắn vào luồng hội thoại đa chiều
      */
-    public function appendConversationTurn(string $sender, string $text): void
+    public function appendConversationTurn(string $sender, string $text, ?string $image = null): void
     {
         $history = is_array($this->conversation_history) ? $this->conversation_history : [];
         $tz = config('learning.display_timezone', 'Asia/Ho_Chi_Minh');
@@ -60,6 +60,9 @@ class SupportMessage extends Model
             'time' => $timeStr,
             'timestamp' => now()->timestamp,
         ];
+        if ($image) {
+            $history[array_key_last($history)]['image'] = $image; // Đường dẫn ảnh đã lưu trên máy chủ
+        }
 
         $this->conversation_history = $history;
     }

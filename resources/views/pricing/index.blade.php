@@ -5406,6 +5406,7 @@
 
                 if (isUser) {
                     bubble.innerHTML = `
+                        ${item.image ? `<img src="${escapeSupportHtml(item.image)}" style="max-width:100%;border-radius:10px;display:block;" alt="Ảnh">` : ''}
                         <div style="word-break: break-word; white-space: pre-line;">${safeText}</div>
                         ${item.created_at ? `<div style="font-size: 9.5px; opacity: 0.8; text-align: right; margin-top: 3px;">${escapeSupportHtml(item.created_at)}</div>` : ''}
                     `;
@@ -5421,6 +5422,7 @@
                             <span>👨‍💼 Ban Quản Trị IC3 Quest</span>
                             ${timeStr}
                         </div>
+                        ${item.image ? `<a href="${escapeSupportHtml(item.image)}" target="_blank"><img src="${escapeSupportHtml(item.image)}" style="max-width:100%;border-radius:10px;display:block;margin:4px 0;" alt="Ảnh từ Ban Quản Trị"></a>` : ''}
                         <div style="font-size: 13px; line-height: 1.45; color: #0f172a; white-space: pre-line; word-break: break-word;">${safeText}</div>
                     `;
                 }

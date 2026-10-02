@@ -4687,6 +4687,12 @@
                         box-shadow: 0 6px 20px rgba(37, 99, 235, 0.32);
                         font-weight: 500;
                     }
+                    .ms-bubble-img {
+                        display: block; max-width: 240px; max-height: 240px; width: auto; height: auto;
+                        object-fit: cover; border-radius: 16px 16px 4px 16px;
+                        border: 3px solid #ffffff; box-shadow: 0 6px 20px rgba(37, 99, 235, 0.32);
+                        cursor: zoom-in; margin-left: auto;
+                    }
                     .ms-bubble-meta {
                         font-size: 10.5px; color: #64748b; font-weight: 600;
                         margin-top: 4px; padding: 0 4px;
@@ -5113,14 +5119,16 @@
                                                 <div class="ms-message-row incoming">
                                                     <div class="ms-mini-avatar" style="background: {{ $activeGradient }};">{{ $activeInitials }}</div>
                                                     <div>
-                                                        <div class="ms-bubble-text">{{ $turn['text'] ?? '' }}</div>
+                                                        @if(!empty($turn['image']))<img src="{{ $turn['image'] }}" class="ms-bubble-img" style="margin-left:0;" onclick="window.open(this.src)" alt="Ảnh khách gửi">@endif
+                                                        @if(!empty($turn['text']))<div class="ms-bubble-text">{{ $turn['text'] }}</div>@endif
                                                         <div class="ms-bubble-meta">{{ $turn['created_at'] ?? $turn['time'] ?? '' }} · Khách gửi</div>
                                                     </div>
                                                 </div>
                                             @else
                                                 <div class="ms-message-row outgoing" style="display:flex;">
                                                     <div>
-                                                        <div class="ms-bubble-text">{{ $turn['text'] ?? '' }}</div>
+                                                        @if(!empty($turn['image']))<img src="{{ $turn['image'] }}" class="ms-bubble-img" onclick="window.open(this.src)" title="Bấm để xem ảnh" alt="Ảnh đã gửi cho khách">@endif
+                                                        @if(!empty($turn['text']))<div class="ms-bubble-text">{{ $turn['text'] }}</div>@endif
                                                         <div class="ms-bubble-meta">{{ $turn['created_at'] ?? $turn['time'] ?? '' }} · ✓✓ Ban Quản Trị</div>
                                                     </div>
                                                 </div>
@@ -7398,7 +7406,7 @@
                             <div class="ms-message-row incoming">
                                 <div class="ms-mini-avatar" style="background: ${gradient};">${initials}</div>
                                 <div>
-                                    <div class="ms-bubble-text">${text}</div>
+                                    ${chatImageHtml(turn)}${text ? `<div class="ms-bubble-text">${text}</div>` : ''}
                                     <div class="ms-bubble-meta">${turnTime ? turnTime + ' · ' : ''}Khách gửi</div>
                                 </div>
                             </div>
@@ -7407,7 +7415,7 @@
                         html += `
                             <div class="ms-message-row outgoing" style="display:flex;">
                                 <div>
-                                    <div class="ms-bubble-text">${text}</div>
+                                    ${chatImageHtml(turn)}${text ? `<div class="ms-bubble-text">${text}</div>` : ''}
                                     <div class="ms-bubble-meta">${turnTime ? turnTime + ' · ' : ''}✓✓ Ban Quản Trị</div>
                                 </div>
                             </div>
@@ -7776,26 +7784,65 @@
         input.focus();
     }
 
+    // Tạo thẻ ảnh trong bong bóng chat từ một lượt hội thoại có trường image
+    function chatImageHtml(turn) {
+        if (!turn || !turn.image) return '';
+        const src = escapeSupportHtml(turn.image);
+        return `<img src="${src}" class="ms-bubble-img" onclick="window.open(this.src)" title="Bấm để xem ảnh" alt="Ảnh trong cuộc trò chuyện">`;
+    }
+
+    // Gửi ảnh thật: tải lên máy chủ, lưu vào lịch sử chat rồi mới hiển thị
     function handlePhotoUpload(input) {
         if (!input.files || !input.files[0]) return;
-        const file = input.files[0];
-        const reader = new FileReader();
-        reader.onload = function(e) {
-            const body = document.getElementById('chat-conversation-body');
-            if (!body) return;
-            const row = document.createElement('div');
-            row.className = 'ms-message-row outgoing';
-            row.style.display = 'flex';
-            row.innerHTML = `<div>
-                <img src="${e.target.result}" class="ms-bubble-img" onclick="window.open(this.src)" title="Click để xem ảnh">
-                <div class="ms-bubble-meta">📷 Ảnh vừa gửi</div>
-            </div>`;
-            body.appendChild(row);
-            body.scrollTop = body.scrollHeight;
-            // Reset input
+        if (!currentChatMsgId) {
+            showAdminToast('Vui lòng chọn một cuộc trò chuyện trước khi gửi ảnh.', 'error');
             input.value = '';
-        };
-        reader.readAsDataURL(file);
+            return;
+        }
+        const file = input.files[0];
+        if (file.size > 5 * 1024 * 1024) {
+            showAdminToast('Ảnh quá lớn, vui lòng chọn ảnh dưới 5MB.', 'error');
+            input.value = '';
+            return;
+        }
+
+        const csrfToken = document.querySelector('meta[name="csrf-token"]')?.content || document.querySelector('input[name="_token"]')?.value || '';
+        const form = new FormData();
+        form.append('image', file);
+        form.append('_token', csrfToken);
+        showAdminToast('Đang gửi ảnh...', 'success');
+
+        fetch(`/quan-tri/tin-nhan/${currentChatMsgId}/anh`, {
+            method: 'POST',
+            headers: { 'X-Requested-With': 'XMLHttpRequest', 'Accept': 'application/json' },
+            body: form
+        })
+        .then(async res => {
+            const data = await res.json().catch(() => ({}));
+            if (!res.ok) {
+                throw new Error(data.message || (data.errors ? Object.values(data.errors)[0][0] : 'Không gửi được ảnh, vui lòng thử lại.'));
+            }
+            return data;
+        })
+        .then(data => {
+            const body = document.getElementById('chat-conversation-body');
+            const wrap = document.getElementById('chat-incoming-bubbles-wrap');
+            if (wrap) {
+                const row = document.createElement('div');
+                row.className = 'ms-message-row outgoing';
+                row.style.display = 'flex';
+                row.innerHTML = `<div>${chatImageHtml({ image: data.image })}<div class="ms-bubble-meta">✓✓ Đã gửi ảnh · đã lưu vào lịch sử</div></div>`;
+                wrap.appendChild(row);
+            }
+            if (body) body.scrollTop = body.scrollHeight;
+            const card = document.querySelector(`.ms-conv-item[data-id="${currentChatMsgId}"]`);
+            if (card && data.conversation_history) {
+                card.setAttribute('data-conversation', JSON.stringify(data.conversation_history));
+            }
+            showAdminToast('✓ Đã gửi ảnh và lưu vào lịch sử chat!', 'success');
+        })
+        .catch(err => showAdminToast(err.message, 'error'))
+        .finally(() => { input.value = ''; });
     }
 
     function updateCurrentChatStatus(newStatus) {
@@ -11200,10 +11247,10 @@
                             const turnTime = turn.created_at || turn.time || '';
                             if (isUser) {
                                 div.className = 'teacher-chat-msg teacher-chat-msg-user';
-                                div.innerHTML = `<div>${escapeHtml(turn.text || '')}</div><div class="teacher-chat-msg-time" style="display:flex;align-items:center;justify-content:flex-end;gap:4px;"><span>${turnTime}</span> <span style="opacity:0.85;font-size:10px;">✓</span></div>`;
+                                div.innerHTML = `<div>${turn.image ? `<img src="${escapeHtml(turn.image)}" style="max-width:100%;border-radius:10px;display:block;" alt="Ảnh">` : ''}${escapeHtml(turn.text || '')}</div><div class="teacher-chat-msg-time" style="display:flex;align-items:center;justify-content:flex-end;gap:4px;"><span>${turnTime}</span> <span style="opacity:0.85;font-size:10px;">✓</span></div>`;
                             } else {
                                 div.className = 'teacher-chat-msg teacher-chat-msg-admin';
-                                div.innerHTML = `<div><b>👑 Ban Quản Trị:</b> ${escapeHtml(turn.text || '')}</div><div class="teacher-chat-msg-time">${turnTime}</div>`;
+                                div.innerHTML = `<div><b>👑 Ban Quản Trị:</b> ${turn.image ? `<a href="${escapeHtml(turn.image)}" target="_blank"><img src="${escapeHtml(turn.image)}" style="max-width:100%;border-radius:10px;display:block;margin:4px 0;" alt="Ảnh"></a>` : ''}${escapeHtml(turn.text || '')}</div><div class="teacher-chat-msg-time">${turnTime}</div>`;
                             }
                             body.appendChild(div);
                         });

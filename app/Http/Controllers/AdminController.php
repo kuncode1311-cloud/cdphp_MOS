@@ -325,6 +325,38 @@ class AdminController extends Controller
     }
 
     /**
+     * Admin gửi ảnh cho khách trong đoạn chat: lưu thật lên máy chủ và ghi vào lịch sử hội thoại để đối soát.
+     */
+    public function uploadSupportImage(\Illuminate\Http\Request $request, \App\Models\SupportMessage $supportMessage): \Illuminate\Http\JsonResponse
+    {
+        abort_unless($request->user()->isAdmin(), 403);
+
+        $request->validate([
+            'image' => ['required', 'file', 'mimes:jpg,jpeg,png,webp,gif', 'max:5120'],
+        ], [
+            'image.required' => 'Vui lòng chọn một ảnh để gửi.',
+            'image.mimes' => 'Chỉ hỗ trợ ảnh JPG, PNG, WEBP hoặc GIF.',
+            'image.max' => 'Ảnh quá lớn, vui lòng chọn ảnh dưới 5MB.',
+        ]);
+
+        $path = $request->file('image')->store('support-chat/' . now()->format('Y/m'), 'public');
+        $url = '/storage/' . $path;
+
+        $supportMessage->appendConversationTurn('admin', '', $url);
+        $supportMessage->admin_reply = '📷 Đã gửi một ảnh';
+        $supportMessage->replied_at = now();
+        $supportMessage->status = 'replied';
+        $supportMessage->save();
+
+        return response()->json([
+            'success' => true,
+            'image' => $url,
+            'conversation_history' => $supportMessage->conversation_history ?? [],
+            'message' => 'Đã gửi ảnh và lưu vào lịch sử chat.',
+        ]);
+    }
+
+    /**
      * Xóa đoạn chat / cuộc hội thoại hỗ trợ
      */
     public function deleteSupportMessage(\App\Models\SupportMessage $supportMessage): \Illuminate\Http\JsonResponse|\Illuminate\Http\RedirectResponse
