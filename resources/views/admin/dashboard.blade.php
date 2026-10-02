@@ -5088,7 +5088,7 @@
                                 </div>
 
                                 <div class="ms-header-tools">
-                                    <a id="btn-call-phone" href="tel:{{ $activeMsg->phone }}" class="ms-tool-btn btn-call" title="Gọi điện thoại">📞</a>
+                                    <a id="btn-call-phone" href="tel:{{ $activeMsg->phone }}" @if(auth()->user()->isAdmin()) onclick="return openCallPanel(event)" @endif class="ms-tool-btn btn-call" title="Gọi điện (có ghi âm)">📞</a>
                                     <a id="btn-zalo" href="https://zalo.me/{{ preg_replace('/[^0-9]/', '', $activeMsg->phone) }}" target="_blank" class="ms-tool-btn btn-zalo" title="Nhắn Zalo">Zalo</a>
                                     <button type="button" class="ms-tool-btn btn-info active" id="btn-toggle-drawer" onclick="toggleChatDrawer()" title="Thông tin người gửi">ℹ️</button>
                                 </div>
@@ -5222,7 +5222,7 @@
                                 <span>Liên hệ nhanh</span>
                             </div>
                             <div class="drawer-action-grid">
-                                <a id="drawer-btn-tel" href="tel:{{ $activeMsg->phone }}" class="drawer-btn drawer-btn-tel">
+                                <a id="drawer-btn-tel" href="tel:{{ $activeMsg->phone }}" @if(auth()->user()->isAdmin()) onclick="return openCallPanel(event)" @endif class="drawer-btn drawer-btn-tel">
                                     📞 Gọi Ngay
                                 </a>
                                 <a id="drawer-btn-zalo" href="https://zalo.me/{{ preg_replace('/[^0-9]/', '', $activeMsg->phone) }}" target="_blank" class="drawer-btn drawer-btn-zalo">
@@ -11275,5 +11275,6 @@
 </script>
 @endif
 
+@include('admin.partials.call-panel')
 </body>
 </html>

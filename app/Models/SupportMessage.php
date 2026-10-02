@@ -38,6 +38,14 @@ class SupportMessage extends Model
     ];
 
     /**
+     * Các cuộc gọi tư vấn (có ghi âm) đã thực hiện cho đoạn chat này
+     */
+    public function calls(): \Illuminate\Database\Eloquent\Relations\HasMany
+    {
+        return $this->hasMany(SupportCall::class);
+    }
+
+    /**
      * Thêm một lượt tin nhắn vào luồng hội thoại đa chiều
      */
     public function appendConversationTurn(string $sender, string $text): void

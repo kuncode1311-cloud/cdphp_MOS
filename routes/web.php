@@ -8,6 +8,7 @@ use App\Http\Controllers\Admin\PackageController as AdminPackageController;
 use App\Http\Controllers\Admin\PracticeTestController;
 use App\Http\Controllers\Admin\QuestionAssetController;
 use App\Http\Controllers\Admin\QuestionController;
+use App\Http\Controllers\Admin\SupportCallController;
 use App\Http\Controllers\Admin\TopicController;
 use App\Http\Controllers\Admin\UserController;
 use App\Http\Controllers\AdminController;
@@ -212,6 +213,13 @@ Route::prefix('quan-tri')->name('admin.')->middleware(['auth', 'admin'])->group(
     Route::post('/gui-thu-telegram', [AdminController::class, 'testTelegramNotification'])->name('telegram.test');
     Route::post('/telegram/lay-chat-id', [AdminController::class, 'getTelegramChatId'])->name('telegram.get_chat_id');
     Route::post('/telegram/phan-hoi', [AdminController::class, 'sendAdminReplyViaTelegram'])->name('telegram.reply');
+
+    // Gọi điện tư vấn qua Stringee (có ghi âm cuộc gọi)
+    Route::get('/cuoc-goi/token', [SupportCallController::class, 'token'])->name('calls.token');
+    Route::post('/cuoc-goi', [SupportCallController::class, 'start'])->name('calls.start');
+    Route::patch('/cuoc-goi/{call}', [SupportCallController::class, 'update'])->name('calls.update');
+    Route::get('/cuoc-goi/{call}/ghi-am', [SupportCallController::class, 'recording'])->name('calls.recording');
+    Route::get('/tin-nhan/{supportMessage}/cuoc-goi', [SupportCallController::class, 'index'])->name('calls.index');
 });
 
 // Phục vụ tài nguyên tĩnh từ storage/app/public đảm bảo hiển thị ảnh 100% trên mọi môi trường (kể cả khi symlink bị lỗi)
@@ -224,3 +232,7 @@ Route::get('/storage/{path}', function (string $path) {
         'Cache-Control' => 'public, max-age=86400',
     ]);
 })->where('path', '.*')->name('storage.file');
+
+// Webhook Stringee (Answer URL và Event URL), xác thực bằng chữ ký trên URL, nằm dưới api/* nên không cần CSRF
+Route::match(['get', 'post'], '/api/stringee/answer', [SupportCallController::class, 'answer'])->name('stringee.answer');
+Route::post('/api/stringee/event', [SupportCallController::class, 'event'])->name('stringee.event');

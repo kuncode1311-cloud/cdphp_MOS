@@ -68,6 +68,16 @@ return [
         'admin_chat_id' => env('TELEGRAM_ADMIN_CHAT_ID', '8952266086'),
     ],
 
+    // Tổng đài gọi điện Stringee (gọi khách từ trang Live Chat, có ghi âm cuộc gọi)
+    'stringee' => [
+        'key_sid' => env('STRINGEE_KEY_SID', ''),
+        'key_secret' => env('STRINGEE_KEY_SECRET', ''),
+        'from_number' => env('STRINGEE_FROM_NUMBER', ''),
+        'api_base' => env('STRINGEE_API_BASE', 'https://api.stringee.com/v1'),
+        'record' => (bool) env('STRINGEE_RECORD', true),
+        'webhook_base' => env('STRINGEE_WEBHOOK_BASE') ?: env('APP_URL'),
+    ],
+
     'google' => [
         'client_id' => env('GOOGLE_CLIENT_ID'),
         'client_secret' => env('GOOGLE_CLIENT_SECRET'),
