@@ -39,16 +39,16 @@ class AppServiceProvider extends ServiceProvider
         // Tài liệu API (Swagger/OpenAPI) tại /docs/api: chỉ Quản trị viên tổng được xem.
         Gate::define('viewApiDocs', fn (?User $user) => $user?->isAdmin() === true);
 
-        // Chỉ đưa vào tài liệu các route JSON/webhook dùng cho Live Chat, gọi điện, thanh toán và Telegram.
+        // Đưa toàn bộ route của hệ thống vào tài liệu để demo thay Postman,
+        // trừ chính trang tài liệu, file tĩnh và các đường dẫn kỹ thuật của Laravel.
         Scramble::configure()->routes(function (Route $route) {
             $uri = $route->uri();
 
-            return str_starts_with($uri, 'api/')
-                || str_starts_with($uri, 'ho-tro/')
-                || str_starts_with($uri, 'quan-tri/cuoc-goi')
-                || str_starts_with($uri, 'quan-tri/tin-nhan')
-                || str_starts_with($uri, 'quan-tri/telegram')
-                || $uri === 'bang-gia/payos-webhook';
+            return ! (str_starts_with($uri, 'docs')
+                || str_starts_with($uri, 'storage/')
+                || str_starts_with($uri, 'up')
+                || str_starts_with($uri, '_')
+                || $uri === '/');
         });
 
         // Ép giao thức HTTPS cho toàn bộ link/form khi chạy trên môi trường production (Railway)

@@ -28,6 +28,10 @@ class ApiDocsTest extends TestCase
         $paths = $this->actingAs(User::where('role', 'admin')->firstOrFail())
             ->getJson('/docs/api.json')->assertOk()->json('paths');
 
+        // Toàn bộ route của hệ thống đều có trong tài liệu để demo
+        $this->assertGreaterThan(80, count($paths), 'Tài liệu API đang thiếu nhiều route');
+        $this->assertArrayHasKey('/dang-nhap', $paths);
+
         foreach (['/ho-tro/gui-tin-nhan', '/quan-tri/cuoc-goi', '/quan-tri/tin-nhan/{supportMessage}/anh', '/api/stringee/answer'] as $path) {
             $this->assertArrayHasKey($path, $paths, "Thiếu {$path} trong tài liệu API");
         }
