@@ -177,56 +177,17 @@ class AdminController extends Controller
             $activeOrdersCount = PackageOrder::where('status', PackageOrder::STATUS_ACTIVE)->count();
             $totalRevenue = (int) PackageOrder::where('status', PackageOrder::STATUS_ACTIVE)->sum('price');
 
-            $supportMessages = \App\Models\SupportMessage::latest('id')->limit(50)->get();
+            $supportMessages = \App\Models\SupportMessage::with('user')->latest('id')->limit(50)->get();
 
-            // 🧠 Cơ chế Nhận diện Thông minh: Khách vãng lai hay Giáo viên / Học sinh hệ thống
+            // Nhận diện người gửi theo tài khoản đăng nhập hoặc email trùng khớp (không đoán theo tên/SĐT)
             foreach ($supportMessages as $msg) {
-                $matchedUser = null;
-                if (! empty($msg->email)) {
-                    $matchedUser = User::where('email', $msg->email)->first();
-                }
-                if (! $matchedUser && ! empty($msg->phone)) {
-                    $cleanPhone = preg_replace('/[^0-9]/', '', $msg->phone);
-                    if (strlen($cleanPhone) >= 9) {
-                        $matchedUser = User::where('email', 'LIKE', "%{$cleanPhone}%")
-                            ->orWhere('name', 'LIKE', "%{$msg->name}%")
-                            ->first();
-                        if (! $matchedUser) {
-                            $order = PackageOrder::where('notes', 'LIKE', "%{$cleanPhone}%")->first();
-                            if ($order && $order->user) {
-                                $matchedUser = $order->user;
-                            }
-                        }
-                    }
-                }
-
-                if ($matchedUser) {
-                    $msg->is_guest = false;
-                    if ($matchedUser->role === 'teacher') {
-                        $msg->user_type = 'teacher';
-                        $msg->user_type_label = '👨‍🏫 Giáo Viên';
-                        $msg->user_role_badge = 'badge-teacher';
-                    } elseif ($matchedUser->role === 'student') {
-                        $msg->user_type = 'student';
-                        $msg->user_type_label = $matchedUser->isIndependentStudent() ? '🎓 Học Sinh (Mua Lẻ)' : '🎓 Học Sinh';
-                        $msg->user_role_badge = 'badge-student';
-                    } else {
-                        $msg->user_type = 'user';
-                        $msg->user_type_label = '👤 Thành Viên';
-                        $msg->user_role_badge = 'badge-user';
-                    }
-                    $msg->matched_user_name = $matchedUser->name;
-                    $msg->matched_user_id = $matchedUser->id;
-                } else {
-                    $msg->is_guest = true;
-                    $msg->user_type = 'guest';
-                    $msg->user_type_label = '🌐 Khách Vãng Lai';
-                    $msg->user_role_badge = 'badge-guest';
-                    $msg->matched_user_name = null;
-                    $msg->matched_user_id = null;
-                }
+                $sender = $msg->resolveSender();
+                $msg->is_guest = $sender['type'] === 'guest';
+                $msg->user_type = $sender['type'];
+                $msg->user_type_label = $sender['label'];
+                $msg->matched_user_name = $sender['user']?->name;
+                $msg->matched_user_id = $sender['user']?->id;
             }
-
             $pendingSupportCount = \App\Models\SupportMessage::where('status', 'pending')->count();
         } else {
             // 💎 Dành cho Giáo viên: Truy xuất đơn thuê gói & thông tin bản quyền của chính giáo viên
@@ -383,19 +344,13 @@ class AdminController extends Controller
         $lastId = (int) $request->query('last_id', 0);
         $activeId = (int) $request->query('active_id', 0);
 
-        $newMessages = \App\Models\SupportMessage::where('id', '>', $lastId)
+        $newMessages = \App\Models\SupportMessage::with('user')->where('id', '>', $lastId)
             ->latest('id')
             ->get()
             ->map(function ($m) {
-                $userType = 'guest';
-                $userTypeLabel = '🌐 Khách Vãng Lai';
-                if (! empty($m->email)) {
-                    $u = User::where('email', $m->email)->first();
-                    if ($u) {
-                        $userType = $u->role === 'teacher' ? 'teacher' : ($u->role === 'student' ? 'student' : 'user');
-                        $userTypeLabel = $u->role === 'teacher' ? '👨‍🏫 Giáo Viên' : ($u->role === 'student' ? ($u->isIndependentStudent() ? '🎓 Học Sinh (Mua Lẻ)' : '🎓 Học Sinh') : '👤 Thành Viên');
-                    }
-                }
+                $sender = $m->resolveSender();
+                $userType = $sender['type'];
+                $userTypeLabel = $sender['label'];
                 return [
                     'id' => $m->id,
                     'name' => $m->name,

@@ -1355,7 +1355,7 @@
                 },
                 body: JSON.stringify({
                     name: name,
-                    contact: contact || 'Khách truy cập trang Đăng nhập',
+                    contact: contact || '',
                     phone: contact || null,
                     message: message,
                     parent_id: activeChatSupportId || null

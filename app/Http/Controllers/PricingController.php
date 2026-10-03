@@ -349,8 +349,11 @@ class PricingController extends Controller
             'message' => 'required|string|max:2000',
         ]);
 
-        if (empty($data['phone']) && ! empty($data['contact'])) {
-            $data['phone'] = $data['contact'];
+        // Chỉ lưu số điện thoại hợp lệ để nút gọi điện hoạt động; thông tin liên hệ dạng khác (Zalo, ghi chú...) giữ trong nội dung tin.
+        $rawContact = trim((string) ($data['phone'] ?? $data['contact'] ?? ''));
+        $data['phone'] = \App\Models\SupportMessage::normalizePhone($rawContact);
+        if ($rawContact !== '' && $data['phone'] === null) {
+            $data['message'] = $data['message'] . "\n(Liên hệ khác: " . mb_substr($rawContact, 0, 120) . ')';
         }
 
         $data['ip_address'] = $request->ip();
@@ -395,12 +398,16 @@ class PricingController extends Controller
             if (! empty($data['phone']) && empty($supportMsg->phone)) {
                 $supportMsg->phone = $data['phone'];
             }
+            if (! $supportMsg->user_id && $request->user()) {
+                $supportMsg->user_id = $request->user()->id;
+            }
             $supportMsg->status = 'pending';
             $supportMsg->appendConversationTurn('user', $incomingMessage);
             $supportMsg->updated_at = now();
             $supportMsg->save();
         } else {
             $supportMsg = new SupportMessage([
+                'user_id' => $request->user()?->id,
                 'name' => $data['name'],
                 'phone' => $data['phone'] ?? null,
                 'email' => $data['email'] ?? null,

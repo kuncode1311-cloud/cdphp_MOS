@@ -16,6 +16,7 @@ class SupportMessage extends Model
     use HasFactory;
 
     protected $fillable = [
+        'user_id',
         'name',
         'phone',
         'email',
@@ -37,6 +38,69 @@ class SupportMessage extends Model
         'updated_at' => 'datetime',
     ];
 
+    /**
+     * Khi xóa đoạn chat thì xóa luôn các ảnh đã gửi để không để lại file rác trên máy chủ.
+     */
+    protected static function booted(): void
+    {
+        static::deleting(function (SupportMessage $message) {
+            foreach ((array) $message->conversation_history as $turn) {
+                $image = $turn['image'] ?? null;
+                if (is_string($image) && str_starts_with($image, '/storage/support-chat/') && ! str_contains($image, '..')) {
+                    \Illuminate\Support\Facades\Storage::disk('public')->delete(substr($image, strlen('/storage/')));
+                }
+            }
+        });
+    }
+
+    /**
+     * Chuẩn hóa số điện thoại di động Việt Nam về dạng 0901234567; không hợp lệ thì trả về null.
+     */
+    public static function normalizePhone(?string $raw): ?string
+    {
+        $digits = preg_replace('/[\s.\-()]/', '', (string) $raw);
+        if (preg_match('/^(?:\+?84|0)(\d{9})$/', $digits, $m)) {
+            return '0' . $m[1];
+        }
+
+        return null;
+    }
+    /**
+     * Tài khoản đã đăng nhập khi gửi tin (nếu có)
+     */
+    public function user(): \Illuminate\Database\Eloquent\Relations\BelongsTo
+    {
+        return $this->belongsTo(User::class);
+    }
+
+    /**
+     * Xác định người gửi là khách, giáo viên hay học sinh.
+     * Chỉ tin hai nguồn: tài khoản đã đăng nhập lúc gửi (user_id), hoặc email trùng khớp chính xác với một tài khoản.
+     * Tuyệt đối không đoán theo tên hay số điện thoại để tránh gắn nhầm huy hiệu.
+     *
+     * @return array{user: ?User, type: string, label: string}
+     */
+    public function resolveSender(): array
+    {
+        $user = $this->user;
+        if (! $user && filled($this->email)) {
+            $user = User::whereRaw('LOWER(email) = ?', [mb_strtolower(trim($this->email))])->first();
+        }
+
+        if (! $user) {
+            return ['user' => null, 'type' => 'guest', 'label' => '🌐 Khách Vãng Lai'];
+        }
+
+        return match (true) {
+            $user->isTeacher() => ['user' => $user, 'type' => 'teacher', 'label' => '👨‍🏫 Giáo Viên'],
+            $user->isStudent() => [
+                'user' => $user,
+                'type' => 'student',
+                'label' => $user->isIndependentStudent() ? '🎓 Học Sinh (Mua Lẻ)' : '🎓 Học Sinh',
+            ],
+            default => ['user' => $user, 'type' => 'user', 'label' => '👤 Thành Viên'],
+        };
+    }
     /**
      * Các cuộc gọi tư vấn (có ghi âm) đã thực hiện cho đoạn chat này
      */
