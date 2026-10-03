@@ -2181,5 +2181,7 @@
             }
         });
     </script>
+
+    <x-support-chat-widget />
 </body>
 </html>

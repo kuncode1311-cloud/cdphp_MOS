@@ -126,6 +126,14 @@ class User extends Authenticatable
     }
 
     /**
+     * Học sinh mua lẻ: không do giáo viên nào quản lý nên liên hệ trực tiếp Ban Quản Trị
+     */
+    public function isIndependentStudent(): bool
+    {
+        return $this->isStudent() && ! $this->created_by;
+    }
+
+    /**
      * Kiểm tra xem tài khoản này có phải là Học sinh (Student) không
      */
     public function isStudent(): bool

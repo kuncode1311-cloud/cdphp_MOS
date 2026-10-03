@@ -208,7 +208,7 @@ class AdminController extends Controller
                         $msg->user_role_badge = 'badge-teacher';
                     } elseif ($matchedUser->role === 'student') {
                         $msg->user_type = 'student';
-                        $msg->user_type_label = '🎓 Học Sinh';
+                        $msg->user_type_label = $matchedUser->isIndependentStudent() ? '🎓 Học Sinh (Mua Lẻ)' : '🎓 Học Sinh';
                         $msg->user_role_badge = 'badge-student';
                     } else {
                         $msg->user_type = 'user';
@@ -393,7 +393,7 @@ class AdminController extends Controller
                     $u = User::where('email', $m->email)->first();
                     if ($u) {
                         $userType = $u->role === 'teacher' ? 'teacher' : ($u->role === 'student' ? 'student' : 'user');
-                        $userTypeLabel = $u->role === 'teacher' ? '👨‍🏫 Giáo Viên' : ($u->role === 'student' ? '🎓 Học Sinh' : '👤 Thành Viên');
+                        $userTypeLabel = $u->role === 'teacher' ? '👨‍🏫 Giáo Viên' : ($u->role === 'student' ? ($u->isIndependentStudent() ? '🎓 Học Sinh (Mua Lẻ)' : '🎓 Học Sinh') : '👤 Thành Viên');
                     }
                 }
                 return [
