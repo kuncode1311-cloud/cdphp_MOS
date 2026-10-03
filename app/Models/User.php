@@ -102,6 +102,28 @@ class User extends Authenticatable
     }
 
     /**
+     * Tóm tắt gói đang dùng để hiển thị trong hồ sơ.
+     * Học sinh do giáo viên quản lý kế thừa gói và hạn dùng của giáo viên; học sinh mua lẻ dùng đơn của chính mình.
+     *
+     * @return array{teacher: ?string, package: ?string, expires_at: ?\Illuminate\Support\Carbon, inherited: bool}
+     */
+    public function packageSummary(): array
+    {
+        $owner = ($this->isStudent() && $this->created_by && $this->teacher) ? $this->teacher : $this;
+        $order = $owner->packageOrders()
+            ->where('status', PackageOrder::STATUS_ACTIVE)
+            ->with('package')
+            ->first();
+
+        return [
+            'teacher' => $owner->is($this) ? null : $owner->name,
+            'package' => $order?->package?->name,
+            'expires_at' => $owner->expires_at,
+            'inherited' => ! $owner->is($this),
+        ];
+    }
+
+    /**
      * Lấy đơn thuê gói gần nhất
      */
     public function latestPackageOrder(): \Illuminate\Database\Eloquent\Relations\HasOne

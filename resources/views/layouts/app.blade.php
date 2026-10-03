@@ -1688,6 +1688,29 @@
                             <span>📚 Khối lớp IC3:</span>
                             <b>{{ auth()->user()->classroom?->level ? 'Khối ' . auth()->user()->classroom->level->grade : 'Mặc định' }}</b>
                         </div>
+                        @if(! auth()->user()->isAdmin())
+                            @php($pkg = auth()->user()->packageSummary())
+                            @if($pkg['inherited'])
+                                <div class="profile-info-row">
+                                    <span>👩‍🏫 Giáo viên quản lý:</span>
+                                    <b>{{ $pkg['teacher'] }}</b>
+                                </div>
+                            @endif
+                            <div class="profile-info-row">
+                                <span>💎 Gói đang dùng:</span>
+                                @if($pkg['package'])
+                                    <b>{{ $pkg['package'] }}{{ $pkg['inherited'] ? ' (theo giáo viên)' : '' }}</b>
+                                @elseif($pkg['inherited'])
+                                    <b>Theo gói của giáo viên</b>
+                                @else
+                                    <a href="{{ route('pricing.index') }}" style="color:#7c3aed; font-weight:900;">Chưa có gói - Xem bảng giá</a>
+                                @endif
+                            </div>
+                            <div class="profile-info-row">
+                                <span>⏳ Hạn sử dụng:</span>
+                                <b>{{ $pkg['expires_at'] ? $pkg['expires_at']->format('d/m/Y') : 'Không giới hạn' }}</b>
+                            </div>
+                        @endif
                         <div class="profile-info-row">
                             <span>🛡️ Vai trò:</span>
                             <b>{{ auth()->user()->isStudent() ? 'Học sinh' : (auth()->user()->isTeacher() ? 'Giáo viên' : 'Quản trị viên') }}</b>
