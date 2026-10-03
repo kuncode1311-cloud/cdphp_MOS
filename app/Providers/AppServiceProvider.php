@@ -20,7 +20,8 @@ class AppServiceProvider extends ServiceProvider
      */
     public function register(): void
     {
-        //
+        // Dùng giao diện Swagger UI riêng cho /docs/api thay vì giao diện Stoplight mặc định của Scramble.
+        Scramble::ignoreDefaultRoutes();
     }
 
     /**

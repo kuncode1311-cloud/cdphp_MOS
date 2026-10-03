@@ -16,9 +16,10 @@ class ApiDocsTest extends TestCase
     public function test_chi_admin_tong_xem_duoc_tai_lieu_api(): void
     {
         $this->seed();
+        $this->get('/docs/api')->assertRedirect(route('login'));
         $this->get('/docs/api.json')->assertForbidden();
         $this->actingAs(User::where('role', 'teacher')->firstOrFail())->get('/docs/api.json')->assertForbidden();
-        $this->actingAs(User::where('role', 'admin')->firstOrFail())->get('/docs/api')->assertOk();
+        $this->actingAs(User::where('role', 'admin')->firstOrFail())->get('/docs/api')->assertOk()->assertSee('swagger-ui', false);
     }
 
     public function test_tai_lieu_liet_ke_live_chat_goi_dien_va_webhook(): void
@@ -32,10 +33,8 @@ class ApiDocsTest extends TestCase
         }
     }
 
-    public function test_swagger_ui_chi_danh_cho_admin_tong(): void
+    public function test_duong_dan_cu_docs_swagger_chuyen_ve_docs_api(): void
     {
-        $this->seed();
-        $this->get("/docs/swagger")->assertForbidden();
-        $this->actingAs(User::where("role", "admin")->firstOrFail())->get("/docs/swagger")->assertOk()->assertSee("swagger-ui", false);
+        $this->get('/docs/swagger')->assertRedirect('/docs/api');
     }
 }

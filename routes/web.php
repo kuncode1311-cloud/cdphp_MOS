@@ -22,6 +22,7 @@ use App\Http\Controllers\PricingController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\TelegramBotController;
 use App\Http\Controllers\TestController;
+use Dedoc\Scramble\Scramble;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -238,7 +239,9 @@ Route::get('/storage/{path}', function (string $path) {
 Route::match(['get', 'post'], '/api/stringee/answer', [SupportCallController::class, 'answer'])->name('stringee.answer');
 Route::post('/api/stringee/event', [SupportCallController::class, 'event'])->name('stringee.event');
 
-// Giao diện Swagger UI cho tài liệu API (chỉ Quản trị viên tổng, cùng điều kiện với /docs/api)
-Route::get('/docs/swagger', fn () => view('docs.swagger'))
-    ->middleware(['web', 'can:viewApiDocs'])
+// Tài liệu API: Swagger UI tại /docs/api, file OpenAPI tại /docs/api.json (chỉ Quản trị viên tổng; khách chưa đăng nhập được chuyển tới trang đăng nhập)
+Route::get('/docs/api', fn () => view('docs.swagger'))
+    ->middleware(['web', 'auth', 'can:viewApiDocs'])
     ->name('docs.swagger');
+Scramble::registerJsonSpecificationRoute('docs/api.json');
+Route::redirect('/docs/swagger', '/docs/api');
