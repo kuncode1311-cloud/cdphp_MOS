@@ -105,11 +105,17 @@
                         setTimeout(() => $('sc-text').focus(), 50);
                     }
                 }
+                // Bấm lần nữa để thu gọn ô số điện thoại (số đã nhập vẫn được giữ lại)
                 function showPhone(show) {
                     $('sc-phone').style.display = show ? '' : 'none';
-                    $('sc-phone-toggle').style.display = show ? 'none' : '';
+                    $('sc-phone-toggle').textContent = show ? '✕ Ẩn ô số điện thoại' : '📞 Để lại số điện thoại (không bắt buộc)';
+                    $('sc-phone-toggle').dataset.open = show ? '1' : '0';
                 }
-                $('sc-phone-toggle').addEventListener('click', () => { showPhone(true); $('sc-phone').focus(); });
+                $('sc-phone-toggle').addEventListener('click', () => {
+                    const open = $('sc-phone-toggle').dataset.open !== '1';
+                    showPhone(open);
+                    if (open) $('sc-phone').focus(); else $('sc-text').focus();
+                });
                 $('sc-fab').addEventListener('click', () => toggle(!isOpen()));
                 $('sc-close').addEventListener('click', () => toggle(false));
 
