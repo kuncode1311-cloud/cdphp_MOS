@@ -1699,7 +1699,7 @@
                             <div class="profile-info-row">
                                 <span>💎 Gói đang dùng:</span>
                                 @if($pkg['package'])
-                                    <b>{{ $pkg['package'] }}{{ $pkg['inherited'] ? ' (theo giáo viên)' : '' }}</b>
+                                    <b>{{ $pkg['package'] }}{{ $pkg['inherited'] ? ' (theo giáo viên)' : '' }}@unless($pkg['inherited']) · <a href="{{ route('pricing.history') }}" style="color:#7c3aed; font-weight:900;">Lịch sử đơn</a>@endunless</b>
                                 @elseif($pkg['inherited'])
                                     <b>Theo gói của giáo viên</b>
                                 @else

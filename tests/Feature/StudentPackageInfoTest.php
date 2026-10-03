@@ -41,4 +41,33 @@ class StudentPackageInfoTest extends TestCase
             ->assertSee('Chưa có gói')
             ->assertSee('Không giới hạn');
     }
+
+    public function test_hoc_sinh_mua_le_co_goi_dang_hoat_dong_thay_ten_goi_va_han_dung(): void
+    {
+        $this->seed();
+        $student = User::factory()->create(['role' => 'student', 'created_by' => null]);
+        $package = \App\Models\Package::create([
+            'name' => 'Gói Thử Học Sinh', 'slug' => 'goi-thu-hoc-sinh', 'target_audience' => 'student',
+            'price' => 69000, 'duration_days' => 30, 'max_students' => 1, 'is_active' => true,
+        ]);
+        $service = app(\App\Services\SubscriptionService::class);
+        $service->activateOrder($service->createOrder($student, $package));
+
+        $summary = $student->fresh()->packageSummary();
+        $this->assertSame('Gói Thử Học Sinh', $summary['package']);
+        $this->assertNotNull($summary['expires_at']);
+
+        $this->actingAs($student->fresh())->get(route('home'))->assertOk()->assertSee('Gói Thử Học Sinh')->assertSee('Lịch sử đơn');
+    }
+
+    public function test_trang_lich_su_don_dung_cau_chu_danh_cho_hoc_sinh(): void
+    {
+        $this->seed();
+        $student = User::factory()->create(['role' => 'student', 'created_by' => null]);
+
+        $this->actingAs($student)->get(route('pricing.history'))
+            ->assertOk()
+            ->assertSee('Em chưa có đơn mua gói nào')
+            ->assertDontSee('Thầy/Cô chưa có đơn');
+    }
 }

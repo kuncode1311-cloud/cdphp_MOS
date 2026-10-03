@@ -162,18 +162,18 @@
     <div class="history-wrapper">
         <div class="history-header">
             <div>
-                <h1>Lịch Sử Đơn Thuê Gói Dịch Vụ</h1>
+                <h1>{{ auth()->user()->isStudent() ? 'Lịch Sử Đơn Mua Gói Của Em' : 'Lịch Sử Đơn Thuê Gói Dịch Vụ' }}</h1>
                 <p style="color:#5f6368; font-size:13px; margin-top:2px;">Tài khoản: <b>{{ auth()->user()->name }} ({{ auth()->user()->email }})</b></p>
             </div>
             <a href="{{ route('pricing.index') }}" class="btn-link" style="padding:8px 16px; font-size:13px;">
-                + Thuê Gói Mới
+                {{ auth()->user()->isStudent() ? '+ Mua Gói Mới' : '+ Thuê Gói Mới' }}
             </a>
         </div>
 
         <div class="history-card">
             @if($orders->isEmpty())
                 <div style="text-align:center; padding:40px; color:#5f6368;">
-                    <p style="font-size:14px; margin-bottom:12px;">Thầy/Cô chưa có đơn thuê gói nào.</p>
+                    <p style="font-size:14px; margin-bottom:12px;">{{ auth()->user()->isStudent() ? 'Em chưa có đơn mua gói nào.' : 'Thầy/Cô chưa có đơn thuê gói nào.' }}</p>
                     <a href="{{ route('pricing.index') }}" class="btn-link">Khám Phá Các Gói Bản Quyền</a>
                 </div>
             @else
