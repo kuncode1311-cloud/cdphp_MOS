@@ -226,8 +226,10 @@ Route::prefix('quan-tri')->name('admin.')->middleware(['auth', 'admin'])->group(
 
 // Phục vụ tài nguyên tĩnh từ storage/app/public đảm bảo hiển thị ảnh 100% trên mọi môi trường (kể cả khi symlink bị lỗi)
 Route::get('/storage/{path}', function (string $path) {
-    $fullPath = storage_path('app/public/' . ltrim($path, '/'));
-    if (! file_exists($fullPath)) {
+    // Chỉ phục vụ file nằm đúng trong storage/app/public, chặn đường dẫn kiểu ../ để không lộ .env hay mã nguồn.
+    $root = realpath(storage_path('app/public'));
+    $fullPath = $root ? realpath($root . DIRECTORY_SEPARATOR . ltrim($path, '/')) : false;
+    if (! $fullPath || ! str_starts_with($fullPath, $root . DIRECTORY_SEPARATOR) || ! is_file($fullPath)) {
         abort(404);
     }
     return response()->file($fullPath, [
