@@ -8,10 +8,11 @@
 @if($scUser->isStudent())
     @if($scUser->created_by)
         @php($scTeacher = $scUser->teacher)
-        <button type="button" class="sc-fab" id="sc-fab" aria-label="Hỏi giáo viên">👩‍🏫 Hỏi giáo viên</button>
+        <button type="button" class="sc-fab" id="sc-fab" aria-label="Hỏi giáo viên" title="Hỏi giáo viên">👩‍🏫</button>
         <div class="sc-panel" id="sc-panel" role="dialog" aria-label="Liên hệ giáo viên">
             <div class="sc-head">
-                <div><b>Cần giúp đỡ?</b><small>Giáo viên của em sẽ hỗ trợ</small></div>
+                <span class="sc-avatar">👩‍🏫</span>
+                <div class="sc-head-text"><b>Cần giúp đỡ?</b><small>Giáo viên của em sẽ hỗ trợ</small></div>
                 <button type="button" class="sc-close" id="sc-close" aria-label="Đóng">✕</button>
             </div>
             <div class="sc-teacher">
@@ -29,20 +30,22 @@
             })();
         </script>
     @else
-        <button type="button" class="sc-fab" id="sc-fab" aria-label="Chat hỗ trợ">💬 Chat hỗ trợ<span class="sc-dot"></span></button>
+        <button type="button" class="sc-fab" id="sc-fab" aria-label="Chat hỗ trợ" title="Chat với Ban Quản Trị">💬<span class="sc-dot"></span></button>
         <div class="sc-panel" id="sc-panel" role="dialog" aria-label="Chat với Ban Quản Trị">
             <div class="sc-head">
-                <div><b>Chat với Ban Quản Trị</b><small>IC3 Quest luôn sẵn sàng giúp em</small></div>
+                <span class="sc-avatar">🛟</span>
+                <div class="sc-head-text"><b>Chat với Ban Quản Trị</b><small>Mình luôn sẵn sàng giúp em</small></div>
                 <button type="button" class="sc-close" id="sc-close" aria-label="Đóng">✕</button>
             </div>
             <div class="sc-body" id="sc-body">
                 <div class="sc-msg admin">Chào {{ $scUser->name }}! Em cần hỗ trợ gì về tài khoản hoặc gói luyện thi, cứ nhắn cho mình nhé 😊</div>
             </div>
             <form class="sc-foot" id="sc-form" autocomplete="off">
-                <input type="tel" class="sc-input" id="sc-phone" placeholder="Số điện thoại (không bắt buộc, để tư vấn viên gọi lại)" maxlength="30">
+                <input type="tel" class="sc-input sc-phone" id="sc-phone" placeholder="Số điện thoại để tư vấn viên gọi lại" maxlength="30" style="display:none;">
+                <button type="button" class="sc-link" id="sc-phone-toggle">📞 Để lại số điện thoại (không bắt buộc)</button>
                 <div class="sc-row">
                     <input type="text" class="sc-input" id="sc-text" placeholder="Nhập tin nhắn..." maxlength="2000" required>
-                    <button type="submit" class="sc-send" id="sc-send">Gửi</button>
+                    <button type="submit" class="sc-send" id="sc-send" aria-label="Gửi tin nhắn">➤</button>
                 </div>
             </form>
         </div>
@@ -97,10 +100,16 @@
                     if (open) {
                         $('sc-fab').classList.remove('has-new');
                         $('sc-phone').value = state.phone || '';
+                        showPhone(!!state.phone);
                         poll();
                         setTimeout(() => $('sc-text').focus(), 50);
                     }
                 }
+                function showPhone(show) {
+                    $('sc-phone').style.display = show ? '' : 'none';
+                    $('sc-phone-toggle').style.display = show ? 'none' : '';
+                }
+                $('sc-phone-toggle').addEventListener('click', () => { showPhone(true); $('sc-phone').focus(); });
                 $('sc-fab').addEventListener('click', () => toggle(!isOpen()));
                 $('sc-close').addEventListener('click', () => toggle(false));
 

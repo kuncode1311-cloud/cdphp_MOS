@@ -135,42 +135,60 @@
 
 /* ===== Khung chat hỗ trợ cho học sinh mua lẻ & lời nhắc hỏi giáo viên (components/support-chat-widget) ===== */
 .sc-fab {
-    position: fixed; right: 22px; bottom: 22px; z-index: 9000;
-    display: flex; align-items: center; gap: 8px;
-    padding: 13px 20px; border: 3.5px solid #ffffff; border-radius: 999px; cursor: pointer;
-    background: linear-gradient(135deg, #7c3aed, #0ea5e9); color: #fff;
-    font: 800 15px/1 'Nunito', sans-serif;
-    box-shadow: 0 16px 36px rgba(0,0,0,0.18), inset 0 -6px 0 rgba(0,0,0,0.15);
+    position: fixed; right: 18px; bottom: 18px; z-index: 9000;
+    width: 54px; height: 54px; padding: 0; display: flex; align-items: center; justify-content: center;
+    border: 3.5px solid #ffffff; border-radius: 50%; cursor: pointer; font-size: 24px; line-height: 1;
+    background: linear-gradient(135deg, #8b5cf6, #0ea5e9); color: #fff;
+    box-shadow: 0 10px 22px rgba(0,0,0,0.22), inset 0 -4px 0 rgba(0,0,0,0.15);
     transition: transform .12s ease;
 }
 .sc-fab:hover { transform: translateY(-2px); }
-.sc-fab:active { transform: translateY(4px); }
-.sc-fab .sc-dot { display: none; width: 12px; height: 12px; border-radius: 50%; background: #ef4444; border: 2px solid #fff; }
-.sc-fab.has-new .sc-dot { display: inline-block; }
+.sc-fab:active { transform: translateY(3px); }
+.sc-fab .sc-dot { display: none; position: absolute; top: -2px; right: -2px; width: 14px; height: 14px; border-radius: 50%; background: #ef4444; border: 2.5px solid #fff; }
+.sc-fab.has-new .sc-dot { display: block; animation: sc-pulse 1.4s infinite; }
+@keyframes sc-pulse { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.25); } }
+
 .sc-panel {
-    position: fixed; right: 22px; bottom: 90px; z-index: 9001; width: min(380px, calc(100vw - 32px));
-    max-height: min(560px, calc(100vh - 120px)); display: none; flex-direction: column;
-    background: #fff; border: 3.5px solid #fff; border-radius: 22px; overflow: hidden;
-    box-shadow: 0 16px 36px rgba(0,0,0,0.25), inset 0 -6px 0 rgba(0,0,0,0.08);
+    position: fixed; right: 18px; bottom: 84px; z-index: 9001; width: min(340px, calc(100vw - 28px));
+    max-height: min(480px, calc(100vh - 110px)); display: none; flex-direction: column;
+    background: #fff; border: 3px solid #fff; border-radius: 20px; overflow: hidden;
+    box-shadow: 0 16px 36px rgba(0,0,0,0.25), inset 0 -5px 0 rgba(0,0,0,0.06);
+    font-family: 'Nunito', sans-serif;
 }
-.sc-panel.open { display: flex; }
-.sc-head { display: flex; justify-content: space-between; align-items: center; padding: 14px 16px; color: #fff; background: linear-gradient(135deg, #7c3aed, #0ea5e9); }
-.sc-head b { font-size: 15px; font-weight: 900; }
-.sc-head small { display: block; opacity: .9; font-weight: 700; font-size: 11.5px; }
-.sc-close { border: 0; width: 30px; height: 30px; border-radius: 50%; cursor: pointer; background: rgba(255,255,255,.22); color: #fff; font-size: 15px; }
-.sc-body { flex: 1; overflow-y: auto; padding: 14px; display: flex; flex-direction: column; gap: 9px; background: #f1f5f9; min-height: 180px; }
-.sc-msg { max-width: 82%; padding: 9px 13px; border-radius: 16px; font-size: 13.5px; line-height: 1.45; word-break: break-word; white-space: pre-line; }
+.sc-panel.open { display: flex; animation: sc-pop .18s ease-out; }
+@keyframes sc-pop { from { opacity: 0; transform: translateY(10px) scale(.97); } to { opacity: 1; transform: none; } }
+
+.sc-head { display: flex; align-items: center; gap: 10px; padding: 11px 12px; color: #fff; background: linear-gradient(135deg, #8b5cf6, #0ea5e9); }
+.sc-avatar { position: relative; width: 36px; height: 36px; flex-shrink: 0; border-radius: 50%; background: #fff; display: flex; align-items: center; justify-content: center; font-size: 19px; }
+.sc-avatar::after { content: ''; position: absolute; right: -1px; bottom: -1px; width: 10px; height: 10px; border-radius: 50%; background: #22c55e; border: 2px solid #fff; }
+.sc-head-text { flex: 1; min-width: 0; }
+.sc-head-text b { display: block; font-size: 14px; font-weight: 900; line-height: 1.2; }
+.sc-head-text small { display: block; opacity: .92; font-weight: 700; font-size: 11px; }
+.sc-close { border: 0; width: 26px; height: 26px; flex-shrink: 0; border-radius: 50%; cursor: pointer; background: rgba(255,255,255,.22); color: #fff; font-size: 13px; line-height: 1; }
+.sc-close:hover { background: rgba(255,255,255,.35); }
+
+.sc-body { flex: 1; overflow-y: auto; padding: 12px; display: flex; flex-direction: column; gap: 8px; background: #f1f5f9; min-height: 150px; }
+.sc-msg { max-width: 84%; padding: 8px 12px; border-radius: 16px; font-size: 13px; line-height: 1.45; font-weight: 600; word-break: break-word; white-space: pre-line; }
 .sc-msg.me { align-self: flex-end; background: linear-gradient(135deg, #0284c7, #2563eb); color: #fff; border-radius: 16px 16px 4px 16px; }
-.sc-msg.admin { align-self: flex-start; background: #fff; color: #0f172a; border: 2px solid #e2e8f0; border-radius: 16px 16px 16px 4px; }
+.sc-msg.admin { align-self: flex-start; background: #fff; color: #0f172a; border: 1.5px solid #e2e8f0; border-radius: 16px 16px 16px 4px; }
 .sc-msg img { display: block; max-width: 100%; border-radius: 10px; margin-bottom: 4px; cursor: zoom-in; }
-.sc-time { font-size: 10px; opacity: .7; margin-top: 3px; }
-.sc-foot { display: flex; flex-direction: column; gap: 8px; padding: 10px; border-top: 2px solid #e2e8f0; }
-.sc-row { display: flex; gap: 8px; }
-.sc-input { flex: 1; padding: 10px 12px; border: 2px solid #cbd5e1; border-radius: 14px; font: 600 14px 'Nunito', sans-serif; min-width: 0; }
-.sc-input:focus { outline: none; border-color: #7c3aed; }
-.sc-send { border: 0; padding: 0 16px; border-radius: 14px; cursor: pointer; color: #fff; font-weight: 900; background: linear-gradient(135deg, #10b981, #059669); box-shadow: 0 4px 0 rgba(0,0,0,.2); }
-.sc-send:active { transform: translateY(3px); box-shadow: none; }
+.sc-time { font-size: 10px; opacity: .65; margin-top: 2px; text-align: right; }
+
+.sc-foot { display: flex; flex-direction: column; gap: 6px; padding: 8px 10px 10px; border-top: 1.5px solid #e2e8f0; background: #fff; }
+.sc-row { display: flex; align-items: center; gap: 8px; }
+.sc-input { flex: 1; min-width: 0; padding: 9px 13px; border: 2px solid #e2e8f0; border-radius: 999px; background: #f8fafc; font: 700 13.5px 'Nunito', sans-serif; color: #0f172a; }
+.sc-input:focus { outline: none; border-color: #8b5cf6; background: #fff; }
+.sc-input.sc-phone { border-radius: 12px; font-size: 12.5px; }
+.sc-send { width: 38px; height: 38px; flex-shrink: 0; padding: 0; border: 0; border-radius: 50%; cursor: pointer; color: #fff; font-size: 15px; background: linear-gradient(135deg, #10b981, #059669); box-shadow: 0 3px 0 rgba(0,0,0,.2); }
+.sc-send:active { transform: translateY(2px); box-shadow: none; }
 .sc-send[disabled] { opacity: .55; cursor: not-allowed; }
+.sc-link { align-self: flex-start; padding: 0 4px; border: 0; background: none; cursor: pointer; font: 800 11.5px 'Nunito', sans-serif; color: #7c3aed; }
+.sc-link:hover { text-decoration: underline; }
 .sc-hint { font-size: 11.5px; color: #64748b; font-weight: 700; }
-.sc-teacher { padding: 16px; display: flex; flex-direction: column; gap: 8px; font-size: 14px; color: #0f172a; font-weight: 700; line-height: 1.5; }
-.sc-teacher .sc-teacher-name { font-size: 17px; font-weight: 900; color: #7c3aed; }
+.sc-teacher { padding: 14px; display: flex; flex-direction: column; gap: 6px; font-size: 13.5px; color: #0f172a; font-weight: 700; line-height: 1.5; }
+.sc-teacher .sc-teacher-name { font-size: 16px; font-weight: 900; color: #7c3aed; }
+
+@media (max-width: 480px) {
+    .sc-fab { right: 12px; bottom: 12px; width: 50px; height: 50px; font-size: 22px; }
+    .sc-panel { right: 12px; bottom: 74px; }
+}
