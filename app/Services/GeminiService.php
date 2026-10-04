@@ -442,10 +442,13 @@ class GeminiService
     {
         $this->executionTrace = [];
         $questionCount = max(1, min(10, $questionCount));
+        // Trích chữ từ PDF ngay trên máy chủ để AI luôn có nội dung thật, kể cả khi dịch vụ không đọc được PDF đính kèm.
+        $sourceText = $this->extractPdfText($fileItems);
+        $filePrompt = $this->buildFilePrompt($context, $generateImages, $questionCount, $sourceText);
         // Chỉ tải PDF lên Google sau khi API riêng thất bại hoặc chưa được cấu hình.
-        $questions = $this->tryPrivateApi($this->buildFilePrompt($context, $generateImages, $questionCount), $fileItems);
+        $questions = $this->tryPrivateApi($filePrompt, $fileItems);
         if ($questions !== null && $questions !== []) {
-            $questions = $this->filterStandaloneQuestions($this->filterComputerScienceQuestions($questions));
+            $questions = $this->filterStandaloneQuestions($questions);
             if ($questions !== []) {
                 return $questions;
             }
@@ -483,42 +486,16 @@ class GeminiService
         }
 
         // Đưa chỉ dẫn xử lý nghiêm ngặt vào cuối sau khi đã xem toàn bộ tệp
-        $parts[] = ['text' => $this->buildFilePrompt($context, $generateImages, $questionCount)];
+        $parts[] = ['text' => $filePrompt];
 
         $payload = [
             'contents' => [['parts' => $parts]],
             'generationConfig' => $this->generationConfig(),
         ];
 
-        $questions = $this->normalizeRequestedQuestionType($this->callWithKeyRotation($payload), $this->buildFilePrompt($context, $generateImages, $questionCount));
+        $questions = $this->normalizeRequestedQuestionType($this->callWithKeyRotation($payload), $filePrompt);
 
-        return $this->filterStandaloneQuestions($this->filterComputerScienceQuestions($questions));
-    }
-
-    /**
-     * Chặn câu hỏi lệch khỏi Tin học/IC3 ngay cả khi mô hình không tuân thủ prompt.
-     */
-    private function filterComputerScienceQuestions(array $questions): array
-    {
-        $keywords = [
-            'tin học', 'máy tính', 'phần mềm', 'phần cứng', 'internet', 'mạng máy tính',
-            'kỹ năng số', 'an toàn số', 'thiết bị số', 'dữ liệu', 'tệp', 'thư mục',
-            'bàn phím', 'chuột', 'màn hình', 'cpu', 'bộ nhớ', 'máy in', 'trình duyệt',
-            'email', 'mật khẩu', 'địa chỉ ip', 'word', 'excel', 'powerpoint', 'paint',
-            'lập trình', 'thuật toán', 'robot', 'ic3',
-        ];
-
-        return array_values(array_filter($questions, function (array $question) use ($keywords): bool {
-            $parts = [$question['title'] ?? ''];
-            foreach ($question['options'] ?? [] as $option) {
-                $parts[] = $option['content'] ?? '';
-                $parts[] = $option['left'] ?? '';
-                $parts[] = $option['right'] ?? '';
-            }
-            $haystack = mb_strtolower(implode(' ', $parts), 'UTF-8');
-
-            return collect($keywords)->contains(fn (string $keyword): bool => str_contains($haystack, $keyword));
-        }));
+        return $this->filterStandaloneQuestions($questions);
     }
 
     /**
@@ -732,9 +709,10 @@ class GeminiService
      * - Ưu tiên 3: Chuyển dữ kiện sang ngữ cảnh Tin học/kỹ năng số khi nguồn không có bài Tin học trực tiếp.
      * - Chỉ từ chối khi ảnh hoàn toàn vô nghĩa và không có gợi ý từ giáo viên.
      */
-    private function buildFilePrompt(string $context = '', bool $generateImages = false, int $questionCount = 5): string
+    private function buildFilePrompt(string $context = '', bool $generateImages = false, int $questionCount = 5, string $sourceText = ''): string
     {
         $questionCount = max(1, min(10, $questionCount));
+        $sourceBlock = $sourceText !== '' ? "NỘI DUNG CHỮ ĐÃ TRÍCH TỪ TỆP (dùng làm nguồn chính để soạn câu hỏi):\n<<<\n{$sourceText}\n>>>\n\n" : '';
         $contextLine = $context ? "YÊU CẦU ĐẶC BIỆT TỪ GIÁO VIÊN: {$context}\n" : '';
         $imageInstructions = $generateImages
             ? <<<'IMAGE'
@@ -746,30 +724,30 @@ IMAGE
 NO_IMAGE;
 
         return <<<PROMPT
-{$contextLine}Bạn là chuyên gia sư phạm Tin học/IC3 tiểu học. Hãy tự phân tích thông minh mọi ảnh hoặc PDF được cung cấp và tạo câu hỏi phù hợp.
+{$contextLine}{$sourceBlock}Bạn là chuyên gia sư phạm tiểu học. Hãy đọc kỹ toàn bộ ảnh hoặc PDF được cung cấp rồi soạn câu hỏi BÁM SÁT NỘI DUNG THẬT TRONG TỆP.
 
-MỤC TIÊU BẮT BUỘC:
-- Tạo đúng {$questionCount} câu hỏi theo yêu cầu của giáo viên. Tuyệt đối không tạo thiếu số lượng câu hỏi.
-- Nếu tệp nguồn có ít nội dung hoặc chỉ là một tài liệu đơn lẻ, hãy chủ động khai thác đa dạng các góc nhìn Tin học & kỹ năng số thiết thực xoay quanh tài liệu đó (như: cách đặt tên và lưu trữ tệp khoa học, định dạng đuôi tệp mở rộng .docx/.xlsx/.pdf/.png, phần mềm phù hợp để mở và chỉnh sửa, thiết bị ngoại vi kết nối và in ấn, thao tác sao lưu và bảo mật dữ liệu, quy tắc chia sẻ an toàn qua mạng số) để luôn đảm bảo tạo đủ {$questionCount} câu hỏi phong phú, bổ ích.
-- Mọi câu hỏi đầu ra phải thuộc Tin học/IC3 hoặc kỹ năng số.
-- Luôn bám sát yêu cầu của giáo viên và nội dung thật trong tệp; nếu có cả hai thì phải kết hợp cả hai.
-- Không bịa dữ kiện trái ngược với nguồn. Từng câu hỏi phải tự chứa đủ ngữ cảnh tình huống để học sinh trả lời mà không cần nhìn vào tệp gốc của giáo viên.
+NGUYÊN TẮC BẮT BUỘC (ưu tiên cao nhất):
+- Mọi câu hỏi phải lấy từ nội dung có trong tệp. Tệp thuộc chủ đề nào thì soạn theo chủ đề đó (Tin học, Toán, Tiếng Việt, tiểu sử, hướng dẫn...). TUYỆT ĐỐI không ép về Tin học và không tự thêm kiến thức chung ngoài tệp.
+- Nếu tệp đã có sẵn câu hỏi, bài tập hoặc đề kiểm tra (đặc biệt là nội dung Tin học/IC3): TRÍCH NGUYÊN VĂN câu hỏi, các phương án và đáp án đúng như trong tệp, không diễn đạt lại, không đổi nghĩa. Chỉ chuẩn hóa định dạng JSON.
+- Nếu tệp là tài liệu, bài giảng hoặc văn bản thường: soạn câu hỏi kiểm tra hiểu biết từ các dữ kiện, khái niệm, số liệu, tên riêng thật sự xuất hiện trong tệp.
+- Cố gắng soạn đúng {$questionCount} câu. Nếu nội dung tệp không đủ dữ kiện cho đủ số câu thì chỉ soạn số câu có căn cứ rõ ràng trong tệp, tuyệt đối KHÔNG bịa hoặc chèn câu hỏi chung chung cho đủ số lượng.
+- Nếu không đọc được chữ trong tệp, trả về [] thay vì tự suy đoán.
+- Luôn bám sát yêu cầu của giáo viên (nếu có) trong phạm vi nội dung tệp.
+- Từng câu hỏi phải tự chứa đủ ngữ cảnh để học sinh trả lời mà không cần nhìn vào tệp gốc; không đổi sự thật so với tệp.
 
 QUY TRÌNH SUY LUẬN:
-1. Nhận diện loại tài liệu, mục đích, cấu trúc và các dữ kiện có thể đọc chắc chắn.
-2. Xác định ý định của giáo viên: số lượng câu ({$questionCount} câu), dạng câu, mức độ, chủ đề và phần cần tập trung.
-3. Nếu nguồn đã có nội dung Tin học hoặc câu hỏi Tin học, trích xuất và biên soạn sát nội dung đó.
-4. Nếu nguồn là hình ảnh hoặc văn bản về chủ đề khác, hãy đặt tình huống số thực tế xoay quanh chính đối tượng đó (cách xử lý ảnh, lưu trữ tệp, mở phần mềm, in ấn, bảo vệ dữ liệu, tìm kiếm...) để tạo đủ {$questionCount} câu hỏi Tin học thiết thực.
-5. Chọn dạng câu phù hợp nhất với nội dung: một đáp án, nhiều đáp án hoặc ghép nối. Không ép mọi câu về cùng một dạng nếu giáo viên không yêu cầu.
-6. Tạo phương án nhiễu hợp lý, rõ nghĩa, không mơ hồ; đáp án đúng phải kiểm chứng được từ kiến thức Tin học phổ thông/IC3 chắc chắn.
+1. Nhận diện loại tài liệu, mục đích, cấu trúc và các dữ kiện đọc chắc chắn.
+2. Xác định ý định của giáo viên: số lượng câu ({$questionCount} câu), dạng câu, mức độ, phần cần tập trung.
+3. Nếu tệp có sẵn câu hỏi: trích nguyên văn. Nếu không: chọn các dữ kiện quan trọng nhất trong tệp để hỏi.
+4. Chọn dạng câu phù hợp: một đáp án, nhiều đáp án hoặc ghép nối. Không ép mọi câu về cùng một dạng nếu giáo viên không yêu cầu.
+5. Tạo phương án nhiễu hợp lý, rõ nghĩa, không mơ hồ; đáp án đúng phải đối chiếu được với nội dung tệp.
 
 RÀNG BUỘC CHẤT LƯỢNG:
 - Ngôn ngữ tiếng Việt trong sáng, ngắn gọn, phù hợp học sinh tiểu học.
-- Đảm bảo tạo đủ {$questionCount} câu hỏi, không lặp lại cùng một ý dưới nhiều cách hỏi.
+- Không lặp lại cùng một ý dưới nhiều cách hỏi.
 - Mỗi câu hỏi phải tự đủ dữ kiện; riêng câu có `needs_image: true` thì dữ kiện trực quan phải nằm đầy đủ trong ảnh mới do AI tạo và được lưu kèm câu hỏi.
-- Tuyệt đối không viết mơ hồ “theo hình trên”, “trong tài liệu này”, “dựa vào thời khóa biểu”, “ở bảng dưới đây”... Hãy đưa tình huống cụ thể vào ngay câu hỏi (ví dụ: "Khi lưu tệp danh sách học sinh...", "Để in tài liệu báo cáo ra giấy...").
+- Tuyệt đối không viết mơ hồ “theo hình trên”, “trong tài liệu này”, “ở bảng dưới đây”... Hãy đưa tình huống hoặc dữ kiện cụ thể vào ngay câu hỏi.
 {$imageInstructions}
-
 QUY CÁCH ĐỊNH DẠNG ĐẦU RA BẮT BUỘC:
 - Trả về DUY NHẤT một chuỗi JSON array hợp lệ, tuyệt đối KHÔNG có markdown, KHÔNG kèm giải thích bên ngoài.
 - Được phép chọn `MultipleChoice` (1 đáp án), `MultipleResponse` (nhiều đáp án) hoặc `Matching` (ghép nối) tùy nội dung.
@@ -794,6 +772,40 @@ QUY CÁCH ĐỊNH DẠNG ĐẦU RA BẮT BUỘC:
 - `MultipleChoice` phải có đúng 1 đáp án đúng; `MultipleResponse` phải có ít nhất 2 đáp án đúng.
 - Hoặc trả về [] nếu không thể khai thác được nội dung từ ảnh.
 PROMPT;
+    }
+
+    /**
+     * Trích văn bản từ các tệp PDF (có chữ) để làm nguồn chính cho AI. PDF dạng ảnh quét sẽ không có chữ nên bỏ qua.
+     */
+    private function extractPdfText(array $fileItems): string
+    {
+        $chunks = [];
+        $remaining = 40000;
+
+        foreach ($fileItems as $file) {
+            if ($remaining <= 0 || ! str_contains((string) ($file['mime_type'] ?? ''), 'pdf')) {
+                continue;
+            }
+
+            try {
+                $text = (new \Smalot\PdfParser\Parser())->parseFile($file['path'])->getText();
+            } catch (\Throwable $e) {
+                Log::info('AI soạn đề: không trích được chữ từ PDF, dùng bản đính kèm.', ['error_type' => $e::class]);
+
+                continue;
+            }
+
+            $text = trim((string) preg_replace('/[ \t]+/u', ' ', (string) preg_replace('/\R{3,}/u', "\n\n", (string) $text)));
+            if (mb_strlen($text) < 80) {
+                continue;
+            }
+
+            $text = mb_substr($text, 0, $remaining);
+            $remaining -= mb_strlen($text);
+            $chunks[] = '[Tệp: '.($file['name'] ?? basename($file['path']))."]\n".$text;
+        }
+
+        return implode("\n\n", $chunks);
     }
 
     /**
