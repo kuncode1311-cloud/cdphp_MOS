@@ -66,6 +66,22 @@ class QuestionStudioTest extends TestCase
         $response->assertSee('STUDIO ADMIN');
     }
 
+    public function test_nut_thi_thu_ca_de_chi_mo_khi_bai_luyen_co_cau_hoi(): void
+    {
+        // Bài luyện chưa có câu hỏi: nút không dẫn tới phòng thi (sẽ 404), mà báo rõ cho người soạn
+        $empty = $this->actingAs($this->admin)->get(route('admin.questions.studio', ['grade' => 3, 'test' => $this->test->id]))->assertOk();
+        $empty->assertSee('Chưa có câu hỏi để thi thử');
+        $empty->assertDontSee(route('tests.launch', $this->test->slug), false);
+
+        // Có câu hỏi rồi thì nút trở thành liên kết vào phòng thi
+        Question::create([
+            'practice_test_id' => $this->test->id, 'title' => 'Thiết bị nhập là gì?', 'type' => 'MultipleChoice',
+            'points' => 1, 'is_published' => true, 'position' => 1,
+        ]);
+        $filled = $this->actingAs($this->admin)->get(route('admin.questions.studio', ['grade' => 3, 'test' => $this->test->id]))->assertOk();
+        $filled->assertSee(route('tests.launch', $this->test->slug), false);
+        $filled->assertDontSee('Chưa có câu hỏi để thi thử');
+    }
     public function test_admin_can_store_question_with_options_atomically(): void
     {
         $response = $this->actingAs($this->admin)->post(route('admin.questions.store'), [

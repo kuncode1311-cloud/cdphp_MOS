@@ -2352,9 +2352,16 @@
                         <button type="button" class="btn-nav-primary" onclick="openModal('modal-edit-test')" style="background:linear-gradient(135deg, #6366f1, #4f46e5); border:1px solid #818cf8; color:#fff; padding:6px 14px; border-radius:8px; font-weight:900; font-size:12px; cursor:pointer; display:flex; align-items:center; gap:5px; box-shadow:0 2px 6px rgba(99,102,241,0.35);" title="Cài đặt bộ đề (Xáo trộn câu hỏi, đáp án, thời gian...)">
                             <span>⚙️</span> Cài đặt đề
                         </button>
-                        <a href="{{ route('tests.launch', $selectedTest->slug) }}" target="_blank" class="btn-nav-primary btn-nav-student" title="Thi thử toàn bộ đề thi trong tab mới">
-                            <span>🚀</span> Thi thử cả đề
-                        </a>
+                        @if(($allQuestions ?? collect())->count() > 0)
+                            <a href="{{ route('tests.launch', $selectedTest->slug) }}" target="_blank" class="btn-nav-primary btn-nav-student" title="Thi thử toàn bộ đề thi trong tab mới">
+                                <span>🚀</span> Thi thử cả đề
+                            </a>
+                        @else
+                            {{-- Bài luyện chưa có câu hỏi thì phòng thi không mở được, nên báo rõ thay vì dẫn tới trang lỗi 404 --}}
+                            <button type="button" class="btn-nav-primary btn-nav-student" style="opacity:.6; cursor:not-allowed;" onclick="alert('Bài luyện này chưa có câu hỏi nào. Hãy thêm ít nhất một câu hỏi rồi thi thử nhé!')" title="Chưa có câu hỏi để thi thử">
+                                <span>🚀</span> Thi thử cả đề
+                            </button>
+                        @endif
                     </div>
                 @endif
             </header>
