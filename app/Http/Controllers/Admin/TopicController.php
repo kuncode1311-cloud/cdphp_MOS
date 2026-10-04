@@ -39,7 +39,7 @@ class TopicController extends Controller
         // 2. Tự động tính thứ tự hiển thị (position) nếu chưa có hoặc null
         if (!isset($data['position']) || $data['position'] === null) {
             $maxPos = Topic::where('level_id', $data['level_id'])->max('position');
-            $data['position'] = ($maxPos !== null) ? ((int) $maxPos + 1) : 0;
+            $data['position'] = ($maxPos !== null) ? ((int) $maxPos + 1) : 1;
         }
 
         // 3. Đảm bảo icon luôn có giá trị hợp lệ, không bị null

@@ -207,7 +207,7 @@ class AdminManagementController extends Controller
 
         if (!isset($data['position']) || $data['position'] === null) {
             $maxPos = Topic::where('level_id', $data['level_id'])->max('position');
-            $data['position'] = ($maxPos !== null) ? ((int) $maxPos + 1) : 0;
+            $data['position'] = ($maxPos !== null) ? ((int) $maxPos + 1) : 1;
         }
 
         $data['icon'] = !empty($data['icon']) ? $data['icon'] : 'sparkles';
@@ -232,7 +232,7 @@ class AdminManagementController extends Controller
             'slug' => 'required|max:160',
             'description' => 'nullable',
             'icon' => 'nullable|max:50',
-            'position' => 'nullable|integer|min:0',
+            'position' => 'nullable|integer|min:1',
         ]);
 
         $baseSlug = !empty($data['slug']) ? Str::slug($data['slug']) : Str::slug($data['name']);

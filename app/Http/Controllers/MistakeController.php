@@ -241,10 +241,22 @@ class MistakeController extends Controller
         return match ($question->type) {
             'Matching' => $this->correctMatching($options, $answer),
             'MultipleChoiceText' => $this->correctMultipleChoiceText($options, $answer),
-            'Hotspot' => (bool) $options->firstWhere('position', (int) $answer)?->is_correct,
+            'Hotspot' => (bool) $options->firstWhere('position', $this->hotspotAnswerPosition($answer))?->is_correct,
             'Sequence' => $this->correctSequence($options, $answer),
             default => false,
         };
+    }
+
+    /**
+     * Lấy vị trí vùng Hotspot từ đáp án cũ dạng số hoặc đáp án mới có kèm tọa độ bấm thật.
+     */
+    private function hotspotAnswerPosition(mixed $answer): int
+    {
+        if (is_array($answer) && array_key_exists('position', $answer)) {
+            return (int) $answer['position'];
+        }
+
+        return (int) $answer;
     }
 
     private function correctMatching($options, mixed $answer): bool

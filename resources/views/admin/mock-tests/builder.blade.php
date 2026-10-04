@@ -940,6 +940,14 @@
 </head>
 <body>
 
+@php
+    $allTopicsQuestionsCount = 0;
+    $totalTopicsCount = $selectedLevel?->topics?->count() ?? 0;
+    foreach($selectedLevel->topics as $t) {
+        $allTopicsQuestionsCount += $t->tests->flatMap->questions->where('is_published', true)->count();
+    }
+@endphp
+
 <div class="shell" id="admin-shell">
     <!-- Sidebar Admin Đồng Bộ 100% -->
     <x-admin-sidebar active-route="admin.mock-tests.index" active-group="exams" />
@@ -961,7 +969,7 @@
                 <div class="sub-header-right">
                     <div class="counter-pill">
                         <span>Đã chọn:</span>
-                        <b id="top-count-badge">0</b> / <span id="top-total-available">{{ $selectedLevel?->topics->flatMap->tests->flatMap->questions->count() ?? 0 }}</span> câu
+                        <b id="top-count-badge">0</b> / <span id="top-total-available">{{ $allTopicsQuestionsCount }}</span> câu
                         <div class="counter-bar-track">
                             <div class="counter-bar-fill" id="top-progress-fill"></div>
                         </div>
@@ -1037,20 +1045,24 @@
                                 </label>
                             </div>
 
-                            <!-- Phân Bổ 7 Chủ Đề Tối Giản (Dạng Danh Sách Thanh Mảnh) -->
+                            <!-- Phân bổ chủ đề tối giản (dạng danh sách thanh mảnh) -->
                             <div class="matrix-clean-section">
                                 <div class="matrix-clean-header">
-                                    <span>Phân bổ 7 chủ đề</span>
+                                    <span>Phân bổ {{ $totalTopicsCount }} chủ đề</span>
                                     <small>(Bấm để lọc)</small>
                                 </div>
                                 <div class="topic-clean-list">
                                     @foreach($selectedLevel->topics as $topic)
-                                        <div class="topic-clean-row" id="matrix-item-{{ $topic->id }}" onclick="filterByTopic({{ $topic->id }})">
+                                        @php
+                                            $topicQuestionCount = $topic->tests->flatMap->questions->where('is_published', true)->count();
+                                            $topicDisplayOrder = $loop->iteration;
+                                        @endphp
+                                        <div class="topic-clean-row" id="matrix-item-{{ $topic->id }}" onclick="filterByTopic({{ $topic->id }})" data-total="{{ $topicQuestionCount }}">
                                             <div class="topic-row-left">
                                                 <span class="matrix-topic-dot" id="matrix-dot-{{ $topic->id }}"></span>
-                                                <span class="topic-row-name" title="{{ $topic->name }}">CĐ {{ $topic->position }}: {{ $topic->name }}</span>
+                                                <span class="topic-row-name" title="{{ $topic->name }}">CĐ {{ $topicDisplayOrder }}: {{ $topic->name }}</span>
                                             </div>
-                                            <span class="matrix-topic-badge" id="matrix-badge-{{ $topic->id }}">0 câu</span>
+                                            <span class="matrix-topic-badge" id="matrix-badge-{{ $topic->id }}">0/{{ $topicQuestionCount }} câu</span>
                                         </div>
                                     @endforeach
                                 </div>
@@ -1067,13 +1079,6 @@
                          RIGHT COLUMN: SMART 1-ROW TOOLBAR & QUESTION STREAM
                          ================================================================= -->
                     <section class="right-col">
-                        @php
-                            $allTopicsQuestionsCount = 0;
-                            foreach($selectedLevel->topics as $t) {
-                                $allTopicsQuestionsCount += $t->tests->flatMap->questions->where('is_published', true)->count();
-                            }
-                        @endphp
-
                         <!-- 🎛️ SMART ACTION BAR (1 HÀNG DUY NHẤT: Gộp Search + Select Chủ Đề + Actions) -->
                         <div class="smart-action-bar">
                             <!-- 🔍 Ô Tìm kiếm -->
@@ -1085,13 +1090,14 @@
                             <!-- 📁 SELECT OPTION BỘ LỌC CHỦ ĐỀ GỌN GÀNG (Thay thế cho dải buttons dài) -->
                             <div class="topic-select-wrap">
                                 <select id="topic-select-filter" class="clean-select-filter" onchange="filterByTopic(this.value)">
-                                    <option value="all" id="opt-topic-all">⚡ Tất cả 7 chủ đề (0/{{ $allTopicsQuestionsCount }})</option>
+                                    <option value="all" id="opt-topic-all">⚡ Tất cả {{ $totalTopicsCount }} chủ đề (0/{{ $allTopicsQuestionsCount }})</option>
                                     @foreach($selectedLevel->topics as $topic)
                                         @php
                                             $tCount = $topic->tests->flatMap->questions->where('is_published', true)->count();
+                                            $topicDisplayOrder = $loop->iteration;
                                         @endphp
-                                        <option value="{{ $topic->id }}" id="opt-topic-{{ $topic->id }}" data-pos="{{ $topic->position }}" data-name="{{ $topic->name }}" data-total="{{ $tCount }}">
-                                            CĐ {{ $topic->position }}: {{ Str::limit($topic->name, 24) }} (0/{{ $tCount }})
+                                        <option value="{{ $topic->id }}" id="opt-topic-{{ $topic->id }}" data-pos="{{ $topicDisplayOrder }}" data-name="{{ $topic->name }}" data-total="{{ $tCount }}">
+                                            CĐ {{ $topicDisplayOrder }}: {{ Str::limit($topic->name, 24) }} (0/{{ $tCount }})
                                         </option>
                                     @endforeach
                                 </select>
@@ -1107,7 +1113,7 @@
                                            onkeydown="if(event.key==='Enter'){autoPickQuestions(parseInt(this.value)||30);}">
                                     <button type="button" class="btn-action-clean btn-action-pick" id="btn-quick-pick"
                                             onclick="autoPickQuestions(parseInt(document.getElementById('pick-count-input').value)||30)"
-                                            title="Tự động bốc ngẫu nhiên đều từ 7 chủ đề">
+                                            title="Tự động bốc ngẫu nhiên đều từ {{ $totalTopicsCount }} chủ đề">
                                         ⚡ Bốc Đề
                                     </button>
                                 </div>
@@ -1171,7 +1177,7 @@
                                                         <span>•</span>
                                                         <span class="badge-type-tag">{{ $typeLabels[$q->type] ?? $q->type }}</span>
                                                         <span>•</span>
-                                                        <span class="badge-topic-tag">CĐ {{ $topic->position }}: {{ $topic->name }}</span>
+                                                        <span class="badge-topic-tag">CĐ {{ $loop->parent->parent->iteration }}: {{ $topic->name }}</span>
                                                         @if($hasImage)
                                                             <span>•</span>
                                                             <span class="badge-image-tag" title="Câu hỏi có hình ảnh minh họa">🖼️ Có ảnh</span>
@@ -1308,7 +1314,7 @@
             const matrixItem = document.getElementById(`matrix-item-${tId}`);
 
             if (matrixBadge) {
-                matrixBadge.textContent = `${topicChecked} câu`;
+                matrixBadge.textContent = `${topicChecked}/${topicTotal} câu`;
                 if (topicChecked > 0) {
                     matrixBadge.classList.add('active');
                 } else {
@@ -1334,7 +1340,7 @@
         // Cập nhật option Tất cả
         const optAll = document.getElementById('opt-topic-all');
         if (optAll) {
-            optAll.textContent = `⚡ Tất cả 7 chủ đề (${totalChecked}/${allTotalCount})`;
+            optAll.textContent = `⚡ Tất cả {{ $totalTopicsCount }} chủ đề (${totalChecked}/${allTotalCount})`;
         }
     }
 
@@ -1596,7 +1602,7 @@
                     }
                 });
                 updateCounters();
-                showToast(`🎉 Đã tự động bốc thành công ${data.count} câu hỏi phân bổ đều từ 7 chủ đề trong khối!`, 'success');
+                showToast(`🎉 Đã tự động bốc thành công ${data.count} câu hỏi phân bổ đều từ {{ $totalTopicsCount }} chủ đề trong khối!`, 'success');
             } else {
                 showToast(data.message || 'Không thể bốc câu hỏi tự động.', 'error');
             }

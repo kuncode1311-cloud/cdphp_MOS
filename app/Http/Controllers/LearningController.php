@@ -527,7 +527,7 @@ class LearningController extends Controller
      * Góc Phụ Huynh — Bảng điều khiển phân tích & theo dõi tiến độ học tập chi tiết của con
      *
      * - Dữ liệu thực tế 100% từ bảng test_attempts.
-     * - Hệ thống biểu đồ đa dạng: Line (tiến độ theo thời gian), Radar (năng lực 7 chủ đề),
+     * - Hệ thống biểu đồ đa dạng: Line (tiến độ theo thời gian), Radar (năng lực theo chủ đề),
      *   Doughnut (tỷ lệ đạt), Bar (so sánh thời gian & điểm số).
      * - Bộ lọc thông minh theo mốc thời gian (7 ngày, 30 ngày, Tất cả) và Khối học.
      * - Cảnh báo thông minh: phát hiện bài luyện/chủ đề làm sai nhiều lần, điểm yếu cần bổ trợ.

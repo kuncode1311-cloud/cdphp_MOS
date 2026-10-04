@@ -25,7 +25,7 @@ class SaveTopicRequest extends FormRequest
             'slug' => ['nullable', 'string', 'max:160'],
             'description' => ['nullable', 'string'],
             'icon' => ['nullable', 'string', 'max:50'],
-            'position' => ['nullable', 'integer', 'min:0'],
+            'position' => ['nullable', 'integer', 'min:1'],
         ];
     }
 

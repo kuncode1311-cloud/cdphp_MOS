@@ -948,6 +948,25 @@
             return { x, y, w, h };
         }
 
+        // Helper: Hotspot lưu kèm tọa độ bấm thật để marker không bị nhảy về tâm vùng.
+        function getHotspotAnswerPosition(answer) {
+            if (answer && typeof answer === 'object' && !Array.isArray(answer)) {
+                return Number(answer.position);
+            }
+            return Number(answer);
+        }
+
+        function getHotspotAnswerPoint(answer) {
+            if (answer && typeof answer === 'object' && !Array.isArray(answer)) {
+                const x = parseFloat(answer.x);
+                const y = parseFloat(answer.y);
+                if (Number.isFinite(x) && Number.isFinite(y)) {
+                    return { x, y };
+                }
+            }
+            return null;
+        }
+
         function initCheckpoints() {
             const container = document.getElementById('checkpoint-container');
             container.innerHTML = '';
@@ -1433,7 +1452,9 @@
             img.id = 'hotspot-img';
             wrap.appendChild(img);
 
-            const selectedIdx = userSelections[currentIndex];
+            const selectedAnswer = userSelections[currentIndex];
+            const selectedIdx = getHotspotAnswerPosition(selectedAnswer);
+            const selectedPoint = getHotspotAnswerPoint(selectedAnswer) || hotspotClickPoints[currentIndex];
             const rawCorrect = serverCorrectAnswers[currentIndex];
             const correctPos = (rawCorrect !== undefined && rawCorrect !== null) ? Number(rawCorrect) : 0;
 
@@ -1459,10 +1480,9 @@
 
                 // Điểm học sinh đã nhấp
                 const selectedOption = (q.options || []).find(option => Number(option.position) === Number(selectedIdx));
-                if (selectedIdx !== undefined && selectedIdx !== null && selectedOption) {
+                if (Number.isFinite(selectedIdx) && selectedOption) {
                     const uRect = getNormRect(selectedOption.metadata?.rect || selectedOption.rect);
                     if (uRect) {
-                        const selectedPoint = hotspotClickPoints[currentIndex];
                         const userMarker = document.createElement('div');
                         const isHit = (Number(selectedIdx) === correctPos || !!selectedOption.is_correct);
                         userMarker.className = isHit ? 'hotspot-target-marker rev-hit' : 'hotspot-target-marker rev-miss';
@@ -1479,10 +1499,9 @@
                 wrap.appendChild(marker);
 
                 const selectedOption = (q.options || []).find(option => Number(option.position) === Number(selectedIdx));
-                if (selectedIdx !== undefined && selectedIdx !== null && selectedOption) {
+                if (Number.isFinite(selectedIdx) && selectedOption) {
                     const rect = getNormRect(selectedOption.metadata?.rect || selectedOption.rect);
                     if (rect) {
-                        const selectedPoint = hotspotClickPoints[currentIndex];
                         marker.style.left = (selectedPoint?.x ?? (rect.x + rect.w / 2)) + '%';
                         marker.style.top = (selectedPoint?.y ?? (rect.y + rect.h / 2)) + '%';
                         marker.style.display = 'grid';
@@ -1494,6 +1513,8 @@
                     const rect = img.getBoundingClientRect();
                     const ptX = ((e.clientX - rect.left) / rect.width) * 100;
                     const ptY = ((e.clientY - rect.top) / rect.height) * 100;
+
+                    if (ptX < 0 || ptX > 100 || ptY < 0 || ptY > 100) return;
 
                     let matchIdx = -1;
                     (q.options || []).forEach((opt, idx) => {
@@ -1507,8 +1528,13 @@
 
                     if (matchIdx !== -1) {
                         const targetArea = q.options[matchIdx];
-                        userSelections[currentIndex] = Number(targetArea.position !== undefined ? targetArea.position : matchIdx);
-                        hotspotClickPoints[currentIndex] = { x: ptX, y: ptY };
+                        const answerPoint = { x: ptX, y: ptY };
+                        userSelections[currentIndex] = {
+                            position: Number(targetArea.position !== undefined ? targetArea.position : matchIdx),
+                            x: ptX,
+                            y: ptY
+                        };
+                        hotspotClickPoints[currentIndex] = answerPoint;
                         marker.style.left = ptX + '%';
                         marker.style.top = ptY + '%';
                         marker.style.display = 'grid';

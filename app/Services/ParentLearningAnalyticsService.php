@@ -606,7 +606,7 @@ class ParentLearningAnalyticsService
             $testName  = $att->practiceTest?->name ?? ('Bài ' . ($index + 1));
             $topic = $att->practiceTest?->topic;
             $topicName = $topic?->name ?? 'Tổng hợp';
-            $topicLabel = ($topic && $topic->position) ? ('CĐ ' . $topic->position . ' - ' . $topicName) : $topicName;
+            $topicLabel = $topic ? ('CĐ ' . max(1, (int) $topic->position) . ' - ' . $topicName) : $topicName;
             $ps        = self::resolvePassScore($att->practiceTest);
             $ms        = self::resolveMaxScore($att->practiceTest);
 
@@ -643,7 +643,7 @@ class ParentLearningAnalyticsService
                 'order'     => $index + 1,
                 'date'      => $dateStr . ' ' . $timeStr,
                 'testName'  => $testName,
-                'topicName' => ($topic && $topic->position ? ('Chủ đề ' . $topic->position . ': ' . $topicName) : $topicName),
+                'topicName' => ($topic ? ('Chủ đề ' . max(1, (int) $topic->position) . ': ' . $topicName) : $topicName),
                 'score'     => $att->score,
                 'maxScore'  => $ms,
                 'passScore' => $ps,

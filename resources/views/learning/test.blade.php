@@ -5,7 +5,8 @@
     $gradeNumber = $effectiveLevel?->grade ?? 3;
     $sparkNumber = max(1, $gradeNumber - 2);
     $categoryName = $practiceTest->is_mock ? 'Đề Thi Thử IC3 GS6' : ($practiceTest->topic?->name ?? 'Luyện Tập');
-    $topicPosition = $practiceTest->topic?->position ?? 1;
+    $topicPosition = max(1, (int) ($practiceTest->topic?->position ?? 1));
+    $mockTopicCount = $effectiveLevel ? $effectiveLevel->topics()->count() : 0;
 @endphp
 @section('title', $practiceTest->name.' — '.$categoryName.' (Khối '.$gradeNumber.')')
 
@@ -389,7 +390,7 @@
                 💡 <b>Quy định IC3:</b> Với mục đích rèn luyện kĩ năng, các bài Test đều cần đạt <b>điểm tối đa (1000/1000)</b> mới được tính là hoàn thành.
             </div>
 
-            <p class="bright-desc">{{ $practiceTest->is_mock ? 'Bộ đề thi thử tổng hợp 7 chủ đề với áp lực thời gian thực, đạt chuẩn ' . $practiceTest->pass_score . '/' . $practiceTest->max_score . ' điểm để được cấp chứng nhận và Sao Vàng thưởng!' : ($practiceTest->topic?->description ?? '') }}</p>
+            <p class="bright-desc">{{ $practiceTest->is_mock ? 'Bộ đề thi thử tổng hợp ' . $mockTopicCount . ' chủ đề với áp lực thời gian thực, đạt chuẩn ' . $practiceTest->pass_score . '/' . $practiceTest->max_score . ' điểm để được cấp chứng nhận và Sao Vàng thưởng!' : ($practiceTest->topic?->description ?? '') }}</p>
 
             <!-- 4 Thẻ chỉ số Game Stats Màu Sắc Rực Rỡ -->
             <div class="bright-stats-grid">

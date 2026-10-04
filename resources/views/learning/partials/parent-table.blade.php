@@ -61,9 +61,9 @@
                         <!-- Col 3: Chủ đề -->
                         <td style="padding: 11px 12px; border-right: 1px solid #e2e8f0;">
                             <div style="display: flex; align-items: center; gap: 6px; flex-wrap: wrap;">
-                                @if($att->practiceTest?->topic?->position)
+                                @if($att->practiceTest?->topic)
                                     <span style="display: inline-flex; align-items: center; justify-content: center; background: #e0f2fe; color: #0284c7; border: 1.2px solid #7dd3fc; padding: 2px 7px; border-radius: 6px; font-weight: 850; font-size: 11px; white-space: nowrap;">
-                                        Chủ đề {{ $att->practiceTest->topic->position }}
+                                        Chủ đề {{ max(1, (int) $att->practiceTest->topic->position) }}
                                     </span>
                                 @endif
                                 <span style="color: #1e293b; font-weight: 700; font-size: 11.5px;">{{ $att->practiceTest?->topic?->name ?? 'Tổng hợp' }}</span>

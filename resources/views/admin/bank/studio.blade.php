@@ -5162,9 +5162,12 @@
 
                 wrapper.onclick = (e) => {
                     playSimulatorSound('click');
-                    const rect = wrapper.getBoundingClientRect();
+                    const image = wrapper.querySelector('#sim-hotspot-img');
+                    const rect = image.getBoundingClientRect();
                     const ptX = ((e.clientX - rect.left) / rect.width) * 10000;
                     const ptY = ((e.clientY - rect.top) / rect.height) * 10000;
+
+                    if (ptX < 0 || ptX > 10000 || ptY < 0 || ptY > 10000) return;
 
                     let matchIdx = -1;
                     (currentOptionsState || []).forEach((area, idx) => {
@@ -5179,33 +5182,10 @@
                         }
                     });
 
-                    if (matchIdx === -1 && (currentOptionsState || []).length > 0) {
-                        let minDist = Infinity;
-                        (currentOptionsState || []).forEach((area, idx) => {
-                            if (area.rect) {
-                                const rx = parseFloat(area.rect.x || 0);
-                                const ry = parseFloat(area.rect.y || 0);
-                                const rw = parseFloat(area.rect.w || 0);
-                                const rh = parseFloat(area.rect.h || 0);
-                                const centerX = rx + rw / 2;
-                                const centerY = ry + rh / 2;
-                                const dist = Math.hypot(ptX - centerX, ptY - centerY);
-                                if (dist < minDist) {
-                                    minDist = dist;
-                                    matchIdx = idx;
-                                }
-                            }
-                        });
-                    }
-
                     if (matchIdx !== -1) {
                         const targetArea = currentOptionsState[matchIdx];
-                        const rx = parseFloat(targetArea.rect.x || 0);
-                        const ry = parseFloat(targetArea.rect.y || 0);
-                        const rw = parseFloat(targetArea.rect.w || 0);
-                        const rh = parseFloat(targetArea.rect.h || 0);
-                        const centerX = (rx + rw / 2) / 100;
-                        const centerY = (ry + rh / 2) / 100;
+                        const pointX = ptX / 100;
+                        const pointY = ptY / 100;
 
                         let marker = wrapper.querySelector('.hotspot-target-marker');
                         if (!marker) {
@@ -5213,8 +5193,8 @@
                             marker.className = 'hotspot-target-marker';
                             wrapper.appendChild(marker);
                         }
-                        marker.style.left = centerX + '%';
-                        marker.style.top = centerY + '%';
+                        marker.style.left = pointX + '%';
+                        marker.style.top = pointY + '%';
                         marker.style.display = 'grid';
 
                         // Remove old review highlights on new click
@@ -5223,7 +5203,9 @@
                         simHotspotUserClick = {
                             idx: matchIdx,
                             isCorrect: !!targetArea.is_correct,
-                            area: targetArea
+                            area: targetArea,
+                            x: pointX,
+                            y: pointY
                         };
                     }
                 };

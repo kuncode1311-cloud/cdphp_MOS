@@ -9,6 +9,7 @@
         @php
             $levelTestIds = $level->topics->flatMap->tests->pluck('id');
             $totalLevelTests = $levelTestIds->count();
+            $totalTopicsCount = $level->topics->count();
             $completedLevelTests = auth()->check() ? auth()->user()->attempts()->whereIn('practice_test_id', $levelTestIds)->where('score', '>=', 1000)->distinct('practice_test_id')->count('practice_test_id') : 0;
             $levelProgressPercent = $totalLevelTests > 0 ? round(($completedLevelTests / $totalLevelTests) * 100) : 0;
         @endphp
@@ -21,7 +22,7 @@
                     <span class="eyebrow-badge">⚡ IC3 GS6 · KHỐI {{ $level->grade }} · SPARK LEVEL {{ $level->grade - 2 }}</span>
                 </div>
                 <h1>{{ str($level->name)->before('—') }}</h1>
-                <p>Khám phá toàn bộ 7 chủ đề kỹ năng số chuẩn quốc tế IC3 Spark GS6 dành cho học sinh Khối {{ $level->grade }}!</p>
+                <p>Khám phá toàn bộ {{ $totalTopicsCount }} chủ đề kỹ năng số chuẩn quốc tế IC3 Spark GS6 dành cho học sinh Khối {{ $level->grade }}!</p>
             </div>
             <div class="level-rocket-stat">
                 <div class="rocket-img-wrap">
@@ -56,7 +57,7 @@
                                 </span>
                             </div>
                             <p style="margin: 4px 0 0; font-size: 13.5px; color: #cbd5e1; font-weight: 700;">
-                                Các bộ đề thi thử tổng hợp 7 chủ đề, thời gian áp lực như thi thật để kiểm tra toàn diện năng lực số!
+                                Các bộ đề thi thử tổng hợp {{ $totalTopicsCount }} chủ đề, thời gian áp lực như thi thật để kiểm tra toàn diện năng lực số!
                             </p>
                         </div>
                     </div>
@@ -99,25 +100,25 @@
                 <div style="background: rgba(255,255,255,0.05); border: 1.5px dashed rgba(255,255,255,0.2); border-radius: 18px; padding: 24px; text-align: center; color: #cbd5e1;">
                     <span style="font-size: 28px; display: block; margin-bottom: 6px;">🎯</span>
                     <p style="margin: 0; font-size: 14px; font-weight: 700;">
-                        Thầy cô đang chuẩn bị các bộ đề thi thử tổng hợp cho Khối {{ $level->grade }}. Em hãy ôn luyện thật tốt 7 chủ đề bên dưới nhé!
+                        Thầy cô đang chuẩn bị các bộ đề thi thử tổng hợp cho Khối {{ $level->grade }}. Em hãy ôn luyện thật tốt {{ $totalTopicsCount }} chủ đề bên dưới nhé!
                     </p>
                 </div>
                 @endif
             </div>
         </section>
 
-        <!-- Khu vực danh sách 7 chủ đề - Thu gọn mặc định -->
+        <!-- Khu vực danh sách chủ đề - Thu gọn mặc định -->
         <section class="topic-map-section">
             <div class="topic-toolbar">
                 <div class="toolbar-title">
                     <span>🗺️</span>
                     <div>
-                        <h2>Bản Đồ 7 Chủ Đề Học Tập</h2>
+                        <h2>Bản Đồ {{ $totalTopicsCount }} Chủ Đề Học Tập</h2>
                         <p>Bấm vào từng chủ đề bên dưới để mở danh sách các bài ôn luyện nhé!</p>
                     </div>
                 </div>
                 <div class="toolbar-actions">
-                    <button class="btn-toggle-all btn-expand-all" onclick="toggleAllTopics(false)" title="Mở toàn bộ 7 chủ đề">
+                    <button class="btn-toggle-all btn-expand-all" onclick="toggleAllTopics(false)" title="Mở toàn bộ {{ $totalTopicsCount }} chủ đề">
                         <span>⚡</span> Mở tất cả
                     </button>
                     <button class="btn-toggle-all btn-collapse-all" onclick="toggleAllTopics(true)" title="Thu gọn toàn bộ">

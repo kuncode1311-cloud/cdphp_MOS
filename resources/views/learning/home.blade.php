@@ -30,6 +30,7 @@
                     $todayCompleted = auth()->user()->attempts()->whereBetween('created_at', [$todayStartUtc, $todayEndUtc])->where('score', '>=', 1000)->distinct('practice_test_id')->count('practice_test_id');
                     $dailyPercent = min(100, round(($todayCompleted / 3) * 100));
                     $todayScore = auth()->user()->attempts()->whereBetween('created_at', [$todayStartUtc, $todayEndUtc])->sum('score') ?: 0;
+                    $totalAllTopics = $program->levels->flatMap->topics->count();
                     $totalAllTests = $program->levels->flatMap->topics->flatMap->tests->count();
                 @endphp
                 <div class="daily-progress">
@@ -127,7 +128,7 @@
                         <span style="background: #ec4899; color: #ffffff; font-size: 10px; font-weight: 900; padding: 2px 8px; border-radius: 999px; text-transform: uppercase;">Mới & Trực quan</span>
                     </div>
                     <p style="margin: 3px 0 0; color: #e0e7ff; font-size: 13px; font-weight: 700;">
-                        Xem thống kê chi tiết, biểu đồ năng lực 7 chủ đề, thời lượng học và cảnh báo thông minh các bài con làm sai nhiều lần.
+                        Xem thống kê chi tiết, biểu đồ năng lực {{ $totalAllTopics }} chủ đề, thời lượng học và cảnh báo thông minh các bài con làm sai nhiều lần.
                     </p>
                 </div>
             </div>

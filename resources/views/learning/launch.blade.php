@@ -2146,6 +2146,25 @@
             return { x, y, w, h };
         }
 
+        // Helper: Đáp án Hotspot lưu được cả vùng chọn và tọa độ bấm thật.
+        function getHotspotAnswerPosition(answer) {
+            if (answer && typeof answer === 'object' && !Array.isArray(answer)) {
+                return Number(answer.position);
+            }
+            return Number(answer);
+        }
+
+        function getHotspotAnswerPoint(answer) {
+            if (answer && typeof answer === 'object' && !Array.isArray(answer)) {
+                const x = parseFloat(answer.x);
+                const y = parseFloat(answer.y);
+                if (Number.isFinite(x) && Number.isFinite(y)) {
+                    return { x, y };
+                }
+            }
+            return null;
+        }
+
         // 🎯 Render Hotspot Question
         function renderHotspot(q, container) {
             const imgPath = q.configuration?.image_path || q.assets?.[0]?.path;
@@ -2169,7 +2188,9 @@
             wrapper.id = 'hotspot-wrapper';
             wrapper.innerHTML = `<img id="hotspot-img" src="${imgPath}" alt="Hotspot">`;
 
-            const selectedIdx = userSelections[currentIndex];
+            const selectedAnswer = userSelections[currentIndex];
+            const selectedIdx = getHotspotAnswerPosition(selectedAnswer);
+            const selectedPoint = getHotspotAnswerPoint(selectedAnswer) || hotspotClickPoints[currentIndex];
             const rawCorrect = correctAnswersData[currentIndex];
             const correctPos = (rawCorrect !== undefined && rawCorrect !== null) ? Number(rawCorrect) : 0;
 
@@ -2195,11 +2216,10 @@
 
                 // User picked marker
                 const selectedOption = (q.options || []).find(option => Number(option.position) === Number(selectedIdx));
-                if (selectedIdx !== undefined && selectedIdx !== null && selectedOption) {
+                if (Number.isFinite(selectedIdx) && selectedOption) {
                     const userOpt = selectedOption;
                     const uRect = getNormRect(userOpt.metadata?.rect || userOpt.rect);
                     if (uRect) {
-                        const selectedPoint = hotspotClickPoints[currentIndex];
                         const userMarker = document.createElement('div');
                         const isHit = (Number(selectedIdx) === correctPos || !!userOpt.is_correct);
                         userMarker.className = isHit ? 'hotspot-target-marker rev-hit' : 'hotspot-target-marker rev-miss';
@@ -2216,11 +2236,10 @@
                 wrapper.appendChild(marker);
 
                 const selectedOption = (q.options || []).find(option => Number(option.position) === Number(selectedIdx));
-                if (selectedIdx !== undefined && selectedIdx !== null && selectedOption) {
+                if (Number.isFinite(selectedIdx) && selectedOption) {
                     const targetArea = selectedOption;
                     const rect = getNormRect(targetArea.metadata?.rect || targetArea.rect);
                     if (rect) {
-                        const selectedPoint = hotspotClickPoints[currentIndex];
                         marker.style.left = (selectedPoint?.x ?? (rect.x + rect.w / 2)) + '%';
                         marker.style.top = (selectedPoint?.y ?? (rect.y + rect.h / 2)) + '%';
                         marker.style.display = 'grid';
@@ -2248,8 +2267,13 @@
 
                     if (matchIdx !== -1) {
                         const targetArea = q.options[matchIdx];
-                        userSelections[currentIndex] = Number(targetArea.position ?? matchIdx);
-                        hotspotClickPoints[currentIndex] = { x: ptX, y: ptY };
+                        const answerPoint = { x: ptX, y: ptY };
+                        userSelections[currentIndex] = {
+                            position: Number(targetArea.position ?? matchIdx),
+                            x: ptX,
+                            y: ptY
+                        };
+                        hotspotClickPoints[currentIndex] = answerPoint;
                         marker.style.left = ptX + '%';
                         marker.style.top = ptY + '%';
                         marker.style.display = 'grid';
@@ -2595,7 +2619,13 @@
                     });
                     userSelections[currentIndex] = textObj;
                 } else if (q.type === 'Hotspot') {
-                    userSelections[currentIndex] = Number(correctKey);
+                    const correctOpt = (q.options || []).find(opt => Number(opt.position) === Number(correctKey) || opt.is_correct);
+                    const rect = getNormRect(correctOpt?.metadata?.rect || correctOpt?.rect);
+                    userSelections[currentIndex] = {
+                        position: Number(correctKey),
+                        x: rect ? (rect.x + rect.w / 2) : 50,
+                        y: rect ? (rect.y + rect.h / 2) : 50
+                    };
                 } else if (q.type === 'Sequence') {
                     userSelections[currentIndex] = Array.isArray(correctKey) ? [...correctKey] : (q.options || []).map((_, idx) => idx);
                 }
@@ -2655,7 +2685,7 @@
                 });
                 isCorrect = (correctCount === totalKeys && totalKeys > 0);
             } else if (q.type === 'Hotspot') {
-                isCorrect = (Number(curAnswer) === Number(correctKey));
+                isCorrect = (getHotspotAnswerPosition(curAnswer) === Number(correctKey));
             } else if (q.type === 'Sequence') {
                 const userArr = Array.isArray(curAnswer) ? curAnswer.map(Number) : [];
                 const targetArr = Array.isArray(correctKey) ? correctKey.map(Number) : (q.options || []).map((_, i) => i);

@@ -18,7 +18,7 @@ use Illuminate\View\View;
  *
  * Chức năng:
  * 1. Quản lý danh sách các bộ đề thi thử chuẩn IC3 GS6 theo từng Khối lớp.
- * 2. Studio Soạn đề thi thử: Chọn lọc câu hỏi từ 7 chủ đề trong Khối đưa vào đề thi thử.
+ * 2. Studio Soạn đề thi thử: Chọn lọc câu hỏi từ các chủ đề trong Khối đưa vào đề thi thử.
  * 3. Hỗ trợ thuật toán bốc đề ngẫu nhiên theo ma trận số lượng câu hỏi từ mỗi chủ đề.
  */
 class MockTestController extends Controller

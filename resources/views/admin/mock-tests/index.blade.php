@@ -461,9 +461,12 @@
             <!-- 3D Hero Banner -->
             <section class="hero-banner">
                 <div class="hero-content">
+                    @php
+                        $topicCount = $selectedLevel ? $selectedLevel->topics()->count() : 0;
+                    @endphp
                     <span class="hero-badge">🏆 CHUYÊN MÔN ĐỀ THI IC3 GS6</span>
                     <h1>Quản Trị Bộ Đề Thi Thử Tổng Hợp</h1>
-                    <p>Mỗi bộ đề thi thử tổng hợp câu hỏi chọn lọc từ 7 chủ đề trong khối lớp. Học sinh sẽ làm bài thi với áp lực thời gian thực 40 - 50 phút, đạt chuẩn 700/1000 điểm để nhận huy hiệu và Sao Vàng.</p>
+                    <p>Mỗi bộ đề thi thử tổng hợp câu hỏi chọn lọc từ {{ $topicCount }} chủ đề trong khối lớp. Học sinh sẽ làm bài thi với áp lực thời gian thực 40 - 50 phút, đạt chuẩn 700/1000 điểm để nhận huy hiệu và Sao Vàng.</p>
                 </div>
                 <div class="hero-action">
                     <a class="btn-create-3d" href="{{ route('admin.mock-tests.create', ['grade' => $selectedGrade]) }}">
