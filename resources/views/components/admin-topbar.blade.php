@@ -15,6 +15,13 @@
     $isDashboard = request()->routeIs('admin.dashboard', 'admin.overview');
 @endphp
 
+<style>
+    /* Chặn chớp HTML thô trước khi CSS đầy đủ của Topbar được nạp. */
+    #admin-unified-topbar {
+        visibility: hidden;
+    }
+</style>
+
 <header class="admin-unified-topbar" id="admin-unified-topbar">
     <!-- Cụm bên trái: Nút Toggle Sidebar & Tiêu đề trang thoáng đãng -->
     <div class="topbar-left">
@@ -301,6 +308,10 @@
         .btn-student-portal span:last-child,
         .btn-topbar-chat span:last-child { display: none; }
         .topbar-breadcrumbs { display: none; }
+    }
+
+    #admin-unified-topbar {
+        visibility: visible;
     }
 </style>
 

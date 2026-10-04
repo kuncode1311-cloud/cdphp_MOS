@@ -27,6 +27,13 @@
     $pendingSupportCount = $pendingSupportCount ?? (\App\Models\SupportMessage::where('status', 'pending')->count());
 @endphp
 
+<style>
+    /* Chặn chớp HTML thô trước khi CSS đầy đủ của Sidebar được nạp. */
+    #admin-unified-sidebar {
+        visibility: hidden;
+    }
+</style>
+
 <aside class="side admin-unified-sidebar" id="admin-unified-sidebar">
     <!-- 1. Logo & Thương Hiệu 3D Xịn Sò -->
     <a href="{{ route('admin.dashboard') }}" class="brand" title="IC3 Quest — Trung tâm Điều Hành Quản Trị">
@@ -706,6 +713,10 @@
     .shell.sidebar-collapsed .btn-sidebar-logout {
         padding: 8px 0;
         justify-content: center;
+    }
+
+    #admin-unified-sidebar {
+        visibility: visible;
     }
 </style>
 
