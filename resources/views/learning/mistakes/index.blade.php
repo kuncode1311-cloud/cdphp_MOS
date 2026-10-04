@@ -5,6 +5,8 @@
 @section('content')
 <div class="adventure-world-wrapper">
     <div class="page-wrap" style="width: min(1140px, 100%);">
+        <x-staff-preview-notice />
+
 
         <!-- 1. Hero Game Banner Nổi Bật Chuẩn Phong Cách IC3 Adventure -->
         <section class="mistake-hero-banner" style="margin-bottom: 22px;">
