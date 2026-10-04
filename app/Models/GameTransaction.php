@@ -53,4 +53,20 @@ class GameTransaction extends Model
 
         return $this->created_at ? $this->created_at->setTimezone($tz)->format('H:i:s d/m/Y') : '';
     }
+
+    /**
+     * Đổi số giây thành chữ dễ đọc, ví dụ 150 -> "2 phút 30 giây".
+     */
+    public static function formatSeconds(int $seconds): string
+    {
+        $seconds = abs($seconds);
+        $minutes = intdiv($seconds, 60);
+        $rest = $seconds % 60;
+
+        if ($minutes === 0) {
+            return "{$rest} giây";
+        }
+
+        return $rest === 0 ? "{$minutes} phút" : "{$minutes} phút {$rest} giây";
+    }
 }

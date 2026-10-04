@@ -127,6 +127,9 @@
                             @if($gameTimeSeconds > 0)
                                 <span style="font-size: 20px;">🎮</span>
                                 <span>VÀO PHÒNG CHƠI NGAY ({{ $user->isAdmin() ? 'Không giới hạn' : 'Còn '.floor($gameTimeSeconds / 60).' phút' }}) →</span>
+                            @elseif($dailyLimitReached)
+                                <span style="font-size: 20px;">🛡️</span>
+                                <span>ĐÃ CHƠI ĐỦ {{ $dailyLimitMinutes }} PHÚT HÔM NAY — MAI QUAY LẠI NHÉ</span>
                             @else
                                 <span style="font-size: 20px;">🔒</span>
                                 <span>HẾT GIỜ CHƠI — ĐỔI SAO ĐỂ VÀO PHÒNG →</span>
@@ -378,6 +381,10 @@
 
     function handleNoTimeClick(e) {
         e.preventDefault();
+        @if($dailyLimitReached)
+        alert('Bé đã chơi đủ {{ $dailyLimitMinutes }} phút hôm nay rồi. Hãy nghỉ ngơi để bảo vệ mắt và quay lại vào ngày mai nhé!');
+        return;
+        @endif
         const shop = document.getElementById('shop-exchange-section');
         shop.scrollIntoView({ behavior: 'smooth' });
         const feedback = document.getElementById('exchange-feedback');

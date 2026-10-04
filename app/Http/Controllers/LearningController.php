@@ -273,9 +273,11 @@ class LearningController extends Controller
         $user = request()->user() ?? auth()->user();
         $rewardStars = (int) ($user->reward_stars ?? 0);
         $gameTimeSeconds = $user->effectiveGameTimeSeconds();
+        $dailyLimitReached = $user->hasReachedDailyGameLimit();
+        $dailyLimitMinutes = (int) GameSetting::get('max_daily_minutes', 20);
         $packages = $this->getGamePackages();
 
-        return view('learning.games', compact('user', 'rewardStars', 'gameTimeSeconds', 'packages'));
+        return view('learning.games', compact('user', 'rewardStars', 'gameTimeSeconds', 'packages', 'dailyLimitReached', 'dailyLimitMinutes'));
     }
 
     /**
@@ -317,6 +319,7 @@ class LearningController extends Controller
         return response()->json([
             'game_enabled' => (bool) GameSetting::get('game_enabled', true),
             'game_time_seconds' => $user ? $user->effectiveGameTimeSeconds() : 0,
+            'daily_limit_reached' => $user ? $user->hasReachedDailyGameLimit() : false,
             'reward_stars' => (int) ($user?->reward_stars ?? 0),
             'user_name' => $user?->name ?? 'Hiệp sĩ IC3',
         ]);
@@ -346,7 +349,7 @@ class LearningController extends Controller
 
         $remaining = $user->isAdmin()
             ? $user->effectiveGameTimeSeconds()
-            : ($seconds > 0 ? $user->consumeGameTime($seconds) : (int) $user->fresh()->game_time_seconds);
+            : ($seconds > 0 ? $user->consumeGameTime($seconds) : $user->fresh()->effectiveGameTimeSeconds());
 
         if ($run && $seconds > 0) {
             $run['consumed'] += $seconds;

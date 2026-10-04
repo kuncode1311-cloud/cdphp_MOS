@@ -40,10 +40,10 @@ class GameSettingController extends Controller
         $totalStudentsWithTime = User::where('role', 'student')->where('game_time_seconds', '>', 0)->count();
 
         // Danh sách giao dịch gần nhất
-        $recentTransactions = GameTransaction::with('user.classroom')
-            ->latest()
-            ->take(30)
-            ->get();
+        // Gộp các dòng 'chơi game' liên tục của cùng một học sinh (cách nhau dưới 2 phút) thành một dòng cho dễ đọc
+        $recentTransactions = $this->groupPlaySessions(
+            GameTransaction::with('user.classroom')->latest('id')->take(400)->get()
+        )->take(30)->values();
 
         // Danh sách học sinh phục vụ modal thưởng nóng
         $students = User::where('role', 'student')
@@ -171,5 +171,41 @@ class GameSettingController extends Controller
         GameSetting::set('leaderboard_last_reset_at', $now->toDateTimeString(), 'Thời điểm bắt đầu vòng thi đua mới');
 
         return back()->with('ok', 'Đã bắt đầu vòng thi đua mới thành công! Bảng xếp hạng sẽ tính điểm bài làm từ thời điểm này (' . $now->format('H:i d/m/Y') . ').');
+    }
+
+    /**
+     * Gộp các lượt 'chơi game' liên tục của cùng học sinh thành một phiên chơi (danh sách vào là mới nhất trước).
+     *
+     * @param  \Illuminate\Support\Collection<int, GameTransaction>  $transactions
+     * @return \Illuminate\Support\Collection<int, GameTransaction>
+     */
+    private function groupPlaySessions($transactions)
+    {
+        $grouped = collect();
+
+        foreach ($transactions as $tx) {
+            $last = $grouped->last();
+            $canMerge = $tx->type === 'play'
+                && $last
+                && $last->type === 'play'
+                && $last->user_id === $tx->user_id
+                && $last->session_start->diffInSeconds($tx->created_at, true) <= 120;
+
+            if ($canMerge) {
+                $last->time_seconds_change += $tx->time_seconds_change;
+                $last->session_start = $tx->created_at;
+                $last->description = 'Chơi mini-game '.GameTransaction::formatSeconds($last->time_seconds_change);
+
+                continue;
+            }
+
+            $tx->session_start = $tx->created_at;
+            if ($tx->type === 'play') {
+                $tx->description = 'Chơi mini-game '.GameTransaction::formatSeconds($tx->time_seconds_change);
+            }
+            $grouped->push($tx);
+        }
+
+        return $grouped;
     }
 }

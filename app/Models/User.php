@@ -384,11 +384,50 @@ class User extends Authenticatable
     public const UNLIMITED_GAME_SECONDS = 86400;
 
     /**
-     * Giờ chơi mini-game thực tế: Quản trị viên không giới hạn, còn lại lấy theo số giây đã đổi.
+     * Số giây đã chơi mini-game trong ngày hôm nay (theo múi giờ hiển thị).
+     */
+    public function dailyGameSecondsUsed(): int
+    {
+        $startOfDay = now(config('learning.display_timezone', 'Asia/Ho_Chi_Minh'))->startOfDay();
+
+        return (int) abs($this->gameTransactions()
+            ->where('type', 'play')
+            ->where('created_at', '>=', $startOfDay)
+            ->sum('time_seconds_change'));
+    }
+
+    /**
+     * Số giây còn được chơi trong hôm nay theo giới hạn mỗi ngày do Quản trị viên cài đặt (bảo vệ mắt học sinh).
+     */
+    public function dailyGameSecondsRemaining(): int
+    {
+        if ($this->isAdmin()) {
+            return self::UNLIMITED_GAME_SECONDS;
+        }
+
+        $limit = (int) GameSetting::get('max_daily_minutes', 20) * 60;
+
+        return max(0, $limit - $this->dailyGameSecondsUsed());
+    }
+
+    /**
+     * Hôm nay đã chơi đủ số phút tối đa của ngày (và còn giờ trong ví) nên phải nghỉ đến mai.
+     */
+    public function hasReachedDailyGameLimit(): bool
+    {
+        return ! $this->isAdmin() && (int) ($this->game_time_seconds ?? 0) > 0 && $this->dailyGameSecondsRemaining() <= 0;
+    }
+
+    /**
+     * Giờ chơi mini-game thực tế: Quản trị viên không giới hạn; học sinh là số nhỏ hơn giữa giờ còn trong ví và giờ còn được chơi hôm nay.
      */
     public function effectiveGameTimeSeconds(): int
     {
-        return $this->isAdmin() ? self::UNLIMITED_GAME_SECONDS : (int) ($this->game_time_seconds ?? 0);
+        if ($this->isAdmin()) {
+            return self::UNLIMITED_GAME_SECONDS;
+        }
+
+        return min((int) ($this->game_time_seconds ?? 0), $this->dailyGameSecondsRemaining());
     }
 
     /**
@@ -413,20 +452,36 @@ class User extends Authenticatable
                 return (int) $current->game_time_seconds;
             }
 
-            $actualSeconds = min($seconds, (int) $current->game_time_seconds);
+            // Không trừ quá số giây còn được chơi trong hôm nay
+            $actualSeconds = min($seconds, (int) $current->game_time_seconds, $current->dailyGameSecondsRemaining());
+            if ($actualSeconds <= 0) {
+                $this->setRawAttributes($current->getAttributes(), true);
+
+                return $current->effectiveGameTimeSeconds();
+            }
             $current->decrement('game_time_seconds', $actualSeconds);
 
-            $current->gameTransactions()->create([
-                'type' => 'play',
-                'stars_change' => 0,
-                'time_seconds_change' => -$actualSeconds,
-                'description' => "Chơi mini-game {$actualSeconds} giây",
-            ]);
+            // Mỗi lần trừ giờ chỉ vài giây, nên gộp vào dòng nhật ký 'chơi game' gần nhất (trong 2 phút) thay vì tạo dòng mới
+            $latestPlay = $current->gameTransactions()->where('type', 'play')->first();
+            if ($latestPlay && $latestPlay->updated_at && $latestPlay->updated_at->gt(now()->subSeconds(120))) {
+                $total = abs((int) $latestPlay->time_seconds_change) + $actualSeconds;
+                $latestPlay->update([
+                    'time_seconds_change' => -$total,
+                    'description' => 'Chơi mini-game '.GameTransaction::formatSeconds($total),
+                ]);
+            } else {
+                $current->gameTransactions()->create([
+                    'type' => 'play',
+                    'stars_change' => 0,
+                    'time_seconds_change' => -$actualSeconds,
+                    'description' => 'Chơi mini-game '.GameTransaction::formatSeconds($actualSeconds),
+                ]);
+            }
 
             $current->refresh();
             $this->setRawAttributes($current->getAttributes(), true);
 
-            return (int) $current->game_time_seconds;
+            return $current->effectiveGameTimeSeconds();
         });
     }
 

@@ -652,7 +652,7 @@
                                             @if($tx->time_seconds_change > 0)
                                                 <b style="color:#2563eb;">+{{ round($tx->time_seconds_change / 60) }}p</b>
                                             @elseif($tx->time_seconds_change < 0)
-                                                <b style="color:#d97706;">{{ $tx->time_seconds_change }}s</b>
+                                                <b style="color:#d97706;">-{{ \App\Models\GameTransaction::formatSeconds($tx->time_seconds_change) }}</b>
                                             @else
                                                 -
                                             @endif
