@@ -1195,10 +1195,21 @@
             }
         }
 
+        // Số hợp lệ: 10 chữ số, bắt đầu bằng 0 hoặc +84 (khớp với kiểm tra phía máy chủ)
+        function isValidPhone(value) {
+            const digits = String(value || '').replace(/[\s.\-()]/g, '');
+            return /^(?:\+?84|0)\d{9}$/.test(digits);
+        }
+
         // Quản lý thông tin người gửi
         function syncSenderUI() {
             const savedName = localStorage.getItem('mos_chat_name') || '';
-            const savedContact = localStorage.getItem('mos_chat_contact') || '';
+            let savedContact = localStorage.getItem('mos_chat_contact') || '';
+            // Xóa số đã lưu nhưng không hợp lệ (ví dụ "222") để khách nhập lại
+            if (savedContact && !isValidPhone(savedContact)) {
+                localStorage.removeItem('mos_chat_contact');
+                savedContact = '';
+            }
 
             const nameInput = document.getElementById('chatSenderName');
             const contactInput = document.getElementById('chatSenderContact');
@@ -1316,6 +1327,14 @@
 
             if (!message) {
                 msgInput.focus();
+                return;
+            }
+
+            // Kiểm tra số điện thoại/Zalo trước khi gửi (10 số, bắt đầu bằng 0 hoặc +84)
+            if (!isValidPhone(contact)) {
+                editSenderInfo();
+                contactInput.focus();
+                alert('Vui lòng nhập đúng số điện thoại hoặc Zalo (10 số, ví dụ 0912345678).');
                 return;
             }
 

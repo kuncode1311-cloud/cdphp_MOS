@@ -53,22 +53,26 @@ class SupportSenderIdentityTest extends TestCase
         $this->assertSame('teacher', $msg->resolveSender()['type']);
     }
 
-    public function test_chi_luu_so_dien_thoai_hop_le_va_giu_lien_he_khac_trong_noi_dung(): void
+    public function test_khach_phai_nhap_so_dien_thoai_hop_le_nguoi_dang_nhap_thi_tuy_chon(): void
     {
         $this->seed();
 
+        // Số hợp lệ được chuẩn hóa
         $this->postJson(route('support.message.send'), ['name' => 'A', 'contact' => '+84 901 234 567', 'message' => 'm1'])->assertOk();
         $this->assertSame('0901234567', SupportMessage::latest('id')->first()->phone);
 
-        $this->postJson(route('support.message.send'), ['name' => 'B', 'contact' => 'zalo: Bé Bi', 'message' => 'm2'])->assertOk();
-        $msg = SupportMessage::latest('id')->first();
-        $this->assertNull($msg->phone);
-        $this->assertStringContainsString('Liên hệ khác: zalo: Bé Bi', $msg->message);
+        // Khách nhập chuỗi linh tinh hoặc bỏ trống thì bị từ chối kèm thông báo rõ ràng, không tạo tin nhắn
+        $before = SupportMessage::count();
+        $this->postJson(route('support.message.send'), ['name' => 'B', 'contact' => '222', 'message' => 'm2'])
+            ->assertStatus(422)->assertJsonFragment(['message' => 'Vui lòng nhập đúng số điện thoại hoặc Zalo (10 số, ví dụ 0912345678).']);
+        $this->postJson(route('support.message.send'), ['name' => 'C', 'message' => 'm3'])->assertStatus(422);
+        $this->assertSame($before, SupportMessage::count());
 
-        $this->postJson(route('support.message.send'), ['name' => 'C', 'message' => 'm3'])->assertOk();
+        // Người đã đăng nhập không bắt buộc có số điện thoại
+        $student = User::factory()->create(['role' => 'student']);
+        $this->actingAs($student)->postJson(route('support.message.send'), ['name' => $student->name, 'email' => $student->email, 'message' => 'm4'])->assertOk();
         $this->assertNull(SupportMessage::latest('id')->first()->phone);
     }
-
     public function test_xoa_doan_chat_xoa_luon_anh_da_gui(): void
     {
         Storage::fake('public');

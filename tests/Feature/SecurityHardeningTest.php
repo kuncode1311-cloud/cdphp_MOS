@@ -24,10 +24,10 @@ class SecurityHardeningTest extends TestCase
     public function test_gui_chat_qua_nhieu_bi_chan_429(): void
     {
         for ($i = 0; $i < 20; $i++) {
-            $this->postJson('/ho-tro/gui-tin-nhan', ['name' => 'A', 'message' => "tin {$i}"])->assertOk();
+            $this->postJson('/ho-tro/gui-tin-nhan', ['name' => 'A', 'contact' => '0912345678', 'message' => "tin {$i}"])->assertOk();
         }
 
-        $this->postJson('/ho-tro/gui-tin-nhan', ['name' => 'A', 'message' => 'tin 21'])->assertStatus(429);
+        $this->postJson('/ho-tro/gui-tin-nhan', ['name' => 'A', 'contact' => '0912345678', 'message' => 'tin 21'])->assertStatus(429);
     }
 
     public function test_webhook_telegram_can_secret_token_khi_da_cau_hinh(): void

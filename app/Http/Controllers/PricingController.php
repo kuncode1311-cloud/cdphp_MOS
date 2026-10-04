@@ -351,10 +351,11 @@ class PricingController extends Controller
             'message' => 'required|string|max:2000',
         ]);
 
-        // Bắt buộc số điện thoại/Zalo hợp lệ (10 số, bắt đầu bằng 0 hoặc +84) để Admin liên hệ lại; không nhận chuỗi linh tinh như "222".
+        // Khách chưa đăng nhập bắt buộc nhập số điện thoại/Zalo hợp lệ (10 số, bắt đầu bằng 0 hoặc +84) để Admin liên hệ lại;
+        // không nhận chuỗi linh tinh như "222". Người đã đăng nhập (học sinh, giáo viên) đã có tài khoản nên số điện thoại là tùy chọn.
         $rawContact = trim((string) ($data['phone'] ?? $data['contact'] ?? ''));
         $data['phone'] = \App\Models\SupportMessage::normalizePhone($rawContact);
-        if ($data['phone'] === null) {
+        if ($data['phone'] === null && ! $request->user()) {
             return response()->json([
                 'message' => 'Vui lòng nhập đúng số điện thoại hoặc Zalo (10 số, ví dụ 0912345678).',
             ], 422);
