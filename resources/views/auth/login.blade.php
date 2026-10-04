@@ -54,21 +54,20 @@
             inset: 0;
             width: 100%;
             height: 100%;
+            background: #05020a;
             overflow: hidden;
             z-index: 0;
             pointer-events: none;
         }
 
+        /* Video giãn kín màn hình theo cả chiều ngang và dọc: giữ đủ toàn bộ nội dung, chấp nhận méo tỉ lệ */
         .video-bg {
             position: absolute;
-            top: 50%;
-            left: 50%;
-            min-width: 100%;
-            min-height: 100%;
-            width: auto;
-            height: auto;
-            transform: translate(-50%, -50%);
-            object-fit: cover;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            object-fit: fill;
             filter: brightness(1.12) contrast(1.05) saturate(1.12);
         }
 
@@ -989,7 +988,7 @@
 
     <!-- Cinematic Video Background (bg-hero.mp4) -->
     <div class="video-bg-container">
-        <video autoplay muted loop playsinline class="video-bg">
+        <video autoplay muted loop playsinline preload="auto" poster="{{ asset('images/ic3-login-hero.jpg') }}" class="video-bg">
             <source src="{{ asset('images/bg-hero.mp4') }}" type="video/mp4">
         </video>
         <div class="video-overlay"></div>
