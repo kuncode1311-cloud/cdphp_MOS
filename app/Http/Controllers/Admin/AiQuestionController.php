@@ -81,6 +81,9 @@ class AiQuestionController extends Controller
                 $questions = $this->gemini->generateQuestionsFromText($promptText, '', $generateImages, $questionCount);
             }
 
+            // AI hoặc bộ lọc chất lượng có thể bỏ bớt câu; gọi bù để đủ số câu giáo viên đã chọn.
+            $questions = $this->topUpQuestions($questions, $questionCount, $uploadedFiles ?? [], $promptText, $generateImages);
+
             if (empty($questions)) {
                 return response()->json([
                     'success' => false,
@@ -280,5 +283,58 @@ class AiQuestionController extends Controller
             'count' => $importedCount,
             'message' => "Đã lưu thành công {$importedCount} câu hỏi vào bài luyện!",
         ]);
+    }
+
+    /**
+     * Bổ sung câu hỏi khi AI trả thiếu so với số câu đã chọn (tối đa 2 lượt bù), loại câu trùng và cắt về đúng số lượng.
+     *
+     * @param  array<int, array<string, mixed>>  $questions
+     * @param  array<int, \Illuminate\Http\UploadedFile>  $uploadedFiles
+     * @return array<int, array<string, mixed>>
+     */
+    private function topUpQuestions(array $questions, int $wanted, array $uploadedFiles, string $promptText, bool $generateImages): array
+    {
+        $signature = fn (array $q): string => mb_strtolower(mb_substr(preg_replace('/\s+/u', ' ', (string) ($q['title'] ?? '')), 0, 80));
+
+        for ($round = 0; $round < 2 && count($questions) < $wanted; $round++) {
+            $missing = $wanted - count($questions);
+            $existing = implode("\n", array_map(fn (array $q, int $i) => ($i + 1).'. '.($q['title'] ?? ''), $questions, array_keys($questions)));
+            $note = trim($promptText."\n\nĐã có các câu hỏi sau, hãy soạn câu MỚI, khác hoàn toàn về nội dung và cách hỏi:\n".$existing);
+
+            try {
+                // Xin dư một câu để còn bù cho câu bị bộ lọc loại.
+                $extra = ! empty($uploadedFiles)
+                    ? $this->gemini->generateQuestionsFromFiles($this->fileItems($uploadedFiles), $note, $generateImages, min(10, $missing + 1))
+                    : $this->gemini->generateQuestionsFromText($note, '', $generateImages, min(10, $missing + 1));
+            } catch (\Throwable $e) {
+                Log::warning('AiQuestionController: bù câu hỏi thất bại - '.$e->getMessage());
+                break;
+            }
+
+            $seen = array_map($signature, $questions);
+            foreach ($extra as $candidate) {
+                if (is_array($candidate) && ! in_array($signature($candidate), $seen, true)) {
+                    $questions[] = $candidate;
+                    $seen[] = $signature($candidate);
+                }
+            }
+        }
+
+        return array_slice(array_values($questions), 0, $wanted);
+    }
+
+    /**
+     * Chuyển tệp tải lên thành mảng thông tin để gửi cho dịch vụ AI.
+     *
+     * @param  array<int, \Illuminate\Http\UploadedFile>  $uploadedFiles
+     * @return array<int, array{path: string, mime_type: string, name: string}>
+     */
+    private function fileItems(array $uploadedFiles): array
+    {
+        return array_map(fn ($file) => [
+            'path' => $file->getRealPath(),
+            'mime_type' => $file->getMimeType() ?: 'image/jpeg',
+            'name' => $file->getClientOriginalName(),
+        ], $uploadedFiles);
     }
 }
