@@ -57,7 +57,7 @@
         }
         .shell.sidebar-collapsed,
         html.admin-sidebar-collapsed-init .shell {
-            grid-template-columns: 76px minmax(0, 1fr);
+            grid-template-columns: 70px minmax(0, 1fr);
         }
         html.admin-sidebar-collapsed-init .shell {
             transition: none !important;
@@ -602,6 +602,26 @@
         </main>
     </div>
 </div>
+
+<script>
+    function syncMockTestSidebarStateBeforeNavigate() {
+        const shell = document.getElementById('admin-shell');
+        if (!shell) return;
+
+        const isCollapsed = localStorage.getItem('admin_sidebar_collapsed') === '1'
+            || document.documentElement.classList.contains('admin-sidebar-collapsed-init')
+            || shell.classList.contains('sidebar-collapsed');
+
+        shell.classList.toggle('sidebar-collapsed', isCollapsed);
+        document.documentElement.classList.toggle('admin-sidebar-collapsed-init', isCollapsed);
+    }
+
+    document.querySelectorAll('.grade-tab').forEach(tab => {
+        tab.addEventListener('click', syncMockTestSidebarStateBeforeNavigate);
+    });
+
+    window.addEventListener('pageshow', syncMockTestSidebarStateBeforeNavigate);
+</script>
 
 </body>
 </html>

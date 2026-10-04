@@ -45,7 +45,7 @@
                 <span class="pod-label">THỜI GIAN CHƠI GAME CÒN LẠI</span>
                 <div class="pod-value value-blue">
                     <span id="display-time" style="color: {{ $gameTimeSeconds > 0 ? '#0284c7' : '#ef4444' }};">
-                        {{ floor($gameTimeSeconds / 60) }} phút {{ $gameTimeSeconds % 60 }} giây
+                        {{ $user->isAdmin() ? 'Không giới hạn ♾️' : floor($gameTimeSeconds / 60).' phút '.($gameTimeSeconds % 60).' giây' }}
                     </span>
                 </div>
                 <small class="pod-hint">Tự động đếm ngược khi bé tham gia phòng trò chơi</small>
@@ -126,7 +126,7 @@
                         <div id="game-action-btn" class="btn-play-game-3d" style="width: 100%; padding: 16px 24px; border-radius: 18px; border: 3.5px solid #ffffff; text-align: center; color: #ffffff; font-size: 15.5px; font-weight: 900; letter-spacing: 0.5px; transition: all 0.16s ease; display: flex; align-items: center; justify-content: center; gap: 10px; cursor: pointer; background: {{ $gameTimeSeconds > 0 ? 'linear-gradient(180deg, #10b981 0%, #059669 100%)' : 'linear-gradient(180deg, #f97316 0%, #ea580c 100%)' }}; box-shadow: inset 0 -6px 0 {{ $gameTimeSeconds > 0 ? '#047857' : '#9a3412' }}, 0 10px 24px rgba(0,0,0,0.28);">
                             @if($gameTimeSeconds > 0)
                                 <span style="font-size: 20px;">🎮</span>
-                                <span>VÀO PHÒNG CHƠI NGAY (Còn {{ floor($gameTimeSeconds / 60) }} phút) →</span>
+                                <span>VÀO PHÒNG CHƠI NGAY ({{ $user->isAdmin() ? 'Không giới hạn' : 'Còn '.floor($gameTimeSeconds / 60).' phút' }}) →</span>
                             @else
                                 <span style="font-size: 20px;">🔒</span>
                                 <span>HẾT GIỜ CHƠI — ĐỔI SAO ĐỂ VÀO PHÒNG →</span>
@@ -370,6 +370,7 @@
     let currentGameTime = {{ (int) $gameTimeSeconds }};
 
     function formatTime(seconds) {
+        if (seconds >= 86400) return 'Không giới hạn ♾️';
         const m = Math.floor(seconds / 60);
         const s = seconds % 60;
         return `${m} phút ${s} giây`;

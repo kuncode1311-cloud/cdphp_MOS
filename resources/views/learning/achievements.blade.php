@@ -49,7 +49,7 @@
                         <div>
                             <span class="pod-label">THỜI GIAN CHƠI GAME</span>
                             <div class="pod-value value-blue">
-                                <span id="header-game-time">{{ floor($gameTimeSeconds / 60) }}p {{ $gameTimeSeconds % 60 }}s</span>
+                                <span id="header-game-time">{{ auth()->user()->isAdmin() ? 'Không giới hạn ♾️' : floor($gameTimeSeconds / 60).'p '.($gameTimeSeconds % 60).'s' }}</span>
                             </div>
                         </div>
                         <a href="{{ route('games') }}" class="btn-3d-play-quick">
@@ -1993,6 +1993,7 @@
     let currentGameTime = {{ (int) $gameTimeSeconds }};
 
     function formatTime(seconds) {
+        if (seconds >= 86400) return 'Không giới hạn ♾️';
         const m = Math.floor(seconds / 60);
         const s = seconds % 60;
         return `${m}p ${s}s`;

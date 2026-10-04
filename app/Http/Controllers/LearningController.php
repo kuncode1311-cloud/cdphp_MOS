@@ -117,7 +117,7 @@ class LearningController extends Controller
 
         // Điểm Sao thưởng tích lũy & Thời gian chơi game
         $rewardStars = (int) ($user->reward_stars ?? 0);
-        $gameTimeSeconds = (int) ($user->game_time_seconds ?? 0);
+        $gameTimeSeconds = $user->effectiveGameTimeSeconds();
         $packages = $this->getGamePackages();
 
         // Top 3 bài thi cao điểm nhất đợt này của riêng bé
@@ -272,7 +272,7 @@ class LearningController extends Controller
     {
         $user = request()->user() ?? auth()->user();
         $rewardStars = (int) ($user->reward_stars ?? 0);
-        $gameTimeSeconds = (int) ($user->game_time_seconds ?? 0);
+        $gameTimeSeconds = $user->effectiveGameTimeSeconds();
         $packages = $this->getGamePackages();
 
         return view('learning.games', compact('user', 'rewardStars', 'gameTimeSeconds', 'packages'));
@@ -316,7 +316,7 @@ class LearningController extends Controller
 
         return response()->json([
             'game_enabled' => (bool) GameSetting::get('game_enabled', true),
-            'game_time_seconds' => (int) ($user?->game_time_seconds ?? 0),
+            'game_time_seconds' => $user ? $user->effectiveGameTimeSeconds() : 0,
             'reward_stars' => (int) ($user?->reward_stars ?? 0),
             'user_name' => $user?->name ?? 'Hiệp sĩ IC3',
         ]);
@@ -344,9 +344,9 @@ class LearningController extends Controller
             : 0;
         $seconds = min((int) $validated['seconds'], $allowed);
 
-        $remaining = $seconds > 0
-            ? $user->consumeGameTime($seconds)
-            : (int) $user->fresh()->game_time_seconds;
+        $remaining = $user->isAdmin()
+            ? $user->effectiveGameTimeSeconds()
+            : ($seconds > 0 ? $user->consumeGameTime($seconds) : (int) $user->fresh()->game_time_seconds);
 
         if ($run && $seconds > 0) {
             $run['consumed'] += $seconds;

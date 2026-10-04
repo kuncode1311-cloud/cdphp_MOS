@@ -329,6 +329,17 @@ class User extends Authenticatable
      */
     public function exchangeGamePackage(int $packageNum): array
     {
+        if ($this->isAdmin()) {
+            return [
+                'success' => true,
+                'message' => 'Quản trị viên có giờ chơi không giới hạn nên không cần đổi sao.',
+                'reward_stars' => (int) $this->reward_stars,
+                'remaining_stars' => (int) $this->reward_stars,
+                'game_time_seconds' => self::UNLIMITED_GAME_SECONDS,
+                'added_seconds' => 0,
+            ];
+        }
+
         $pkgStars = (int) GameSetting::get("pkg{$packageNum}_stars", $packageNum === 2 ? 1000 : 500);
         $pkgMinutes = (int) GameSetting::get("pkg{$packageNum}_minutes", $packageNum === 2 ? 7 : 3);
         $pkgTitle = (string) GameSetting::get("pkg{$packageNum}_title", "Gói {$packageNum}");
@@ -369,11 +380,26 @@ class User extends Authenticatable
         });
     }
 
+    /** Giờ chơi hiển thị cho Quản trị viên: luôn đầy, không bị trừ để thử nghiệm đầy đủ tính năng. */
+    public const UNLIMITED_GAME_SECONDS = 86400;
+
+    /**
+     * Giờ chơi mini-game thực tế: Quản trị viên không giới hạn, còn lại lấy theo số giây đã đổi.
+     */
+    public function effectiveGameTimeSeconds(): int
+    {
+        return $this->isAdmin() ? self::UNLIMITED_GAME_SECONDS : (int) ($this->game_time_seconds ?? 0);
+    }
+
     /**
      * Tiêu hao thời gian khi chơi mini-game
      */
     public function consumeGameTime(int $seconds): int
     {
+        if ($this->isAdmin()) {
+            return self::UNLIMITED_GAME_SECONDS; // Quản trị viên chơi thoải mái, không trừ giờ
+        }
+
         if ($seconds <= 0) {
             return (int) $this->game_time_seconds;
         }

@@ -1666,7 +1666,7 @@
                             <div class="profile-stat-icon" style="background:#f0fdf4; color:#16a34a;">🎮</div>
                             <div class="profile-stat-info">
                                 <small>GIỜ GAME HIỆP SĨ</small>
-                                <b style="color:#15803d;">{{ floor((auth()->user()->game_time_seconds ?? 0) / 60) }} Phút</b>
+                                <b style="color:#15803d;">{{ auth()->user()->isAdmin() ? 'Không giới hạn' : floor((auth()->user()->game_time_seconds ?? 0) / 60).' Phút' }}</b>
                             </div>
                         </div>
 

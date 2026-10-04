@@ -56,7 +56,7 @@
         }
         .shell.sidebar-collapsed,
         html.admin-sidebar-collapsed-init .shell {
-            grid-template-columns: 76px minmax(0, 1fr);
+            grid-template-columns: 70px minmax(0, 1fr);
         }
         html.admin-sidebar-collapsed-init .shell {
             transition: none !important;

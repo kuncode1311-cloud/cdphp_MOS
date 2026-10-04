@@ -8,6 +8,11 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <script>
+        if (localStorage.getItem('admin_sidebar_collapsed') === '1') {
+            document.documentElement.classList.add('admin-sidebar-collapsed-init');
+        }
+    </script>
     <style>
         :root {
             --primary: #4f46e5;
@@ -86,8 +91,12 @@
         /* ==========================================================================
            🌌 SHELL & SIDEBAR GRID LAYOUT (ĐỒNG BỘ 100% VỚI COMPONENT)
            ========================================================================== */
-        .shell.sidebar-collapsed {
+        .shell.sidebar-collapsed,
+        html.admin-sidebar-collapsed-init .shell {
             grid-template-columns: 70px minmax(0, 1fr);
+        }
+        html.admin-sidebar-collapsed-init .shell {
+            transition: none !important;
         }
 
         /* ==========================================================================
