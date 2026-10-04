@@ -1246,9 +1246,16 @@
             }
         }
 
-        function saveMessageToHistory(sender, text, time) {
+        // Chỉ nhận đường dẫn ảnh do máy chủ lưu (/storage/...) để tránh chèn địa chỉ lạ vào thẻ ảnh
+        function safeImageUrl(url) {
+            return typeof url === 'string' && url.startsWith('/storage/') && !url.includes('..') ? url : '';
+        }
+
+        function saveMessageToHistory(sender, text, time, image) {
             const history = getChatHistory();
-            history.push({ sender, text, time });
+            const entry = { sender, text, time };
+            if (safeImageUrl(image)) entry.image = image;
+            history.push(entry);
             localStorage.setItem('mos_chat_messages', JSON.stringify(history));
         }
 
@@ -1271,8 +1278,10 @@
 
             history.forEach(item => {
                 const rawText = String(item.text || '').trim();
-                if (!rawText || rawText === 'undefined') return;
+                const imageUrl = safeImageUrl(item.image);
+                if ((!rawText || rawText === 'undefined') && !imageUrl) return;
                 const safeText = rawText.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+                const imageHtml = imageUrl ? `<a href="${imageUrl}" target="_blank"><img src="${imageUrl}" alt="Ảnh từ Ban Quản Trị" style="max-width:100%; border-radius:10px; display:block; margin:4px 0;"></a>` : '';
 
                 const bubble = document.createElement('div');
                 if (item.sender === 'user') {
@@ -1290,7 +1299,8 @@
                         <div style="font-weight:800; font-size:12px; color:#0068ff; margin-bottom:3px;">
                             👨‍💼 Ban Quản Trị (Admin)
                         </div>
-                        <div style="white-space:pre-line;">${safeText}</div>
+                        ${imageHtml}
+                        ${safeText ? `<div style="white-space:pre-line;">${safeText}</div>` : ''}
                         <div class="bubble-time">${item.time || ''}</div>
                     `;
                 }
@@ -1411,7 +1421,21 @@
                 const res = await fetch(`/ho-tro/tin-nhan/kiem-tra?id=${activeChatSupportId}`);
                 if (!res.ok) return;
                 const data = await res.json();
-                if (data.ok && data.admin_reply && data.admin_reply !== lastReceivedAdminReply) {
+                if (data.ok && Array.isArray(data.conversation_history) && data.conversation_history.length) {
+                    // Tin của admin mà khung chat này chưa có thì thêm vào (có thể là chữ hoặc ảnh)
+                    const serverAdminTurns = data.conversation_history.filter(t => t.sender === 'admin');
+                    const knownAdminTurns = getChatHistory().filter(t => t.sender === 'admin').length;
+                    const body = document.getElementById('chatMessagesBody');
+                    serverAdminTurns.slice(knownAdminTurns).forEach(turn => {
+                        const turnText = String(turn.text || '').trim();
+                        const turnTime = turn.time || data.replied_at || 'Vừa xong';
+                        saveMessageToHistory('admin', turnText, turnTime, turn.image);
+                    });
+                    if (serverAdminTurns.length > knownAdminTurns) {
+                        renderChatHistory();
+                    }
+                    lastReceivedAdminReply = data.admin_reply || lastReceivedAdminReply;
+                } else if (data.ok && data.admin_reply && data.admin_reply !== lastReceivedAdminReply) {
                     lastReceivedAdminReply = data.admin_reply;
                     
                     const replyTime = data.replied_at || 'Vừa xong';
