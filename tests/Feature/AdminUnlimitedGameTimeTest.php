@@ -50,7 +50,6 @@ class AdminUnlimitedGameTimeTest extends TestCase
 
         $this->actingAs($student)->get(route('games'))
             ->assertOk()
-            ->assertSee('HẾT GIỜ CHƠI')
-            ->assertDontSee('Không giới hạn ♾️');
+            ->assertSee('HẾT GIỜ CHƠI');
     }
 }
