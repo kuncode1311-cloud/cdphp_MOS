@@ -49,7 +49,7 @@ class AiQuestionFromFileTest extends TestCase
             'services.question_ai.model' => 'model-thu-nghiem',
         ]);
         $question = [
-            'title' => 'Thủ đô của Việt Nam là thành phố nào?',
+            'title' => 'Ha Noi la thu do cua Viet Nam dung khong',
             'type' => 'MultipleChoice',
             'needs_image' => false,
             'image_prompt' => null,
@@ -74,7 +74,7 @@ class AiQuestionFromFileTest extends TestCase
 
             // Câu hỏi về địa lý (không thuộc Tin học) vẫn được giữ lại
             $this->assertCount(1, $questions);
-            $this->assertSame('Thủ đô của Việt Nam là thành phố nào?', $questions[0]['title']);
+            $this->assertSame('Ha Noi la thu do cua Viet Nam dung khong', $questions[0]['title']);
 
             Http::assertSent(function (Request $request) {
                 $content = $request["messages"][0]["content"]; $prompt = end($content)["text"];

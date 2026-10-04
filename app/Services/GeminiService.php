@@ -443,10 +443,18 @@ class GeminiService
         $this->executionTrace = [];
         $questionCount = max(1, min(10, $questionCount));
         // Trích chữ từ PDF ngay trên máy chủ để AI luôn có nội dung thật, kể cả khi dịch vụ không đọc được PDF đính kèm.
-        $sourceText = $this->extractPdfText($fileItems);
-        $filePrompt = $this->buildFilePrompt($context, $generateImages, $questionCount, $sourceText);
+        $extracted = $this->extractPdfText($fileItems);
+        $filePrompt = $this->buildFilePrompt($context, $generateImages, $questionCount, $extracted['text']);
+        // PDF đã có chữ thì chỉ gửi chữ cho API riêng (ổn định hơn đính kèm tệp); ảnh và PDF dạng quét vẫn đính kèm.
+        $privateFiles = array_values(array_filter($fileItems, fn (array $file) => ! in_array($file['path'], $extracted['covered'], true)));
         // Chỉ tải PDF lên Google sau khi API riêng thất bại hoặc chưa được cấu hình.
-        $questions = $this->tryPrivateApi($filePrompt, $fileItems);
+        $questions = $this->tryPrivateApi($filePrompt, $privateFiles);
+        // Mô hình đôi khi bỏ qua nội dung tệp và soạn câu chung chung; khi đó bỏ kết quả để chuyển sang Gemini.
+        if ($questions !== null && $questions !== [] && $extracted['text'] !== '' && ! $this->isGroundedInSource($questions, $extracted['text'])) {
+            $this->executionTrace[] = $this->traceRow('9Router', (string) config('services.question_ai.model'), '200', microtime(true), 'Không bám sát nội dung tệp, chuyển Gemini');
+            Log::info('AI soạn đề: câu hỏi từ API riêng không bám nội dung tệp, chuyển sang Gemini.');
+            $questions = null;
+        }
         if ($questions !== null && $questions !== []) {
             $questions = $this->filterStandaloneQuestions($questions);
             if ($questions !== []) {
@@ -775,11 +783,39 @@ PROMPT;
     }
 
     /**
-     * Trích văn bản từ các tệp PDF (có chữ) để làm nguồn chính cho AI. PDF dạng ảnh quét sẽ không có chữ nên bỏ qua.
+     * Kiểm tra câu hỏi có thật sự lấy từ nội dung tệp: ít nhất một nửa số câu có phần lớn từ khóa nằm trong chữ trích từ tệp.
+     *
+     * @param  array<int, array<string, mixed>>  $questions
      */
-    private function extractPdfText(array $fileItems): string
+    private function isGroundedInSource(array $questions, string $sourceText): bool
+    {
+        $source = mb_strtolower($sourceText, 'UTF-8');
+        $grounded = 0;
+
+        foreach ($questions as $question) {
+            $words = preg_split('/[^\p{L}\p{N}]+/u', mb_strtolower((string) ($question['title'] ?? ''), 'UTF-8'), -1, PREG_SPLIT_NO_EMPTY) ?: [];
+            $words = array_values(array_unique(array_filter($words, fn (string $w) => mb_strlen($w) >= 4)));
+            if ($words === []) {
+                continue;
+            }
+
+            $found = count(array_filter($words, fn (string $w) => str_contains($source, $w)));
+            if ($found / count($words) >= 0.4) {
+                $grounded++;
+            }
+        }
+
+        return $grounded * 2 >= count($questions);
+    }
+    /**
+     * Trích văn bản từ các tệp PDF (có chữ) để làm nguồn chính cho AI. PDF dạng ảnh quét sẽ không có chữ nên bỏ qua.
+     *
+     * @return array{text: string, covered: array<int, string>} text là chữ đã trích, covered là đường dẫn các PDF đã trích được chữ
+     */
+    private function extractPdfText(array $fileItems): array
     {
         $chunks = [];
+        $covered = [];
         $remaining = 40000;
 
         foreach ($fileItems as $file) {
@@ -803,9 +839,10 @@ PROMPT;
             $text = mb_substr($text, 0, $remaining);
             $remaining -= mb_strlen($text);
             $chunks[] = '[Tệp: '.($file['name'] ?? basename($file['path']))."]\n".$text;
+            $covered[] = $file['path'];
         }
 
-        return implode("\n\n", $chunks);
+        return ['text' => implode("\n\n", $chunks), 'covered' => $covered];
     }
 
     /**
