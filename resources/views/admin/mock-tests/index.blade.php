@@ -59,6 +59,9 @@
         html.admin-sidebar-collapsed-init .shell {
             grid-template-columns: 76px minmax(0, 1fr);
         }
+        html.admin-sidebar-collapsed-init .shell {
+            transition: none !important;
+        }
 
         .main-workspace {
             display: flex;

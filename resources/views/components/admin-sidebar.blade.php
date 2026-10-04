@@ -677,6 +677,9 @@
         width: 70px !important;
         padding: 14px 6px !important;
     }
+    html.admin-sidebar-collapsed-init .admin-unified-sidebar {
+        transition: none !important;
+    }
     .shell.sidebar-collapsed .brand-text,
     html.admin-sidebar-collapsed-init .brand-text,
     .shell.sidebar-collapsed .admin-info,
