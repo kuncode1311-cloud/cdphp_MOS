@@ -330,6 +330,10 @@
     const timeOutScoreEl = document.getElementById('timeout-score');
 
     let remainingGameSeconds = 0;
+    let unlimitedPlay = false; // Quản trị viên chơi không giới hạn (server trả 24 giờ)
+    function formatPlayTime(seconds) {
+        return seconds >= 86400 ? 'Không giới hạn' : `${Math.floor(seconds / 60)}p ${seconds % 60}s`;
+    }
     let gameTimerInterval = null;
     let elapsedSecondsSinceSync = 0;
     let gameServerChecked = false;
@@ -517,7 +521,7 @@
                 debugEl.innerText = "Bé đã hết giờ chơi! Hãy đổi thêm Sao tại Khu Trò Chơi.";
             } else {
                 startBtn.disabled = false;
-                startBtn.innerText = remainingGameSeconds > 0 ? `BẮT ĐẦU CHÉM (${Math.floor(remainingGameSeconds / 60)}p ${remainingGameSeconds % 60}s)` : "BẮT ĐẦU CHÉM";
+                startBtn.innerText = remainingGameSeconds > 0 ? `BẮT ĐẦU CHÉM (${formatPlayTime(remainingGameSeconds)})` : "BẮT ĐẦU CHÉM";
                 debugEl.innerText = "AI Camera đã sẵn sàng! (Offline)";
             }
         } else if (libLoaded.pose || libLoaded.hands) {
@@ -1056,6 +1060,12 @@
     }
 
     function updateCountdownHUD() {
+        if (unlimitedPlay) {
+            timeCountdownEl.innerText = '∞ Không giới hạn';
+            timeCountdownEl.parentElement.style.background = 'linear-gradient(135deg, #10b981, #059669)';
+            timeCountdownEl.parentElement.style.borderColor = '#34d399';
+            return;
+        }
         const m = Math.floor(Math.max(0, remainingGameSeconds) / 60);
         const s = Math.max(0, remainingGameSeconds) % 60;
         const formatted = `${String(m).padStart(2, '0')}:${String(s).padStart(2, '0')}`;
@@ -1082,6 +1092,7 @@
             gameServerChecked = true;
             studentGameTime = data.game_time_seconds || 0;
             remainingGameSeconds = studentGameTime;
+            unlimitedPlay = studentGameTime >= 86400;
             updateCountdownHUD();
 
             if (!data.game_enabled) {
@@ -1099,7 +1110,7 @@
                 debugEl.innerText = "Bé đã hết thời gian chơi game! Hãy đổi Sao tại Khu Trò Chơi nhé.";
             } else if (libLoaded.pose && libLoaded.hands) {
                 startBtn.disabled = false;
-                startBtn.innerText = `BẮT ĐẦU CHÉM (${Math.floor(studentGameTime / 60)}p ${studentGameTime % 60}s)`;
+                startBtn.innerText = `BẮT ĐẦU CHÉM (${formatPlayTime(studentGameTime)})`;
             }
         } catch (e) {
             console.warn('Không thể kết nối máy chủ MOS để lấy thời gian:', e);
