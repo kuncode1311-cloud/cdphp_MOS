@@ -95,17 +95,22 @@ class LearningController extends Controller
         $nextReset = GameSetting::getLeaderboardNextReset();
         $nextResetTimestamp = $nextReset ? $nextReset->timestamp : null;
 
-        // Tránh tình trạng đầu tuần mới (sáng Thứ Hai) chưa kịp có học sinh làm bài khiến Bảng Vàng bị trống Á Quân & Hạng Ba:
-        // Nếu số bài làm trong vòng thi đua hiện tại còn quá ít (< 5 bài), tự động mở rộng mốc tính về 7 ngày gần nhất (rolling 7 days)
-        // để luôn vinh danh những học sinh xuất sắc nhất.
-        $recentAttemptsCount = \App\Models\TestAttempt::where('completed_at', '>=', $startOfLeaderboard)->count();
-        if ($recentAttemptsCount < 5) {
-            $rollingFallback = now($tz)->subDays(7)->setTimezone('UTC');
-            if ($startOfLeaderboard->greaterThan($rollingFallback)) {
-                $startOfLeaderboard = $rollingFallback;
+        // Đầu vòng thi đua mới (hoặc khi mới chỉ có 1-2 bạn làm bài) Bảng Vàng sẽ trống Á Quân, Hạng Ba...
+        // Nếu số học sinh có bài làm trong vòng hiện tại còn ít hơn 3, mở rộng dần mốc tính ra 7, 30, 90, 365 ngày gần nhất
+        // cho đến khi đủ 3 học sinh, để luôn vinh danh những bạn xuất sắc thay vì để bảng trống.
+        $minLeaderboardStudents = 3;
+        $countStudents = fn ($since) => \App\Models\TestAttempt::where('completed_at', '>=', $since)->distinct()->count('user_id');
+        if ($countStudents($startOfLeaderboard) < $minLeaderboardStudents) {
+            foreach ([7, 30, 90, 365] as $days) {
+                $widerStart = now($tz)->subDays($days)->setTimezone('UTC');
+                if ($widerStart->lessThan($startOfLeaderboard)) {
+                    $startOfLeaderboard = $widerStart;
+                    if ($countStudents($widerStart) >= $minLeaderboardStudents) {
+                        break;
+                    }
+                }
             }
         }
-
         // Lấy bài làm trong vòng thi đua hiện tại
         $weeklyAttempts = $user->attempts()
             ->with('practiceTest.topic.level')
