@@ -30,6 +30,7 @@ class AiQuestionTopUpTest extends TestCase
                 [$this->q('Câu 1'), $this->q('Câu 2'), $this->q('Câu 3'), $this->q('Câu 4')],
                 [$this->q('câu 4'), $this->q('Câu 5 mới'), $this->q('Câu 6 thừa')]
             );
+            $mock->shouldReceive('detectRequestedQuestionCount')->andReturn(null);
             $mock->shouldReceive('executionTrace')->andReturn([]);
         });
 
@@ -51,6 +52,7 @@ class AiQuestionTopUpTest extends TestCase
             $mock->shouldReceive('generateQuestionsFromText')->once()->andReturn(
                 [$this->q('A'), $this->q('B'), $this->q('C'), $this->q('D')]
             );
+            $mock->shouldReceive('detectRequestedQuestionCount')->andReturn(null);
             $mock->shouldReceive('executionTrace')->andReturn([]);
         });
 
@@ -83,6 +85,7 @@ class AiQuestionTopUpTest extends TestCase
         $calls = [];
 
         $this->mock(GeminiService::class, function (MockInterface $mock) use (&$calls) {
+            $mock->shouldReceive('detectRequestedQuestionCount')->andReturn(20);
             $mock->shouldReceive('generateQuestionsFromText')->andReturnUsing(function (string $text, string $ctx, bool $img, int $count) use (&$calls) {
                 $calls[] = $count;
                 $base = count($calls) * 100;

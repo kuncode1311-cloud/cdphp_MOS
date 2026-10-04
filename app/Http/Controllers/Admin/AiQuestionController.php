@@ -49,8 +49,10 @@ class AiQuestionController extends Controller
         $hasText = ! empty($promptText);
         $hasFiles = $request->hasFile('files') || $request->hasFile('file');
         $generateImages = $request->boolean('generate_images');
-        // Số câu giáo viên ghi rõ trong nội dung (ví dụ "làm 20 câu") được ưu tiên hơn ô chọn số câu.
-        $requestedInText = self::detectRequestedCount($promptText);
+        // AI đọc yêu cầu để biết số câu; nội dung có nêu số câu thì ưu tiên hơn ô chọn số câu.
+        // Nếu AI không phân tích được thì dùng quy tắc nhận diện cụm "làm 20 câu" làm dự phòng.
+        $aiCount = $hasText ? $this->gemini->detectRequestedQuestionCount($promptText) : null;
+        $requestedInText = $aiCount === false ? self::detectRequestedCount($promptText) : $aiCount;
         $questionCount = $requestedInText ?? max(1, min(30, $request->integer('question_count', 5)));
         // Mỗi lượt gọi AI tối đa 10 câu để không bị cắt cụt; phần còn lại được bù ở bước sau.
         $batchCount = min($questionCount, 10);

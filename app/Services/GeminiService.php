@@ -689,6 +689,102 @@ class GeminiService
     }
 
     /**
+     * Nhờ AI đọc yêu cầu của giáo viên để biết cần soạn bao nhiêu câu.
+     *
+     * @return int|null|false số câu (1-30), null nếu yêu cầu không nhắc số câu, false nếu AI không phân tích được
+     */
+    public function detectRequestedQuestionCount(string $teacherText): int|null|false
+    {
+        $teacherText = trim($teacherText);
+        if (mb_strlen($teacherText) < 20) {
+            return null;
+        }
+
+        // Yêu cầu thường nằm ở đầu hoặc cuối nội dung dán vào, nên chỉ gửi hai đầu để nhanh và rẻ.
+        $excerpt = mb_strlen($teacherText) > 4500
+            ? mb_substr($teacherText, 0, 3000)."\n[...]\n".mb_substr($teacherText, -1500)
+            : $teacherText;
+
+        $prompt = <<<PROMPT
+Bạn đọc nội dung giáo viên nhập để nhờ AI soạn câu hỏi. Hãy xác định giáo viên muốn soạn TỔNG BAO NHIÊU câu hỏi.
+
+Quy tắc:
+- Nếu giáo viên nêu rõ tổng số câu (ví dụ "làm 20 câu", "tạo 5 câu hỏi", "đề gồm 12 câu", "hai mươi câu") thì trả về số đó. Phần chia nhỏ như "3 câu trắc nghiệm và 2 câu ghép nối" chỉ là chi tiết, tổng vẫn là số nêu đầu tiên hoặc tổng của chúng.
+- Nếu giáo viên dán sẵn một danh sách câu hỏi và yêu cầu làm hết/tất cả/chuyển đổi toàn bộ thì trả về số câu đã có trong danh sách (tối đa 30).
+- Nếu nội dung chỉ là tài liệu, đề cương hoặc câu hỏi dán vào mà KHÔNG có yêu cầu về số lượng thì trả về null.
+- Tiêu đề đánh số của câu hỏi như "Câu 20." KHÔNG phải yêu cầu số lượng.
+- Chỉ trả về JSON hợp lệ dạng {"count": số nguyên từ 1 đến 30 hoặc null}, không giải thích.
+
+NỘI DUNG GIÁO VIÊN NHẬP:
+{$excerpt}
+PROMPT;
+
+        $raw = $this->askForJsonText($prompt);
+        if ($raw === null) {
+            return false;
+        }
+
+        $data = json_decode(trim((string) preg_replace('/^```(?:json)?\s*|\s*```$/i', '', trim($raw))), true);
+        if (! is_array($data) || ! array_key_exists('count', $data)) {
+            return false;
+        }
+
+        $count = $data['count'];
+        if ($count === null) {
+            return null;
+        }
+
+        return is_numeric($count) && (int) $count >= 1 && (int) $count <= 30 ? (int) $count : null;
+    }
+
+    /**
+     * Gọi AI một lượt ngắn và nhận về văn bản (API riêng trước, Gemini dự phòng); trả về null nếu cả hai đều lỗi.
+     */
+    private function askForJsonText(string $prompt): ?string
+    {
+        $baseUrl = rtrim(trim((string) config('services.question_ai.base_url')), '/');
+        $model = trim((string) config('services.question_ai.model'));
+        if ($baseUrl !== '' && $model !== '') {
+            try {
+                $request = Http::acceptJson()->connectTimeout(5)->timeout(20)->withoutRedirecting();
+                $apiKey = trim((string) config('services.question_ai.api_key'));
+                if ($apiKey !== '') {
+                    $request = $request->withToken($apiKey);
+                }
+                $response = $request->post($baseUrl.'/chat/completions', [
+                    'model' => $model,
+                    'messages' => [['role' => 'user', 'content' => $prompt]],
+                    'stream' => false,
+                ]);
+                $text = $response->successful() ? $response->json('choices.0.message.content') : null;
+                if (is_string($text) && trim($text) !== '') {
+                    return $text;
+                }
+            } catch (\Throwable $e) {
+                Log::info('AI phân tích số câu: API riêng không phản hồi, thử Gemini.', ['error_type' => $e::class]);
+            }
+        }
+
+        foreach ($this->apiKeys as $key) {
+            try {
+                $response = Http::connectTimeout(5)->timeout(20)
+                    ->withHeaders(['x-goog-api-key' => $key])
+                    ->post("{$this->baseUrl}/models/{$this->candidateModels[0]}:generateContent", [
+                        'contents' => [['parts' => [['text' => $prompt]]]],
+                        'generationConfig' => ['temperature' => 0, 'responseMimeType' => 'application/json'],
+                    ]);
+                $text = $response->successful() ? $response->json('candidates.0.content.parts.0.text') : null;
+                if (is_string($text) && trim($text) !== '') {
+                    return $text;
+                }
+            } catch (\Throwable $e) {
+                Log::info('AI phân tích số câu: Gemini không phản hồi.', ['error_type' => $e::class]);
+            }
+        }
+
+        return null;
+    }
+    /**
      * Chuẩn hóa cứng dạng ghép nối khi giáo viên đã yêu cầu rõ trong prompt.
      * Một số model đôi khi trả MultipleResponse dù nội dung đã là các cặp trái/phải.
      */
