@@ -143,7 +143,15 @@ class ProfileController extends Controller
 
         // 1. Kiểm tra mã OTP từ Cache
         $cachedOtp = Cache::get('pwd_otp_' . $user->id);
-        if (! $cachedOtp || $cachedOtp !== trim($validated['otp'])) {
+        if (! $cachedOtp || ! hash_equals((string) $cachedOtp, trim($validated['otp']))) {
+            // Chặn dò mã OTP: nhập sai 5 lần thì hủy mã, phải bấm "Nhận OTP" để lấy mã mới
+            $failKey = 'pwd_otp_fail_' . $user->id;
+            Cache::put($failKey, (int) Cache::get($failKey, 0) + 1, now()->addMinutes(10));
+            if ((int) Cache::get($failKey) >= 5) {
+                Cache::forget('pwd_otp_' . $user->id);
+                Cache::forget($failKey);
+            }
+
             if ($request->wantsJson() || $request->ajax()) {
                 return response()->json([
                     'success' => false,

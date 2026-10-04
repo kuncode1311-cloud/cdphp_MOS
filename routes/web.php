@@ -39,7 +39,7 @@ use Illuminate\Support\Facades\Route;
 // Đọc luồng từ đây: URL → controller → model/service lấy dữ liệu → view hiển thị.
 Route::middleware('guest')->group(function () {
     Route::get('/dang-nhap', [AuthController::class, 'create'])->name('login');
-    Route::post('/dang-nhap', [AuthController::class, 'store'])->name('login.store');
+    Route::post('/dang-nhap', [AuthController::class, 'store'])->middleware('throttle:10,1')->name('login.store');
 
     // Đăng nhập bằng tài khoản Google (OAuth 2.0)
     Route::get('/auth/google', [GoogleAuthController::class, 'redirectToGoogle'])->name('auth.google');
@@ -78,7 +78,7 @@ Route::middleware('auth')->group(function () {
     Route::post('/so-tay-cau-sai/nop-bai', [MistakeController::class, 'submit'])->name('mistakes.submit');
 
     // Hồ Sơ Cá Nhân & Đổi Mật Khẩu với xác thực OTP
-    Route::post('/tai-khoan/gui-otp-mat-khau', [ProfileController::class, 'sendOtp'])->name('profile.send-otp');
+    Route::post('/tai-khoan/gui-otp-mat-khau', [ProfileController::class, 'sendOtp'])->middleware('throttle:5,1')->name('profile.send-otp');
     Route::post('/tai-khoan/doi-mat-khau', [ProfileController::class, 'updatePassword'])->name('profile.password');
     Route::post('/tai-khoan/cap-nhat-email', [ProfileController::class, 'updateEmail'])->name('profile.update-email');
 
@@ -117,7 +117,7 @@ Route::middleware('auth')->group(function () {
 // Bảng giá xem công khai cho tất cả người dùng
 Route::redirect('/bang_gia', '/bang-gia');
 Route::get('/bang-gia', [PricingController::class, 'index'])->name('pricing.index');
-Route::post('/bang-gia/dang-ky-va-thue-goi/{package:slug}', [PricingController::class, 'registerAndOrder'])->name('pricing.register_and_order');
+Route::post('/bang-gia/dang-ky-va-thue-goi/{package:slug}', [PricingController::class, 'registerAndOrder'])->middleware('throttle:6,1')->name('pricing.register_and_order');
 Route::get('/bang-gia/thanh-toan/{order:code}', [PricingController::class, 'checkout'])->name('pricing.order.checkout');
 Route::get('/bang-gia/don-hang/{order:code}/trang-thai', [PricingController::class, 'checkOrderStatus'])->name('pricing.order.status');
 Route::post('/bang-gia/don-hang/{order:code}/da-chuyen-khoan', [PricingController::class, 'confirmTransferred'])->name('pricing.order.confirm_transferred');
@@ -125,8 +125,8 @@ Route::get('/bang-gia/payos-tra-ve/{order:code}', [PricingController::class, 'pa
 Route::post('/bang-gia/payos-webhook', [PricingController::class, 'payosWebhook'])->name('pricing.payos.webhook');
 
 // Live Chat Messenger gửi tin nhắn tư vấn trực tiếp cho Admin (Telegram)
-Route::post('/ho-tro/gui-tin-nhan', [PricingController::class, 'sendSupportMessage'])->name('support.message.send');
-Route::get('/ho-tro/tin-nhan/kiem-tra', [PricingController::class, 'checkSupportMessageReply'])->name('support.message.check');
+Route::post('/ho-tro/gui-tin-nhan', [PricingController::class, 'sendSupportMessage'])->middleware('throttle:20,1')->name('support.message.send');
+Route::get('/ho-tro/tin-nhan/kiem-tra', [PricingController::class, 'checkSupportMessageReply'])->middleware('throttle:90,1')->name('support.message.check');
 
 // Telegram Webhook nhận lệnh từ bot riêng (@sp_trikun_bot)
 Route::post('/api/telegram/webhook', [TelegramBotController::class, 'handleWebhook'])->name('telegram.webhook');

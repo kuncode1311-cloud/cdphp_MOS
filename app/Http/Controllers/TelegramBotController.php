@@ -13,6 +13,12 @@ class TelegramBotController extends Controller
      */
     public function handleWebhook(Request $request, TelegramService $telegramService): JsonResponse
     {
+        // Chỉ Telegram (biết secret token đã đăng ký khi setWebhook) mới được gọi; chặn kẻ giả mạo lệnh quản trị.
+        $secret = (string) config('services.telegram.webhook_secret');
+        if ($secret !== '' && ! hash_equals($secret, (string) $request->header('X-Telegram-Bot-Api-Secret-Token', ''))) {
+            abort(403);
+        }
+
         // 1. Xử lý Callback Query nếu bấm nút inline
         if ($request->has('callback_query')) {
             $telegramService->handleCallbackQuery($request->input('callback_query'));

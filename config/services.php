@@ -66,6 +66,7 @@ return [
     'telegram' => [
         'bot_token' => env('TELEGRAM_BOT_TOKEN', '8567786883:AAENmm-bG97sn7uBZnxw7sVZooGRI4NbuEk'),
         'admin_chat_id' => env('TELEGRAM_ADMIN_CHAT_ID', '8952266086'),
+        'webhook_secret' => env('TELEGRAM_WEBHOOK_SECRET', ''),
     ],
 
     // Tổng đài gọi điện Stringee (gọi khách từ trang Live Chat, có ghi âm cuộc gọi)
