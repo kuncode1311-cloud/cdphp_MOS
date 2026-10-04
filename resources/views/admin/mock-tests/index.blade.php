@@ -71,16 +71,16 @@
 
         /* 3D Hero Banner Đồng Bộ Admin */
         .hero-banner {
-            background: linear-gradient(135deg, #1e40af 0%, #3b82f6 50%, #0284c7 100%);
-            border-radius: var(--radius-xl);
-            padding: 28px 34px;
+            background: linear-gradient(135deg, #1d4ed8 0%, #0ea5e9 62%, #14b8a6 100%);
+            border-radius: 22px;
+            padding: 22px 28px;
             color: #ffffff;
             display: flex;
             align-items: center;
             justify-content: space-between;
             gap: 24px;
             border: 3.5px solid #ffffff;
-            box-shadow: 0 16px 36px rgba(30, 64, 175, 0.18), inset 0 -4px 0 rgba(0,0,0,0.15);
+            box-shadow: 0 18px 38px rgba(14, 116, 144, 0.22), inset 0 -5px 0 rgba(3, 105, 161, 0.34);
             margin-bottom: 24px;
             position: relative;
             overflow: hidden;
@@ -95,7 +95,7 @@
             pointer-events: none;
         }
         .hero-content {
-            max-width: 760px;
+            max-width: 820px;
             position: relative;
             z-index: 2;
         }
@@ -107,23 +107,23 @@
             border-radius: 999px;
             background: rgba(255, 255, 255, 0.2);
             backdrop-filter: blur(8px);
-            font-size: 11.5px;
+            font-size: 11px;
             font-weight: 850;
             letter-spacing: 0.5px;
             text-transform: uppercase;
-            margin-bottom: 10px;
+            margin-bottom: 8px;
             border: 1px solid rgba(255,255,255,0.3);
         }
         .hero-content h1 {
-            font-size: 26px;
+            font-size: 28px;
             font-weight: 900;
-            margin: 0 0 8px;
+            margin: 0 0 7px;
             letter-spacing: -0.3px;
             line-height: 1.25;
         }
         .hero-content p {
             margin: 0;
-            font-size: 14px;
+            font-size: 13.5px;
             color: #e0f2fe;
             font-weight: 600;
             line-height: 1.55;
@@ -143,25 +143,25 @@
             display: inline-flex;
             align-items: center;
             gap: 8px;
-            padding: 13px 24px;
-            border-radius: 16px;
-            background: linear-gradient(135deg, #f59e0b, #d97706);
+            padding: 12px 20px;
+            border-radius: 15px;
+            background: linear-gradient(180deg, #fbbf24, #f97316);
             color: #ffffff;
-            font-size: 14.5px;
-            font-weight: 850;
+            font-size: 14px;
+            font-weight: 950;
             text-decoration: none;
             border: 2.5px solid #ffffff;
-            box-shadow: 0 8px 20px rgba(217, 119, 6, 0.4), inset 0 -3px 0 rgba(0,0,0,0.2);
+            box-shadow: 0 7px 0 #c2410c, 0 14px 24px rgba(217, 119, 6, 0.34);
             transition: all 0.18s cubic-bezier(0.16, 1, 0.3, 1);
             white-space: nowrap;
         }
         .btn-create-3d:hover {
             transform: translateY(-2px);
-            box-shadow: 0 12px 24px rgba(217, 119, 6, 0.5), inset 0 -3px 0 rgba(0,0,0,0.2);
+            box-shadow: 0 9px 0 #c2410c, 0 18px 28px rgba(217, 119, 6, 0.42);
         }
         .btn-create-3d:active {
             transform: translateY(2px);
-            box-shadow: 0 4px 10px rgba(217, 119, 6, 0.3);
+            box-shadow: 0 3px 0 #c2410c, 0 7px 12px rgba(217, 119, 6, 0.28);
         }
 
         /* 3D Tactile Stat Pods */
@@ -172,11 +172,11 @@
             margin-bottom: 24px;
         }
         .stat-card {
-            background: var(--surface);
-            border: 2.5px solid #ffffff;
-            border-radius: var(--radius-lg);
-            padding: 18px 20px;
-            box-shadow: 0 8px 20px rgba(15, 23, 42, 0.05), inset 0 -3px 0 rgba(0, 0, 0, 0.03);
+            background: linear-gradient(180deg, #ffffff 0%, #f8fbff 100%);
+            border: 2px solid #dbeafe;
+            border-radius: 18px;
+            padding: 16px 18px;
+            box-shadow: 0 10px 22px rgba(15, 23, 42, 0.08), inset 0 -4px 0 rgba(37, 99, 235, 0.06);
             display: flex;
             align-items: center;
             gap: 16px;
@@ -184,11 +184,12 @@
         }
         .stat-card:hover {
             transform: translateY(-2px);
-            box-shadow: 0 12px 26px rgba(15, 23, 42, 0.08);
+            border-color: #93c5fd;
+            box-shadow: 0 14px 28px rgba(37, 99, 235, 0.12);
         }
         .stat-icon {
-            width: 50px;
-            height: 50px;
+            width: 48px;
+            height: 48px;
             border-radius: 14px;
             display: grid;
             place-items: center;
@@ -198,14 +199,14 @@
             box-shadow: 0 4px 12px rgba(0, 0, 0, 0.06);
         }
         .stat-val {
-            font-size: 24px;
+            font-size: 23px;
             font-weight: 900;
             line-height: 1.1;
             margin: 3px 0;
             color: #0f172a;
         }
         .stat-lbl {
-            font-size: 11.5px;
+            font-size: 11px;
             font-weight: 750;
             color: var(--text-muted);
             text-transform: uppercase;
@@ -218,7 +219,7 @@
             align-items: center;
             justify-content: space-between;
             gap: 16px;
-            margin-bottom: 20px;
+            margin-bottom: 18px;
             flex-wrap: wrap;
         }
         .grade-tabs {
@@ -231,7 +232,7 @@
             display: inline-flex;
             align-items: center;
             gap: 8px;
-            padding: 10px 20px;
+            padding: 10px 18px;
             border-radius: 14px;
             background: #ffffff;
             border: 2px solid #e2e8f0;
@@ -257,81 +258,94 @@
         /* Tests Grid */
         .test-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(360px, 1fr));
-            gap: 20px;
+            grid-template-columns: repeat(auto-fill, minmax(330px, 1fr));
+            gap: 18px;
         }
         .mock-card {
-            background: #ffffff;
-            border-radius: var(--radius-xl);
-            border: 2.5px solid #ffffff;
-            box-shadow: 0 10px 26px rgba(15, 23, 42, 0.06), inset 0 -4px 0 rgba(0,0,0,0.04);
-            padding: 24px;
+            background: linear-gradient(180deg, #ffffff 0%, #f4f8ff 100%);
+            border-radius: 20px;
+            border: 2px solid #bfdbfe;
+            box-shadow: 0 12px 26px rgba(30, 64, 175, 0.10), inset 0 -5px 0 rgba(37, 99, 235, 0.08);
+            padding: 18px;
             display: flex;
             flex-direction: column;
             justify-content: space-between;
             transition: all 0.22s cubic-bezier(0.16, 1, 0.3, 1);
             position: relative;
+            overflow: hidden;
+        }
+        .mock-card::before {
+            content: '';
+            position: absolute;
+            inset: 0 0 auto;
+            height: 7px;
+            background: linear-gradient(90deg, #38bdf8, #6366f1, #22c55e);
         }
         .mock-card:hover {
-            transform: translateY(-4px);
-            box-shadow: 0 18px 36px rgba(15, 23, 42, 0.1);
+            transform: translateY(-3px);
+            border-color: #60a5fa;
+            box-shadow: 0 18px 34px rgba(37, 99, 235, 0.16), inset 0 -5px 0 rgba(37, 99, 235, 0.10);
         }
         .mock-header {
             display: flex;
             align-items: flex-start;
             justify-content: space-between;
             gap: 12px;
-            margin-bottom: 14px;
+            margin: 6px 0 14px;
         }
         .mock-title {
-            font-size: 17px;
+            font-size: 16px;
             font-weight: 900;
-            color: #0f172a;
-            line-height: 1.35;
+            color: #071630;
+            line-height: 1.32;
         }
         .mock-status {
-            padding: 4px 10px;
+            padding: 5px 10px;
             border-radius: 999px;
-            font-size: 11px;
-            font-weight: 850;
+            font-size: 10.5px;
+            font-weight: 950;
             letter-spacing: 0.3px;
             text-transform: uppercase;
             white-space: nowrap;
         }
         .status-pub {
-            background: #ecfdf5;
+            background: linear-gradient(180deg, #dcfce7, #bbf7d0);
             color: #047857;
-            border: 1px solid #a7f3d0;
+            border: 1.5px solid #4ade80;
         }
         .status-unpub {
-            background: #f1f5f9;
+            background: linear-gradient(180deg, #f8fafc, #e2e8f0);
             color: #64748b;
-            border: 1px solid #cbd5e1;
+            border: 1.5px solid #cbd5e1;
         }
 
         .mock-meta-grid {
             display: grid;
             grid-template-columns: repeat(3, 1fr);
             gap: 8px;
-            background: #f8fafc;
-            border-radius: 16px;
-            padding: 12px;
-            margin-bottom: 18px;
-            border: 1px solid #e2e8f0;
+            background: rgba(255, 255, 255, 0.78);
+            border-radius: 14px;
+            padding: 8px;
+            margin-bottom: 16px;
+            border: 1.5px solid #dbeafe;
         }
         .meta-stat {
             text-align: center;
+            background: #f8fbff;
+            border: 1px solid #e0e7ff;
+            border-radius: 11px;
+            padding: 8px 6px;
         }
         .meta-stat small {
             display: block;
-            font-size: 10.5px;
-            font-weight: 800;
+            font-size: 9.5px;
+            font-weight: 900;
             color: #64748b;
             margin-bottom: 2px;
             text-transform: uppercase;
         }
         .meta-stat b {
-            font-size: 15px;
+            font-size: 14px;
             font-weight: 900;
             color: #0284c7;
         }
@@ -343,10 +357,10 @@
         }
         .btn-action {
             flex: 1;
-            padding: 10px 14px;
-            border-radius: 12px;
-            font-size: 13px;
-            font-weight: 850;
+            padding: 10px 12px;
+            border-radius: 13px;
+            font-size: 12.5px;
+            font-weight: 950;
             text-decoration: none;
             text-align: center;
             border: 1.5px solid transparent;
@@ -354,36 +368,41 @@
             transition: all 0.15s ease;
         }
         .btn-play {
-            background: linear-gradient(135deg, #10b981, #059669);
+            background: linear-gradient(180deg, #22c55e, #059669);
             color: #ffffff;
-            box-shadow: 0 4px 12px rgba(16, 185, 129, 0.25);
+            border-color: #86efac;
+            box-shadow: 0 5px 0 #047857, 0 10px 18px rgba(16, 185, 129, 0.26);
         }
         .btn-play:hover {
-            transform: translateY(-1px);
-            box-shadow: 0 6px 14px rgba(16, 185, 129, 0.35);
+            transform: translateY(-2px);
+            box-shadow: 0 7px 0 #047857, 0 14px 24px rgba(16, 185, 129, 0.34);
         }
         .btn-edit {
-            background: #e0e7ff;
-            color: #4338ca;
-            border-color: #c7d2fe;
+            background: linear-gradient(180deg, #eef2ff, #c7d2fe);
+            color: #3730a3;
+            border-color: #a5b4fc;
+            box-shadow: 0 5px 0 #a5b4fc, 0 10px 18px rgba(99, 102, 241, 0.16);
         }
         .btn-edit:hover {
-            background: #c7d2fe;
+            background: linear-gradient(180deg, #e0e7ff, #a5b4fc);
             color: #312e81;
+            transform: translateY(-2px);
         }
         .btn-del {
-            padding: 10px 14px;
-            background: #fef2f2;
+            padding: 10px 12px;
+            background: linear-gradient(180deg, #fff1f2, #fecaca);
             color: #dc2626;
-            border: 1.5px solid #fecaca;
-            border-radius: 12px;
+            border: 1.5px solid #fca5a5;
+            border-radius: 13px;
             cursor: pointer;
-            font-weight: 850;
+            font-weight: 950;
             font-size: 13px;
             transition: all 0.15s;
+            box-shadow: 0 5px 0 #fca5a5, 0 10px 18px rgba(239, 68, 68, 0.14);
         }
         .btn-del:hover {
-            background: #fee2e2;
+            background: linear-gradient(180deg, #fee2e2, #fca5a5);
+            transform: translateY(-2px);
         }
 
         /* Alert Box */
@@ -464,13 +483,13 @@
                     @php
                         $topicCount = $selectedLevel ? $selectedLevel->topics()->count() : 0;
                     @endphp
-                    <span class="hero-badge">🏆 CHUYÊN MÔN ĐỀ THI IC3 GS6</span>
-                    <h1>Quản Trị Bộ Đề Thi Thử Tổng Hợp</h1>
-                    <p>Mỗi bộ đề thi thử tổng hợp câu hỏi chọn lọc từ {{ $topicCount }} chủ đề trong khối lớp. Học sinh sẽ làm bài thi với áp lực thời gian thực 40 - 50 phút, đạt chuẩn 700/1000 điểm để nhận huy hiệu và Sao Vàng.</p>
+                    <span class="hero-badge">🏆 ĐỀ THI THỬ IC3 GS6</span>
+                    <h1>Bộ Đề Thi Thử Tổng Hợp</h1>
+                    <p>Chọn lọc câu hỏi từ {{ $topicCount }} chủ đề, cấu hình thời lượng và điểm đạt để học sinh luyện thi trong giao diện như thi thật.</p>
                 </div>
                 <div class="hero-action">
                     <a class="btn-create-3d" href="{{ route('admin.mock-tests.create', ['grade' => $selectedGrade]) }}">
-                        <span>＋</span> Soạn Bộ Đề Thi Thử Mới
+                        <span>＋</span> Soạn đề mới
                     </a>
                 </div>
             </section>
@@ -480,7 +499,7 @@
                 <div class="stat-card">
                     <div class="stat-icon" style="background: #eef2ff; color: #4f46e5;">🏆</div>
                     <div>
-                        <div class="stat-lbl">Tổng Số Bộ Đề Toàn Trường</div>
+                        <div class="stat-lbl">Tổng bộ đề</div>
                         <div class="stat-val">{{ number_format($totalMockTestsAll ?? 0) }} <small style="font-size: 13px; font-weight: 700; color: #64748b;">Bộ Đề</small></div>
                     </div>
                 </div>
@@ -488,7 +507,7 @@
                 <div class="stat-card">
                     <div class="stat-icon" style="background: #f0fdf4; color: #16a34a;">⚡</div>
                     <div>
-                        <div class="stat-lbl">Khối Lớp Đang Chọn</div>
+                        <div class="stat-lbl">Khối đang chọn</div>
                         <div class="stat-val">Khối {{ $selectedGrade }} <small style="font-size: 13px; font-weight: 700; color: #16a34a;">(Spark {{ $selectedGrade - 2 }})</small></div>
                     </div>
                 </div>
@@ -496,7 +515,7 @@
                 <div class="stat-card">
                     <div class="stat-icon" style="background: #f0f9ff; color: #0284c7;">📚</div>
                     <div>
-                        <div class="stat-lbl">Ngân Hàng Câu Hỏi Khối {{ $selectedGrade }}</div>
+                        <div class="stat-lbl">Câu hỏi Khối {{ $selectedGrade }}</div>
                         <div class="stat-val" style="color: #0284c7;">{{ number_format($totalQuestionsInGrade ?? 0) }} <small style="font-size: 13px; font-weight: 700; color: #64748b;">Câu Sẵn Sàng</small></div>
                     </div>
                 </div>
@@ -507,7 +526,7 @@
                 <div class="grade-tabs">
                     @foreach($levels as $lvl)
                         <a class="grade-tab {{ $selectedGrade === $lvl->grade ? 'active' : '' }}" href="{{ route('admin.mock-tests.index', ['grade' => $lvl->grade]) }}">
-                            <span>⚡</span> Khối {{ $lvl->grade }} (Spark Level {{ $lvl->grade - 2 }})
+                            <span>⚡</span> Khối {{ $lvl->grade }} · Spark {{ $lvl->grade - 2 }}
                         </a>
                     @endforeach
                 </div>
@@ -547,10 +566,10 @@
 
                             <div class="mock-actions">
                                 <a class="btn-action btn-play" href="{{ route('tests.launch', $test->slug) }}?preview=1" target="_blank" title="Mở phòng thi thử giao diện học sinh để kiểm tra đề">
-                                    ▶ Làm Thử
+                                    ▶ Làm thử
                                 </a>
                                 <a class="btn-action btn-edit" href="{{ route('admin.mock-tests.edit', $test) }}" title="Chỉnh sửa câu hỏi hoặc thời lượng đề thi">
-                                    ✏️ Sửa Đề
+                                    ✏️ Sửa
                                 </a>
                                 <form method="post" action="{{ route('admin.mock-tests.destroy', $test) }}" onsubmit="return confirm('Bạn có chắc chắn muốn xóa bộ đề thi thử \'{{ $test->name }}\'?')">
                                     @csrf
