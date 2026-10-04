@@ -56,6 +56,9 @@ class StoreUserRequest extends FormRequest
 
         // Nếu là Giáo viên tạo học sinh
         if ($isTeacher) {
+            // Giáo viên không được chuyển học sinh sang giáo viên khác (created_by do hệ thống quyết định)
+            unset($rules['created_by']);
+
             // Nhóm/Lớp gán vào phải do chính giáo viên này quản lý (hoặc để trống)
             $rules['classroom_id'] = [
                 'nullable',

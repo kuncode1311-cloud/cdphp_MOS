@@ -100,10 +100,8 @@ class GoogleAuthController extends Controller
             ]);
         }
 
-        if ($user->status === 'expired' || ($user->expires_at && $user->expires_at->isPast())) {
-            return redirect()->route('login')->withErrors([
-                'login' => 'Tài khoản của bạn đã hết hạn sử dụng. Vui lòng liên hệ để gia hạn gói.',
-            ]);
+        if ($message = $user->subscriptionBlockedMessage()) {
+            return redirect()->route('login')->withErrors(['login' => $message]);
         }
 
         // 5. Đăng nhập người dùng vào hệ thống

@@ -80,9 +80,10 @@ class ProfileController extends Controller
             } catch (\Throwable $e) {
                 Log::error("Không thể gửi email OTP cho {$user->email}: " . $e->getMessage());
                 Cache::forget($rateLimitKey); // Mở lại giới hạn để người dùng có thể gửi lại
+                // Chi tiết kỹ thuật chỉ ghi vào log, không trả ra trình duyệt
                 return response()->json([
                     'success' => false,
-                    'message' => "Không thể gửi email OTP tới hộp thư [{$user->email}]. Chi tiết: " . $e->getMessage() . ". Hãy kiểm tra lại cấu hình Brevo/SMTP hoặc đổi sang email thật.",
+                    'message' => 'Hiện chưa gửi được email mã OTP. Vui lòng thử lại sau ít phút hoặc liên hệ Ban Quản Trị.',
                 ], 500);
             }
         }
@@ -103,11 +104,22 @@ class ProfileController extends Controller
 
         $validated = $request->validate([
             'email' => ['required', 'string', 'email', 'max:255', 'unique:users,email,' . $user->id],
+            'current_password' => ['required', 'string'],
         ], [
             'email.required' => 'Vui lòng nhập địa chỉ email.',
             'email.email' => 'Địa chỉ email không đúng định dạng.',
             'email.unique' => 'Địa chỉ email này đã được sử dụng bởi một tài khoản khác.',
+            'current_password.required' => 'Vui lòng nhập mật khẩu hiện tại để xác nhận.',
         ]);
+
+        // Đổi email là thao tác nhạy cảm: phải xác nhận bằng mật khẩu hiện tại
+        if (! Hash::check($validated['current_password'], $user->password)) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Mật khẩu hiện tại chưa chính xác.',
+                'errors' => ['current_password' => ['Mật khẩu hiện tại chưa chính xác.']],
+            ], 422);
+        }
 
         $newEmail = strtolower(trim($validated['email']));
         $user->email = $newEmail;

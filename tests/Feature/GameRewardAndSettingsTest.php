@@ -137,7 +137,8 @@ class GameRewardAndSettingsTest extends TestCase
                 'reward_stars' => 350,
             ]);
 
-        // 2. Kiểm tra heartbeat tiêu hao 20 giây
+        // 2. Kiểm tra heartbeat tiêu hao 20 giây (sau 30 giây chơi thực tế, server chỉ cho trừ theo thời gian đã trôi qua)
+        $this->travel(30)->seconds();
         $consumeResponse = $this->actingAs($student)
             ->postJson(route('games.consume'), ['seconds' => 20]);
 

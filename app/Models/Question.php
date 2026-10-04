@@ -94,8 +94,9 @@ class Question extends Model
                 'position' => $option->position,
                 'content' => $option->content,
                 'image_path' => $option->image_path,
+                // Không gửi correct_position/correct_index ra trình duyệt học sinh: đáp án chỉ trả sau khi nộp bài
                 'metadata' => collect($option->metadata ?? [])->only([
-                    'left', 'right', 'rect', 'available_options', 'correct_position',
+                    'left', 'right', 'rect', 'available_options',
                 ])->all(),
             ])->values(),
         ];

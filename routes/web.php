@@ -51,7 +51,7 @@ Route::post('/dang-xuat', [AuthController::class, 'destroy'])
     ->name('logout');
 
 // --- 2. CỔNG HỌC SINH & LUYỆN TẬP (LEARNING PORTAL) ---
-Route::middleware('auth')->group(function () {
+Route::middleware(['auth', 'subscription'])->group(function () {
     Route::get('/', [LearningController::class, 'home'])->name('home');
     Route::redirect('/hoc_tap', '/hoc-tap');
     Route::get('/hoc-tap', [LearningController::class, 'programs'])->name('programs');
@@ -70,12 +70,12 @@ Route::middleware('auth')->group(function () {
     Route::get('/chuong-trinh/{level:slug}', [LearningController::class, 'level'])->name('levels.show');
     Route::get('/bai-luyen/{practiceTest:slug}', [LearningController::class, 'test'])->name('tests.show');
     Route::get('/bai-luyen/{practiceTest:slug}/lam-bai', [LearningController::class, 'launch'])->name('tests.launch');
-    Route::post('/bai-luyen/{practiceTest:slug}/ket-qua', [AttemptController::class, 'store'])->name('attempts.store');
+    Route::post('/bai-luyen/{practiceTest:slug}/ket-qua', [AttemptController::class, 'store'])->middleware('throttle:30,1')->name('attempts.store');
 
     // Sổ Tay Câu Sai & Phòng Luyện Tập Phục Thù (Mistake Notebook & Revenge Practice)
     Route::get('/so-tay-cau-sai', [MistakeController::class, 'index'])->name('mistakes.index');
     Route::get('/so-tay-cau-sai/lam-lai', [MistakeController::class, 'launch'])->name('mistakes.launch');
-    Route::post('/so-tay-cau-sai/nop-bai', [MistakeController::class, 'submit'])->name('mistakes.submit');
+    Route::post('/so-tay-cau-sai/nop-bai', [MistakeController::class, 'submit'])->middleware('throttle:30,1')->name('mistakes.submit');
 
     // Hồ Sơ Cá Nhân & Đổi Mật Khẩu với xác thực OTP
     Route::post('/tai-khoan/gui-otp-mat-khau', [ProfileController::class, 'sendOtp'])->middleware('throttle:5,1')->name('profile.send-otp');
@@ -119,7 +119,7 @@ Route::redirect('/bang_gia', '/bang-gia');
 Route::get('/bang-gia', [PricingController::class, 'index'])->name('pricing.index');
 Route::post('/bang-gia/dang-ky-va-thue-goi/{package:slug}', [PricingController::class, 'registerAndOrder'])->middleware('throttle:6,1')->name('pricing.register_and_order');
 Route::get('/bang-gia/thanh-toan/{order:code}', [PricingController::class, 'checkout'])->name('pricing.order.checkout');
-Route::get('/bang-gia/don-hang/{order:code}/trang-thai', [PricingController::class, 'checkOrderStatus'])->name('pricing.order.status');
+Route::get('/bang-gia/don-hang/{order:code}/trang-thai', [PricingController::class, 'checkOrderStatus'])->middleware('throttle:60,1')->name('pricing.order.status');
 Route::post('/bang-gia/don-hang/{order:code}/da-chuyen-khoan', [PricingController::class, 'confirmTransferred'])->name('pricing.order.confirm_transferred');
 Route::get('/bang-gia/payos-tra-ve/{order:code}', [PricingController::class, 'payosReturn'])->name('pricing.payos.return');
 Route::post('/bang-gia/payos-webhook', [PricingController::class, 'payosWebhook'])->name('pricing.payos.webhook');
@@ -133,95 +133,99 @@ Route::post('/api/telegram/webhook', [TelegramBotController::class, 'handleWebho
 
 // --- 3. TRUNG TÂM ĐIỀU HÀNH & STUDIO SOẠN ĐỀ IC3 (ADMIN PORTAL) ---
 // Cho admin và giáo viên vào; từng chức năng còn kiểm tra quyền riêng.
-Route::prefix('quan-tri')->name('admin.')->middleware(['auth', 'admin'])->group(function () {
+Route::prefix('quan-tri')->name('admin.')->middleware(['auth', 'admin', 'subscription'])->group(function () {
 
-    // Bảng điều khiển tổng quan & Báo cáo thống kê
+    // --- Phần giáo viên cũng dùng: tổng quan lớp mình, học sinh, lớp học, xuất kết quả lớp mình ---
     Route::get('/', [AdminController::class, 'dashboard'])->name('dashboard');
     Route::get('/tong-quan', [AdminController::class, 'dashboard'])->name('overview');
     Route::get('/xuat-bao-cao', [AdminController::class, 'exportCsv'])->name('attempts.export');
     Route::delete('/attempts/{attempt}', [AdminController::class, 'destroyAttempt'])->name('attempts.destroy');
-
-    // Cài đặt cấu hình Khu trò chơi, Tỷ lệ đổi Sao & Bảng xếp hạng thi đua
-    Route::get('/tro-choi/cai-dat', [GameSettingController::class, 'index'])->name('games.settings');
-    Route::match(['post', 'put'], '/tro-choi/cai-dat', [GameSettingController::class, 'update'])->name('games.settings.update');
-    Route::post('/tro-choi/dieu-chinh-sao', [GameSettingController::class, 'adjustStars'])->name('games.adjust-stars');
-    Route::post('/tro-choi/bang-xep-hang/cai-dat', [GameSettingController::class, 'updateLeaderboardSettings'])->name('games.leaderboard.settings');
-    Route::post('/tro-choi/bang-xep-hang/reset', [GameSettingController::class, 'resetLeaderboard'])->name('games.leaderboard.reset');
-
-    // IC3 QUESTION STUDIO - Quản trị Bộ đề & Soạn thảo câu hỏi trọn gói
-    Route::get('/bo-de-cau-hoi', [QuestionController::class, 'index'])->name('questions.studio');
-    Route::get('/xem-thu/phong-thi', [LearningController::class, 'previewSimulator'])->name('preview.simulator');
-    Route::post('/questions', [QuestionController::class, 'store'])->name('questions.store');
-    Route::get('/questions/{question}', [QuestionController::class, 'show'])->name('questions.show');
-    Route::put('/questions/{question}', [QuestionController::class, 'update'])->name('questions.update');
-    Route::delete('/questions/{question}', [QuestionController::class, 'destroy'])->name('questions.destroy');
-
-    // Quản lý Bộ đề (PracticeTest)
-    Route::post('/tests', [PracticeTestController::class, 'store'])->name('tests.store');
-    Route::put('/tests/{practiceTest}', [PracticeTestController::class, 'update'])->name('tests.update');
-    Route::delete('/tests/{practiceTest}', [PracticeTestController::class, 'destroy'])->name('tests.destroy');
-
-    // Quản lý & Soạn Bộ đề thi thử tổng hợp (Admin Mock Exams)
-    Route::get('/bo-de-thi-thu', [MockTestController::class, 'index'])->name('mock-tests.index');
-    Route::get('/bo-de-thi-thu/tao-moi', [MockTestController::class, 'create'])->name('mock-tests.create');
-    Route::post('/bo-de-thi-thu', [MockTestController::class, 'store'])->name('mock-tests.store');
-    Route::get('/bo-de-thi-thu/{mockTest}/chinh-sua', [MockTestController::class, 'edit'])->name('mock-tests.edit');
-    Route::put('/bo-de-thi-thu/{mockTest}', [MockTestController::class, 'update'])->name('mock-tests.update');
-    Route::delete('/bo-de-thi-thu/{mockTest}', [MockTestController::class, 'destroy'])->name('mock-tests.destroy');
-    Route::post('/bo-de-thi-thu/boc-ngau-nhien', [MockTestController::class, 'quickRandom'])->name('mock-tests.quick-random');
-
-    // 🤖 AI Soạn Câu Hỏi Tự Động (Gemini)
-    Route::post('/ai/tao-cau-hoi', [AiQuestionController::class, 'generate'])->name('ai.questions.generate');
-    Route::post('/ai/tao-anh-cau-hoi', [AiQuestionController::class, 'generateIllustration'])->name('ai.questions.illustration');
-    Route::post('/ai/don-anh-tam', [AiQuestionController::class, 'cleanupIllustrations'])->name('ai.questions.cleanup-illustrations');
-    Route::post('/ai/import-cau-hoi', [AiQuestionController::class, 'import'])->name('ai.questions.import');
-
-    // Quản lý Chủ đề (Topic)
-    Route::post('/topics', [TopicController::class, 'store'])->name('topics.store');
-    Route::put('/topics/{topic}', [TopicController::class, 'update'])->name('topics.update');
-    Route::delete('/topics/{topic}', [TopicController::class, 'destroy'])->name('topics.destroy');
-
-    // Quản lý Tệp tin tài nguyên câu hỏi
-    Route::delete('/assets/{asset}', [QuestionAssetController::class, 'destroy'])->name('assets.destroy');
-
-    // Quản lý Người dùng, Lớp học và Cấu trúc tổng thể
     Route::get('/quan-ly', [AdminManagementController::class, 'index'])->name('management');
     Route::post('/lop', [ClassroomController::class, 'store'])->name('classes.store');
     Route::post('/hoc-sinh', [UserController::class, 'store'])->name('students.store');
     Route::resource('users', UserController::class)->only(['store', 'update', 'destroy']);
     Route::resource('classrooms', ClassroomController::class)->only(['update', 'destroy']);
-    Route::post('/programs', [AdminManagementController::class, 'storeProgram'])->name('programs.store');
-    Route::put('/programs/{program}', [AdminManagementController::class, 'updateProgram'])->name('programs.update');
-    Route::delete('/programs/{program}', [AdminManagementController::class, 'destroyProgram'])->name('programs.destroy');
-    Route::post('/levels', [AdminManagementController::class, 'storeLevel'])->name('levels.store');
-    Route::put('/levels/{level}', [AdminManagementController::class, 'updateLevel'])->name('levels.update');
-    Route::delete('/levels/{level}', [AdminManagementController::class, 'destroyLevel'])->name('levels.destroy');
 
-    // Quản lý Gói dịch vụ & Đơn thuê bản quyền phần mềm (Admin Packages & Orders)
-    Route::get('/goi-dich-vu', [AdminPackageController::class, 'index'])->name('packages.index');
-    Route::post('/packages', [AdminPackageController::class, 'store'])->name('packages.store');
-    Route::put('/packages/{package}', [AdminPackageController::class, 'update'])->name('packages.update');
-    Route::delete('/packages/{package}', [AdminPackageController::class, 'destroy'])->name('packages.destroy');
-    Route::post('/packages/{package}/toggle', [AdminPackageController::class, 'toggle'])->name('packages.toggle');
-    Route::post('/orders/{order}/activate', [AdminPackageController::class, 'activateOrder'])->name('orders.activate');
-    Route::post('/orders/{order}/reject', [AdminPackageController::class, 'rejectOrder'])->name('orders.reject');
+    // --- Chỉ Quản trị viên tổng: cài đặt, đơn hàng, gói, chat hỗ trợ, Telegram, cuộc gọi, Studio, AI ---
+    Route::middleware('superadmin')->group(function () {
 
-    // Quản lý tin nhắn tư vấn Live Chat từ website & Telegram Bot
-    Route::get('/tin-nhan/realtime-poll', [AdminController::class, 'pollSupportMessages'])->name('support.poll');
-    Route::patch('/tin-nhan/{supportMessage}/trang-thai', [AdminController::class, 'updateSupportMessageStatus'])->name('support.status');
-    Route::post('/tin-nhan/{supportMessage}/anh', [AdminController::class, 'uploadSupportImage'])->name('support.image');
-    Route::delete('/tin-nhan/{supportMessage}', [AdminController::class, 'deleteSupportMessage'])->name('support.delete');
-    Route::post('/cai-dat-telegram', [AdminController::class, 'saveTelegramConfig'])->name('telegram.save');
-    Route::post('/gui-thu-telegram', [AdminController::class, 'testTelegramNotification'])->name('telegram.test');
-    Route::post('/telegram/lay-chat-id', [AdminController::class, 'getTelegramChatId'])->name('telegram.get_chat_id');
-    Route::post('/telegram/phan-hoi', [AdminController::class, 'sendAdminReplyViaTelegram'])->name('telegram.reply');
+        // Cài đặt Khu trò chơi, Tỷ lệ đổi Sao & Bảng xếp hạng thi đua
+        Route::get('/tro-choi/cai-dat', [GameSettingController::class, 'index'])->name('games.settings');
+        Route::match(['post', 'put'], '/tro-choi/cai-dat', [GameSettingController::class, 'update'])->name('games.settings.update');
+        Route::post('/tro-choi/dieu-chinh-sao', [GameSettingController::class, 'adjustStars'])->name('games.adjust-stars');
+        Route::post('/tro-choi/bang-xep-hang/cai-dat', [GameSettingController::class, 'updateLeaderboardSettings'])->name('games.leaderboard.settings');
+        Route::post('/tro-choi/bang-xep-hang/reset', [GameSettingController::class, 'resetLeaderboard'])->name('games.leaderboard.reset');
 
-    // Gọi điện tư vấn qua Stringee (có ghi âm cuộc gọi)
-    Route::get('/cuoc-goi/token', [SupportCallController::class, 'token'])->name('calls.token');
-    Route::post('/cuoc-goi', [SupportCallController::class, 'start'])->name('calls.start');
-    Route::patch('/cuoc-goi/{call}', [SupportCallController::class, 'update'])->name('calls.update');
-    Route::get('/cuoc-goi/{call}/ghi-am', [SupportCallController::class, 'recording'])->name('calls.recording');
-    Route::get('/tin-nhan/{supportMessage}/cuoc-goi', [SupportCallController::class, 'index'])->name('calls.index');
+        // IC3 QUESTION STUDIO
+        Route::get('/bo-de-cau-hoi', [QuestionController::class, 'index'])->name('questions.studio');
+        Route::get('/xem-thu/phong-thi', [LearningController::class, 'previewSimulator'])->name('preview.simulator');
+        Route::post('/questions', [QuestionController::class, 'store'])->name('questions.store');
+        Route::get('/questions/{question}', [QuestionController::class, 'show'])->name('questions.show');
+        Route::put('/questions/{question}', [QuestionController::class, 'update'])->name('questions.update');
+        Route::delete('/questions/{question}', [QuestionController::class, 'destroy'])->name('questions.destroy');
+
+        // Quản lý Bộ đề (PracticeTest)
+        Route::post('/tests', [PracticeTestController::class, 'store'])->name('tests.store');
+        Route::put('/tests/{practiceTest}', [PracticeTestController::class, 'update'])->name('tests.update');
+        Route::delete('/tests/{practiceTest}', [PracticeTestController::class, 'destroy'])->name('tests.destroy');
+
+        // Bộ đề thi thử tổng hợp
+        Route::get('/bo-de-thi-thu', [MockTestController::class, 'index'])->name('mock-tests.index');
+        Route::get('/bo-de-thi-thu/tao-moi', [MockTestController::class, 'create'])->name('mock-tests.create');
+        Route::post('/bo-de-thi-thu', [MockTestController::class, 'store'])->name('mock-tests.store');
+        Route::get('/bo-de-thi-thu/{mockTest}/chinh-sua', [MockTestController::class, 'edit'])->name('mock-tests.edit');
+        Route::put('/bo-de-thi-thu/{mockTest}', [MockTestController::class, 'update'])->name('mock-tests.update');
+        Route::delete('/bo-de-thi-thu/{mockTest}', [MockTestController::class, 'destroy'])->name('mock-tests.destroy');
+        Route::post('/bo-de-thi-thu/boc-ngau-nhien', [MockTestController::class, 'quickRandom'])->name('mock-tests.quick-random');
+
+        // AI Soạn Câu Hỏi (Gemini)
+        Route::post('/ai/tao-cau-hoi', [AiQuestionController::class, 'generate'])->name('ai.questions.generate');
+        Route::post('/ai/tao-anh-cau-hoi', [AiQuestionController::class, 'generateIllustration'])->name('ai.questions.illustration');
+        Route::post('/ai/don-anh-tam', [AiQuestionController::class, 'cleanupIllustrations'])->name('ai.questions.cleanup-illustrations');
+        Route::post('/ai/import-cau-hoi', [AiQuestionController::class, 'import'])->name('ai.questions.import');
+
+        // Chủ đề (Topic)
+        Route::post('/topics', [TopicController::class, 'store'])->name('topics.store');
+        Route::put('/topics/{topic}', [TopicController::class, 'update'])->name('topics.update');
+        Route::delete('/topics/{topic}', [TopicController::class, 'destroy'])->name('topics.destroy');
+
+        // Tài nguyên câu hỏi
+        Route::delete('/assets/{asset}', [QuestionAssetController::class, 'destroy'])->name('assets.destroy');
+
+        // Chương trình & Khối học
+        Route::post('/programs', [AdminManagementController::class, 'storeProgram'])->name('programs.store');
+        Route::put('/programs/{program}', [AdminManagementController::class, 'updateProgram'])->name('programs.update');
+        Route::delete('/programs/{program}', [AdminManagementController::class, 'destroyProgram'])->name('programs.destroy');
+        Route::post('/levels', [AdminManagementController::class, 'storeLevel'])->name('levels.store');
+        Route::put('/levels/{level}', [AdminManagementController::class, 'updateLevel'])->name('levels.update');
+        Route::delete('/levels/{level}', [AdminManagementController::class, 'destroyLevel'])->name('levels.destroy');
+
+        // Gói dịch vụ & Đơn thuê (chỉ Admin tổng được duyệt đơn)
+        Route::get('/goi-dich-vu', [AdminPackageController::class, 'index'])->name('packages.index');
+        Route::post('/packages', [AdminPackageController::class, 'store'])->name('packages.store');
+        Route::put('/packages/{package}', [AdminPackageController::class, 'update'])->name('packages.update');
+        Route::delete('/packages/{package}', [AdminPackageController::class, 'destroy'])->name('packages.destroy');
+        Route::post('/packages/{package}/toggle', [AdminPackageController::class, 'toggle'])->name('packages.toggle');
+        Route::post('/orders/{order}/activate', [AdminPackageController::class, 'activateOrder'])->name('orders.activate');
+        Route::post('/orders/{order}/reject', [AdminPackageController::class, 'rejectOrder'])->name('orders.reject');
+
+        // Live Chat hỗ trợ từ website & Telegram Bot (chứa dữ liệu của mọi khách, không mở cho giáo viên)
+        Route::get('/tin-nhan/realtime-poll', [AdminController::class, 'pollSupportMessages'])->name('support.poll');
+        Route::patch('/tin-nhan/{supportMessage}/trang-thai', [AdminController::class, 'updateSupportMessageStatus'])->name('support.status');
+        Route::post('/tin-nhan/{supportMessage}/anh', [AdminController::class, 'uploadSupportImage'])->name('support.image');
+        Route::delete('/tin-nhan/{supportMessage}', [AdminController::class, 'deleteSupportMessage'])->name('support.delete');
+        Route::post('/cai-dat-telegram', [AdminController::class, 'saveTelegramConfig'])->name('telegram.save');
+        Route::post('/gui-thu-telegram', [AdminController::class, 'testTelegramNotification'])->name('telegram.test');
+        Route::post('/telegram/lay-chat-id', [AdminController::class, 'getTelegramChatId'])->name('telegram.get_chat_id');
+        Route::post('/telegram/phan-hoi', [AdminController::class, 'sendAdminReplyViaTelegram'])->name('telegram.reply');
+
+        // Gọi điện tư vấn qua Stringee (có ghi âm cuộc gọi)
+        Route::get('/cuoc-goi/token', [SupportCallController::class, 'token'])->name('calls.token');
+        Route::post('/cuoc-goi', [SupportCallController::class, 'start'])->name('calls.start');
+        Route::patch('/cuoc-goi/{call}', [SupportCallController::class, 'update'])->name('calls.update');
+        Route::get('/cuoc-goi/{call}/ghi-am', [SupportCallController::class, 'recording'])->name('calls.recording');
+        Route::get('/tin-nhan/{supportMessage}/cuoc-goi', [SupportCallController::class, 'index'])->name('calls.index');
+    });
 });
 
 // Phục vụ tài nguyên tĩnh từ storage/app/public đảm bảo hiển thị ảnh 100% trên mọi môi trường (kể cả khi symlink bị lỗi)

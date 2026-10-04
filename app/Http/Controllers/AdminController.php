@@ -413,6 +413,20 @@ class AdminController extends Controller
             ], 422);
         }
 
+        // Giá trị này được ghi thẳng vào file .env: chỉ chấp nhận đúng định dạng để không chèn được dòng/biến mới
+        if (! preg_match('/^\d{5,}:[A-Za-z0-9_-]{20,}$/', $botToken)) {
+            return response()->json([
+                'ok' => false,
+                'message' => 'Mã Bot Token không đúng định dạng (dạng 123456:ABC...).',
+            ], 422);
+        }
+        if ($adminChatId !== '' && ! preg_match('/^-?\d{1,20}$/', $adminChatId)) {
+            return response()->json([
+                'ok' => false,
+                'message' => 'Chat ID chỉ được gồm chữ số (có thể bắt đầu bằng dấu -).',
+            ], 422);
+        }
+
         // Kiểm tra kết nối trước
         $testRes = $telegramService->testConnection($botToken);
         if (! $testRes['ok']) {

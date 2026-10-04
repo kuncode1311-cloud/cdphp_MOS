@@ -7356,7 +7356,7 @@
         const adminReply = card.getAttribute('data-admin-reply') || '';
         const repliedAt = card.getAttribute('data-replied-at') || '';
         const status = card.getAttribute('data-status') || 'pending';
-        const initials = card.getAttribute('data-initials') || 'KH';
+        const initials = escapeSupportHtml(card.getAttribute('data-initials') || 'KH');
         const gradient = card.getAttribute('data-gradient') || 'linear-gradient(135deg, #0084ff, #00c6ff)';
         const ip = card.getAttribute('data-ip') || '127.0.0.1';
         const time = card.getAttribute('data-time') || '';
@@ -8010,7 +8010,7 @@
                         let existingCard = document.querySelector(`.ms-conv-item[data-id="${msg.id}"]`);
                         if (!existingCard && list) {
                             hasReallyNewMessage = true;
-                            const initials = (msg.name || 'KH').substring(0, 2).toUpperCase();
+                            const initials = escapeSupportHtml((msg.name || 'KH').substring(0, 2).toUpperCase());
                             const uType = msg.user_type || 'guest';
                             const uLabel = msg.user_type_label || '🌐 Khách Vãng Lai';
                             const tagBadge = uType === 'teacher' 
@@ -8134,7 +8134,7 @@
         } catch(e) {}
     }
 
-    if (!adminChatPollingTimer) {
+    if (!adminChatPollingTimer && @json(auth()->user()->isAdmin())) {
         adminChatPollingTimer = setInterval(pollAdminChat, 5000);
     }
 
@@ -9304,7 +9304,7 @@
                 chip.style.cursor = 'pointer';
                 chip.style.background = '#ffffff';
                 chip.style.borderColor = '#86efac';
-                chip.title = `Giáo viên ${teacherName} sở hữu khối này`;
+                chip.title = `Giáo viên ${escapeSupportHtml(teacherName)} sở hữu khối này`;
                 if (lockMsg) lockMsg.style.display = 'none';
             } else {
                 if (chk) {
@@ -9315,7 +9315,7 @@
                 chip.style.cursor = 'not-allowed';
                 chip.style.background = '#f1f5f9';
                 chip.style.borderColor = '#e2e8f0';
-                chip.title = `Giáo viên ${teacherName} chưa được cấp quyền khối này`;
+                chip.title = `Giáo viên ${escapeSupportHtml(teacherName)} chưa được cấp quyền khối này`;
                 if (lockMsg) {
                     lockMsg.style.display = 'inline';
                     lockMsg.innerText = '(Cô chưa có)';
@@ -9325,9 +9325,9 @@
 
         if (hintEl) {
             if (allowedLevelIds.length > 0) {
-                hintEl.innerHTML = `<span style="color:#0284c7; font-weight:750;">💡 Chỉ mở các khối mà ${teacherName} sở hữu (${teacherGrades.join(', ')}).</span> Các khối khác bị khóa.`;
+                hintEl.innerHTML = `<span style="color:#0284c7; font-weight:750;">💡 Chỉ mở các khối mà ${escapeSupportHtml(teacherName)} sở hữu (${teacherGrades.join(', ')}).</span> Các khối khác bị khóa.`;
             } else {
-                hintEl.innerHTML = `<span style="color:#ef4444; font-weight:750;">⚠️ ${teacherName} chưa được cấp Khối nào!</span> Vui lòng cấp Khối cho Giáo viên trước.`;
+                hintEl.innerHTML = `<span style="color:#ef4444; font-weight:750;">⚠️ ${escapeSupportHtml(teacherName)} chưa được cấp Khối nào!</span> Vui lòng cấp Khối cho Giáo viên trước.`;
             }
         }
     }
@@ -9392,7 +9392,7 @@
                 chip.style.cursor = 'pointer';
                 chip.style.background = '#ffffff';
                 chip.style.borderColor = '#86efac';
-                chip.title = `Giáo viên ${teacherName} sở hữu khối này`;
+                chip.title = `Giáo viên ${escapeSupportHtml(teacherName)} sở hữu khối này`;
                 if (lockMsg) lockMsg.style.display = 'none';
             } else {
                 if (chk) {
@@ -9403,7 +9403,7 @@
                 chip.style.cursor = 'not-allowed';
                 chip.style.background = '#f1f5f9';
                 chip.style.borderColor = '#e2e8f0';
-                chip.title = `Giáo viên ${teacherName} chưa được cấp quyền khối này`;
+                chip.title = `Giáo viên ${escapeSupportHtml(teacherName)} chưa được cấp quyền khối này`;
                 if (lockMsg) {
                     lockMsg.style.display = 'inline';
                     lockMsg.innerText = '(Cô chưa có)';
@@ -9413,9 +9413,9 @@
 
         if (hintEl) {
             if (allowedLevelIds.length > 0) {
-                hintEl.innerHTML = `<span style="color:#0284c7; font-weight:750;">💡 Chỉ mở các khối mà ${teacherName} sở hữu (${teacherGrades.join(', ')}).</span>`;
+                hintEl.innerHTML = `<span style="color:#0284c7; font-weight:750;">💡 Chỉ mở các khối mà ${escapeSupportHtml(teacherName)} sở hữu (${teacherGrades.join(', ')}).</span>`;
             } else {
-                hintEl.innerHTML = `<span style="color:#ef4444; font-weight:750;">⚠️ ${teacherName} chưa được cấp Khối nào!</span> Vui lòng cấp Khối cho Giáo viên trước.`;
+                hintEl.innerHTML = `<span style="color:#ef4444; font-weight:750;">⚠️ ${escapeSupportHtml(teacherName)} chưa được cấp Khối nào!</span> Vui lòng cấp Khối cho Giáo viên trước.`;
             }
         }
     }
@@ -9503,9 +9503,9 @@
 
         if (hintEl) {
             if (allowedLevelIds.length > 0) {
-                hintEl.innerHTML = `<span style="color:#0284c7; font-weight:750;">💡 Chỉ mở các khối mà Giáo viên ${teacherName} sở hữu (${teacherGrades.join(', ')}).</span> Các khối khác bị khóa.`;
+                hintEl.innerHTML = `<span style="color:#0284c7; font-weight:750;">💡 Chỉ mở các khối mà Giáo viên ${escapeSupportHtml(teacherName)} sở hữu (${teacherGrades.join(', ')}).</span> Các khối khác bị khóa.`;
             } else {
-                hintEl.innerHTML = `<span style="color:#ef4444; font-weight:750;">⚠️ Giáo viên ${teacherName} chưa được cấp Khối nào!</span> Vui lòng cấp Khối cho Giáo viên trước.`;
+                hintEl.innerHTML = `<span style="color:#ef4444; font-weight:750;">⚠️ Giáo viên ${escapeSupportHtml(teacherName)} chưa được cấp Khối nào!</span> Vui lòng cấp Khối cho Giáo viên trước.`;
             }
         }
     }

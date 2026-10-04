@@ -2,6 +2,8 @@
 
 use App\Http\Middleware\AdminMiddleware;
 use App\Http\Middleware\StudentMiddleware;
+use App\Http\Middleware\SuperAdminMiddleware;
+use App\Http\Middleware\EnsureSubscriptionActive;
 use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Configuration\Exceptions;
 use Illuminate\Foundation\Configuration\Middleware;
@@ -18,6 +20,8 @@ return Application::configure(basePath: dirname(__DIR__))
         $middleware->alias([
             'admin' => AdminMiddleware::class,
             'student' => StudentMiddleware::class,
+            'superadmin' => SuperAdminMiddleware::class,
+            'subscription' => EnsureSubscriptionActive::class,
         ]);
         $middleware->redirectGuestsTo('/dang-nhap');
         // Bỏ kiểm tra CSRF cho API heartbeat tiêu hao giờ chơi từ game offline, webhook PayOS, và bỏ hết trong môi trường test

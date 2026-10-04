@@ -1839,6 +1839,10 @@
                     placeholder="vd: name@gmail.com"
                     autocomplete="email"
                     spellcheck="false">
+                <label for="email-modal-password-field" class="email-modal-label">🔐 Mật khẩu hiện tại (để xác nhận):</label>
+                <input type="password" id="email-modal-password-field" class="email-modal-input"
+                    placeholder="Nhập mật khẩu đang dùng"
+                    autocomplete="current-password">
                 <div class="email-modal-hint">💡 Nhập email thật để nhận mã OTP xác thực khi bạn muốn đổi mật khẩu.</div>
                 <div id="email-modal-alert" class="email-modal-alert"></div>
                 <div class="email-modal-actions">
@@ -2130,8 +2134,15 @@
             const currentEmail = document.getElementById('user-email-text')?.textContent.trim() || '';
 
             const newEmail = inputEl ? inputEl.value.trim() : '';
+            const currentPassword = document.getElementById('email-modal-password-field')?.value || '';
 
             // Kiểm tra cơ bản
+            if (!currentPassword) {
+                alertEl.className = 'email-modal-alert error';
+                alertEl.textContent = '⚠️ Vui lòng nhập mật khẩu hiện tại để xác nhận.';
+                document.getElementById('email-modal-password-field')?.focus();
+                return;
+            }
             if (!newEmail) {
                 alertEl.className = 'email-modal-alert error';
                 alertEl.textContent = '⚠️ Vui lòng nhập địa chỉ email.';
@@ -2161,7 +2172,7 @@
                     'Content-Type': 'application/json',
                     'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || '{{ csrf_token() }}'
                 },
-                body: JSON.stringify({ email: newEmail })
+                body: JSON.stringify({ email: newEmail, current_password: currentPassword })
             })
             .then(async res => {
                 const data = await res.json();

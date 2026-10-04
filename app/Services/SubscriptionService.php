@@ -175,9 +175,9 @@ class SubscriptionService
             ->latest('id')
             ->first();
 
-        $code = 'MOS-' . date('Ym') . '-ADJ' . Str::upper(Str::random(3));
+        $code = 'MOS-' . date('Ym') . '-ADJ' . Str::upper(Str::random(5));
         while (PackageOrder::where('code', $code)->exists()) {
-            $code = 'MOS-' . date('Ym') . '-ADJ' . Str::upper(Str::random(3));
+            $code = 'MOS-' . date('Ym') . '-ADJ' . Str::upper(Str::random(5));
         }
 
         $adminName = $admin ? $admin->name : 'Ban Quản Trị';

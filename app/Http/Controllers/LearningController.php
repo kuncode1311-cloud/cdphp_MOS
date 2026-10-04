@@ -309,6 +309,11 @@ class LearningController extends Controller
     {
         $user = $request->user();
 
+        // Mở một "phiên chơi" mới: mốc thời gian dùng để giới hạn số giây có thể trừ khi chơi
+        if ($user) {
+            Cache::put("game_run_{$user->id}", ['started_at' => now()->timestamp, 'consumed' => 0], now()->addDay());
+        }
+
         return response()->json([
             'game_enabled' => (bool) GameSetting::get('game_enabled', true),
             'game_time_seconds' => (int) ($user?->game_time_seconds ?? 0),
@@ -331,11 +336,27 @@ class LearningController extends Controller
             return response()->json(['success' => false, 'remaining_seconds' => 0], 401);
         }
 
-        $remaining = $user->consumeGameTime((int) $validated['seconds']);
+        // Chỉ trừ giờ tối đa bằng thời gian thực đã trôi qua kể từ khi mở phiên chơi (có dư 15 giây cho độ trễ mạng).
+        // Không có phiên đang mở thì không trừ gì, để không thể gửi số giây tùy ý.
+        $run = Cache::get("game_run_{$user->id}");
+        $allowed = $run
+            ? max(0, (now()->timestamp - $run['started_at']) + 15 - $run['consumed'])
+            : 0;
+        $seconds = min((int) $validated['seconds'], $allowed);
+
+        $remaining = $seconds > 0
+            ? $user->consumeGameTime($seconds)
+            : (int) $user->fresh()->game_time_seconds;
+
+        if ($run && $seconds > 0) {
+            $run['consumed'] += $seconds;
+            Cache::put("game_run_{$user->id}", $run, now()->addDay());
+        }
 
         return response()->json([
             'success' => true,
             'remaining_seconds' => $remaining,
+            'accepted_seconds' => $seconds,
         ]);
     }
 

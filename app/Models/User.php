@@ -12,6 +12,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
+use Illuminate\Support\Facades\DB;
 
 /**
  * Model Tài Khoản Người Dùng (User)
@@ -198,6 +199,32 @@ class User extends Authenticatable
     }
 
     /**
+     * Lý do không được sử dụng hệ thống vì gói/hạn dùng, hoặc null nếu còn hiệu lực.
+     * Học sinh do giáo viên quản lý bị khóa theo gói của giáo viên đó (không xét hạn riêng của học sinh).
+     */
+    public function subscriptionBlockedMessage(): ?string
+    {
+        if ($this->isSubscriptionActive()) {
+            return null;
+        }
+
+        if ($this->isStudent() && $this->created_by && $this->teacher) {
+            $teacher = $this->teacher;
+            if (($teacher->status ?? 'active') !== 'active') {
+                return 'Gói học của lớp đang tạm khóa. Vui lòng liên hệ Thầy/Cô phụ trách.';
+            }
+
+            return 'Gói học của lớp đã hết hạn. Vui lòng liên hệ Thầy/Cô phụ trách để gia hạn.';
+        }
+
+        if (($this->status ?? 'active') === 'suspended') {
+            return 'Tài khoản của bạn đang bị tạm khóa. Vui lòng liên hệ quản trị viên hoặc giáo viên.';
+        }
+
+        return 'Tài khoản của bạn đã hết hạn sử dụng. Vui lòng liên hệ để gia hạn gói.';
+    }
+
+    /**
      * Kiểm tra xem Giáo viên còn slot tạo thêm học sinh hay không
      */
     public function hasAvailableStudentSlots(): bool
@@ -307,31 +334,39 @@ class User extends Authenticatable
         $pkgTitle = (string) GameSetting::get("pkg{$packageNum}_title", "Gói {$packageNum}");
         $addSeconds = $pkgMinutes * 60;
 
-        if ($this->reward_stars < $pkgStars) {
+        // Khóa dòng người dùng trong transaction để hai lần đổi gửi song song không cùng tiêu một số sao
+        return DB::transaction(function () use ($pkgStars, $pkgMinutes, $pkgTitle, $addSeconds) {
+            $current = static::query()->whereKey($this->getKey())->lockForUpdate()->firstOrFail();
+
+            if ($current->reward_stars < $pkgStars) {
+                return [
+                    'success' => false,
+                    'message' => "Bé cần {$pkgStars} Sao để đổi {$pkgTitle}. Hiện bé đang có {$current->reward_stars} Sao.",
+                ];
+            }
+
+            $current->decrement('reward_stars', $pkgStars);
+            $current->increment('game_time_seconds', $addSeconds);
+
+            $current->gameTransactions()->create([
+                'type' => 'exchange',
+                'stars_change' => -$pkgStars,
+                'time_seconds_change' => $addSeconds,
+                'description' => "Đổi {$pkgTitle} ({$pkgStars} Sao ➔ {$pkgMinutes} phút chơi)",
+            ]);
+
+            $current->refresh();
+            $this->setRawAttributes($current->getAttributes(), true);
+
             return [
-                'success' => false,
-                'message' => "Bé cần {$pkgStars} Sao để đổi {$pkgTitle}. Hiện bé đang có {$this->reward_stars} Sao.",
+                'success' => true,
+                'message' => "Chúc mừng bé đã đổi thành công {$pkgMinutes} phút chơi game!",
+                'reward_stars' => (int) $current->reward_stars,
+                'remaining_stars' => (int) $current->reward_stars,
+                'game_time_seconds' => (int) $current->game_time_seconds,
+                'added_seconds' => $addSeconds,
             ];
-        }
-
-        $this->decrement('reward_stars', $pkgStars);
-        $this->increment('game_time_seconds', $addSeconds);
-
-        $this->gameTransactions()->create([
-            'type' => 'exchange',
-            'stars_change' => -$pkgStars,
-            'time_seconds_change' => $addSeconds,
-            'description' => "Đổi {$pkgTitle} ({$pkgStars} Sao ➔ {$pkgMinutes} phút chơi)",
-        ]);
-
-        return [
-            'success' => true,
-            'message' => "Chúc mừng bé đã đổi thành công {$pkgMinutes} phút chơi game!",
-            'reward_stars' => (int) $this->fresh()->reward_stars,
-            'remaining_stars' => (int) $this->fresh()->reward_stars,
-            'game_time_seconds' => (int) $this->fresh()->game_time_seconds,
-            'added_seconds' => $addSeconds,
-        ];
+        });
     }
 
     /**
@@ -339,21 +374,34 @@ class User extends Authenticatable
      */
     public function consumeGameTime(int $seconds): int
     {
-        if ($seconds <= 0 || $this->game_time_seconds <= 0) {
+        if ($seconds <= 0) {
             return (int) $this->game_time_seconds;
         }
 
-        $actualSeconds = min($seconds, (int) $this->game_time_seconds);
-        $this->decrement('game_time_seconds', $actualSeconds);
+        return DB::transaction(function () use ($seconds) {
+            // Đọc lại số giây hiện có dưới khóa dòng, tránh trừ lố khi có nhiều request cùng lúc
+            $current = static::query()->whereKey($this->getKey())->lockForUpdate()->firstOrFail();
+            if ($current->game_time_seconds <= 0) {
+                $this->setRawAttributes($current->getAttributes(), true);
 
-        $this->gameTransactions()->create([
-            'type' => 'play',
-            'stars_change' => 0,
-            'time_seconds_change' => -$actualSeconds,
-            'description' => "Chơi mini-game {$actualSeconds} giây",
-        ]);
+                return (int) $current->game_time_seconds;
+            }
 
-        return (int) $this->fresh()->game_time_seconds;
+            $actualSeconds = min($seconds, (int) $current->game_time_seconds);
+            $current->decrement('game_time_seconds', $actualSeconds);
+
+            $current->gameTransactions()->create([
+                'type' => 'play',
+                'stars_change' => 0,
+                'time_seconds_change' => -$actualSeconds,
+                'description' => "Chơi mini-game {$actualSeconds} giây",
+            ]);
+
+            $current->refresh();
+            $this->setRawAttributes($current->getAttributes(), true);
+
+            return (int) $current->game_time_seconds;
+        });
     }
 
     /**

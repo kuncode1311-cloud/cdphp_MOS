@@ -100,6 +100,7 @@ class PricingController extends Controller
         ];
 
         $order = $subscriptionService->createOrder($user, $package, $orderPayload);
+        $this->rememberOwnedOrder($order);
 
         // Bắn thông báo Telegram cho Ban Quản Trị
         $telegramService->sendOrderNotification($order);
@@ -191,6 +192,7 @@ class PricingController extends Controller
             'payment_method' => $data['payment_method'] ?? 'bank_transfer',
             'notes' => implode(' · ', $extraNotes),
         ]);
+        $this->rememberOwnedOrder($order);
 
         // Bắn thông báo Telegram cho Ban Quản Trị
         $telegramService->sendOrderNotification($order);
@@ -266,16 +268,11 @@ class PricingController extends Controller
     /**
      * Xử lý khi khách hoàn tất thanh toán PayOS và được chuyển hướng về web
      */
-    public function payosReturn(Request $request, PackageOrder $order, SubscriptionService $subscriptionService, TelegramService $telegramService): RedirectResponse
+    public function payosReturn(Request $request, PackageOrder $order): RedirectResponse
     {
-        $status = $request->query('status', '');
-        $code = $request->query('code', '');
-
-        if ($status === 'PAID' || $code === '00') {
-            if ($order->status === PackageOrder::STATUS_PENDING) {
-                $subscriptionService->activateOrder($order);
-                $telegramService->sendPaymentSuccessNotification($order);
-            }
+        // Không kích hoạt đơn tại đây: tham số status/code trên URL do người dùng tự gõ được.
+        // Đơn chỉ được kích hoạt bởi webhook PayOS đã xác thực chữ ký (payosWebhook).
+        if ($order->isActive()) {
             return redirect()->route('pricing.order.checkout', $order)
                 ->with('ok', "Thanh toán PayOS thành công! Gói bản quyền của Thầy/Cô đã được kích hoạt.");
         }
@@ -309,16 +306,21 @@ class PricingController extends Controller
             }
         }
 
-        // Fallback: Tìm theo description hoặc mã code
+        // Fallback: tìm theo nội dung chuyển khoản. Phải chứa đúng toàn bộ mã đơn (tránh khớp nhầm bằng chuỗi ngắn).
         if (! $order && ! empty($data['description'])) {
-            $rawDesc = trim((string)$data['description']);
-            $cleanLettersOnly = preg_replace('/[^A-Za-z0-9]/', '', $rawDesc);
+            $cleanDesc = strtoupper(preg_replace('/[^A-Za-z0-9]/', '', (string) $data['description']));
             $order = PackageOrder::where('status', PackageOrder::STATUS_PENDING)
                 ->get()
-                ->first(function ($o) use ($cleanLettersOnly) {
-                    $orderLetters = preg_replace('/[^A-Za-z0-9]/', '', $o->code);
-                    return str_contains($cleanLettersOnly, $orderLetters) || str_contains($orderLetters, $cleanLettersOnly);
+                ->first(function ($o) use ($cleanDesc) {
+                    $orderLetters = strtoupper(preg_replace('/[^A-Za-z0-9]/', '', $o->code));
+                    return $orderLetters !== '' && str_contains($cleanDesc, $orderLetters);
                 });
+        }
+
+        // Số tiền PayOS báo về phải khớp đúng giá đơn, nếu không thì không kích hoạt.
+        if ($order && isset($data['amount']) && (int) $data['amount'] !== (int) $order->price) {
+            Log::warning("PayOS Webhook: Số tiền {$data['amount']} không khớp giá đơn #{$order->code} ({$order->price}).");
+            return response()->json(['success' => false, 'message' => 'Amount mismatch'], 422);
         }
 
         if ($order) {
@@ -358,21 +360,24 @@ class PricingController extends Controller
 
         $data['ip_address'] = $request->ip();
 
-        // 🔄 Cơ chế nhận diện phiên chat thông minh 2 lớp:
-        // Lớp 1: Khóa theo mã phiên trình duyệt (parent_id) nếu phiên đó chưa đóng và còn trong 24h
-        // Lớp 2: Khóa theo Số điện thoại nếu cùng SĐT tương tác trong vòng 24h gần nhất (tính từ tin nhắn cuối - updated_at)
+        // 🔄 Nối vào cuộc trò chuyện cũ CHỈ KHI người gửi chứng minh được quyền sở hữu:
+        // đúng trình duyệt đã tạo (lưu trong session) hoặc đúng tài khoản đã đăng nhập.
+        // Không khớp theo số điện thoại vì ai biết SĐT cũng có thể chen vào hội thoại của người khác.
         $parentId = (int) $request->input('parent_id', 0);
         $supportMsg = null;
 
         if ($parentId > 0) {
-            $supportMsg = SupportMessage::where('id', $parentId)
+            $candidate = SupportMessage::where('id', $parentId)
                 ->where('status', '!=', 'closed')
                 ->where('updated_at', '>=', now()->subHours(24))
                 ->first();
+            if ($candidate && $this->ownsSupportMessage($candidate, $request)) {
+                $supportMsg = $candidate;
+            }
         }
 
-        if (! $supportMsg && ! empty($data['phone'])) {
-            $supportMsg = SupportMessage::where('phone', $data['phone'])
+        if (! $supportMsg && $request->user()) {
+            $supportMsg = SupportMessage::where('user_id', $request->user()->id)
                 ->where('status', '!=', 'closed')
                 ->where('updated_at', '>=', now()->subHours(24))
                 ->latest('id')
@@ -419,6 +424,8 @@ class PricingController extends Controller
             $supportMsg->save();
         }
 
+        $this->rememberSupportMessage($supportMsg->id);
+
         $telegramService->sendSupportMessageNotification(
             $data['name'],
             $data['phone'] ?? null,
@@ -448,8 +455,9 @@ class PricingController extends Controller
             return response()->json(['ok' => false, 'message' => 'Thiếu mã tin nhắn.']);
         }
 
+        // Trả lời chung một thông báo cho "không tìm thấy" và "không phải của bạn" để không dò được ID hội thoại.
         $msg = SupportMessage::find($id);
-        if (! $msg) {
+        if (! $msg || ! $this->ownsSupportMessage($msg, $request)) {
             return response()->json(['ok' => false, 'message' => 'Không tìm thấy cuộc trò chuyện.']);
         }
 
@@ -463,6 +471,37 @@ class PricingController extends Controller
             'conversation_history' => $msg->conversation_history ?? [],
             'replied_at' => $msg->replied_at ? \Illuminate\Support\Carbon::parse($msg->replied_at)->format('H:i') : null,
         ]);
+    }
+
+    /**
+     * Ghi nhớ mã hội thoại hỗ trợ vừa tạo/gửi trong session của trình duyệt này (tối đa 20 cuộc gần nhất)
+     */
+    private function rememberSupportMessage(int $id): void
+    {
+        $ids = array_values(array_unique(array_merge(session('support_message_ids', []), [$id])));
+        session(['support_message_ids' => array_slice($ids, -20)]);
+    }
+
+    /**
+     * Kiểm tra người đang gọi có quyền xem/nối tiếp hội thoại hỗ trợ này không
+     */
+    private function ownsSupportMessage(SupportMessage $msg, Request $request): bool
+    {
+        $user = $request->user();
+        if ($user && ($user->isAdmin() || (int) $msg->user_id === (int) $user->id)) {
+            return true;
+        }
+
+        return in_array($msg->id, session('support_message_ids', []), true);
+    }
+
+    /**
+     * Ghi nhớ đơn hàng vừa tạo trong session, để chỉ đúng trình duyệt đó được tự đăng nhập khi đơn được kích hoạt
+     */
+    private function rememberOwnedOrder(PackageOrder $order): void
+    {
+        $ids = array_values(array_unique(array_merge(session('owned_order_ids', []), [$order->id])));
+        session(['owned_order_ids' => array_slice($ids, -20)]);
     }
 
     /**
@@ -545,6 +584,10 @@ class PricingController extends Controller
         if ($user && $order->user_id !== $user->id && ! $user->isAdmin()) {
             abort(403, 'Bạn không có quyền xem đơn hàng này.');
         }
+        // Khách chưa đăng nhập chỉ xem được đơn do chính trình duyệt này tạo (mã đơn đoán được không đủ)
+        if (! $user && ! in_array($order->id, session('owned_order_ids', []), true)) {
+            abort(404);
+        }
 
         $order->load(['package.levels', 'user']);
         $details = $this->getPaymentDetails($order);
@@ -563,17 +606,20 @@ class PricingController extends Controller
     public function checkOrderStatus(PackageOrder $order): JsonResponse
     {
         $isActive = $order->isActive();
+        // Chỉ trình duyệt đã tạo đơn (lưu trong session) mới được tự đăng nhập và nhận email; mã đơn đơn thuần không đủ.
+        $ownsOrder = in_array($order->id, session('owned_order_ids', []), true);
 
-        // Tự động đăng nhập cho khách nếu đơn hàng đã được kích hoạt thành công
-        if ($isActive && auth()->guest() && $order->user && $order->user->status === 'active') {
+        if ($isActive && $ownsOrder && auth()->guest() && $order->user && $order->user->status === 'active') {
             auth()->login($order->user);
         }
 
         $redirectUrl = route('programs');
         if (auth()->check()) {
             $redirectUrl = auth()->user()->canAccessAdmin() ? route('admin.dashboard') : route('programs');
-        } elseif ($order->user) {
+        } elseif ($ownsOrder && $order->user) {
             $redirectUrl = route('login') . '?registered=1&email=' . urlencode($order->user->email);
+        } else {
+            $redirectUrl = route('login');
         }
 
         return response()->json([

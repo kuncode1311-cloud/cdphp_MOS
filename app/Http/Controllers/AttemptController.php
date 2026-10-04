@@ -74,7 +74,12 @@ class AttemptController extends Controller
 
         // 5. Lưu lượt làm bài vào bảng test_attempts (chỉ lưu với Học sinh, Giáo viên làm thử/thị phạm sẽ không lưu)
         $attemptId = null;
+        $earnedStars = 0;
         if ($user->isStudent()) {
+            // Sao chỉ tính phần điểm vượt lần làm tốt nhất trước đó của bài này, nên làm lại không cày được sao vô hạn
+            $previousBest = (int) $user->attempts()->where('practice_test_id', $practiceTest->id)->max('score');
+            $earnedStars = max(0, $score - $previousBest);
+
             $attempt = $user->attempts()->create([
                 'practice_test_id' => $practiceTest->id,
                 'score' => $score,
@@ -86,8 +91,8 @@ class AttemptController extends Controller
             $attemptId = $attempt->id;
 
             // Tích lũy Sao thưởng từ bài thi vào tài khoản học sinh
-            if ($score > 0) {
-                $user->addRewardStars($score, "Hoàn thành {$practiceTest->name} ({$score}/1000đ)");
+            if ($earnedStars > 0) {
+                $user->addRewardStars($earnedStars, "Hoàn thành {$practiceTest->name} ({$score}/1000đ, +{$earnedStars} sao mới)");
             }
 
             // Tự động ghi nhận lịch sử câu sai & tiến trình khắc phục câu sai của học sinh
@@ -95,8 +100,13 @@ class AttemptController extends Controller
         }
 
         // 6. Tổng hợp đáp án chuẩn phục vụ chế độ xem lại bài thi (Review Quiz Mode)
+        // Chỉ trả đáp án của những câu học sinh thực sự đã trả lời, để không nộp bài rỗng là lấy được toàn bộ đáp án
         $correctAnswersData = [];
         foreach ($questions as $index => $question) {
+            $answer = $submittedAnswers[$index] ?? null;
+            if ($answer === null || $answer === '' || $answer === []) {
+                continue;
+            }
             $options = $question->options;
             if (in_array($question->type, ['MultipleChoice', 'MultipleResponse'], true)) {
                 $correctAnswersData[$index] = $options->filter->is_correct->pluck('position')->sort()->values()->all();
@@ -121,7 +131,7 @@ class AttemptController extends Controller
             'is_completed' => $isCompleted,
             'attempt_id' => $attemptId,
             'score' => $score,
-            'earned_stars' => $user->isStudent() ? $score : 0,
+            'earned_stars' => $earnedStars,
             'current_stars' => $user->isStudent() ? (int) $user->fresh()->reward_stars : 0,
             'correct_answers' => $correct,
             'total_questions' => $total,

@@ -68,8 +68,9 @@ class AuthController extends Controller
             return back()->withErrors(['login' => 'Tài khoản của bạn đang bị tạm khóa. Vui lòng liên hệ quản trị viên hoặc giáo viên.'])->onlyInput('login');
         }
 
-        if ($user->status === 'expired' || ($user->expires_at && $user->expires_at->isPast())) {
-            return back()->withErrors(['login' => 'Tài khoản của bạn đã hết hạn sử dụng. Vui lòng liên hệ để gia hạn gói.'])->onlyInput('login');
+        // Hết hạn/khóa theo gói: với học sinh của giáo viên, xét gói của giáo viên phụ trách
+        if ($message = $user->subscriptionBlockedMessage()) {
+            return back()->withErrors(['login' => $message])->onlyInput('login');
         }
 
         Auth::login($user, $request->boolean('remember'));

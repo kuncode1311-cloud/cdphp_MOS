@@ -108,6 +108,7 @@ class UserProfilePasswordTest extends TestCase
 
         $res = $this->postJson(route('profile.update-email'), [
             'email' => 'annhien.real@gmail.com',
+            'current_password' => '123456',
         ]);
 
         $res->assertOk()

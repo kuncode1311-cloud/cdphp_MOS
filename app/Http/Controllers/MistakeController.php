@@ -137,7 +137,12 @@ class MistakeController extends Controller
         $submittedAnswers = $data['answers'] ?? [];
         $questionIds = $data['question_ids'];
 
-        $questions = Question::whereIn('id', $questionIds)->with('options')->get();
+        // Chỉ chấm các câu thật sự nằm trong sổ câu sai của học sinh này (không cho lấy đáp án câu tùy ý)
+        $ownMistakeIds = StudentMistake::where('user_id', $user->id)
+            ->whereIn('question_id', $questionIds)
+            ->pluck('question_id')
+            ->all();
+        $questions = Question::whereIn('id', $ownMistakeIds)->with('options')->get();
         // Giữ đúng thứ tự câu hỏi client gửi lên
         $idOrder = array_flip($questionIds);
         $questions = $questions->sortBy(fn ($q) => $idOrder[$q->id] ?? 9999)->values();
@@ -155,7 +160,10 @@ class MistakeController extends Controller
                 ->first();
 
             if ($isCorrect) {
-                $resolvedCount++;
+                // Chỉ tính sao khi câu chuyển từ "chưa khắc phục" sang "đã khắc phục"; làm lại câu đã xong thì không được thêm sao
+                if ($mistake && $mistake->status === 'unresolved') {
+                    $resolvedCount++;
+                }
                 if ($mistake) {
                     $mistake->update([
                         'correct_count' => $mistake->correct_count + 1,

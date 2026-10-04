@@ -76,6 +76,9 @@ class UpdateUserRequest extends FormRequest
 
         // Nếu là Giáo viên cập nhật học sinh
         if ($isTeacher) {
+            // Giáo viên không được chuyển học sinh sang giáo viên khác (created_by do hệ thống quyết định)
+            unset($rules['created_by']);
+
             $rules['classroom_id'] = [
                 'nullable',
                 Rule::exists('classrooms', 'id')->where('teacher_id', $currentUser->id),
