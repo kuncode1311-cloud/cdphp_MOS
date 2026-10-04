@@ -341,6 +341,9 @@
         td { padding: 9px 10px; font-size: 12.5px; vertical-align: top; }
         td:first-child, th:first-child { min-width: 112px; white-space: nowrap; }
         td:nth-child(3), td:nth-child(4), th:nth-child(3), th:nth-child(4) { white-space: nowrap; }
+        .package-box .form-label { white-space: nowrap; }
+        .package-box [style*="grid-template-columns"] { align-items: end; }
+        .package-box .form-unit { margin-bottom: 0; }
         @media (max-width: 1100px) { .package-grid { grid-template-columns: 1fr; } }
     </style>
 </head>
@@ -448,11 +451,11 @@
                             </div>
                             <div style="display:grid; grid-template-columns: 1fr 1fr; gap:12px;">
                                 <div class="form-unit">
-                                    <label class="form-label">⭐ Số Sao cần đổi</label>
+                                    <label class="form-label">⭐ Số sao cần đổi</label>
                                     <input type="number" name="pkg1_stars" class="form-input" value="{{ $settings['pkg1_stars'] ?? 500 }}" min="10" required>
                                 </div>
                                 <div class="form-unit">
-                                    <label class="form-label">⏱️ Phút chơi nhận được</label>
+                                    <label class="form-label">⏱️ Số phút chơi</label>
                                     <input type="number" name="pkg1_minutes" class="form-input" value="{{ $settings['pkg1_minutes'] ?? 3 }}" min="1" max="60" required>
                                 </div>
                             </div>
@@ -469,11 +472,11 @@
                             </div>
                             <div style="display:grid; grid-template-columns: 1fr 1fr; gap:12px;">
                                 <div class="form-unit">
-                                    <label class="form-label">⭐ Số Sao cần đổi</label>
+                                    <label class="form-label">⭐ Số sao cần đổi</label>
                                     <input type="number" name="pkg2_stars" class="form-input" value="{{ $settings['pkg2_stars'] ?? 1000 }}" min="10" required>
                                 </div>
                                 <div class="form-unit">
-                                    <label class="form-label">⏱️ Phút chơi nhận được</label>
+                                    <label class="form-label">⏱️ Số phút chơi</label>
                                     <input type="number" name="pkg2_minutes" class="form-input" value="{{ $settings['pkg2_minutes'] ?? 7 }}" min="1" max="120" required>
                                 </div>
                             </div>
