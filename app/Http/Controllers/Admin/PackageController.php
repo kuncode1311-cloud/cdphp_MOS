@@ -154,7 +154,9 @@ class PackageController extends Controller
      */
     public function rejectOrder(Request $request, PackageOrder $order, SubscriptionService $subscriptionService): RedirectResponse
     {
-        $subscriptionService->rejectOrder($order, $request->input('reason'));
+        if (! $subscriptionService->rejectOrder($order, $request->input('reason'))) {
+            return back()->with('err', "Đơn #{$order->code} đã được kích hoạt nên không thể từ chối.");
+        }
 
         return back()->with('ok', "Đã từ chối đơn hàng #{$order->code}.");
     }

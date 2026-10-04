@@ -57,9 +57,10 @@ return [
     ],
 
     'payos' => [
-        'client_id' => env('PAYOS_CLIENT_ID', '8bfb42f3-2194-4060-bd73-2a7324c5e8f2'),
-        'api_key' => env('PAYOS_API_KEY', 'b1a6aa76-06c1-41a7-b845-286a0503f9e7'),
-        'checksum_key' => env('PAYOS_CHECKSUM_KEY', '5dbb3c6a481e5300eaca7bc99ba73bb2a652759e9ae6de73dcc0f3f6b7cad860'),
+        // Khóa PayOS chỉ lấy từ biến môi trường (.env / Railway), tuyệt đối không viết cứng trong mã nguồn
+        'client_id' => env('PAYOS_CLIENT_ID', ''),
+        'api_key' => env('PAYOS_API_KEY', ''),
+        'checksum_key' => env('PAYOS_CHECKSUM_KEY', ''),
         'endpoint' => env('PAYOS_ENDPOINT', 'https://api-merchant.payos.vn'),
     ],
 

@@ -71,6 +71,9 @@ class PricingController extends Controller
     {
         $user = $request->user();
 
+        // Gói đã ngừng bán thì không nhận đơn, dù ai đó tự gõ đường dẫn của gói
+        abort_unless($package->is_active, 404, 'Gói dịch vụ này hiện không còn mở bán.');
+
         // Học sinh không thể mua các gói quản lý lớp của giáo viên
         if ($user->isStudent() && $package->isForTeachers()) {
             return back()->with('err', 'Tài khoản học sinh không thể thuê gói giáo viên. Vui lòng chọn các gói tự luyện dành cho Học sinh.');
@@ -156,6 +159,9 @@ class PricingController extends Controller
         PayosService $payosService
     ): RedirectResponse|JsonResponse
     {
+        // Gói đã ngừng bán thì không nhận đơn và không tạo tài khoản
+        abort_unless($package->is_active, 404, 'Gói dịch vụ này hiện không còn mở bán.');
+
         $data = $request->validated();
         $isStudentPackage = $package->isForStudents();
 
@@ -250,6 +256,10 @@ class PricingController extends Controller
         if ($user && $order->user_id !== $user->id && ! $user->isAdmin()) {
             abort(403, 'Bạn không có quyền thực hiện thao tác này.');
         }
+        // Khách chưa đăng nhập chỉ thao tác được trên đơn do chính trình duyệt này tạo
+        if (! $user && ! in_array($order->id, session('owned_order_ids', []), true)) {
+            abort(404);
+        }
 
         $payosResult = $payosService->createPaymentLink(
             $order,
@@ -286,13 +296,20 @@ class PricingController extends Controller
      */
     public function payosWebhook(Request $request, PayosService $payosService, SubscriptionService $subscriptionService, TelegramService $telegramService): JsonResponse
     {
-        Log::info('PayOS Webhook received payload: ', $request->all());
-
         $data = $payosService->verifyWebhookData($request->all());
 
         if (! $data) {
             Log::warning('PayOS Webhook verification failed.');
             return response()->json(['success' => false, 'message' => 'Invalid signature'], 400);
+        }
+
+        Log::info('PayOS Webhook hợp lệ', ['orderCode' => $data['orderCode'] ?? null, 'amount' => $data['amount'] ?? null]);
+
+        // Chỉ giao dịch thành công (mã "00") mới được kích hoạt gói; các thông báo khác chỉ ghi nhận rồi bỏ qua.
+        if ($request->input('success') === false || (isset($data['code']) && (string) $data['code'] !== '00')) {
+            Log::info('PayOS Webhook: giao dịch không thành công, bỏ qua.', ['orderCode' => $data['orderCode'] ?? null]);
+
+            return response()->json(['success' => true]);
         }
 
         $order = null;
@@ -638,6 +655,20 @@ class PricingController extends Controller
      */
     public function confirmTransferred(PackageOrder $order, TelegramService $telegramService): JsonResponse
     {
+        // Chỉ chủ đơn (đăng nhập hoặc đúng trình duyệt đã tạo đơn) hoặc admin mới được báo đã chuyển khoản
+        $viewer = auth()->user();
+        $ownsOrder = in_array($order->id, session('owned_order_ids', []), true)
+            || ($viewer && ((int) $viewer->id === (int) $order->user_id || $viewer->isAdmin()));
+        abort_unless($ownsOrder, 404);
+
+        // Mỗi đơn chỉ báo cho Ban Quản Trị tối đa một lần trong 5 phút để không bị dùng spam Telegram
+        if ($order->isPending() && ! Cache::add("confirm_transferred_{$order->id}", 1, now()->addMinutes(5))) {
+            return response()->json([
+                'ok' => true,
+                'message' => 'Ban Quản Trị đã nhận được thông báo của Thầy/Cô, vui lòng chờ trong giây lát.',
+            ]);
+        }
+
         if ($order->isPending()) {
             $user = $order->user;
             $amt = number_format($order->price) . ' đ';

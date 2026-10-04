@@ -55,7 +55,12 @@ class SubscriptionService
     public function activateOrder(PackageOrder $order, ?User $admin = null): bool
     {
         return DB::transaction(function () use ($order, $admin) {
-            $order->refresh();
+            // Khóa dòng đơn hàng: hai lần kích hoạt đồng thời (webhook gửi lặp, hoặc admin và webhook cùng lúc) không cộng hạn hai lần
+            $locked = PackageOrder::query()->whereKey($order->getKey())->lockForUpdate()->first();
+            if (! $locked) {
+                return false;
+            }
+            $order->setRawAttributes($locked->getAttributes(), true);
 
             if ($order->isActive()) {
                 return true;
@@ -156,6 +161,11 @@ class SubscriptionService
      */
     public function rejectOrder(PackageOrder $order, ?string $reason = null): bool
     {
+        // Đơn đã kích hoạt thì tài khoản đã được cấp quyền, không được đổi thành "từ chối" làm sai lệch sổ sách
+        if ($order->isActive()) {
+            return false;
+        }
+
         $append = $reason ? "\nLý do từ chối: {$reason}" : "\nĐã từ chối đơn hàng.";
         return $order->update([
             'status' => PackageOrder::STATUS_REJECTED,

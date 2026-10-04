@@ -18,10 +18,12 @@ class TelegramBotController extends Controller
         if ($secret !== '' && ! hash_equals($secret, (string) $request->header('X-Telegram-Bot-Api-Secret-Token', ''))) {
             abort(403);
         }
+        // Chưa cấu hình secret token thì yêu cầu không được coi là đáng tin cho các thao tác duyệt đơn
+        $trusted = $secret !== '';
 
         // 1. Xử lý Callback Query nếu bấm nút inline
         if ($request->has('callback_query')) {
-            $telegramService->handleCallbackQuery($request->input('callback_query'));
+            $telegramService->handleCallbackQuery($request->input('callback_query'), $trusted);
             return response()->json(['status' => 'ok']);
         }
 

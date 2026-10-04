@@ -120,7 +120,7 @@ Route::get('/bang-gia', [PricingController::class, 'index'])->name('pricing.inde
 Route::post('/bang-gia/dang-ky-va-thue-goi/{package:slug}', [PricingController::class, 'registerAndOrder'])->middleware('throttle:6,1')->name('pricing.register_and_order');
 Route::get('/bang-gia/thanh-toan/{order:code}', [PricingController::class, 'checkout'])->name('pricing.order.checkout');
 Route::get('/bang-gia/don-hang/{order:code}/trang-thai', [PricingController::class, 'checkOrderStatus'])->middleware('throttle:60,1')->name('pricing.order.status');
-Route::post('/bang-gia/don-hang/{order:code}/da-chuyen-khoan', [PricingController::class, 'confirmTransferred'])->name('pricing.order.confirm_transferred');
+Route::post('/bang-gia/don-hang/{order:code}/da-chuyen-khoan', [PricingController::class, 'confirmTransferred'])->middleware('throttle:6,1')->name('pricing.order.confirm_transferred');
 Route::get('/bang-gia/payos-tra-ve/{order:code}', [PricingController::class, 'payosReturn'])->name('pricing.payos.return');
 Route::post('/bang-gia/payos-webhook', [PricingController::class, 'payosWebhook'])->name('pricing.payos.webhook');
 

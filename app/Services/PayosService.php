@@ -128,9 +128,11 @@ class PayosService
             return null;
         }
 
-        $calculatedSignature = $this->generateSignature($data);
+        // PayOS tính chữ ký có cả các trường rỗng dạng "key="; giữ thêm cách cũ (bỏ trường rỗng) để không từ chối nhầm webhook hợp lệ.
+        $calculatedSignature = $this->generateSignature($data, true);
+        $legacySignature = $this->generateSignature($data, false);
 
-        if (! hash_equals($calculatedSignature, $signature)) {
+        if (! hash_equals($calculatedSignature, (string) $signature) && ! hash_equals($legacySignature, (string) $signature)) {
             Log::warning('PayOS Webhook Invalid Signature', [
                 'expected' => $calculatedSignature,
                 'received' => $signature,
@@ -145,12 +147,15 @@ class PayosService
      * Tạo chữ ký HMAC-SHA256 theo thuật toán của PayOS
      * Sắp xếp các khóa theo alphabet, nối thành key=value&...
      */
-    protected function generateSignature(array $data): string
+    protected function generateSignature(array $data, bool $includeEmpty = false): string
     {
         ksort($data);
         $parts = [];
         foreach ($data as $key => $value) {
             if ($value === null || $value === '') {
+                if ($includeEmpty) {
+                    $parts[] = "{$key}=";
+                }
                 continue;
             }
             if (is_array($value) || is_object($value)) {

@@ -384,7 +384,7 @@ class TelegramService
     /**
      * Xử lý khi Admin bấm nút Inline Keyboard (Callback Query)
      */
-    public function handleCallbackQuery(array $callbackQuery): void
+    public function handleCallbackQuery(array $callbackQuery, bool $trusted = true): void
     {
         $callbackId = (string) ($callbackQuery['id'] ?? '');
         $data = (string) ($callbackQuery['data'] ?? '');
@@ -411,6 +411,14 @@ class TelegramService
         // BẢO VỆ BẢO MẬT: Kiểm tra quyền Admin cho TẤT CẢ các thao tác quản trị khác
         if (! $this->isAdminChat($fromId) && ! $this->isAdminChat($chatId)) {
             $this->answerCallbackQuery($callbackId, "⛔ Bạn không có quyền thực hiện thao tác quản trị này!", true);
+            return;
+        }
+
+        // Duyệt/từ chối đơn hàng liên quan đến tiền: chỉ làm khi yêu cầu chắc chắn đến từ Telegram (webhook có secret token hoặc polling).
+        // Nếu chưa bật secret token thì ai biết ID của admin cũng giả được yêu cầu, nên chuyển admin sang duyệt trên web.
+        if (! $trusted && (str_starts_with($data, 'act_ord_') || str_starts_with($data, 'rej_ord_'))) {
+            $this->answerCallbackQuery($callbackId, '🔐 Chưa bật xác thực webhook Telegram. Vui lòng duyệt đơn trên trang quản trị web.', true);
+
             return;
         }
 
