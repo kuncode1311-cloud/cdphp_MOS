@@ -111,10 +111,10 @@ class User extends Authenticatable
     public function packageSummary(): array
     {
         $owner = ($this->isStudent() && $this->created_by && $this->teacher) ? $this->teacher : $this;
-        $order = $owner->packageOrders()
-            ->where('status', PackageOrder::STATUS_ACTIVE)
-            ->with('package')
-            ->first();
+        // Dùng danh sách đơn đã nạp sẵn (nếu có) để trang danh sách người dùng không phải truy vấn lại cho từng dòng
+        $order = $owner->relationLoaded('packageOrders')
+            ? $owner->packageOrders->firstWhere('status', PackageOrder::STATUS_ACTIVE)
+            : $owner->packageOrders()->where('status', PackageOrder::STATUS_ACTIVE)->with('package')->first();
 
         return [
             'teacher' => $owner->is($this) ? null : $owner->name,

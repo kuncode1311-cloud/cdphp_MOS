@@ -100,4 +100,26 @@ class AdminGrantStudentPackageTest extends TestCase
 
         $this->assertSame(0, PackageOrder::where('user_id', $student->id)->count());
     }
+
+    public function test_bang_hoc_sinh_hien_ten_goi_va_so_ngay_con_lai(): void
+    {
+        $this->seed();
+        $admin = User::where('role', 'admin')->firstOrFail();
+        $teacher = User::where('role', 'teacher')->firstOrFail();
+
+        $withPackage = User::factory()->create(['role' => 'student', 'created_by' => null, 'name' => 'Bé Có Gói']);
+        $package = $this->studentPackage();
+        $service = app(\App\Services\SubscriptionService::class);
+        $service->activateOrder($service->createOrder($withPackage, $package));
+
+        User::factory()->create(['role' => 'student', 'created_by' => null, 'name' => 'Bé Chưa Mua']);
+        User::factory()->create(['role' => 'student', 'created_by' => $teacher->id, 'name' => 'Bé Của Cô']);
+
+        $html = $this->actingAs($admin)->get('/quan-tri')->assertOk()->getContent();
+
+        $this->assertStringContainsString('Gói Cấp Tay Thử', $html);
+        $this->assertStringContainsString('Còn 90 ngày', $html);
+        $this->assertStringContainsString('Chưa có gói', $html);
+        $this->assertStringContainsString('GÓI, HẠN DÙNG & KHỐI', $html);
+    }
 }

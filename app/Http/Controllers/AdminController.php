@@ -129,7 +129,7 @@ class AdminController extends Controller
         } else {
             $allUsers = User::query()
                 ->where('role', '!=', UserRole::Admin->value)
-                ->with(['accessibleLevels', 'teacherLevels', 'students', 'teacher', 'packageOrders', 'latestPackageOrder'])
+                ->with(['accessibleLevels', 'teacherLevels', 'students', 'teacher.packageOrders.package', 'packageOrders.package', 'latestPackageOrder'])
                 ->withCount('attempts')
                 ->latest('id')
                 ->get();

@@ -2761,14 +2761,6 @@
                                                         <span style="font-size:9.5px; color:#ef4444; font-weight:750;">🔒 Chưa mở</span>
                                                     @endforelse
                                                 </div>
-                                                @if(! $u->created_by)
-                                                    @php
-                                                        $studentPkg = $u->packageSummary();
-                                                    @endphp
-                                                    <div style="margin-top:3px; font-size:10px; font-weight:750; color:#047857;">
-                                                        💎 {{ $studentPkg['package'] ?? 'Chưa có gói' }}{{ $studentPkg['expires_at'] ? ' · hạn '.$studentPkg['expires_at']->format('d/m/Y') : '' }}
-                                                    </div>
-                                                @endif
                                             </td>
                                             <td style="text-align:center; vertical-align:middle; padding:5px 4px;">
                                                 <span class="pill-badge pill-time" style="font-size:10px; padding:1.5px 5px; font-weight:750;">📝 {{ $u->attempts_count ?? $u->attempts()->count() }} lượt</span>
@@ -3001,6 +2993,23 @@
                                                             @empty
                                                                 <span style="font-size:9.5px; color:#ef4444; font-weight:750;">🔒 Chưa mở</span>
                                                             @endforelse
+                                                        </div>
+                                                        @php
+                                                            $stuPkg = $u->packageSummary();
+                                                            $stuDays = $stuPkg['expires_at'] ? (int) ceil(now()->diffInDays($stuPkg['expires_at'], false)) : null;
+                                                            $stuColor = $stuDays === null ? '#059669' : ($stuDays < 0 ? '#dc2626' : ($stuDays <= 30 ? '#d97706' : '#059669'));
+                                                        @endphp
+                                                        <div style="margin-top:2px; font-size:10.5px; font-weight:750; line-height:1.25; text-align:center;">
+                                                            <div style="color:{{ $stuPkg['package'] ? '#0f172a' : '#94a3b8' }};" title="Gói học sinh đang dùng">
+                                                                💎 {{ $stuPkg['package'] ?? ($stuPkg['inherited'] ? 'Theo gói giáo viên' : 'Chưa có gói') }}{{ $stuPkg['package'] && $stuPkg['inherited'] ? ' (theo GV)' : '' }}
+                                                            </div>
+                                                            <div style="color:{{ $stuColor }};">
+                                                                @if($stuPkg['expires_at'])
+                                                                    📅 {{ $stuPkg['expires_at']->format('d/m/Y') }} ({{ $stuDays < 0 ? 'Hết hạn' : 'Còn ' . $stuDays . ' ngày' }})
+                                                                @else
+                                                                    ♾️ Chưa đặt hạn
+                                                                @endif
+                                                            </div>
                                                         </div>
                                                     @else
                                                         <span style="color:#64748b; font-weight:700; font-size:10.5px;">👑 Toàn quyền hệ thống</span>
@@ -9012,7 +9021,7 @@
         if (currentRoleFilter === 'student') {
             if (thUser) thUser.innerText = 'HỌC SINH';
             if (thStatus) thStatus.innerText = 'TRẠNG THÁI';
-            if (thPackage) thPackage.innerText = 'GIÁO VIÊN & KHỐI LỚP';
+            if (thPackage) thPackage.innerText = 'GÓI, HẠN DÙNG & KHỐI';
             if (thAttempts) thAttempts.innerText = 'LƯỢT THI';
             if (thActions) thActions.innerText = 'THAO TÁC';
             if (titleEl) titleEl.innerHTML = '<span>👨‍🎓</span> Danh Sách Học Sinh';
