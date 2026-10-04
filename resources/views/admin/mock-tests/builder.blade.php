@@ -572,27 +572,41 @@
         }
 
         .q-card {
-            background: #ffffff;
-            border-radius: var(--radius-md);
-            border: 1.5px solid var(--border-strong);
-            box-shadow: 0 2px 6px rgba(15, 23, 42, 0.04);
+            background: linear-gradient(180deg, #ffffff 0%, #f2f7ff 100%);
+            border-radius: 14px;
+            border: 2px solid #9db4d8;
+            box-shadow: 0 8px 20px rgba(15, 23, 42, 0.10), inset 0 -3px 0 rgba(37, 99, 235, 0.08);
             transition: all 0.16s cubic-bezier(0.16, 1, 0.3, 1);
             overflow: hidden;
+            position: relative;
+        }
+        .q-card::before {
+            content: '';
+            position: absolute;
+            inset: 0 auto 0 0;
+            width: 5px;
+            background: linear-gradient(180deg, #38bdf8, #6366f1);
+            opacity: 0.88;
         }
         .q-card:hover {
-            border-color: #94a3b8;
-            box-shadow: 0 6px 14px rgba(15, 23, 42, 0.07);
-            transform: translateY(-1px);
+            border-color: #3b82f6;
+            background: linear-gradient(180deg, #ffffff 0%, #eaf3ff 100%);
+            box-shadow: 0 14px 28px rgba(37, 99, 235, 0.18), inset 0 -3px 0 rgba(37, 99, 235, 0.10);
+            transform: translateY(-2px);
         }
         /* State: Câu hỏi ĐƯỢC CHỌN (Nổi bật, rực rỡ và rõ ràng) */
         .q-card.is-checked {
             border-color: #10b981;
-            background: #f0fdf4;
-            box-shadow: 0 4px 14px rgba(16, 185, 129, 0.16), inset 0 -2px 0 rgba(16, 185, 129, 0.1);
+            background: linear-gradient(180deg, #ecfdf5 0%, #d1fae5 100%);
+            box-shadow: 0 12px 26px rgba(16, 185, 129, 0.24), inset 0 -4px 0 rgba(16, 185, 129, 0.16);
+        }
+        .q-card.is-checked::before {
+            background: linear-gradient(180deg, #34d399, #059669);
+            opacity: 1;
         }
 
         .q-card-header {
-            padding: 12px 16px;
+            padding: 13px 18px 13px 20px;
             display: flex;
             align-items: center;
             gap: 12px;
@@ -605,8 +619,8 @@
             flex-shrink: 0;
         }
         .q-checkbox-input {
-            width: 19px;
-            height: 19px;
+            width: 22px;
+            height: 22px;
             border-radius: 5px;
             accent-color: #10b981;
             cursor: pointer;
@@ -622,17 +636,19 @@
             gap: 7px;
             margin-bottom: 4px;
             font-size: 11.5px;
-            font-weight: 800;
-            color: #64748b;
+            font-weight: 900;
+            color: #475569;
+            flex-wrap: wrap;
         }
         .badge-q-num {
-            font-size: 11px;
+            font-size: 11.5px;
             font-weight: 900;
-            padding: 1px 7px;
-            border-radius: 6px;
-            background: #e0e7ff;
-            color: #4338ca;
-            border: 1px solid #c7d2fe;
+            padding: 2px 8px;
+            border-radius: 8px;
+            background: linear-gradient(180deg, #e0e7ff, #c7d2fe);
+            color: #3730a3;
+            border: 1.5px solid #a5b4fc;
+            box-shadow: inset 0 -2px 0 rgba(67, 56, 202, 0.10);
         }
         .q-card.is-checked .badge-q-num {
             background: #10b981;
@@ -640,30 +656,36 @@
             border-color: #059669;
         }
         .badge-type-tag {
-            background: #f1f5f9;
-            color: #475569;
-            padding: 1px 6px;
-            border-radius: 4px;
-            border: 1px solid #e2e8f0;
+            background: linear-gradient(180deg, #fef3c7, #fde68a);
+            color: #92400e;
+            padding: 2px 8px;
+            border-radius: 7px;
+            border: 1.5px solid #fbbf24;
+            box-shadow: inset 0 -2px 0 rgba(146, 64, 14, 0.10);
         }
         .badge-topic-tag {
-            color: #2563eb;
-            font-weight: 850;
+            color: #0f4fd6;
+            font-weight: 950;
+            background: #dbeafe;
+            border: 1.5px solid #93c5fd;
+            border-radius: 7px;
+            padding: 2px 8px;
         }
         .badge-image-tag {
-            background: #fef3c7;
-            color: #b45309;
-            padding: 1px 6px;
-            border-radius: 4px;
-            border: 1px solid #fde68a;
+            background: linear-gradient(180deg, #fff7ed, #fed7aa);
+            color: #9a3412;
+            padding: 2px 8px;
+            border-radius: 7px;
+            border: 1.5px solid #fdba74;
             font-size: 11px;
-            font-weight: 800;
+            font-weight: 900;
         }
         .q-title-txt {
-            font-size: 14px;
-            font-weight: 750;
-            color: #0f172a;
-            line-height: 1.45;
+            font-size: 14.5px;
+            font-weight: 900;
+            color: #071630;
+            line-height: 1.48;
+            text-shadow: 0 1px 0 rgba(255, 255, 255, 0.75);
         }
 
         /* 👁️ Nút Xem Thử Popup Trực Quan */
@@ -676,27 +698,28 @@
             display: inline-flex;
             align-items: center;
             gap: 5px;
-            padding: 6px 12px;
-            border-radius: 8px;
-            background: linear-gradient(135deg, #f0fdf4, #dcfce7);
-            border: 1.5px solid #86efac;
-            color: #15803d;
-            font-size: 12px;
-            font-weight: 850;
+            padding: 8px 16px;
+            border-radius: 11px;
+            background: linear-gradient(180deg, #22c55e, #16a34a);
+            border: 2px solid #86efac;
+            color: #ffffff;
+            font-size: 12.5px;
+            font-weight: 950;
             cursor: pointer;
             transition: all 0.15s ease;
-            box-shadow: 0 1px 3px rgba(16, 185, 129, 0.15);
+            box-shadow: 0 5px 0 #15803d, 0 9px 18px rgba(16, 185, 129, 0.28);
             white-space: nowrap;
         }
         .btn-q-preview:hover {
-            background: linear-gradient(135deg, #10b981, #059669);
-            border-color: #059669;
+            background: linear-gradient(180deg, #34d399, #059669);
+            border-color: #bbf7d0;
             color: #ffffff;
-            transform: translateY(-1px);
-            box-shadow: 0 4px 12px rgba(16, 185, 129, 0.35);
+            transform: translateY(-2px);
+            box-shadow: 0 7px 0 #047857, 0 14px 24px rgba(16, 185, 129, 0.38);
         }
         .btn-q-preview:active {
-            transform: translateY(1px);
+            transform: translateY(3px);
+            box-shadow: 0 2px 0 #047857, 0 5px 10px rgba(16, 185, 129, 0.28);
         }
 
         /* 🌌 IC3 QUEST ARENA REAL SIMULATOR MODAL (100% Giao diện phòng thi thật) */
