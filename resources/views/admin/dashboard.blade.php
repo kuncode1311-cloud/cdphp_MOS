@@ -2539,8 +2539,8 @@
                     </div>
 
                     <!-- Bảng chi tiết: thu gọn mặc định vì cùng dữ liệu với các thẻ phía trên -->
-                    <details style="margin-top:18px;">
-                        <summary style="cursor:pointer; padding:10px 14px; font-size:13px; font-weight:800; color:#475569; background:#f1f5f9; border-radius:10px; list-style:none;">📋 Xem dạng bảng (tất cả khối)</summary>
+                    <details open style="margin-top:18px;">
+                        <summary style="cursor:pointer; padding:10px 14px; font-size:13px; font-weight:800; color:#475569; background:#f1f5f9; border-radius:10px; list-style:none;">📋 Bảng chi tiết tất cả khối (bấm để thu gọn)</summary>
                     <div class="table-responsive" style="margin-top:10px;">
                         <table>
                             <thead>
