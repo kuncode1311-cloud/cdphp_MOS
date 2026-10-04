@@ -672,45 +672,62 @@
     }
 
     /* 🔄 COLLAPSED SIDEBAR */
-    .shell.sidebar-collapsed .admin-unified-sidebar {
+    .shell.sidebar-collapsed .admin-unified-sidebar,
+    html.admin-sidebar-collapsed-init .admin-unified-sidebar {
         width: 70px !important;
         padding: 14px 6px !important;
     }
     .shell.sidebar-collapsed .brand-text,
+    html.admin-sidebar-collapsed-init .brand-text,
     .shell.sidebar-collapsed .admin-info,
+    html.admin-sidebar-collapsed-init .admin-info,
     .shell.sidebar-collapsed .group-title,
+    html.admin-sidebar-collapsed-init .group-title,
     .shell.sidebar-collapsed .group-right-wrap,
+    html.admin-sidebar-collapsed-init .group-right-wrap,
     .shell.sidebar-collapsed .chevron-svg,
+    html.admin-sidebar-collapsed-init .chevron-svg,
     .shell.sidebar-collapsed .nav-text,
+    html.admin-sidebar-collapsed-init .nav-text,
     .shell.sidebar-collapsed .badge-counter,
+    html.admin-sidebar-collapsed-init .badge-counter,
     .shell.sidebar-collapsed .btn-sidebar-student-switch span:last-child,
-    .shell.sidebar-collapsed .btn-sidebar-logout span:last-child {
+    html.admin-sidebar-collapsed-init .btn-sidebar-student-switch span:last-child,
+    .shell.sidebar-collapsed .btn-sidebar-logout span:last-child,
+    html.admin-sidebar-collapsed-init .btn-sidebar-logout span:last-child {
         display: none !important;
     }
-    .shell.sidebar-collapsed .brand {
+    .shell.sidebar-collapsed .brand,
+    html.admin-sidebar-collapsed-init .brand {
         justify-content: center;
         margin-bottom: 12px;
         padding-bottom: 8px;
     }
-    .shell.sidebar-collapsed .admin-badge-box {
+    .shell.sidebar-collapsed .admin-badge-box,
+    html.admin-sidebar-collapsed-init .admin-badge-box {
         justify-content: center;
         padding: 5px;
     }
-    .shell.sidebar-collapsed .nav-group-header {
+    .shell.sidebar-collapsed .nav-group-header,
+    html.admin-sidebar-collapsed-init .nav-group-header {
         justify-content: center;
         padding: 8px 0;
     }
-    .shell.sidebar-collapsed .nav-submenu {
+    .shell.sidebar-collapsed .nav-submenu,
+    html.admin-sidebar-collapsed-init .nav-submenu {
         padding: 2px 0;
         margin-left: 0;
         border-left: none;
     }
-    .shell.sidebar-collapsed .nav-sub-item {
+    .shell.sidebar-collapsed .nav-sub-item,
+    html.admin-sidebar-collapsed-init .nav-sub-item {
         justify-content: center;
         padding: 8px 0;
     }
     .shell.sidebar-collapsed .btn-sidebar-student-switch,
-    .shell.sidebar-collapsed .btn-sidebar-logout {
+    html.admin-sidebar-collapsed-init .btn-sidebar-student-switch,
+    .shell.sidebar-collapsed .btn-sidebar-logout,
+    html.admin-sidebar-collapsed-init .btn-sidebar-logout {
         padding: 8px 0;
         justify-content: center;
     }

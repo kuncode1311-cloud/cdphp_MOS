@@ -7,6 +7,11 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <script>
+        if (localStorage.getItem('admin_sidebar_collapsed') === '1') {
+            document.documentElement.classList.add('admin-sidebar-collapsed-init');
+        }
+    </script>
     <style>
         :root {
             --primary: #4f46e5;
@@ -50,7 +55,8 @@
             grid-template-columns: 270px minmax(0, 1fr);
             transition: grid-template-columns 0.22s cubic-bezier(0.4, 0, 0.2, 1);
         }
-        .shell.sidebar-collapsed {
+        .shell.sidebar-collapsed,
+        html.admin-sidebar-collapsed-init .shell {
             grid-template-columns: 76px minmax(0, 1fr);
         }
 

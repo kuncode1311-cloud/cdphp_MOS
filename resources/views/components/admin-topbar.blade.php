@@ -321,11 +321,13 @@
         if (!shell) return;
         shell.classList.toggle('sidebar-collapsed');
         const isCollapsed = shell.classList.contains('sidebar-collapsed');
+        document.documentElement.classList.toggle('admin-sidebar-collapsed-init', isCollapsed);
         localStorage.setItem('admin_sidebar_collapsed', isCollapsed ? '1' : '0');
     }
 
     // Auto restore sidebar state
     if (localStorage.getItem('admin_sidebar_collapsed') === '1') {
+        document.documentElement.classList.add('admin-sidebar-collapsed-init');
         document.querySelector('.shell')?.classList.add('sidebar-collapsed');
     }
 </script>
