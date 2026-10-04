@@ -663,6 +663,42 @@
             border: 1.5px solid #fbbf24;
             box-shadow: inset 0 -2px 0 rgba(146, 64, 14, 0.10);
         }
+        .badge-type-tag.type-multiple-choice {
+            background: linear-gradient(180deg, #fef3c7, #fde68a);
+            color: #92400e;
+            border-color: #fbbf24;
+            box-shadow: inset 0 -2px 0 rgba(146, 64, 14, 0.12), 0 2px 8px rgba(251, 191, 36, 0.18);
+        }
+        .badge-type-tag.type-multiple-response {
+            background: linear-gradient(180deg, #dcfce7, #86efac);
+            color: #166534;
+            border-color: #22c55e;
+            box-shadow: inset 0 -2px 0 rgba(22, 101, 52, 0.12), 0 2px 8px rgba(34, 197, 94, 0.18);
+        }
+        .badge-type-tag.type-multiple-choice-text {
+            background: linear-gradient(180deg, #fce7f3, #f9a8d4);
+            color: #9d174d;
+            border-color: #ec4899;
+            box-shadow: inset 0 -2px 0 rgba(157, 23, 77, 0.12), 0 2px 8px rgba(236, 72, 153, 0.18);
+        }
+        .badge-type-tag.type-hotspot {
+            background: linear-gradient(180deg, #ffedd5, #fdba74);
+            color: #9a3412;
+            border-color: #f97316;
+            box-shadow: inset 0 -2px 0 rgba(154, 52, 18, 0.12), 0 2px 8px rgba(249, 115, 22, 0.18);
+        }
+        .badge-type-tag.type-matching {
+            background: linear-gradient(180deg, #e0f2fe, #7dd3fc);
+            color: #075985;
+            border-color: #0ea5e9;
+            box-shadow: inset 0 -2px 0 rgba(7, 89, 133, 0.12), 0 2px 8px rgba(14, 165, 233, 0.18);
+        }
+        .badge-type-tag.type-sequence {
+            background: linear-gradient(180deg, #ede9fe, #c4b5fd);
+            color: #5b21b6;
+            border-color: #8b5cf6;
+            box-shadow: inset 0 -2px 0 rgba(91, 33, 182, 0.12), 0 2px 8px rgba(139, 92, 246, 0.18);
+        }
         .badge-topic-tag {
             color: #0f4fd6;
             font-weight: 950;
@@ -1173,6 +1209,7 @@
                                             $globalQIdx++;
                                             $isChecked = in_array($q->id, $selectedQuestionIds);
                                             $hasImage = $q->assets->where('kind', 'image')->isNotEmpty();
+                                            $typeClass = 'type-' . Str::kebab($q->type);
                                         @endphp
 
                                         <article class="q-card {{ $isChecked ? 'is-checked' : '' }}" 
@@ -1198,7 +1235,7 @@
                                                     <div class="q-meta-line">
                                                         <span class="badge-q-num">#{{ $globalQIdx }}</span>
                                                         <span>•</span>
-                                                        <span class="badge-type-tag">{{ $typeLabels[$q->type] ?? $q->type }}</span>
+                                                        <span class="badge-type-tag {{ $typeClass }}">{{ $typeLabels[$q->type] ?? $q->type }}</span>
                                                         <span>•</span>
                                                         <span class="badge-topic-tag">CĐ {{ $loop->parent->parent->iteration }}: {{ $topic->name }}</span>
                                                         @if($hasImage)
