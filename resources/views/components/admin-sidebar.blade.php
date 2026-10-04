@@ -299,7 +299,7 @@
 
     <!-- 4. Chân Sidebar: Nút Đăng Xuất & Link Cổng Học Sinh -->
     <div class="sidebar-footer">
-        <a href="{{ route('home') }}" class="btn-sidebar-student-switch" title="Chuyển sang giao diện người học để kiểm tra bài luyện">
+        <a href="{{ route('home', ['xem' => 'hoc-sinh']) }}" class="btn-sidebar-student-switch" title="Chuyển sang giao diện người học để kiểm tra bài luyện">
             <span>🚀</span> <span>Về Cổng Học Sinh</span>
         </a>
         <form class="logout" method="post" action="{{ route('logout') }}" style="margin: 0;">

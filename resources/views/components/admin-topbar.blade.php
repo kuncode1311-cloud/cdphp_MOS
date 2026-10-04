@@ -48,7 +48,7 @@
         @endif
 
         @if($showSwitchPortal)
-            <a href="{{ route('home') }}" class="btn-topbar-action btn-student-portal" title="Chuyển nhanh sang Cổng Học Sinh để kiểm tra bài luyện">
+            <a href="{{ route('home', ['xem' => 'hoc-sinh']) }}" class="btn-topbar-action btn-student-portal" title="Chuyển nhanh sang Cổng Học Sinh để kiểm tra bài luyện">
                 <span>🚀</span> <span>Cổng Học Sinh</span>
             </a>
         @endif

@@ -53,9 +53,15 @@ class LearningController extends Controller
      */
     public function home(): View|RedirectResponse
     {
-        // Nếu là Admin thì chuyển hướng sang trang Quản trị
+        // Admin mặc định được đưa về trang Quản trị; chỉ khi bấm nút "Cổng Học Sinh" (xem=hoc-sinh) mới vào xem như học sinh.
+        // Trạng thái này được nhớ trong phiên để bấm "Trang của em" không bị đẩy ngược lại, và được xóa khi quay về trang Quản trị.
         if (request()->user()->isAdmin()) {
-            return redirect()->route('admin.dashboard');
+            if (request()->query('xem') === 'hoc-sinh') {
+                session(['xem_cong_hoc_sinh' => true]);
+            }
+            if (! session('xem_cong_hoc_sinh')) {
+                return redirect()->route('admin.dashboard');
+            }
         }
 
         $program = Program::with(['levels.topics.tests'])->firstOrFail();

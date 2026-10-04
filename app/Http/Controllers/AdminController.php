@@ -24,6 +24,9 @@ class AdminController extends Controller
      */
     public function dashboard(): View
     {
+        // Quay về trang Quản trị thì thôi chế độ xem cổng học sinh
+        session()->forget('xem_cong_hoc_sinh');
+
         $user = auth()->user();
         $isTeacher = $user?->isTeacher() ?? false;
         $levels = Level::query()->with(['topics', 'program'])->withCount(['topics', 'students'])->orderBy('grade')->get();
