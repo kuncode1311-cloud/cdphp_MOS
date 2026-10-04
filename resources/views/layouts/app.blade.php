@@ -1689,7 +1689,9 @@
                             <b>{{ auth()->user()->classroom?->level ? 'Khối ' . auth()->user()->classroom->level->grade : 'Mặc định' }}</b>
                         </div>
                         @if(! auth()->user()->isAdmin())
-                            @php($pkg = auth()->user()->packageSummary())
+                            @php
+                                $pkg = auth()->user()->packageSummary();
+                            @endphp
                             @if($pkg['inherited'])
                                 <div class="profile-info-row">
                                     <span>👩‍🏫 Giáo viên quản lý:</span>

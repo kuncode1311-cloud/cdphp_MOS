@@ -76,7 +76,8 @@ class UserController extends Controller
 
         $levelIds = $data['level_ids'] ?? null;
         $teacherLevelIds = $data['teacher_level_ids'] ?? null;
-        unset($data['level_ids'], $data['teacher_level_ids']);
+        $grantPackageId = $data['grant_package_id'] ?? null;
+        unset($data['level_ids'], $data['teacher_level_ids'], $data['grant_package_id']);
 
         // Để trống mật khẩu khi sửa thì giữ mật khẩu cũ.
         if (empty($data['password'])) {
@@ -124,6 +125,11 @@ class UserController extends Controller
 
         $user->update($data);
 
+        // Admin cấp gói thủ công cho học sinh mua lẻ: lưu một đơn "Ban Quản Trị cấp" để có lịch sử đối soát
+        if ($grantPackageId && $currentUser->isAdmin() && $user->isStudent()) {
+            $this->recordAdminGrantedPackage($user, (int) $grantPackageId, $currentUser);
+        }
+
         if ($request->expectsJson()) {
             return response()->json([
                 'ok' => true,
@@ -154,5 +160,36 @@ class UserController extends Controller
         }
 
         return back()->with('ok', 'Đã xóa người dùng thành công.');
+    }
+
+    /**
+     * Ghi nhận đơn gói do Quản trị viên cấp thủ công (giá 0 đồng) cho học sinh mua lẻ.
+     */
+    private function recordAdminGrantedPackage(User $student, int $packageId, User $admin): void
+    {
+        $package = \App\Models\Package::with('levels')->find($packageId);
+        if (! $package) {
+            return;
+        }
+
+        do {
+            $code = 'MOS-'.date('Ym').'-ADM'.\Illuminate\Support\Str::upper(\Illuminate\Support\Str::random(5));
+        } while (\App\Models\PackageOrder::where('code', $code)->exists());
+
+        \App\Models\PackageOrder::create([
+            'code' => $code,
+            'user_id' => $student->id,
+            'package_id' => $package->id,
+            'package_name' => $package->name,
+            'price' => 0,
+            'duration_days' => (int) $package->duration_days,
+            'max_students' => 1,
+            'levels_snapshot' => $package->levels->pluck('name')->join(', ') ?: 'Toàn bộ khối',
+            'order_type' => \App\Models\PackageOrder::TYPE_SUBSCRIPTION,
+            'status' => \App\Models\PackageOrder::STATUS_ACTIVE,
+            'payment_method' => 'Ban Quản Trị cấp',
+            'notes' => "Quản trị viên {$admin->name} cấp thủ công trong Quản lý người dùng",
+            'activated_at' => now(),
+        ]);
     }
 }

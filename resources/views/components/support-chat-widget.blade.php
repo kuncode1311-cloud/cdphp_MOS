@@ -4,10 +4,14 @@
     - Học sinh do giáo viên quản lý: không có ô chat, chỉ có lời nhắc liên hệ giáo viên của mình.
 --}}
 @auth
-@php($scUser = auth()->user())
+@php
+    $scUser = auth()->user();
+@endphp
 @if($scUser->isStudent())
     @if($scUser->created_by)
-        @php($scTeacher = $scUser->teacher)
+        @php
+            $scTeacher = $scUser->teacher;
+        @endphp
         <button type="button" class="sc-fab" id="sc-fab" aria-label="Hỏi giáo viên" title="Hỏi giáo viên">👩‍🏫</button>
         <div class="sc-panel" id="sc-panel" role="dialog" aria-label="Liên hệ giáo viên">
             <div class="sc-head">

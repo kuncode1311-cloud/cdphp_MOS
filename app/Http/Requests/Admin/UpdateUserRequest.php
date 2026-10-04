@@ -91,6 +91,7 @@ class UpdateUserRequest extends FormRequest
             // Dành cho Quản trị viên cập nhật thông tin Giáo viên
             $rules['max_students'] = ['nullable', 'integer', 'min:0'];
             $rules['expires_at'] = ['nullable', 'date'];
+            $rules['grant_package_id'] = ['nullable', 'exists:packages,id'];
             $rules['teacher_level_ids'] = ['nullable', 'array'];
             $rules['teacher_level_ids.*'] = ['exists:levels,id'];
         }

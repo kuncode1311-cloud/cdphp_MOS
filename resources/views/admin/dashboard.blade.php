@@ -2761,6 +2761,14 @@
                                                         <span style="font-size:9.5px; color:#ef4444; font-weight:750;">🔒 Chưa mở</span>
                                                     @endforelse
                                                 </div>
+                                                @if(! $u->created_by)
+                                                    @php
+                                                        $studentPkg = $u->packageSummary();
+                                                    @endphp
+                                                    <div style="margin-top:3px; font-size:10px; font-weight:750; color:#047857;">
+                                                        💎 {{ $studentPkg['package'] ?? 'Chưa có gói' }}{{ $studentPkg['expires_at'] ? ' · hạn '.$studentPkg['expires_at']->format('d/m/Y') : '' }}
+                                                    </div>
+                                                @endif
                                             </td>
                                             <td style="text-align:center; vertical-align:middle; padding:5px 4px;">
                                                 <span class="pill-badge pill-time" style="font-size:10px; padding:1.5px 5px; font-weight:750;">📝 {{ $u->attempts_count ?? $u->attempts()->count() }} lượt</span>
@@ -2782,9 +2790,15 @@
                                                         <span>✏️</span> Sửa
                                                     </button>
 
+                                                    @if(auth()->user()->isAdmin() && ! $u->created_by)
+                                                        <button type="button" class="btn-action-grant" style="background:linear-gradient(135deg, #059669, #047857); color:#ffffff; border-color:#059669;" onclick='openGrantStudentPackageModal(@json($u), @json($u->accessibleLevels->pluck("id")), @json($u->expires_at?->format("Y-m-d")), @json($u->status ?? "active"))' title="Cấp gói, gia hạn và mở khối cho học sinh mua lẻ">
+                                                            <span>👑</span> Gói & Khối
+                                                        </button>
+                                                    @else
                                                     <button type="button" class="btn-action-grant" onclick='openGrantModal(@json($u), @json($u->accessibleLevels->pluck("id")))' title="Cấp quyền mở khóa khối học">
-                                                        <span>🔑</span> Khối
-                                                    </button>
+                                                            <span>🔑</span> Khối
+                                                        </button>
+                                                    @endif
 
                                                     <button type="button" class="btn-action-delete" onclick="deleteStudentAjax({{ $u->id }}, '{{ addslashes($u->name) }}')" title="Xóa học sinh này">
                                                         <span>🗑️</span> Xóa
@@ -3034,7 +3048,11 @@
                                                         <span>✏️</span> Sửa
                                                     </button>
 
-                                                    @if($u->isStudent())
+                                                    @if($u->isStudent() && auth()->user()->isAdmin() && ! $u->created_by)
+                                                        <button type="button" class="btn-action-grant" style="background:linear-gradient(135deg, #059669, #047857); color:#ffffff; border-color:#059669;" onclick='openGrantStudentPackageModal(@json($u), @json($u->accessibleLevels->pluck("id")), @json($u->expires_at?->format("Y-m-d")), @json($u->status ?? "active"))' title="Cấp gói, gia hạn và mở khối cho học sinh mua lẻ">
+                                                            <span>👑</span> Gói & Khối
+                                                        </button>
+                                                    @elseif($u->isStudent())
                                                         <button type="button" class="btn-action-grant" onclick='openGrantModal(@json($u), @json($u->accessibleLevels->pluck("id")))' title="Cấp quyền mở khóa khối học">
                                                             <span>🔑</span> Khối
                                                         </button>
@@ -3866,7 +3884,7 @@
                                                     <span>📅 {{ $ord->created_at?->format('d/m/Y H:i') }}</span>
                                                 </div>
                                                 <div class="ord-paymode-badge">
-                                                    💳 {{ $ord->payment_method === 'payos' ? 'QR PayOS' : ($ord->payment_method === 'bank_transfer' ? 'Chuyển khoản' : ($ord->payment_method_label ?? 'Chuyển khoản')) }}
+                                                    💳 {{ $ord->payment_method_label }}
                                                 </div>
                                             </td>
 
@@ -6014,6 +6032,93 @@
     </div>
 </div>
 
+@if(! $isTeacher)
+<!-- ===========================================================================
+     👑 MODAL CẤP GÓI, GIA HẠN & MỞ KHỐI CHO HỌC SINH MUA LẺ (DÀNH CHO ADMIN)
+     =========================================================================== -->
+<div id="grant-student-package-modal" class="modal-backdrop">
+    <div class="modal-box" style="width: min(600px, 100%);">
+        <div class="modal-header">
+            <h3><span>👑</span> Cấp Gói & Mở Khối Cho Học Sinh Mua Lẻ</h3>
+            <button type="button" class="modal-close-btn" onclick="closeGrantStudentPackageModal()">✕</button>
+        </div>
+        <form id="grant-student-package-form" method="post" action="" onsubmit="handleAjaxUserForm(event, this)">
+            @csrf
+            @method('put')
+            <input type="hidden" name="is_grant_level_form" value="1">
+            <input type="hidden" name="name" id="sp-modal-name">
+            <input type="hidden" name="email" id="sp-modal-email">
+            <input type="hidden" name="role" value="student">
+            <input type="hidden" name="grant_package_id" id="sp-modal-package-id" value="">
+
+            <div class="modal-body" style="max-height: 75vh; overflow-y: auto;">
+                <p style="font-size:13px; color:#334155; margin-bottom:12px;">
+                    Cấp gói, gia hạn và mở khối học cho <b id="sp-display-name" style="color:#0f172a;"></b>:
+                </p>
+
+                <div style="background:#f0fdf4; border:1.5px solid #bbf7d0; border-radius:10px; padding:9px 12px; margin-bottom:14px;">
+                    <div style="font-size:11.5px; font-weight:800; color:#166534; margin-bottom:6px;">⚡ Chọn nhanh gói (tự điền hạn dùng và khối, vẫn chỉnh được):</div>
+                    <div style="display:flex; gap:6px; flex-wrap:wrap;">
+                        @foreach(($packages ?? collect())->where('target_audience', 'student')->where('is_active', true) as $spPkg)
+                            <button type="button" style="padding:4px 10px; font-size:11.5px; background:#ffffff; border:1px solid #86efac; border-radius:6px; font-weight:750; color:#15803d; cursor:pointer;"
+                                onclick='applyStudentPackagePreset({{ $spPkg->id }}, {{ (int) $spPkg->duration_days }}, @json($spPkg->levels->pluck("id")))'>
+                                📦 {{ $spPkg->name }} ({{ $spPkg->duration_days }}N)
+                            </button>
+                        @endforeach
+                        <button type="button" style="padding:4px 10px; font-size:11.5px; background:#ffffff; border:1px solid #cbd5e1; border-radius:6px; font-weight:750; color:#475569; cursor:pointer;" onclick="applyStudentPackagePreset('', 0, null)">♾️ Không theo gói (tự chỉnh)</button>
+                    </div>
+                </div>
+
+                <div class="form-grid-2">
+                    <div class="form-group">
+                        <label><span class="label-title">📅 Ngày hết hạn</span></label>
+                        <input name="expires_at" id="sp-modal-expires-at" type="date" class="form-control">
+                        <div style="display:flex; gap:4px; margin-top:5px; flex-wrap:wrap;">
+                            <button type="button" style="font-size:10.5px; padding:1.5px 6px; border-radius:4px; border:1px solid #cbd5e1; background:#f8fafc; cursor:pointer; color:#475569;" onclick="addStudentPackageDays(30)">+30N</button>
+                            <button type="button" style="font-size:10.5px; padding:1.5px 6px; border-radius:4px; border:1px solid #cbd5e1; background:#f8fafc; cursor:pointer; color:#475569;" onclick="addStudentPackageDays(90)">+3T</button>
+                            <button type="button" style="font-size:10.5px; padding:1.5px 6px; border-radius:4px; border:1px solid #cbd5e1; background:#f8fafc; cursor:pointer; color:#475569;" onclick="addStudentPackageDays(365)">+1N</button>
+                            <button type="button" style="font-size:10.5px; padding:1.5px 6px; border-radius:4px; border:1px solid #cbd5e1; background:#f8fafc; cursor:pointer; color:#059669; font-weight:750;" onclick="document.getElementById('sp-modal-expires-at').value=''">♾️ Vĩnh viễn</button>
+                        </div>
+                        <small class="modal-field-hint">Để trống nếu cấp hạn dùng vĩnh viễn</small>
+                    </div>
+
+                    <div class="form-group">
+                        <label><span class="label-title">⚡ Trạng thái</span></label>
+                        <select name="status" id="sp-modal-status" class="form-control" style="font-weight:750;">
+                            <option value="active">🟢 Đang hoạt động</option>
+                            <option value="suspended">🟡 Tạm dừng</option>
+                            <option value="expired">🔴 Hết hạn</option>
+                        </select>
+                    </div>
+
+                    <div class="form-level-box" style="grid-column: 1 / -1; margin-top: 4px; padding: 14px 16px; background: #f8fafc; border: 1.5px dashed #cbd5e1; border-radius: 12px;">
+                        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:6px; flex-wrap:wrap; gap:6px;">
+                            <b style="font-size: 12.5px; color: #1e293b;">🔑 Khối học được mở:</b>
+                            <div style="display:flex; gap:6px;">
+                                <button type="button" style="font-size:11px; padding:2px 8px; border-radius:5px; border:1px solid #cbd5e1; background:#ffffff; color:#0f172a; cursor:pointer; font-weight:750;" onclick="document.querySelectorAll('#grant-student-package-modal .sp-lvl-chk').forEach(c => c.checked = true)">✓ Chọn tất cả</button>
+                                <button type="button" style="font-size:11px; padding:2px 8px; border-radius:5px; border:1px solid #cbd5e1; background:#ffffff; color:#dc2626; cursor:pointer; font-weight:750;" onclick="document.querySelectorAll('#grant-student-package-modal .sp-lvl-chk').forEach(c => c.checked = false)">✕ Bỏ chọn</button>
+                            </div>
+                        </div>
+                        <div style="display: flex; flex-direction: column; gap: 8px;">
+                            @foreach($levels as $lvl)
+                                <label class="chip-label" style="padding:9px 12px; border-radius:8px; width:100%; justify-content:flex-start; cursor:pointer;">
+                                    <input type="checkbox" name="level_ids[]" value="{{ $lvl->id }}" class="sp-lvl-chk">
+                                    <div><b style="color:#0f172a;">Khối {{ $lvl->grade }}</b> — <span>{{ $lvl->name }}</span></div>
+                                </label>
+                            @endforeach
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="modal-footer">
+                <button type="button" class="btn-secondary" onclick="closeGrantStudentPackageModal()">Hủy</button>
+                <button type="submit" class="btn-primary">✓ Lưu Gói & Khối</button>
+            </div>
+        </form>
+    </div>
+</div>
+@endif
 @if(! $isTeacher)
 <!-- ===========================================================================
      👑 MODAL CẤP GÓI & QUẢN LÝ GIÁO VIÊN (DÀNH CHO ADMIN)
@@ -10133,6 +10238,57 @@
         if (modal) modal.style.display = 'none';
     }
 
+    // ===== CẤP GÓI, GIA HẠN & MỞ KHỐI THỦ CÔNG CHO HỌC SINH MUA LẺ =====
+    function openGrantStudentPackageModal(user, levelIds, expiresAt, status) {
+        const modal = document.getElementById('grant-student-package-modal');
+        const form = document.getElementById('grant-student-package-form');
+        if (!modal || !form) return;
+
+        form.action = `/quan-tri/users/${user.id}`;
+        document.getElementById('sp-modal-name').value = user.name || '';
+        document.getElementById('sp-modal-email').value = user.email || '';
+        document.getElementById('sp-modal-package-id').value = '';
+        document.getElementById('sp-modal-expires-at').value = expiresAt || '';
+        document.getElementById('sp-modal-status').value = status || 'active';
+        document.getElementById('sp-display-name').innerText = user.name || '';
+        document.querySelectorAll('#grant-student-package-modal .sp-lvl-chk').forEach(cb => {
+            cb.checked = (levelIds || []).includes(parseInt(cb.value));
+        });
+
+        modal.style.zIndex = '11000';
+        modal.style.display = 'grid';
+    }
+
+    function closeGrantStudentPackageModal() {
+        const modal = document.getElementById('grant-student-package-modal');
+        if (modal) modal.style.display = 'none';
+    }
+
+    // Chọn nhanh gói: điền hạn dùng (tính từ hạn hiện tại nếu còn hạn, ngược lại từ hôm nay), tick khối của gói và ghi nhớ mã gói để lưu đơn cấp thủ công
+    function applyStudentPackagePreset(packageId, days, levelIds) {
+        document.getElementById('sp-modal-package-id').value = packageId || '';
+        if (days) addStudentPackageDays(days);
+        if (Array.isArray(levelIds) && levelIds.length) {
+            document.querySelectorAll('#grant-student-package-modal .sp-lvl-chk').forEach(cb => {
+                cb.checked = levelIds.includes(parseInt(cb.value));
+            });
+        }
+        document.getElementById('sp-modal-status').value = 'active';
+    }
+
+    function addStudentPackageDays(days) {
+        const input = document.getElementById('sp-modal-expires-at');
+        if (!input) return;
+        const today = new Date();
+        today.setHours(0, 0, 0, 0);
+        const current = input.value ? new Date(input.value + 'T00:00:00') : null;
+        const base = current && current > today ? current : today;
+        base.setDate(base.getDate() + days);
+        const y = base.getFullYear();
+        const m = String(base.getMonth() + 1).padStart(2, '0');
+        const d = String(base.getDate()).padStart(2, '0');
+        input.value = `${y}-${m}-${d}`;
+    }
     function openGrantTeacherModal(user, levelIds, maxStudents, expiresAt, status) {
         const modal = document.getElementById('grant-teacher-modal');
         const form = document.getElementById('grant-teacher-form');
