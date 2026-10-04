@@ -467,6 +467,36 @@
             .btn-create-3d { width: 100%; justify-content: center; }
         }
     </style>
+    @php
+        // Màu chủ đạo theo khối, đồng bộ với trang Khung chương trình: Khối 3 xanh lá, Khối 4 xanh dương, Khối 5 tím
+        $mockAccent = [
+            3 => ['#10b981', '#047857', '#ecfdf5'],
+            4 => ['#0ea5e9', '#0369a1', '#f0f9ff'],
+            5 => ['#8b5cf6', '#6d28d9', '#f5f3ff'],
+        ][$selectedGrade] ?? ['#6366f1', '#4338ca', '#eef2ff'];
+    @endphp
+    <style>
+        :root { --accent: {{ $mockAccent[0] }}; --accent-dark: {{ $mockAccent[1] }}; --accent-soft: {{ $mockAccent[2] }}; }
+
+        /* Thẻ thống kê: viền đậm, mỗi thẻ một màu */
+        .stat-card { border-width: 2.5px; border-color: #94a3b8; box-shadow: 0 12px 26px rgba(15, 23, 42, 0.14), inset 0 -5px 0 rgba(15, 23, 42, 0.06); }
+        .stats-grid .stat-card:nth-child(1) { background: linear-gradient(180deg, #fffbeb, #fef3c7); border-color: #f59e0b; }
+        .stats-grid .stat-card:nth-child(2) { background: linear-gradient(180deg, var(--accent-soft), #ffffff); border-color: var(--accent); }
+        .stats-grid .stat-card:nth-child(3) { background: linear-gradient(180deg, #f0f9ff, #e0f2fe); border-color: #0ea5e9; }
+        .stat-card:hover { transform: translateY(-2px); box-shadow: 0 16px 32px rgba(15, 23, 42, 0.18); }
+
+        /* Tab chọn khối */
+        .grade-tab { border-width: 2.5px; border-color: #94a3b8; box-shadow: 0 4px 10px rgba(15, 23, 42, 0.08); }
+        .grade-tab.active { background: linear-gradient(135deg, var(--accent), var(--accent-dark)); border-color: var(--accent-dark); box-shadow: 0 8px 18px rgba(15, 23, 42, 0.22); }
+
+        /* Thẻ đề thi thử */
+        .mock-card { background: #ffffff; border: 3px solid var(--accent); box-shadow: 0 16px 34px rgba(15, 23, 42, 0.18), inset 0 -6px 0 rgba(0, 0, 0, 0.07); }
+        .mock-card::before { height: 10px; background: linear-gradient(90deg, var(--accent), var(--accent-dark)); }
+        .mock-card:hover { border-color: var(--accent-dark); box-shadow: 0 22px 42px rgba(15, 23, 42, 0.24), inset 0 -6px 0 rgba(0, 0, 0, 0.09); }
+        .mock-meta-grid { background: var(--accent-soft); border: 2px solid #94a3b8; }
+        .meta-stat { background: #ffffff; border: 1.5px solid #cbd5e1; }
+        .meta-stat b { color: var(--accent-dark); }
+    </style>
 </head>
 <body>
 
