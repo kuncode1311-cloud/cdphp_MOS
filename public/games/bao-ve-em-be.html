@@ -1229,6 +1229,14 @@
         gameOverPanel.style.display = 'block';
     }
 
+    // Học sinh đóng tab hoặc thoát giữa chừng: gửi nốt số giây chưa đồng bộ (tối đa 9 giây) để giờ chơi được trừ đúng
+    window.addEventListener('pagehide', () => {
+        if (elapsedSecondsSinceSync > 0 && navigator.sendBeacon) {
+            const body = new Blob([JSON.stringify({ seconds: elapsedSecondsSinceSync })], { type: 'application/json' });
+            navigator.sendBeacon('../tro-choi/tieu-hao-thoi-gian', body);
+            elapsedSecondsSinceSync = 0;
+        }
+    });
     window.onload = setupAI;
     document.getElementById('start-btn').onclick = startGame;
     fullscreenBtn.onclick = async () => {
