@@ -192,25 +192,24 @@
         /* Checkpoint Navigation Bar */
         .checkpoint-container {
             flex-shrink: 0;
-            display: flex;
-            align-items: center;
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(34px, 1fr));
             gap: 6px;
-            overflow-x: auto;
-            padding: 4px 4px;
-            scrollbar-width: thin;
+            overflow: visible;
+            padding: 4px;
+            width: 100%;
+            max-width: 100%;
         }
-        .checkpoint-container::-webkit-scrollbar { height: 4px; }
-        .checkpoint-container::-webkit-scrollbar-thumb { background: rgba(0, 242, 254, 0.5); border-radius: 999px; }
 
         .cp-node {
-            flex-shrink: 0;
-            width: 32px;
-            height: 32px;
-            border-radius: 9px;
+            width: 100%;
+            min-width: 0;
+            height: clamp(28px, 3vw, 34px);
+            border-radius: 10px;
             border: 2px solid rgba(255, 255, 255, 0.22);
             background: rgba(255, 255, 255, 0.08);
             color: var(--text-muted);
-            font-size: 13px;
+            font-size: clamp(11px, 1.1vw, 13px);
             font-weight: 1000;
             display: grid;
             place-items: center;
@@ -994,9 +993,6 @@
             height: calc(100vh - 16px) !important;
             max-height: calc(100vh - 16px) !important;
         }
-        body.is-iframe-preview #btn-submit-main {
-            display: none !important;
-        }
         body.is-iframe-preview #btn-preview-check-footer {
             display: inline-flex !important;
         }
@@ -1130,6 +1126,17 @@
             display: none;
         }
         .btn-submit-main:hover { transform: translateY(-2px); box-shadow: 0 6px 0 #047857, 0 0 22px rgba(16, 185, 129, 0.6); }
+        .btn-preview-check-footer {
+            display: none;
+            background: linear-gradient(135deg, #facc15, #f97316);
+            color: #431407;
+            border: 2px solid #fde68a;
+            box-shadow: 0 4px 0 #c2410c, 0 0 16px rgba(250, 204, 21, 0.42);
+        }
+        .btn-preview-check-footer:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 0 #c2410c, 0 0 22px rgba(250, 204, 21, 0.55);
+        }
 
         .feedback-banner {
             display: none;
@@ -1360,11 +1367,14 @@
                     </div>
                 </div>
                 <div class="footer-right">
+                    <button class="btn-game-action btn-preview-check-footer" id="btn-preview-check-footer" type="button">
+                        ✓ Kiểm tra đáp án
+                    </button>
                     <button class="btn-game-action btn-next" id="btn-next">
                         <span>Câu tiếp theo</span> ▶
                     </button>
                     <button class="btn-game-action btn-submit-main" id="btn-submit-main">
-                        <span>🏁 NỘP BÀI (SUBMIT ALL)</span>
+                        <span>🏁 Nộp bài</span>
                     </button>
                 </div>
             </div>
@@ -2405,6 +2415,9 @@
         document.getElementById('btn-submit-main').addEventListener('click', () => {
             submitExam();
         });
+        document.getElementById('btn-preview-check-footer')?.addEventListener('click', () => {
+            window.adminCheckAnswer();
+        });
 
         function submitExam() {
             if (isSubmitted) return;
@@ -2488,7 +2501,7 @@
             isReviewMode = true;
             document.getElementById('iig-score-card').classList.remove('show');
             document.getElementById('quest-card').style.display = 'flex';
-            document.getElementById('checkpoint-container').style.display = 'flex';
+            document.getElementById('checkpoint-container').style.display = 'grid';
             document.getElementById('review-mode-bar').classList.add('show');
             currentIndex = 0;
             renderQuestion();
