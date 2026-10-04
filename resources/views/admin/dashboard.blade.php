@@ -2297,8 +2297,8 @@
                 <section class="card">
                     <div class="card-header-row">
                         <div>
-                            <h2 class="card-title"><span>🔑</span> Quản trị Khung Chương Trình & Khối Lớp</h2>
-                            <p class="card-subtitle">Quản lý tập trung các Chương trình đào tạo (IC3, MOS...) và Danh mục Khối lớp (Khối 1 đến Khối 12) trong toàn hệ thống</p>
+                            <h2 class="card-title"><span>🔑</span> Khung chương trình & Khối lớp</h2>
+                            <p class="card-subtitle">Mỗi thẻ là một khối lớp. Bấm nút trên thẻ để soạn đề, thi thử hoặc xem bản đồ học sinh.</p>
                         </div>
                         <div style="display:flex; align-items:center; gap:10px; flex-wrap:wrap;">
                             <span class="pill-badge pill-grade" style="padding:6px 12px; font-size:12px;">{{ $programs->count() }} chương trình · {{ $levels->count() }} khối</span>
@@ -2311,6 +2311,18 @@
                         </div>
                     </div>
 
+                    <!-- Chú thích nhanh các nút trên thẻ khối lớp -->
+                    <div style="display:flex; gap:10px; flex-wrap:wrap; margin:2px 0 18px;">
+                        <div style="display:flex; align-items:center; gap:8px; padding:8px 14px; background:#ecfdf5; border:1.5px solid #a7f3d0; border-radius:12px; font-size:12.5px; color:#065f46; font-weight:700;">
+                            <span style="font-size:18px;">📚</span><span><b>Soạn đề</b> · tạo câu hỏi, bài luyện</span>
+                        </div>
+                        <div style="display:flex; align-items:center; gap:8px; padding:8px 14px; background:#fffbeb; border:1.5px solid #fde68a; border-radius:12px; font-size:12.5px; color:#92400e; font-weight:700;">
+                            <span style="font-size:18px;">🏆</span><span><b>Thi thử</b> · bộ đề thi thử IC3</span>
+                        </div>
+                        <div style="display:flex; align-items:center; gap:8px; padding:8px 14px; background:#eff6ff; border:1.5px solid #bfdbfe; border-radius:12px; font-size:12.5px; color:#1e40af; font-weight:700;">
+                            <span style="font-size:18px;">👁️</span><span><b>Bản đồ</b> · xem như học sinh</span>
+                        </div>
+                    </div>
                     @php
                         $gradeThemesAdmin = [
                             1 => [
@@ -2491,7 +2503,7 @@
                                                                 <span>🏆</span> Thi thử
                                                             </a>
                                                             <a href="{{ route('levels.show', $lvl) }}" target="_blank" class="btn-level-preview" title="Xem bản đồ học sinh Khối {{ $lvl->grade }}">
-                                                                <span>👁️</span> Xem map
+                                                                <span>👁️</span> Bản đồ
                                                             </a>
                                                             <button type="button" class="btn-level-edit"
                                                                 data-id="{{ $lvl->id }}"
@@ -2526,8 +2538,10 @@
                         @endforeach
                     </div>
 
-                    <!-- Level Detailed Management Table -->
-                    <div class="table-responsive">
+                    <!-- Bảng chi tiết: thu gọn mặc định vì cùng dữ liệu với các thẻ phía trên -->
+                    <details style="margin-top:18px;">
+                        <summary style="cursor:pointer; padding:10px 14px; font-size:13px; font-weight:800; color:#475569; background:#f1f5f9; border-radius:10px; list-style:none;">📋 Xem dạng bảng (tất cả khối)</summary>
+                    <div class="table-responsive" style="margin-top:10px;">
                         <table>
                             <thead>
                                 <tr>
@@ -2570,7 +2584,7 @@
                                         <td style="text-align:right;">
                                             <div class="action-btn-group">
                                                 <a href="{{ route('levels.show', $lvl) }}" target="_blank" class="btn-action-view" title="Xem bản đồ học sinh Khối {{ $lvl->grade }}">
-                                                    <span>👁️</span> Xem map
+                                                    <span>👁️</span> Bản đồ
                                                 </a>
 
                                                 <a href="{{ route('admin.questions.studio') }}?grade={{ $lvl->grade }}" class="btn-action-grant" style="text-decoration:none;" title="Mở Studio Soạn Đề & Thêm chủ đề cho khối này">
@@ -2607,6 +2621,7 @@
                             </tbody>
                         </table>
                     </div>
+                    </details>
                 </section>
             </div>
             @endif
@@ -7397,7 +7412,7 @@
             breadcrumb: '👥 Giáo viên & Học sinh'
         },
         'tab-levels': {
-            title: 'Quản Trị Khung Chương Trình & Khối Lớp',
+            title: 'Khung Chương Trình & Khối Lớp',
             breadcrumb: '🔑 Khung Chương trình & Khối lớp'
         },
         'tab-packages': {
