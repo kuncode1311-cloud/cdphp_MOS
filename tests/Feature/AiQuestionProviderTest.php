@@ -112,7 +112,7 @@ class AiQuestionProviderTest extends TestCase
         }
     }
 
-    public function test_pdf_chi_tai_len_google_sau_khi_api_rieng_that_bai(): void
+    public function test_pdf_duoc_goi_gemini_truoc_khong_qua_api_rieng(): void
     {
         Http::fake([
             'ai.example.test/*' => Http::response([], 503),
@@ -132,7 +132,6 @@ class AiQuestionProviderTest extends TestCase
 
             $urls = Http::recorded()->map(fn ($pair) => $pair[0]->url())->all();
             $this->assertSame([
-                'https://ai.example.test/v1/chat/completions',
                 'https://generativelanguage.googleapis.com/upload/v1beta/files',
                 'https://generativelanguage.googleapis.com/upload/session-test',
                 'https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent',
@@ -144,7 +143,7 @@ class AiQuestionProviderTest extends TestCase
         }
     }
 
-    public function test_pdf_chuyen_sang_gemini_khi_api_rieng_tra_mang_rong(): void
+    public function test_pdf_chi_goi_gemini_mot_lan_khi_gemini_tra_du_cau_hoi(): void
     {
         Http::fake([
             'ai.example.test/*' => Http::response($this->privateResponse('[]')),
@@ -163,7 +162,25 @@ class AiQuestionProviderTest extends TestCase
             $questions = app(GeminiService::class)->generateQuestionsFromPdf($path);
 
             $this->assertCount(1, $questions);
-            Http::assertSentCount(4);
+            Http::assertSentCount(3);
+            Http::assertNotSent(fn (Request $request) => str_contains($request->url(), 'ai.example.test'));
+        } finally {
+            unlink($path);
+        }
+    }
+
+    public function test_pdf_dung_api_rieng_lam_du_phong_khi_gemini_loi(): void
+    {
+        Http::fake([
+            'generativelanguage.googleapis.com/*' => Http::response([], 500),
+            'ai.example.test/*' => Http::response($this->privateResponse()),
+        ]);
+        $path = tempnam(sys_get_temp_dir(), 'mos-ai-dp-');
+
+        try {
+            file_put_contents($path, '%PDF-noi-dung-thu-nghiem');
+            $this->assertCount(1, app(GeminiService::class)->generateQuestionsFromPdf($path));
+            Http::assertSent(fn (Request $request) => str_contains($request->url(), 'ai.example.test'));
         } finally {
             unlink($path);
         }

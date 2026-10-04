@@ -447,6 +447,19 @@ class GeminiService
         $filePrompt = $this->buildFilePrompt($context, $generateImages, $questionCount, $extracted['text']);
         // PDF đã có chữ thì chỉ gửi chữ cho API riêng (ổn định hơn đính kèm tệp); ảnh và PDF dạng quét vẫn đính kèm.
         $privateFiles = array_values(array_filter($fileItems, fn (array $file) => ! in_array($file['path'], $extracted['covered'], true)));
+        // PDF: gọi thẳng Gemini trước vì API riêng đọc PDF không ổn định; ảnh vẫn ưu tiên API riêng.
+        $hasPdf = (bool) array_filter($fileItems, fn (array $file) => str_contains((string) ($file['mime_type'] ?? ''), 'pdf'));
+        if ($hasPdf && ! empty($this->apiKeys)) {
+            try {
+                $geminiQuestions = $this->generateFromFilesWithGemini($fileItems, $filePrompt);
+                if ($geminiQuestions !== []) {
+                    return $geminiQuestions;
+                }
+            } catch (\Throwable $e) {
+                Log::warning('AI soạn đề: Gemini không đọc được PDF, thử API riêng.', ['error_type' => $e::class]);
+            }
+        }
+
         // Chỉ tải PDF lên Google sau khi API riêng thất bại hoặc chưa được cấu hình.
         $questions = $this->tryPrivateApi($filePrompt, $privateFiles);
         // Mô hình đôi khi bỏ qua nội dung tệp và soạn câu chung chung; khi đó bỏ kết quả để chuyển sang Gemini.
@@ -466,6 +479,14 @@ class GeminiService
             Log::info('AI soạn đề: API riêng không đọc được tệp, chuyển sang bộ đọc tài liệu Gemini.');
         }
 
+        return $this->generateFromFilesWithGemini($fileItems, $filePrompt);
+    }
+
+    /**
+     * Soạn câu hỏi từ ảnh/PDF bằng Gemini trực tiếp (đọc PDF tốt hơn API riêng).
+     */
+    private function generateFromFilesWithGemini(array $fileItems, string $filePrompt): array
+    {
         $this->ensureGeminiConfigured();
         $parts = [];
 
