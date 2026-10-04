@@ -1302,9 +1302,6 @@
                 <button type="button" class="btn-sim-action btn-sim-autofill" onclick="triggerIframeAutofill()" title="Tự động điền đáp án đúng theo hệ thống">
                     <span>💡</span> Điền đáp án đúng
                 </button>
-                <button type="button" class="btn-sim-action btn-sim-check" onclick="triggerIframeCheck()" title="Kiểm tra đáp án đang chọn">
-                    <span>🏁</span> KIỂM TRA ĐÁP ÁN
-                </button>
             </div>
 
             <!-- Right: Nút Đóng nằm sát bên phải -->

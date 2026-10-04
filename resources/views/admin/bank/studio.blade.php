@@ -2618,14 +2618,11 @@
                     <button type="button" onclick="triggerIframeAutofill()" style="padding: 6px 14px; border-radius: 8px; background: rgba(255,255,255,0.12); border: 1.5px solid rgba(255,255,255,0.3); color: #ffeaa7; font-size: 12.5px; font-weight: 900; cursor: pointer; display: flex; align-items: center; gap: 6px; transition: 0.15s;" title="Tự động điền đáp án đúng đang cài đặt trong hệ thống">
                         <span>💡</span> Điền đáp án đúng
                     </button>
-                    <button type="button" onclick="triggerIframeCheck()" style="padding: 6px 16px; border-radius: 8px; background: linear-gradient(135deg, #00f2fe, #0284c7); border: 1.5px solid #38bdf8; color: #061021; font-size: 12.5px; font-weight: 1000; cursor: pointer; display: flex; align-items: center; gap: 6px; box-shadow: 0 0 10px rgba(0,242,254,0.35); transition: 0.15s;" title="Kiểm tra đáp án đang chọn">
-                        <span>🏁</span> KIỂM TRA ĐÁP ÁN
-                    </button>
                     <button type="button" onclick="triggerIframeReset()" style="padding: 6px 12px; border-radius: 8px; background: rgba(255,255,255,0.08); border: 1.5px solid rgba(255,255,255,0.22); color: #fff; font-size: 12px; font-weight: 800; cursor: pointer;" title="Làm lại câu này">
-                        <span>↺</span> Thử lại
+                        <span>↺</span>
                     </button>
                     <button type="button" onclick="openStudentViewInNewTab()" style="padding: 6px 14px; border-radius: 8px; background: rgba(0,242,254,0.15); border: 1.5px solid #00f2fe; color: #00f2fe; font-size: 12px; font-weight: 900; cursor: pointer; display: flex; align-items: center; gap: 6px; transition: 0.15s;" title="Mở toàn màn hình trong tab mới">
-                        <span>🚀</span> Mở Tab Mới
+                        <span>🚀</span>
                     </button>
                     <button type="button" onclick="closeModal('modal-student-sim')" style="width: 32px; height: 32px; border-radius: 8px; background: rgba(239, 68, 68, 0.2); border: 1.5px solid #ef4444; color: #ef4444; font-size: 16px; font-weight: 900; cursor: pointer; display: grid; place-items: center; transition: 0.15s;" title="Đóng xem thử">
                         ✕
