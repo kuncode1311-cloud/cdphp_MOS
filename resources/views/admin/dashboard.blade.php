@@ -1404,6 +1404,40 @@
             box-shadow: 0 2px 6px rgba(15, 23, 42, 0.12);
         }
 
+        .table-loadmore-bar {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 12px;
+            flex-wrap: wrap;
+            padding: 14px 16px 4px;
+        }
+        .table-loadmore-counter {
+            font-size: 12.5px;
+            font-weight: 850;
+            color: #475569;
+            background: #f8fafc;
+            border: 1.5px solid #dbeafe;
+            border-radius: 999px;
+            padding: 8px 14px;
+        }
+        .table-loadmore-btn {
+            border: 2px solid #bfdbfe;
+            border-radius: 999px;
+            background: linear-gradient(180deg, #ffffff, #eff6ff);
+            color: #1d4ed8;
+            font-size: 12.5px;
+            font-weight: 900;
+            padding: 8px 16px;
+            cursor: pointer;
+            box-shadow: 0 8px 18px rgba(37, 99, 235, 0.14), inset 0 -3px 0 rgba(37, 99, 235, 0.12);
+            transition: transform 0.16s ease, box-shadow 0.16s ease;
+        }
+        .table-loadmore-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 12px 24px rgba(37, 99, 235, 0.2), inset 0 -3px 0 rgba(37, 99, 235, 0.16);
+        }
+
         /* 🚀 ADVANCED ANALYTICS & REPORTING TOOLBAR */
         .btn-excel {
             display: inline-flex;
@@ -2244,6 +2278,12 @@
                             </tbody>
                         </table>
                     </div>
+                    <div class="table-loadmore-bar" id="attempts-loadmore-bar">
+                        <span class="table-loadmore-counter" id="attempts-pager-counter">Đang hiển thị 0 lượt</span>
+                        <button type="button" class="table-loadmore-btn" id="attempts-loadmore-btn" onclick="loadMoreTableRows('attempts')">
+                            Xem thêm 30 dòng
+                        </button>
+                    </div>
                 </section>
             </div>
 
@@ -2739,6 +2779,12 @@
                                 </tbody>
                             </table>
                         </div>
+                        <div class="table-loadmore-bar" id="users-loadmore-bar">
+                            <span class="table-loadmore-counter" id="users-pager-counter">Đang hiển thị 0 tài khoản</span>
+                            <button type="button" class="table-loadmore-btn" id="users-loadmore-btn" onclick="loadMoreTableRows('users')">
+                                Xem thêm 30 dòng
+                            </button>
+                        </div>
                     @else
                         <!-- ================= GIAO DIỆN DÀNH CHO ADMIN (QUẢN LÝ GIÁO VIÊN & TẤT CẢ USER) ================= -->
                         <div class="user-management-toolbar">
@@ -2990,6 +3036,12 @@
                                     @endforelse
                                 </tbody>
                             </table>
+                        </div>
+                        <div class="table-loadmore-bar" id="users-loadmore-bar">
+                            <span class="table-loadmore-counter" id="users-pager-counter">Đang hiển thị 0 tài khoản</span>
+                            <button type="button" class="table-loadmore-btn" id="users-loadmore-btn" onclick="loadMoreTableRows('users')">
+                                Xem thêm 30 dòng
+                            </button>
                         </div>
                     @endif
                 </div>
@@ -3909,6 +3961,12 @@
                                     @endforelse
                                 </tbody>
                             </table>
+                        </div>
+                        <div class="table-loadmore-bar" id="orders-loadmore-bar">
+                            <span class="table-loadmore-counter" id="orders-pager-counter">Đang hiển thị 0 đơn hàng</span>
+                            <button type="button" class="table-loadmore-btn" id="orders-loadmore-btn" onclick="loadMoreTableRows('orders')">
+                                Xem thêm 30 dòng
+                            </button>
                         </div>
 
                         <!-- Thông báo khi lọc không tìm thấy -->
@@ -8544,6 +8602,77 @@
         if (modal) modal.style.display = 'none';
     }
 
+    const ADMIN_TABLE_PAGE_SIZE = 30;
+    const adminTablePagerState = {};
+    const adminTablePagerConfig = {
+        attempts: {
+            selector: '.attempt-row-item',
+            counterId: 'attempts-pager-counter',
+            buttonId: 'attempts-loadmore-btn',
+            barId: 'attempts-loadmore-bar',
+            unit: 'lượt'
+        },
+        users: {
+            selector: '.user-row-item',
+            counterId: 'users-pager-counter',
+            buttonId: 'users-loadmore-btn',
+            barId: 'users-loadmore-bar',
+            unit: 'tài khoản'
+        },
+        orders: {
+            selector: '.order-row-item',
+            counterId: 'orders-pager-counter',
+            buttonId: 'orders-loadmore-btn',
+            barId: 'orders-loadmore-bar',
+            unit: 'đơn hàng'
+        }
+    };
+
+    function resetTablePager(key) {
+        adminTablePagerState[key] = ADMIN_TABLE_PAGE_SIZE;
+        applyTablePager(key);
+    }
+
+    function loadMoreTableRows(key) {
+        adminTablePagerState[key] = (adminTablePagerState[key] || ADMIN_TABLE_PAGE_SIZE) + ADMIN_TABLE_PAGE_SIZE;
+        applyTablePager(key);
+    }
+
+    function applyTablePager(key) {
+        const config = adminTablePagerConfig[key];
+        if (!config) return;
+
+        const rows = Array.from(document.querySelectorAll(config.selector));
+        const matchedRows = rows.filter(row => row.dataset.filterMatch !== '0');
+        const visibleLimit = adminTablePagerState[key] || ADMIN_TABLE_PAGE_SIZE;
+
+        matchedRows.forEach((row, index) => {
+            row.style.display = index < visibleLimit ? '' : 'none';
+        });
+
+        rows.filter(row => row.dataset.filterMatch === '0').forEach(row => {
+            row.style.display = 'none';
+        });
+
+        const shownCount = Math.min(visibleLimit, matchedRows.length);
+        const counter = document.getElementById(config.counterId);
+        if (counter) {
+            counter.innerText = matchedRows.length > 0
+                ? `Đang hiển thị ${shownCount} / ${matchedRows.length} ${config.unit}`
+                : `Không có ${config.unit} phù hợp`;
+        }
+
+        const button = document.getElementById(config.buttonId);
+        if (button) {
+            button.style.display = shownCount < matchedRows.length ? 'inline-flex' : 'none';
+        }
+
+        const bar = document.getElementById(config.barId);
+        if (bar) {
+            bar.style.display = rows.length > ADMIN_TABLE_PAGE_SIZE || matchedRows.length !== rows.length ? 'flex' : 'none';
+        }
+    }
+
     // 🔍 REAL-TIME ADVANCED MULTI-CRITERIA FILTER
     function applyAdvancedResultsFilter() {
         const keyword = (document.getElementById('filter-keyword')?.value || '').toLowerCase().trim();
@@ -8569,10 +8698,10 @@
             const matchStatus = !status || rowStatus === status;
 
             if (matchKeyword && matchGrade && matchTeacher && matchTopic && matchStatus) {
-                row.style.display = '';
+                row.dataset.filterMatch = '1';
                 visibleCount++;
             } else {
-                row.style.display = 'none';
+                row.dataset.filterMatch = '0';
             }
         });
 
@@ -8580,6 +8709,8 @@
         if (counter) {
             counter.innerText = `Hiển thị: ${visibleCount} / ${rows.length} lượt`;
         }
+
+        resetTablePager('attempts');
     }
 
     function resetResultsFilter() {
@@ -8734,10 +8865,10 @@
             const matchesQuery = !query || text.includes(query);
 
             if (matchesRole && matchesQuery) {
-                row.style.display = '';
+                row.dataset.filterMatch = '1';
                 visibleCount++;
             } else {
-                row.style.display = 'none';
+                row.dataset.filterMatch = '0';
             }
         });
 
@@ -8751,6 +8882,8 @@
                 badge.innerText = `Tổng: ${visibleCount} tài khoản`;
             }
         }
+
+        resetTablePager('users');
     }
 
     // 🍞 TOAST NOTIFICATION REALTIME HELPER (3D GAMIFIED, TỰ TRƯỢT VÀ CÓ NÚT TẮT ✕)
@@ -10633,10 +10766,10 @@
             const matchStatus = !status || rowStatus === status;
 
             if (matchQuery && matchStatus) {
-                row.style.display = '';
+                row.dataset.filterMatch = '1';
                 visibleCount++;
             } else {
-                row.style.display = 'none';
+                row.dataset.filterMatch = '0';
             }
         });
 
@@ -10644,6 +10777,8 @@
         if (emptyFilter) {
             emptyFilter.style.display = (visibleCount === 0 && rows.length > 0) ? 'block' : 'none';
         }
+
+        resetTablePager('orders');
     }
 
     // 🔄 SIDEBAR TOGGLE & LOCALSTORAGE PERSISTENCE
@@ -10721,6 +10856,9 @@
         document.querySelectorAll('.excel-table-wrap').forEach(w => {
             w.scrollLeft = 0;
         });
+        applyAdvancedResultsFilter();
+        applyUserFilters();
+        filterOrdersTable();
     });
     window.addEventListener('hashchange', () => {
         restoreAdminActiveTab();

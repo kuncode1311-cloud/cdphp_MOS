@@ -169,7 +169,7 @@ class AdminController extends Controller
             $packageOrders = PackageOrder::query()
                 ->with(['user', 'package.levels'])
                 ->latest('id')
-                ->limit(50)
+                ->limit(90)
                 ->get();
 
             $totalOrdersCount = PackageOrder::count();
@@ -191,20 +191,24 @@ class AdminController extends Controller
             $pendingSupportCount = \App\Models\SupportMessage::where('status', 'pending')->count();
         } else {
             // 💎 Dành cho Giáo viên: Truy xuất đơn thuê gói & thông tin bản quyền của chính giáo viên
-            $packageOrders = PackageOrder::where('user_id', $user->id)
+            $teacherOrdersQuery = PackageOrder::where('user_id', $user->id);
+            $packageOrders = (clone $teacherOrdersQuery)
                 ->with(['package.levels'])
                 ->latest('id')
+                ->limit(90)
                 ->get();
-            $totalOrdersCount = $packageOrders->count();
-            $pendingOrdersCount = $packageOrders->where('status', PackageOrder::STATUS_PENDING)->count();
-            $activeOrdersCount = $packageOrders->where('status', PackageOrder::STATUS_ACTIVE)->count();
-            $totalRevenue = (int) $packageOrders->where('status', PackageOrder::STATUS_ACTIVE)->sum('price');
+            $totalOrdersCount = (clone $teacherOrdersQuery)->count();
+            $pendingOrdersCount = (clone $teacherOrdersQuery)->where('status', PackageOrder::STATUS_PENDING)->count();
+            $activeOrdersCount = (clone $teacherOrdersQuery)->where('status', PackageOrder::STATUS_ACTIVE)->count();
+            $totalRevenue = (int) (clone $teacherOrdersQuery)->where('status', PackageOrder::STATUS_ACTIVE)->sum('price');
             $packages = Package::where('is_active', true)->orderBy('sort_order')->get();
             $supportMessages = collect();
             $pendingSupportCount = 0;
         }
 
-        $activeTeacherOrder = $isTeacher ? $packageOrders->where('status', PackageOrder::STATUS_ACTIVE)->first() : null;
+        $activeTeacherOrder = $isTeacher
+            ? PackageOrder::where('user_id', $user->id)->where('status', PackageOrder::STATUS_ACTIVE)->latest('id')->first()
+            : null;
 
         return view('admin.dashboard', compact(
             'classes',
