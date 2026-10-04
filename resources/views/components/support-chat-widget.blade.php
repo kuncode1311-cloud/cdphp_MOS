@@ -146,7 +146,10 @@
                 });
 
                 if (state.id) poll();
-                setInterval(poll, 8000);
+                // Khung chat đang mở thì hỏi mỗi 3 giây để thấy trả lời gần như tức thì; đóng khung thì 8 giây
+                (function loop() {
+                    setTimeout(async () => { await poll(); loop(); }, isOpen() ? 3000 : 8000);
+                })();
             })();
         </script>
     @endif

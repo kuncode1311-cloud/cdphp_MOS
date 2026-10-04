@@ -78,7 +78,7 @@ class SupportMessage extends Model
      * Chỉ tin hai nguồn: tài khoản đã đăng nhập lúc gửi (user_id), hoặc email trùng khớp chính xác với một tài khoản.
      * Tuyệt đối không đoán theo tên hay số điện thoại để tránh gắn nhầm huy hiệu.
      *
-     * @return array{user: ?User, type: string, label: string}
+     * @return array{user: ?User, type: string, label: string, account: ?array}
      */
     public function resolveSender(): array
     {
@@ -88,17 +88,20 @@ class SupportMessage extends Model
         }
 
         if (! $user) {
-            return ['user' => null, 'type' => 'guest', 'label' => '🌐 Khách Vãng Lai'];
+            return ['user' => null, 'type' => 'guest', 'label' => '🌐 Khách Vãng Lai', 'account' => null];
         }
 
+        $account = $user->accountSnapshot();
+
         return match (true) {
-            $user->isTeacher() => ['user' => $user, 'type' => 'teacher', 'label' => '👨‍🏫 Giáo Viên'],
+            $user->isTeacher() => ['user' => $user, 'type' => 'teacher', 'label' => '👨‍🏫 Giáo Viên', 'account' => $account],
             $user->isStudent() => [
                 'user' => $user,
                 'type' => 'student',
                 'label' => $user->isIndependentStudent() ? '🎓 Học Sinh (Mua Lẻ)' : '🎓 Học Sinh',
+                'account' => $account,
             ],
-            default => ['user' => $user, 'type' => 'user', 'label' => '👤 Thành Viên'],
+            default => ['user' => $user, 'type' => 'user', 'label' => '👤 Thành Viên', 'account' => $account],
         };
     }
     /**

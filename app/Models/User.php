@@ -125,6 +125,29 @@ class User extends Authenticatable
     }
 
     /**
+     * Thông tin ngắn gọn về tài khoản và gói đang dùng để hiển thị ở hộp gợi ý trong Tin nhắn tư vấn.
+     *
+     * @return array<string, mixed>
+     */
+    public function accountSnapshot(): array
+    {
+        $summary = $this->packageSummary();
+        $pending = $this->packageOrders()->where('status', PackageOrder::STATUS_PENDING)->first();
+
+        return [
+            'role' => $this->role,
+            'status' => $this->status ?? 'active',
+            'independent' => $this->isIndependentStudent(),
+            'package' => $summary['package'],
+            'expires' => $summary['expires_at']?->format('d/m/Y'),
+            'teacher' => $summary['teacher'],
+            'inherited' => $summary['inherited'],
+            'pending_package' => $pending?->package_name,
+            'students' => $this->isTeacher() ? $this->students()->count() : null,
+            'max_students' => $this->isTeacher() ? (int) $this->max_students : null,
+        ];
+    }
+    /**
      * Lấy đơn thuê gói gần nhất
      */
     public function latestPackageOrder(): \Illuminate\Database\Eloquent\Relations\HasOne

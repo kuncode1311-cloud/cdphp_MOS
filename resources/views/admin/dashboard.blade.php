@@ -5111,6 +5111,7 @@
                                      data-gradient="{{ $gradient }}"
                                      data-user-type="{{ $userType }}"
                                      data-user-type-label="{{ $userTypeLabel }}"
+                                     data-account="{{ json_encode($msg->account ?? null) }}"
                                      data-time="{{ $msg->created_at ? $msg->created_at->setTimezone('Asia/Ho_Chi_Minh')->format('H:i d/m/Y') : '' }}"
                                      onclick="selectChatConversation(this)">
 
@@ -7610,62 +7611,8 @@
         const drawerZaloBtn = document.getElementById('drawer-btn-zalo');
         if (drawerZaloBtn) drawerZaloBtn.href = 'https://zalo.me/' + cleanPhone;
 
-        // Cập nhật Smart Action Box theo phân loại người gửi
-        const smartBox = document.getElementById('drawer-smart-action-box');
-        const smartTitle = document.getElementById('smart-box-title');
-        const smartDesc = document.getElementById('smart-box-desc');
-        const quickCreateBtn = document.getElementById('btn-quick-create-teacher');
-
-        if (smartBox) {
-            if (userType === 'guest') {
-                smartBox.style.background = '#faf5ff';
-                smartBox.style.borderColor = '#c084fc';
-                if (smartTitle) {
-                    smartTitle.innerText = '🌐 KHÁCH VÃNG LAI (CHƯA CÓ TÀI KHOẢN)';
-                    smartTitle.style.color = '#7c3aed';
-                }
-                if (smartDesc) smartDesc.innerText = 'Khách gửi tin từ website ngoài. Bạn có thể tư vấn gói và bấm nút dưới để tạo nhanh tài khoản Giáo viên.';
-                if (quickCreateBtn) {
-                    quickCreateBtn.style.display = 'flex';
-                    quickCreateBtn.innerHTML = '<span>⚡</span> Tạo Tài Khoản Giáo Viên';
-                    quickCreateBtn.onclick = openCreateTeacherFromCurrentChat;
-                }
-            } else if (userType === 'teacher') {
-                smartBox.style.background = '#f0fdf4';
-                smartBox.style.borderColor = '#86efac';
-                if (smartTitle) {
-                    smartTitle.innerText = '👨‍🏫 GIÁO VIÊN HỆ THỐNG';
-                    smartTitle.style.color = '#15803d';
-                }
-                if (smartDesc) smartDesc.innerText = 'Thầy/Cô đã có tài khoản trên hệ thống MOS IC3. Bấm để chuyển nhanh sang Quản lý lớp & Học sinh.';
-                if (quickCreateBtn) {
-                    quickCreateBtn.style.display = 'flex';
-                    quickCreateBtn.innerHTML = '<span>👥</span> Xem Quản Trị Giáo Viên';
-                    quickCreateBtn.onclick = () => {
-                        if (typeof switchAdminTab === 'function') {
-                            switchAdminTab('tab-users', document.querySelector('[data-tab="tab-users"]'));
-                        }
-                    };
-                }
-            } else {
-                smartBox.style.background = '#eff6ff';
-                smartBox.style.borderColor = '#93c5fd';
-                if (smartTitle) {
-                    smartTitle.innerText = '🎓 HỌC SINH HỆ THỐNG';
-                    smartTitle.style.color = '#1d4ed8';
-                }
-                if (smartDesc) smartDesc.innerText = 'Em học sinh đã có tài khoản trên MOS IC3. Bấm để tra cứu kết quả thi luyện của học sinh.';
-                if (quickCreateBtn) {
-                    quickCreateBtn.style.display = 'flex';
-                    quickCreateBtn.innerHTML = '<span>📊</span> Tra Cứu Điểm Luyện Thi';
-                    quickCreateBtn.onclick = () => {
-                        if (typeof filterResultsByStudent === 'function') {
-                            filterResultsByStudent(name);
-                        }
-                    };
-                }
-            }
-        }
+        // Cập nhật hộp gợi ý thao tác theo loại người gửi và gói của họ
+        renderSmartActionBox(userType, name, parseChatAccount(card));
 
         // Cập nhật trạng thái Drawer Chips
         document.querySelectorAll('.drawer-status-chip').forEach(c => {
@@ -7681,6 +7628,91 @@
         if (stream) stream.scrollTop = stream.scrollHeight;
     }
 
+    // Đọc thông tin tài khoản/gói gắn trên thẻ hội thoại (null nếu là khách chưa có tài khoản)
+    function parseChatAccount(card) {
+        try {
+            return JSON.parse(card.getAttribute('data-account') || 'null');
+        } catch (e) {
+            return null;
+        }
+    }
+
+    // Hộp gợi ý bên phải ô chat: khách chưa có tài khoản thì gợi ý tạo tài khoản; đã có thì hiện gói và việc nên làm tiếp
+    function renderSmartActionBox(userType, name, account) {
+        const smartBox = document.getElementById('drawer-smart-action-box');
+        const smartTitle = document.getElementById('smart-box-title');
+        const smartDesc = document.getElementById('smart-box-desc');
+        const btn = document.getElementById('btn-quick-create-teacher');
+        if (!smartBox) return;
+
+        const paint = (bg, border, titleColor, title, desc) => {
+            smartBox.style.background = bg;
+            smartBox.style.borderColor = border;
+            if (smartTitle) { smartTitle.innerText = title; smartTitle.style.color = titleColor; }
+            if (smartDesc) { smartDesc.innerText = desc; smartDesc.style.whiteSpace = 'pre-line'; }
+        };
+        const setButton = (html, handler) => {
+            if (!btn) return;
+            btn.style.display = 'flex';
+            btn.innerHTML = html;
+            btn.onclick = handler;
+        };
+        const openPackages = () => {
+            if (typeof switchAdminTab === 'function') {
+                switchAdminTab('tab-packages', document.querySelector('[data-tab="tab-packages"]'));
+            }
+        };
+
+        // Khách vãng lai: chưa có tài khoản
+        if (!account || userType === 'guest') {
+            paint('#faf5ff', '#c084fc', '#7c3aed', '🌐 KHÁCH VÃNG LAI (CHƯA CÓ TÀI KHOẢN)',
+                'Khách gửi tin từ trang ngoài. Bạn có thể tư vấn gói và bấm nút dưới để tạo nhanh tài khoản Giáo viên.');
+            setButton('<span>⚡</span> Tạo Tài Khoản Giáo Viên', openCreateTeacherFromCurrentChat);
+            return;
+        }
+
+        // Đã có tài khoản: hiển thị gói, hạn dùng, giáo viên quản lý và đơn đang chờ
+        const lines = [];
+        if (account.inherited && account.teacher) lines.push('Giáo viên quản lý: ' + account.teacher);
+        if (account.package) {
+            lines.push('Gói: ' + account.package + (account.inherited ? ' (theo giáo viên)' : ''));
+        } else if (account.inherited) {
+            lines.push('Dùng theo gói của giáo viên');
+        } else {
+            lines.push('Chưa có gói đang hoạt động');
+        }
+        if (account.expires) lines.push('Hạn dùng: ' + account.expires);
+        if (account.students !== null && account.students !== undefined) lines.push('Học sinh: ' + account.students + ' / ' + (account.max_students || 0));
+        if (account.pending_package) lines.push('Đơn chờ thanh toán: ' + account.pending_package);
+        if (account.status && account.status !== 'active') {
+            const statusText = { pending: 'Chờ kích hoạt', suspended: 'Đang bị khóa', expired: 'Đã hết hạn' }[account.status] || account.status;
+            lines.push('Trạng thái: ' + statusText);
+        }
+        const desc = lines.join('\n');
+
+        if (userType === 'teacher') {
+            paint('#f0fdf4', '#86efac', '#15803d', '👨‍🏫 GIÁO VIÊN' + (account.package ? ' · ' + account.package : ''), desc);
+            setButton(account.pending_package ? '<span>🧾</span> Xem Đơn Chờ Duyệt' : '<span>💎</span> Xem Gói & Bản Quyền', openPackages);
+        } else {
+            const title = account.independent ? '🎓 HỌC SINH MUA LẺ' : '🎓 HỌC SINH CỦA GIÁO VIÊN';
+            paint('#eff6ff', '#93c5fd', '#1d4ed8', title, desc);
+            if (account.pending_package || (account.independent && !account.package)) {
+                setButton(account.pending_package ? '<span>🧾</span> Xem Đơn Chờ Duyệt' : '<span>💎</span> Xem Gói Dành Cho Học Sinh', openPackages);
+            } else {
+                setButton('<span>📊</span> Tra Cứu Điểm Luyện Thi', () => {
+                    if (typeof filterResultsByStudent === 'function') filterResultsByStudent(name);
+                });
+            }
+        }
+    }
+
+    // Hiển thị đúng hộp gợi ý cho đoạn chat đang mở ngay khi tải trang (trước đây luôn hiện bản dành cho khách)
+    (function initSmartActionBox() {
+        const card = document.querySelector('.ms-conv-item.active');
+        if (card) {
+            renderSmartActionBox(card.getAttribute('data-user-type') || 'guest', card.getAttribute('data-name') || '', parseChatAccount(card));
+        }
+    })();
     // ⚡ TỰ ĐỘNG MỞ MODAL TẠO TÀI KHOẢN GIÁO VIÊN TỪ THÔNG TIN KHÁCH VÃNG LAI
     function openCreateTeacherFromCurrentChat() {
         const activeCard = document.querySelector(`.ms-conv-item[data-id="${currentChatMsgId}"]`) || document.querySelector('.ms-conv-item.active');
@@ -8088,7 +8120,7 @@
 
     function pollAdminChat() {
         if (document.hidden) return;
-        fetch(`/quan-tri/tin-nhan/realtime-poll?last_id=${lastPolledMsgId}&active_id=${currentChatMsgId || 0}`)
+        return fetch(`/quan-tri/tin-nhan/realtime-poll?last_id=${lastPolledMsgId}&active_id=${currentChatMsgId || 0}`)
             .then(res => res.json())
             .then(data => {
                 if (!data.ok) return;
@@ -8142,6 +8174,7 @@
                                      data-gradient="linear-gradient(135deg, #0084ff, #00c6ff)"
                                      data-user-type="${uType}"
                                      data-user-type-label="${escapeSupportHtml(uLabel)}"
+                                     data-account="${escapeSupportHtml(JSON.stringify(msg.account || null))}"
                                      data-time="${msg.created_at || 'Vừa xong'}"
                                      onclick="selectChatConversation(this)">
                                     <div class="ms-item-avatar-wrap">
@@ -8254,8 +8287,20 @@
         } catch(e) {}
     }
 
+    // Hỏi tin nhắn mới nhanh (2 giây) khi đang mở tab Chat để demo mượt; ở tab khác thì 6 giây cho nhẹ máy chủ.
+    // Chờ lượt hỏi trước xong mới hỏi tiếp, tránh chồng yêu cầu khi mạng chậm.
     if (!adminChatPollingTimer && @json(auth()->user()->isAdmin())) {
-        adminChatPollingTimer = setInterval(pollAdminChat, 5000);
+        adminChatPollingTimer = true;
+        const scheduleAdminChatPoll = async () => {
+            try {
+                await pollAdminChat();
+            } finally {
+                const chatTab = document.getElementById('tab-chat');
+                const onChatTab = chatTab && getComputedStyle(chatTab).display !== 'none';
+                setTimeout(scheduleAdminChatPoll, onChatTab ? 2000 : 6000);
+            }
+        };
+        setTimeout(scheduleAdminChatPoll, 2000);
     }
 
     // =========================================================================

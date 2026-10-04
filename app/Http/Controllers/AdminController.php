@@ -190,6 +190,7 @@ class AdminController extends Controller
                 $msg->user_type_label = $sender['label'];
                 $msg->matched_user_name = $sender['user']?->name;
                 $msg->matched_user_id = $sender['user']?->id;
+                $msg->account = $sender['account'];
             }
             $pendingSupportCount = \App\Models\SupportMessage::where('status', 'pending')->count();
         } else {
@@ -368,6 +369,7 @@ class AdminController extends Controller
                     'status' => $m->status,
                     'user_type' => $userType,
                     'user_type_label' => $userTypeLabel,
+                    'account' => $sender['account'],
                     'replied_at' => $m->replied_at ? \Illuminate\Support\Carbon::parse($m->replied_at)->setTimezone('Asia/Ho_Chi_Minh')->format('H:i d/m/Y') : null,
                     'created_at' => $m->created_at ? $m->created_at->setTimezone('Asia/Ho_Chi_Minh')->format('H:i d/m/Y') : null,
                     'time_diff' => $m->created_at ? $m->created_at->setTimezone('Asia/Ho_Chi_Minh')->diffForHumans(null, true) : 'Vừa xong',
