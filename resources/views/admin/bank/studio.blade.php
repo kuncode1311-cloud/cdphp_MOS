@@ -6194,10 +6194,11 @@
                 <div class="sai-count-control">
                     <label for="sai-question-count">🔢 Số câu muốn tạo</label>
                     <select id="sai-question-count">
-                        @for($i = 1; $i <= 10; $i++)
+                        @foreach([1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 15, 20, 25, 30] as $i)
                             <option value="{{ $i }}" @selected($i === 5)>{{ $i }} câu</option>
-                        @endfor
+                        @endforeach
                     </select>
+                    <small id="sai-count-hint" style="display:none; margin-left:8px; color:#7c3aed; font-weight:800; font-size:11.5px;"></small>
                 </div>
                 <textarea class="sai-ctx" id="sai-ctx" rows="6" maxlength="50000" oninput="saiUpdateCtxMeter()"
                           placeholder="Nhập yêu cầu để AI soạn đúng ý hơn: số lượng câu, dạng câu và nội dung cần tập trung. Ví dụ: Tạo 5 câu hỏi Tin học từ tài liệu, gồm 3 câu trắc nghiệm và 2 câu ghép nối."></textarea>
@@ -6318,6 +6319,15 @@ function saiUpdateCtxMeter() {
     const meter = document.getElementById('sai-ctx-meter');
     if (!input || !meter) return;
     meter.textContent = `${input.value.length.toLocaleString('vi-VN')} / 50.000 ký tự`;
+
+    // Báo cho giáo viên biết khi nội dung có ghi rõ số câu (sẽ được ưu tiên hơn ô chọn số câu)
+    const hint = document.getElementById('sai-count-hint');
+    if (hint) {
+        const found = [...input.value.matchAll(/(?:làm|tạo|soạn|ra|cho|lấy|xuất|cần|viết)\s+(?:đúng\s+|khoảng\s+|đủ\s+)?(\d{1,2})\s*câu/giu)].pop();
+        const n = found ? parseInt(found[1], 10) : 0;
+        hint.style.display = n >= 1 && n <= 30 ? '' : 'none';
+        hint.textContent = n >= 1 && n <= 30 ? `→ Sẽ soạn ${n} câu theo yêu cầu trong nội dung` : '';
+    }
 }
 
 function saiGeneratedIllustrationPaths() {

@@ -36,7 +36,7 @@ class AiQuestionController extends Controller
             'text' => 'nullable|string|max:50000',
             'context' => 'nullable|string|max:50000',
             'generate_images' => 'nullable|boolean',
-            'question_count' => 'nullable|integer|min:1|max:10',
+            'question_count' => 'nullable|integer|min:1|max:30',
         ], [
             'files.max' => 'Thầy/Cô có thể tải lên tối đa 10 tệp cùng lúc.',
             'files.*.max' => 'Mỗi tệp không được vượt quá 20MB.',
@@ -49,7 +49,11 @@ class AiQuestionController extends Controller
         $hasText = ! empty($promptText);
         $hasFiles = $request->hasFile('files') || $request->hasFile('file');
         $generateImages = $request->boolean('generate_images');
-        $questionCount = max(1, min(10, $request->integer('question_count', 5)));
+        // Số câu giáo viên ghi rõ trong nội dung (ví dụ "làm 20 câu") được ưu tiên hơn ô chọn số câu.
+        $requestedInText = self::detectRequestedCount($promptText);
+        $questionCount = $requestedInText ?? max(1, min(30, $request->integer('question_count', 5)));
+        // Mỗi lượt gọi AI tối đa 10 câu để không bị cắt cụt; phần còn lại được bù ở bước sau.
+        $batchCount = min($questionCount, 10);
 
         if (! $hasFiles && ! $hasText) {
             return response()->json([
@@ -75,10 +79,10 @@ class AiQuestionController extends Controller
                         'name' => $file->getClientOriginalName(),
                     ];
                 }
-                $questions = $this->gemini->generateQuestionsFromFiles($fileItems, $promptText, $generateImages, $questionCount);
+                $questions = $this->gemini->generateQuestionsFromFiles($fileItems, $promptText, $generateImages, $batchCount);
             } else {
                 // Chế độ giáo viên chỉ nhập ý tưởng / đề cương thuần chữ không kèm ảnh
-                $questions = $this->gemini->generateQuestionsFromText($promptText, '', $generateImages, $questionCount);
+                $questions = $this->gemini->generateQuestionsFromText($promptText, '', $generateImages, $batchCount);
             }
 
             // AI hoặc bộ lọc chất lượng có thể bỏ bớt câu; gọi bù để đủ số câu giáo viên đã chọn.
@@ -105,7 +109,8 @@ class AiQuestionController extends Controller
                 'success' => true,
                 'questions' => $questions,
                 'count' => $count,
-                'message' => "Đã phân tích xong và tìm thấy {$count} câu hỏi chất lượng!",
+                'message' => "Đã phân tích xong và tìm thấy {$count} câu hỏi chất lượng!".($requestedInText && $count !== $requestedInText ? " (Yêu cầu {$requestedInText} câu, nội dung chỉ đủ dữ kiện cho {$count} câu.)" : ''),
+                'requested_count' => $questionCount,
                 'ai_trace' => $this->gemini->executionTrace(),
                 'total_ms' => (int) round((microtime(true) - $requestStartedAt) * 1000),
                 'image_generation_enabled' => $generateImages,
@@ -286,7 +291,7 @@ class AiQuestionController extends Controller
     }
 
     /**
-     * Bổ sung câu hỏi khi AI trả thiếu so với số câu đã chọn (tối đa 2 lượt bù), loại câu trùng và cắt về đúng số lượng.
+     * Bổ sung câu hỏi khi AI trả thiếu so với số câu đã chọn (mỗi lượt tối đa 10 câu), loại câu trùng và cắt về đúng số lượng.
      *
      * @param  array<int, array<string, mixed>>  $questions
      * @param  array<int, \Illuminate\Http\UploadedFile>  $uploadedFiles
@@ -296,7 +301,8 @@ class AiQuestionController extends Controller
     {
         $signature = fn (array $q): string => mb_strtolower(mb_substr(preg_replace('/\s+/u', ' ', (string) ($q['title'] ?? '')), 0, 80));
 
-        for ($round = 0; $round < 2 && count($questions) < $wanted; $round++) {
+        $maxRounds = (int) ceil($wanted / 10) + 1;
+        for ($round = 0; $round < $maxRounds && count($questions) < $wanted; $round++) {
             $missing = $wanted - count($questions);
             $existing = implode("\n", array_map(fn (array $q, int $i) => ($i + 1).'. '.($q['title'] ?? ''), $questions, array_keys($questions)));
             $note = trim($promptText."\n\nĐã có các câu hỏi sau, hãy soạn câu MỚI, khác hoàn toàn về nội dung và cách hỏi:\n".$existing);
@@ -336,5 +342,20 @@ class AiQuestionController extends Controller
             'mime_type' => $file->getMimeType() ?: 'image/jpeg',
             'name' => $file->getClientOriginalName(),
         ], $uploadedFiles);
+    }
+
+    /**
+     * Tìm số câu giáo viên ghi trong nội dung, ví dụ "làm 20 câu", "tạo 15 câu hỏi". Lấy lần xuất hiện cuối cùng;
+     * trả về null nếu không có hoặc ngoài khoảng 1-30. Các tiêu đề "Câu 20." trong đề dán vào không bị nhầm.
+     */
+    public static function detectRequestedCount(string $text): ?int
+    {
+        if (! preg_match_all('/(?:làm|tạo|soạn|ra|cho|lấy|xuất|cần|viết)\s+(?:đúng\s+|khoảng\s+|đủ\s+)?(\d{1,2})\s*câu/iu', $text, $matches)) {
+            return null;
+        }
+
+        $number = (int) end($matches[1]);
+
+        return $number >= 1 && $number <= 30 ? $number : null;
     }
 }

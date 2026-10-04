@@ -60,4 +60,43 @@ class AiQuestionTopUpTest extends TestCase
 
         $this->assertSame(3, $res->json('count'));
     }
+
+    public function test_nhan_dien_so_cau_giao_vien_ghi_trong_noi_dung(): void
+    {
+        $detect = \App\Http\Controllers\Admin\AiQuestionController::class . '::detectRequestedCount';
+
+        $this->assertSame(20, $detect("Câu 1. A?\nCâu 20. Hành động nào an toàn?\nD. Tải tệp email làm 20 câu nha"));
+        $this->assertSame(15, $detect('Hãy tạo 15 câu hỏi về mạng'));
+        $this->assertSame(8, $detect('làm 5 câu, à không, soạn đúng 8 câu'));
+        $this->assertNull($detect("Câu 20. Hành động nào an toàn?\nCâu 19. Gì đó?"));
+        $this->assertNull($detect('làm 99 câu'));
+        $this->assertNull($detect('Soạn câu hỏi về bàn phím'));
+    }
+
+    public function test_noi_dung_ghi_20_cau_thi_soan_20_cau_theo_tung_lot_toi_da_10_cau(): void
+    {
+        $this->seed();
+        $admin = User::where('role', 'admin')->firstOrFail();
+        $calls = [];
+
+        $this->mock(GeminiService::class, function (MockInterface $mock) use (&$calls) {
+            $mock->shouldReceive('generateQuestionsFromText')->andReturnUsing(function (string $text, string $ctx, bool $img, int $count) use (&$calls) {
+                $calls[] = $count;
+                $base = count($calls) * 100;
+
+                return array_map(fn ($i) => $this->q('Cau '.($base + $i)), range(1, $count));
+            });
+            $mock->shouldReceive('executionTrace')->andReturn([]);
+        });
+
+        $res = $this->actingAs($admin)->postJson('/quan-tri/ai/tao-cau-hoi', [
+            'text' => "Câu 1. Thiết bị nhập là gì?\nlàm 20 câu nha",
+            'question_count' => 5,
+        ])->assertOk();
+
+        $this->assertSame(20, $res->json('count'));
+        $this->assertSame(20, $res->json('requested_count'));
+        $this->assertSame(10, $calls[0]);
+        $this->assertLessThanOrEqual(10, max($calls));
+    }
 }
