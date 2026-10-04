@@ -301,6 +301,48 @@
             .side { display: none; }
         }
     </style>
+    <style>
+        /* ===== Chuẩn hóa giao diện: một tông màu, gọn gàng, dễ đọc ===== */
+        .stats-grid { gap: 14px; margin-bottom: 22px; }
+        .stat-card { padding: 14px 16px; gap: 12px; border-radius: 14px; }
+        .stat-card.c-amber, .stat-card.c-blue, .stat-card.c-green, .stat-card.c-purple, .stat-card.c-rose, .stat-card.c-sky, .stat-card.c-indigo {
+            background: #ffffff; border: 2px solid #cbd5e1; box-shadow: 0 6px 16px rgba(15, 23, 42, 0.08);
+        }
+        .stat-icon { width: 40px; height: 40px; font-size: 20px; }
+        .stat-val { font-size: 21px; }
+        .stat-lbl { font-size: 10.5px; }
+
+        .grid-layout { gap: 18px; grid-template-columns: 1.4fr 1fr; }
+        .card, .card.card-config-game, .card.card-leaderboard, .card.card-reward, .card.card-history {
+            background: #ffffff; border: 2px solid #cbd5e1; border-top: 4px solid #6366f1;
+            padding: 18px 20px; margin-bottom: 18px; box-shadow: 0 8px 20px rgba(15, 23, 42, 0.08);
+        }
+        .card-head { margin-bottom: 14px; padding-bottom: 10px; }
+        .card-title { font-size: 15px; gap: 8px; }
+        .card-title-icon { width: 28px; height: 28px; font-size: 14px; background: #eef2ff !important; color: #4338ca !important; border: 1.5px solid #c7d2fe !important; }
+
+        .form-unit { margin-bottom: 12px; }
+        .form-label { font-size: 12.5px; margin-bottom: 4px; color: #334155; }
+        .form-input, .form-select { padding: 8px 12px; border: 1.5px solid #cbd5e1; font-size: 13.5px; border-radius: 9px; }
+        .form-hint { color: #64748b; font-size: 11.5px; display: block; margin-top: 4px; font-weight: 600; }
+
+        .package-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 12px; }
+        .package-box, .package-box.pkg2 { background: #f8fafc; border: 2px solid #cbd5e1; box-shadow: none; padding: 12px 14px; margin-bottom: 0; }
+        .package-title { font-size: 13px; font-weight: 800; color: #3730a3; margin-bottom: 10px; display: flex; align-items: center; gap: 6px; }
+        .limit-box { background: #f8fafc; border: 2px solid #cbd5e1; border-radius: 12px; padding: 12px 14px; }
+
+        .switch-label { padding: 10px 14px; margin-bottom: 14px; }
+
+        .btn-save { padding: 9px 20px; font-size: 13.5px; border-width: 1.5px; box-shadow: 0 3px 0 #312e81, 0 6px 14px rgba(79, 70, 229, 0.25); }
+        .btn-action { padding: 9px 18px; font-size: 13px; box-shadow: 0 3px 0 #047857, 0 6px 14px rgba(16, 185, 129, 0.25); }
+
+        .table-wrap { border: 2px solid #cbd5e1; max-height: 420px; }
+        th { padding: 9px 10px; font-size: 11px; }
+        td { padding: 9px 10px; font-size: 12.5px; vertical-align: top; }
+        td:first-child, th:first-child { min-width: 112px; white-space: nowrap; }
+        td:nth-child(3), td:nth-child(4), th:nth-child(3), th:nth-child(4) { white-space: nowrap; }
+        @media (max-width: 1100px) { .package-grid { grid-template-columns: 1fr; } }
+    </style>
 </head>
 <body>
 
@@ -394,10 +436,11 @@
                             <input type="checkbox" name="game_enabled" value="1" {{ ($settings['game_enabled'] ?? '1') === '1' ? 'checked' : '' }} style="width:22px; height:22px; cursor:pointer;">
                         </label>
 
+                        <div class="package-grid">
                         <!-- Gói 1 -->
                         <div class="package-box">
-                            <div style="font-size:13px; font-weight:800; color:#4338ca; margin-bottom:12px; display:flex; align-items:center; gap:6px;">
-                                <span>🥉</span> CẤU HÌNH GÓI 1 (GÓI CƠ BẢN)
+                            <div class="package-title">
+                                <span>🥉</span> Gói 1 · Cơ bản
                             </div>
                             <div class="form-unit">
                                 <label class="form-label">Tên hiển thị gói 1</label>
@@ -417,8 +460,8 @@
 
                         <!-- Gói 2 -->
                         <div class="package-box pkg2">
-                            <div style="font-size:13px; font-weight:800; color:#854d0e; margin-bottom:12px; display:flex; align-items:center; gap:6px;">
-                                <span>🥈</span> CẤU HÌNH GÓI 2 (GÓI SIÊU CẤP - KHUYẾN KHÍCH)
+                            <div class="package-title">
+                                <span>🥈</span> Gói 2 · Siêu cấp
                             </div>
                             <div class="form-unit">
                                 <label class="form-label">Tên hiển thị gói 2</label>
@@ -436,12 +479,14 @@
                             </div>
                         </div>
 
+                        </div>
+
                         <!-- Giới hạn tối đa mỗi ngày -->
-                        <div class="form-unit" style="background:#fffaf5; border:1.5px solid #fed7aa; border-radius:12px; padding:14px 16px;">
-                            <label class="form-label" style="color:#9a3412;">🛡️ Giới hạn tối đa thời gian chơi/ngày (Bảo vệ mắt học sinh)</label>
-                            <input type="number" name="max_daily_minutes" class="form-input" value="{{ $settings['max_daily_minutes'] ?? 20 }}" min="5" max="180" required style="border-color:#fdba74;">
-                            <small style="color:#c2410c; font-size:11.5px; display:block; margin-top:4px; font-weight:600;">
-                                Mỗi học sinh không được chơi quá số phút này trong cùng một ngày.
+                        <div class="form-unit limit-box">
+                            <label class="form-label">🛡️ Giới hạn chơi mỗi ngày (phút) · bảo vệ mắt học sinh</label>
+                            <input type="number" name="max_daily_minutes" class="form-input" value="{{ $settings['max_daily_minutes'] ?? 20 }}" min="5" max="180" required>
+                            <small class="form-hint">
+                                Học sinh chơi đủ số phút này trong ngày thì game tự dừng, mai mới chơi tiếp.
                             </small>
                         </div>
 
