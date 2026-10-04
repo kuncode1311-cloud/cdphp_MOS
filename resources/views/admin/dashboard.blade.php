@@ -1331,6 +1331,15 @@
             transform: translateY(-2px);
         }
 
+        /* ===== Thẻ khối lớp: viền đậm, nổi khỏi nền; hàng nút căn đều ===== */
+        .level-hero-card { box-shadow: 0 14px 32px rgba(15, 23, 42, 0.18), 0 2px 6px rgba(15, 23, 42, 0.08); }
+        .level-hero-card:hover { box-shadow: 0 20px 40px rgba(15, 23, 42, 0.24), 0 4px 10px rgba(15, 23, 42, 0.10); }
+        .metric-tile { border-color: #cbd5e1; }
+        .level-hero-actions { display: grid; grid-template-columns: repeat(6, minmax(0, 1fr)); gap: 8px; }
+        .level-hero-actions > a { grid-column: span 2; flex: none; min-height: 42px; padding: 9px 4px; gap: 5px; font-size: 12.5px; white-space: nowrap; }
+        .level-hero-actions > .btn-level-edit { grid-column: span 3; min-height: 38px; gap: 6px; white-space: nowrap; border-color: #94a3b8; }
+        .level-hero-actions > form { grid-column: span 3; margin: 0; display: flex; }
+        .level-hero-actions > form .btn-level-del { flex: 1; min-height: 38px; gap: 6px; white-space: nowrap; border-color: #fda4af; }
         .badge-current-user {
             padding: 5px 10px;
             border-radius: 7px;
@@ -2400,7 +2409,7 @@
                                 $pTopics = $progLevels->sum(fn($l) => $l->topics->count());
                                 $pTests = $progLevels->sum(fn($l) => $l->topics->sum(fn($t) => $t->tests->count()));
                             @endphp
-                            <div style="background: #ffffff; border: 2px solid #e2e8f0; border-radius: 20px; overflow: hidden; box-shadow: 0 4px 16px rgba(0,0,0,0.03);">
+                            <div style="background: #ffffff; border: 2px solid #94a3b8; border-radius: 20px; overflow: hidden; box-shadow: 0 8px 24px rgba(15,23,42,0.10);">
                                 <!-- Program Header Bar -->
                                 <div style="background: linear-gradient(135deg, #1e1b4b, #312e81); padding: 16px 20px; color: #ffffff; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px;">
                                     <div style="display: flex; align-items: center; gap: 12px;">
@@ -2410,13 +2419,9 @@
                                         <div>
                                             <div style="display: flex; align-items: center; gap: 8px;">
                                                 <h3 style="font-size: 16.5px; font-weight: 900; color: #ffffff; margin: 0;">{{ $p->name }}</h3>
-                                                <span style="background: rgba(255,255,255,0.2); color: #ffffff; font-size: 11px; font-weight: 800; padding: 2px 7px; border-radius: 6px; font-family: ui-monospace, monospace;">
-                                                    slug: {{ $p->slug }}
-                                                </span>
                                             </div>
                                             <div style="font-size: 12.5px; color: #cbd5e1; margin-top: 3px; display: flex; align-items: center; gap: 14px; flex-wrap: wrap;">
                                                 <span>🔑 <b>{{ $progLevels->count() }}</b> Khối lớp</span>
-                                                <span>🏫 <b>{{ $pClasses }}</b> Lớp học</span>
                                                 <span>📚 <b>{{ $pTopics }}</b> Chủ đề</span>
                                                 <span>📝 <b>{{ $pTests }}</b> Đề luyện</span>
                                             </div>
@@ -2452,7 +2457,7 @@
                                 </div>
 
                                 <!-- Cards for levels under this program -->
-                                <div style="padding: 20px; background: #f8fafc;">
+                                <div style="padding: 22px; background: #e2e8f0;">
                                     @if($progLevels->isNotEmpty())
                                         <div style="display:grid; grid-template-columns: repeat(auto-fit, minmax(290px, 1fr)); gap: 18px;">
                                             @foreach($progLevels as $lvl)
@@ -2462,14 +2467,13 @@
                                                     $topicCount = $lvl->topics->count();
                                                     $testCount = $lvl->topics->sum(fn($t) => $t->tests->count());
                                                 @endphp
-                                                <div class="level-hero-card" style="border: 2px solid {{ $thm['color'] }}28;">
+                                                <div class="level-hero-card" style="border: 2px solid {{ $thm['color'] }}99;">
                                                     <!-- Gradient Banner Header -->
                                                     <div class="level-hero-header" style="background: {{ $thm['gradient'] }};">
                                                         <div class="level-hero-topline">
                                                             <span class="level-hero-badge">
-                                                                {{ $thm['icon'] }} Khối {{ $lvl->grade }} · {{ $thm['name'] }}
+                                                                {{ $thm['icon'] }} Khối {{ $lvl->grade }}
                                                             </span>
-                                                            <span class="level-hero-program">{{ $p->name }}</span>
                                                         </div>
                                                         <h3 class="level-hero-title">{{ $lvl->name }}</h3>
                                                     </div>
@@ -2514,13 +2518,13 @@
                                                                 data-update-url="{{ route('admin.levels.update', $lvl) }}"
                                                                 onclick="openEditLevelModal(this)"
                                                                 title="Chỉnh sửa thông tin khối">
-                                                                <span>✏️</span>
+                                                                <span>✏️</span> Sửa
                                                             </button>
                                                             <form method="post" action="{{ route('admin.levels.destroy', $lvl) }}" onsubmit="return confirm('Bạn có chắc muốn xóa khối {{ $lvl->name }}? Lưu ý: Các chủ đề con nếu có cũng sẽ bị xóa!')" style="margin:0;">
                                                                 @csrf
                                                                 @method('delete')
                                                                 <button type="submit" class="btn-level-del" title="Xóa khối này">
-                                                                    <span>🗑️</span>
+                                                                    <span>🗑️</span> Xóa
                                                                 </button>
                                                             </form>
                                                         </div>
@@ -2541,7 +2545,7 @@
                     <!-- Bảng chi tiết: thu gọn mặc định vì cùng dữ liệu với các thẻ phía trên -->
                     <details open style="margin-top:18px;">
                         <summary style="cursor:pointer; padding:10px 14px; font-size:13px; font-weight:800; color:#475569; background:#f1f5f9; border-radius:10px; list-style:none;">📋 Bảng chi tiết tất cả khối (bấm để thu gọn)</summary>
-                    <div class="table-responsive" style="margin-top:10px;">
+                    <div class="table-responsive" style="margin-top:10px; border:1.5px solid #94a3b8; border-radius:14px; overflow:hidden; background:#ffffff;">
                         <table>
                             <thead>
                                 <tr>
@@ -2566,9 +2570,6 @@
                                         </td>
                                         <td>
                                             <b style="color:#0f172a; font-size:14px;">{{ $lvl->name }}</b>
-                                            <div style="font-size:11.5px; color:#64748b; margin-top:2px;">
-                                                Mã định danh (slug): <code style="background:#f1f5f9; padding:2px 6px; border-radius:4px; font-size:11px;">{{ $lvl->slug }}</code>
-                                            </div>
                                         </td>
                                         <td>
                                             <b style="color:#475569; font-size:13px;">{{ $lvl->program?->name ?? 'IC3 GS6' }}</b>
@@ -8188,7 +8189,7 @@
                             if (oldConv !== newConvStr) {
                                 activeCard.setAttribute('data-conversation', newConvStr);
                                 selectChatConversation(activeCard);
-                                playAdminChime();
+                                playAdminChime(data.active_message.conversation_history.slice(-1)[0]?.sender !== 'admin');
                             }
                         } else if (typeof data.active_message.message === 'string' && data.active_message.message.trim().length > 0 && oldMsg !== data.active_message.message) {
                             activeCard.setAttribute('data-message', data.active_message.message);
@@ -8215,7 +8216,19 @@
             .catch(err => {});
     }
 
-    function playAdminChime() {
+    // Chuông báo tin nhắn: chỉ phát khi đang mở tab Tư vấn & Live Chat, chỉ khi là tin của khách và cách lần trước ít nhất 8 giây.
+    function playAdminChime(fromCustomer = true) {
+        const chatTab = document.getElementById('tab-chat');
+        const onChatTab = chatTab && getComputedStyle(chatTab).display !== 'none';
+        if (!fromCustomer || !onChatTab) return;
+
+        const now = Date.now();
+        if (now - (window.__lastAdminChimeAt || 0) < 8000) return;
+        window.__lastAdminChimeAt = now;
+        playAdminChimeRaw();
+    }
+
+    function playAdminChimeRaw() {
         try {
             const ctx = new (window.AudioContext || window.webkitAudioContext)();
             const osc = ctx.createOscillator();
