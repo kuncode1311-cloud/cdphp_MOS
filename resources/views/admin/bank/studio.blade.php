@@ -6323,7 +6323,7 @@ function saiUpdateCtxMeter() {
     // Báo cho giáo viên biết khi nội dung có ghi rõ số câu (sẽ được ưu tiên hơn ô chọn số câu)
     const hint = document.getElementById('sai-count-hint');
     if (hint) {
-        const found = [...input.value.matchAll(/(?:làm|tạo|soạn|ra|cho|lấy|xuất|cần|viết)\s+(?:đúng\s+|khoảng\s+|đủ\s+)?(\d{1,2})\s*câu/giu)].pop();
+        const found = [...input.value.matchAll(/(?:làm|tạo|soạn|ra|cho|lấy|xuất|cần|viết|gồm|với|số lượng|tổng cộng|tổng|đúng)\s*:?\s*(?:đúng\s+|khoảng\s+|đủ\s+)?(\d{1,2})\s*câu/giu)][0];
         const n = found ? parseInt(found[1], 10) : 0;
         hint.style.display = n >= 1 && n <= 30 ? '' : 'none';
         hint.textContent = n >= 1 && n <= 30 ? `→ Sẽ soạn ${n} câu theo yêu cầu trong nội dung` : '';

@@ -67,7 +67,10 @@ class AiQuestionTopUpTest extends TestCase
 
         $this->assertSame(20, $detect("Câu 1. A?\nCâu 20. Hành động nào an toàn?\nD. Tải tệp email làm 20 câu nha"));
         $this->assertSame(15, $detect('Hãy tạo 15 câu hỏi về mạng'));
-        $this->assertSame(8, $detect('làm 5 câu, à không, soạn đúng 8 câu'));
+        $this->assertSame(12, $detect('Đề gồm 12 câu trắc nghiệm'));
+        $this->assertSame(7, $detect('Số lượng: 7 câu'));
+        $this->assertSame(5, $detect('Tạo 5 câu hỏi Tin học từ tài liệu, gồm 3 câu trắc nghiệm và 2 câu ghép nối'));
+        $this->assertSame(5, $detect('làm 5 câu, à không, soạn đúng 8 câu'));
         $this->assertNull($detect("Câu 20. Hành động nào an toàn?\nCâu 19. Gì đó?"));
         $this->assertNull($detect('làm 99 câu'));
         $this->assertNull($detect('Soạn câu hỏi về bàn phím'));

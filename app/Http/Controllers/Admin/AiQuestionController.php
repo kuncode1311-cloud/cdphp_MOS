@@ -345,16 +345,16 @@ class AiQuestionController extends Controller
     }
 
     /**
-     * Tìm số câu giáo viên ghi trong nội dung, ví dụ "làm 20 câu", "tạo 15 câu hỏi". Lấy lần xuất hiện cuối cùng;
+     * Tìm số câu giáo viên ghi trong nội dung, ví dụ "làm 20 câu", "tạo 15 câu hỏi". Lấy lần xuất hiện đầu tiên (tổng số thường nói trước, phần chia nhỏ như "gồm 3 trắc nghiệm" nói sau);
      * trả về null nếu không có hoặc ngoài khoảng 1-30. Các tiêu đề "Câu 20." trong đề dán vào không bị nhầm.
      */
     public static function detectRequestedCount(string $text): ?int
     {
-        if (! preg_match_all('/(?:làm|tạo|soạn|ra|cho|lấy|xuất|cần|viết)\s+(?:đúng\s+|khoảng\s+|đủ\s+)?(\d{1,2})\s*câu/iu', $text, $matches)) {
+        if (! preg_match_all('/(?:làm|tạo|soạn|ra|cho|lấy|xuất|cần|viết|gồm|với|số lượng|tổng cộng|tổng|đúng)\s*:?\s*(?:đúng\s+|khoảng\s+|đủ\s+)?(\d{1,2})\s*câu/iu', $text, $matches)) {
             return null;
         }
 
-        $number = (int) end($matches[1]);
+        $number = (int) $matches[1][0];
 
         return $number >= 1 && $number <= 30 ? $number : null;
     }
