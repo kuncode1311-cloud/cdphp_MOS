@@ -1205,7 +1205,7 @@
             elapsedSecondsSinceSync++;
             updateCountdownHUD();
 
-            if (elapsedSecondsSinceSync >= 10) {
+            if (elapsedSecondsSinceSync >= 30) { // 30 giây mới đồng bộ một lần để game mượt hơn; đóng tab hoặc kết thúc game vẫn gửi nốt phần còn lại
                 syncConsumedTime(elapsedSecondsSinceSync);
                 elapsedSecondsSinceSync = 0;
             }
