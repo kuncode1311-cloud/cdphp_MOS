@@ -83,12 +83,11 @@ class SupportSenderIdentityTest extends TestCase
         $url = $this->actingAs($admin)->postJson("/quan-tri/tin-nhan/{$msg->id}/anh", [
             'image' => UploadedFile::fake()->image('a.png'),
         ])->assertOk()->json('image');
-        $path = substr($url, strlen('/storage/'));
-        Storage::disk('public')->assertExists($path);
+        $this->assertDatabaseCount('support_images', 1);
 
         $this->actingAs($admin)->deleteJson("/quan-tri/tin-nhan/{$msg->id}")->assertOk();
 
-        Storage::disk('public')->assertMissing($path);
+        $this->assertDatabaseCount('support_images', 0);
         $this->assertDatabaseMissing('support_messages', ['id' => $msg->id]);
     }
 }

@@ -44,6 +44,7 @@ class SupportMessage extends Model
     protected static function booted(): void
     {
         static::deleting(function (SupportMessage $message) {
+            SupportImage::where('support_message_id', $message->id)->delete();
             foreach ((array) $message->conversation_history as $turn) {
                 $image = $turn['image'] ?? null;
                 if (is_string($image) && str_starts_with($image, '/storage/support-chat/') && ! str_contains($image, '..')) {

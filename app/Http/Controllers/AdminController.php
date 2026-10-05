@@ -308,8 +308,8 @@ class AdminController extends Controller
             'image.max' => 'Ảnh quá lớn, vui lòng chọn ảnh dưới 5MB.',
         ]);
 
-        $path = $request->file('image')->store('support-chat/' . now()->format('Y/m'), 'public');
-        $url = '/storage/' . $path;
+        // Lưu ảnh vào cơ sở dữ liệu: không mất khi máy chủ khởi động lại hoặc triển khai bản mới
+        $url = \App\Models\SupportImage::storeUpload($request->file('image'), $supportMessage->id)->url();
 
         $supportMessage->appendConversationTurn('admin', '', $url);
         $supportMessage->admin_reply = '📷 Đã gửi một ảnh';

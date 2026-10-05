@@ -28,8 +28,11 @@ class SupportChatImageTest extends TestCase
         ])->assertOk()->assertJson(['success' => true]);
 
         $url = $res->json('image');
-        $this->assertStringStartsWith('/storage/support-chat/', $url);
-        Storage::disk('public')->assertExists(str_replace('/storage/', '', $url));
+        // Ảnh lưu trong cơ sở dữ liệu (không mất khi máy chủ triển khai lại) và tải lại được qua đường dẫn bí mật
+        $this->assertStringStartsWith('/ho-tro/anh/', $url);
+        $this->assertDatabaseCount('support_images', 1);
+        $this->get($url)->assertOk()->assertHeader('Content-Type', 'image/png');
+        $this->get('/ho-tro/anh/'.str_repeat('a', 48))->assertNotFound();
 
         $turn = $msg->fresh()->conversation_history[0];
         $this->assertSame('admin', $turn['sender']);

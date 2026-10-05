@@ -5312,7 +5312,7 @@
 
                             <!-- Composer: GHIM ĐÁY 100% TRONG TẦM MẮT -->
                             <div class="ms-bottom-composer">
-                                <button type="button" class="ms-composer-icon-btn upload-btn" onclick="document.getElementById('ms-photo-upload').click()" title="Gửi ảnh">🖼️</button>
+                                <button type="button" class="ms-composer-icon-btn upload-btn" onclick="document.getElementById('ms-photo-upload').click()" title="Gửi ảnh (hoặc chụp màn hình rồi bấm Ctrl+V để dán)">🖼️</button>
 
                                 <div class="ms-input-pill-wrap">
                                     <input type="text" id="ms-admin-reply-input"
@@ -8048,15 +8048,19 @@
     // Gửi ảnh thật: tải lên máy chủ, lưu vào lịch sử chat rồi mới hiển thị
     function handlePhotoUpload(input) {
         if (!input.files || !input.files[0]) return;
+        sendChatImageFile(input.files[0], input);
+    }
+
+    // Gửi một ảnh (chọn từ máy hoặc dán từ bộ nhớ tạm) vào cuộc trò chuyện đang mở
+    function sendChatImageFile(file, input) {
         if (!currentChatMsgId) {
             showAdminToast('Vui lòng chọn một cuộc trò chuyện trước khi gửi ảnh.', 'error');
-            input.value = '';
+            if (input) input.value = '';
             return;
         }
-        const file = input.files[0];
         if (file.size > 5 * 1024 * 1024) {
             showAdminToast('Ảnh quá lớn, vui lòng chọn ảnh dưới 5MB.', 'error');
-            input.value = '';
+            if (input) input.value = '';
             return;
         }
 
@@ -8096,8 +8100,21 @@
             showAdminToast('✓ Đã gửi ảnh và lưu vào lịch sử chat!', 'success');
         })
         .catch(err => showAdminToast(err.message, 'error'))
-        .finally(() => { input.value = ''; });
+        .finally(() => { if (input) input.value = ''; });
     }
+
+    // Chụp màn hình rồi Ctrl+V: dán thẳng ảnh vào cuộc trò chuyện đang mở để gửi cho khách
+    document.addEventListener('paste', function (event) {
+        const wrapper = document.getElementById('ms-main-wrapper');
+        if (!wrapper || wrapper.offsetParent === null || !currentChatMsgId) return;
+        const items = event.clipboardData ? Array.from(event.clipboardData.items || []) : [];
+        const imageItem = items.find(it => it.kind === 'file' && it.type.startsWith('image/'));
+        if (!imageItem) return;
+        const file = imageItem.getAsFile();
+        if (!file) return;
+        event.preventDefault();
+        sendChatImageFile(file, null);
+    });
 
     function updateCurrentChatStatus(newStatus) {
         if (!currentChatMsgId) return;

@@ -126,6 +126,16 @@ Route::post('/bang-gia/payos-webhook', [PricingController::class, 'payosWebhook'
 
 // Live Chat Messenger gửi tin nhắn tư vấn trực tiếp cho Admin (Telegram)
 Route::post('/ho-tro/gui-tin-nhan', [PricingController::class, 'sendSupportMessage'])->middleware('throttle:20,1')->name('support.message.send');
+Route::get('/ho-tro/anh/{token}', function (string $token) {
+    $image = \App\Models\SupportImage::where('token', $token)->firstOrFail();
+
+    return response($image->data, 200, [
+        'Content-Type' => $image->mime,
+        'Content-Length' => $image->size,
+        'Cache-Control' => 'private, max-age=86400',
+        'X-Content-Type-Options' => 'nosniff',
+    ]);
+})->where('token', '[A-Za-z0-9]{20,64}')->middleware('throttle:120,1')->name('support.image.show');
 Route::get('/ho-tro/tin-nhan/kiem-tra', [PricingController::class, 'checkSupportMessageReply'])->middleware('throttle:90,1')->name('support.message.check');
 
 // Telegram Webhook nhận lệnh từ bot riêng (@sp_trikun_bot)
