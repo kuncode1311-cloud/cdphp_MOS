@@ -857,11 +857,12 @@ PHẠM VI BẮT BUỘC: đây là nền tảng luyện thi Tin học/IC3, nên M
 
 BƯỚC 1 - PHÂN LOẠI NGUỒN rồi mới soạn:
 - Loại A: tệp là nội dung Tin học/IC3/kỹ năng số (tài liệu, bài giảng, đề, câu hỏi có sẵn): BÁM SÁT nội dung thật trong tệp. Nếu tệp đã có sẵn câu hỏi, phương án và đáp án thì TRÍCH NGUYÊN VĂN, không diễn đạt lại, không đổi nghĩa, chỉ chuẩn hóa định dạng JSON. Nếu là tài liệu/bài giảng thì hỏi các khái niệm, thao tác, số liệu, tên riêng thật sự có trong tệp; không tự thêm kiến thức ngoài tệp.
-- Loại B: tệp KHÔNG phải nội dung Tin học (ảnh hoạt hình, nhân vật, phong cảnh, đồ vật, truyện, bài Toán/Văn...): TUYỆT ĐỐI KHÔNG hỏi chi tiết của chính tệp (tên nhân vật, màu áo, vị trí, cốt truyện...). Hãy lấy tệp làm bối cảnh/ví dụ để soạn câu hỏi Tin học phù hợp, đúng kiến thức chuẩn. Ví dụ từ một bức ảnh: ảnh kỹ thuật số và điểm ảnh, định dạng tệp ảnh (JPG, PNG), chụp/lưu/đổi tên/sao chép/xóa tệp ảnh, tìm kiếm và tải ảnh an toàn, bản quyền hình ảnh, chia sẻ ảnh có trách nhiệm trên mạng, chỉnh sửa ảnh cơ bản.
+- Loại B: tệp KHÔNG phải nội dung Tin học (ảnh hoạt hình, nhân vật, phong cảnh, đồ vật, truyện, bài Toán/Văn...): hãy NHÌN KỸ tệp, nhận diện đúng chủ thể và dữ kiện thật trong đó (ví dụ: nhân vật nào, đồ vật gì, cảnh gì, có bao nhiêu...), rồi soạn các câu hỏi TIN HỌC LẤY CHÍNH NỘI DUNG ĐÓ LÀM TÌNH HUỐNG. Câu hỏi chỉ kiểm tra kiến thức Tin học (đáp án đúng phải là kiến thức Tin học), còn chủ thể trong tệp chỉ là ngữ cảnh, và phải được nêu cụ thể bằng chữ ngay trong câu hỏi vì học sinh không nhìn thấy tệp gốc. TUYỆT ĐỐI KHÔNG hỏi tri thức về chủ thể đó (tên nhân vật, màu áo, vị trí, cốt truyện...) và không viết câu chung chung không liên quan tệp.
+  Ví dụ: ảnh có nhân vật Doraemon và các bạn thì hỏi kiểu "Em vừa tải bức ảnh các nhân vật Doraemon về máy tính. Em nên lưu tệp ảnh này với định dạng nào để vẫn đẹp khi phóng to?", "Em muốn gửi bức ảnh Doraemon cho bạn qua thư điện tử, việc nào cần làm?", "Em muốn tìm thêm hình Doraemon trên Internet một cách an toàn, em nên làm gì?", "Em chụp bức ảnh này bằng máy tính bảng, tệp ảnh được lưu trong thư mục nào là hợp lý?", "Dùng hình Doraemon của người khác cho bài trình chiếu của mình cần lưu ý điều gì về bản quyền?". Các hướng Tin học phù hợp: ảnh số và định dạng tệp (JPG, PNG), lưu/đổi tên/sao chép/di chuyển/xóa tệp, thư mục, gửi qua thư điện tử, tìm kiếm và tải hình an toàn, bản quyền hình ảnh, chèn ảnh vào văn bản/bài trình chiếu, chỉnh sửa ảnh cơ bản, chia sẻ ảnh có trách nhiệm trên mạng.
 - Nếu giáo viên nêu rõ một môn/chủ đề khác trong yêu cầu thì làm theo giáo viên; ngược lại luôn là Tin học.
 
 NGUYÊN TẮC CHUNG:
-- Cố gắng soạn đúng {$questionCount} câu. Với loại A, nếu tệp không đủ dữ kiện cho đủ số câu thì chỉ soạn số câu có căn cứ rõ ràng, không bịa. Với loại B, soạn đủ số câu Tin học liên quan đến bối cảnh của tệp.
+- Cố gắng soạn đúng {$questionCount} câu. Với loại A, nếu tệp không đủ dữ kiện cho đủ số câu thì chỉ soạn số câu có căn cứ rõ ràng, không bịa. Với loại B, soạn đủ số câu Tin học, mỗi câu đều lấy chủ thể thật trong tệp làm tình huống.
 - Mỗi câu phải có đáp án đúng chắc chắn theo kiến thức Tin học chuẩn; phương án nhiễu hợp lý, không mơ hồ.
 - Nếu hoàn toàn không nhận ra nội dung nào trong tệp và giáo viên cũng không nêu yêu cầu thì trả về [].
 - Luôn bám sát yêu cầu của giáo viên (nếu có), kể cả số lượng, dạng câu và phần cần tập trung.
@@ -869,7 +870,7 @@ NGUYÊN TẮC CHUNG:
 QUY TRÌNH SUY LUẬN:
 1. Nhận diện loại tệp (loại A Tin học hay loại B ngoài Tin học), mục đích, cấu trúc và các dữ kiện đọc chắc chắn.
 2. Xác định ý định của giáo viên: số lượng câu ({$questionCount} câu), dạng câu, mức độ, phần cần tập trung.
-3. Loại A có sẵn câu hỏi: trích nguyên văn. Loại A là tài liệu: chọn các dữ kiện quan trọng nhất trong tệp để hỏi. Loại B: chọn các kiến thức Tin học gắn với bối cảnh của tệp.
+3. Loại A có sẵn câu hỏi: trích nguyên văn. Loại A là tài liệu: chọn các dữ kiện quan trọng nhất trong tệp để hỏi. Loại B: chọn các kiến thức Tin học rồi đặt vào tình huống dùng chính chủ thể nhận diện được trong tệp.
 4. Chọn dạng câu phù hợp: một đáp án, nhiều đáp án hoặc ghép nối. Không ép mọi câu về cùng một dạng nếu giáo viên không yêu cầu.
 5. Tạo phương án nhiễu hợp lý, rõ nghĩa, không mơ hồ; đáp án đúng phải đối chiếu được với nội dung tệp.
 

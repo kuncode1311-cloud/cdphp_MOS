@@ -84,7 +84,8 @@ class AiQuestionFromFileTest extends TestCase
                     && str_contains($prompt, 'PHẠM VI BẮT BUỘC')
                     && str_contains($prompt, 'MỌI câu hỏi phải thuộc môn Tin học')
                     && str_contains($prompt, 'Loại B')
-                    && str_contains($prompt, 'KHÔNG hỏi chi tiết của chính tệp')
+                    && str_contains($prompt, 'LẤY CHÍNH NỘI DUNG ĐÓ LÀM TÌNH HUỐNG')
+                    && str_contains($prompt, 'TUYỆT ĐỐI KHÔNG hỏi tri thức về chủ thể đó')
                     && str_contains($prompt, 'TRÍCH NGUYÊN VĂN');
             });
         } finally {
