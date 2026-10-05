@@ -1236,7 +1236,14 @@
 
         .form-field {
             margin-bottom: 14px;
+            display: flex;
+            flex-direction: column;
         }
+        /* Nhãn ở trên, ô nhập ở giữa, thông báo lỗi nằm dưới ô nhập (không ép nhãn xuống nhiều dòng) */
+        .form-field > .form-label-row { display: contents; }
+        .form-field > * { order: 2; }
+        .form-field .form-label { order: 1; margin-bottom: 5px; }
+        .form-field .field-error { order: 3; margin-top: 5px; }
 
         .form-label-row {
             display: flex;
@@ -1295,11 +1302,11 @@
             color: #ef4444;
             font-weight: 700;
             display: none;
-            white-space: nowrap;
-            line-height: 1;
+            white-space: normal;
+            line-height: 1.35;
         }
         .field-error.show {
-            display: inline-block;
+            display: block;
         }
         .required-star { color: #ef4444; font-weight: 900; margin-left: 2px; }
 

@@ -159,7 +159,7 @@ class PricingController extends Controller
         $role = $isStudentPackage ? \App\Enums\UserRole::Student->value : \App\Enums\UserRole::Teacher->value;
         $maxStudents = $isStudentPackage ? 1 : 0;
 
-        $user = \App\Models\User::create([
+        $attributes = [
             'name' => $data['name'],
             'email' => $data['email'],
             'password' => $data['password'],
@@ -169,7 +169,18 @@ class PricingController extends Controller
             'status' => 'pending', // Chờ thanh toán & kích hoạt đơn hàng
             'max_students' => $maxStudents,
             'expires_at' => null,
-        ]);
+        ];
+
+        // Email của tài khoản đăng ký bỏ dở (đơn bị hủy / hết hạn, chưa từng kích hoạt): cập nhật lại tài khoản đó để khách đăng ký lại được
+        $abandoned = \App\Models\User::query()->abandonedPending()->where('email', $data['email'])->first();
+        $reusedAbandoned = $abandoned !== null;
+        if ($abandoned) {
+            $abandoned->packageOrders()->where('status', \App\Models\PackageOrder::STATUS_PENDING)->update(['status' => \App\Models\PackageOrder::STATUS_REJECTED]);
+            $abandoned->fill($attributes)->save(); // fill() giống User::create(): chỉ nhận các cột cho phép
+            $user = $abandoned;
+        } else {
+            $user = \App\Models\User::create($attributes);
+        }
 
         // 2. Tạo đơn hàng thuê gói
         $extraNotes = [];
@@ -197,7 +208,9 @@ class PricingController extends Controller
 
             // Tài khoản vừa tạo trong lần đăng ký này chưa có gì khác: xóa để khách đăng ký lại được, không bị báo trùng email
             $order->delete();
-            $user->delete();
+            if (! $reusedAbandoned) {
+                $user->delete();
+            }
 
             return $this->payosUnavailableResponse($request);
         }

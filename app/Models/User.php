@@ -172,6 +172,22 @@ class User extends Authenticatable
     }
 
     /**
+     * Tài khoản tự đăng ký nhưng bỏ dở: chưa từng được kích hoạt, chưa có đơn nào đang chờ thanh toán còn hiệu lực.
+     * Email của tài khoản này được phép đăng ký lại (vd: đơn bị hủy/hết hạn), không bị báo "đã tồn tại".
+     */
+    public function scopeAbandonedPending(\Illuminate\Database\Eloquent\Builder $query): \Illuminate\Database\Eloquent\Builder
+    {
+        return $query->where('status', 'pending')
+            ->whereNull('created_by')
+            ->whereIn('role', [UserRole::Student->value, UserRole::Teacher->value])
+            ->whereHas('packageOrders') // chỉ tài khoản sinh ra từ luồng đăng ký + đặt gói (luôn có đơn)
+            ->whereDoesntHave('packageOrders', function ($q) {
+                $q->where('status', PackageOrder::STATUS_ACTIVE)
+                    ->orWhereIn('id', PackageOrder::query()->pendingLive()->select('id'));
+            });
+    }
+
+    /**
      * Học sinh mua lẻ: không do giáo viên nào quản lý nên liên hệ trực tiếp Ban Quản Trị
      */
     public function isIndependentStudent(): bool

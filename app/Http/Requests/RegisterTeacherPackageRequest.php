@@ -2,7 +2,9 @@
 
 namespace App\Http\Requests;
 
+use App\Models\User;
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Validation\Rule;
 
 class RegisterTeacherPackageRequest extends FormRequest
 {
@@ -16,7 +18,7 @@ class RegisterTeacherPackageRequest extends FormRequest
     {
         return [
             'name' => ['required', 'string', 'max:100'],
-            'email' => ['required', 'email', 'max:255', 'unique:users,email'],
+            'email' => ['required', 'email', 'max:255', Rule::unique('users', 'email')->where(fn ($q) => $q->whereNotIn('id', User::query()->abandonedPending()->select('id')))],
             'password' => ['required', 'string', 'min:6'],
             'phone' => ['required', 'string', 'regex:/^(0|\+84)[0-9]{9}$/'],
             'school_name' => ['nullable', 'string', 'max:150'],
