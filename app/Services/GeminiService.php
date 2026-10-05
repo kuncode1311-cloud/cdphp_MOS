@@ -696,7 +696,7 @@ class GeminiService
     public function detectRequestedQuestionCount(string $teacherText): int|null|false
     {
         $teacherText = trim($teacherText);
-        if (mb_strlen($teacherText) < 20) {
+        if (mb_strlen($teacherText) < 6) {
             return null;
         }
 

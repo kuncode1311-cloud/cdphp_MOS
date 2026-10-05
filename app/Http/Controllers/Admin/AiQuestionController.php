@@ -51,8 +51,10 @@ class AiQuestionController extends Controller
         $generateImages = $request->boolean('generate_images');
         // AI đọc yêu cầu để biết số câu; nội dung có nêu số câu thì ưu tiên hơn ô chọn số câu.
         // Nếu AI không phân tích được thì dùng quy tắc nhận diện cụm "làm 20 câu" làm dự phòng.
-        $aiCount = $hasText ? $this->gemini->detectRequestedQuestionCount($promptText) : null;
-        $requestedInText = $aiCount === false ? self::detectRequestedCount($promptText) : $aiCount;
+        // Yêu cầu ngắn (ví dụ "10 câu ngẫu nhiên") chính là lời dặn nên đọc số câu ngay, không cần gọi AI.
+        $shortCount = $hasText && mb_strlen($promptText) < 80 ? self::detectRequestedCount($promptText, true) : null;
+        $aiCount = ($hasText && $shortCount === null) ? $this->gemini->detectRequestedQuestionCount($promptText) : null;
+        $requestedInText = $shortCount ?? ($aiCount === false ? self::detectRequestedCount($promptText) : $aiCount);
         $questionCount = $requestedInText ?? max(1, min(30, $request->integer('question_count', 5)));
         // Mỗi lượt gọi AI tối đa 10 câu để không bị cắt cụt; phần còn lại được bù ở bước sau.
         $batchCount = min($questionCount, 10);
@@ -350,9 +352,16 @@ class AiQuestionController extends Controller
      * Tìm số câu giáo viên ghi trong nội dung, ví dụ "làm 20 câu", "tạo 15 câu hỏi". Lấy lần xuất hiện đầu tiên (tổng số thường nói trước, phần chia nhỏ như "gồm 3 trắc nghiệm" nói sau);
      * trả về null nếu không có hoặc ngoài khoảng 1-30. Các tiêu đề "Câu 20." trong đề dán vào không bị nhầm.
      */
-    public static function detectRequestedCount(string $text): ?int
+    public static function detectRequestedCount(string $text, bool $allowBareNumber = false): ?int
     {
-        if (! preg_match_all('/(?:làm|tạo|soạn|ra|cho|lấy|xuất|cần|viết|gồm|với|số lượng|tổng cộng|tổng|đúng)\s*:?\s*(?:đúng\s+|khoảng\s+|đủ\s+)?(\d{1,2})\s*câu/iu', $text, $matches)) {
+        $matched = preg_match_all('/(?:làm|tạo|soạn|ra|cho|lấy|xuất|cần|viết|gồm|với|số lượng|tổng cộng|tổng|đúng)\s*:?\s*(?:đúng\s+|khoảng\s+|đủ\s+)?(\d{1,2})\s*câu/iu', $text, $matches);
+
+        // Với yêu cầu ngắn, cho phép chỉ ghi "10 câu ..." mà không cần động từ; số đứng sau chữ "Câu" (tiêu đề câu) không tính
+        if (! $matched && $allowBareNumber) {
+            $matched = preg_match_all('/(?<![\p{L}\p{N}.])(\d{1,2})\s*câu(?![\p{L}])/iu', $text, $matches);
+        }
+
+        if (! $matched) {
             return null;
         }
 

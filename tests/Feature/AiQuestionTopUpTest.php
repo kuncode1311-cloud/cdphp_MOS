@@ -76,6 +76,13 @@ class AiQuestionTopUpTest extends TestCase
         $this->assertNull($detect("Câu 20. Hành động nào an toàn?\nCâu 19. Gì đó?"));
         $this->assertNull($detect('làm 99 câu'));
         $this->assertNull($detect('Soạn câu hỏi về bàn phím'));
+
+        // Yêu cầu ngắn chỉ ghi "10 câu ..." (không có động từ)
+        $bare = \App\Http\Controllers\Admin\AiQuestionController::class . '::detectRequestedCount';
+        $this->assertSame(10, $bare('10 câu ngẫu nhiên', true));
+        $this->assertSame(12, $bare('12 câu về mạng', true));
+        $this->assertNull($bare('Câu 20. Hành động nào an toàn?', true));
+        $this->assertNull($bare('10 câu ngẫu nhiên'));
     }
 
     public function test_noi_dung_ghi_20_cau_thi_soan_20_cau_theo_tung_lot_toi_da_10_cau(): void
@@ -104,5 +111,27 @@ class AiQuestionTopUpTest extends TestCase
         $this->assertSame(20, $res->json('requested_count'));
         $this->assertSame(10, $calls[0]);
         $this->assertLessThanOrEqual(10, max($calls));
+    }
+
+    public function test_yeu_cau_ngan_ghi_10_cau_thi_soan_10_cau_du_o_tick_5(): void
+    {
+        $this->seed();
+        $admin = User::where('role', 'admin')->firstOrFail();
+
+        $this->mock(GeminiService::class, function (MockInterface $mock) {
+            // Yêu cầu ngắn được đọc ngay, không phải gọi AI phân tích số câu
+            $mock->shouldReceive('detectRequestedQuestionCount')->never();
+            $mock->shouldReceive('generateQuestionsFromText')->andReturnUsing(
+                fn (string $text, string $ctx, bool $img, int $count) => array_map(fn ($i) => $this->q('Cau '.$i), range(1, $count))
+            );
+            $mock->shouldReceive('executionTrace')->andReturn([]);
+        });
+
+        $res = $this->actingAs($admin)->postJson('/quan-tri/ai/tao-cau-hoi', [
+            'text' => '10 câu ngẫu nhiên', 'question_count' => 5,
+        ])->assertOk();
+
+        $this->assertSame(10, $res->json('count'));
+        $this->assertSame(10, $res->json('requested_count'));
     }
 }

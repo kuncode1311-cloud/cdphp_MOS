@@ -55,7 +55,7 @@ class AiQuestionCountDetectionTest extends TestCase
         $this->assertNull(app(GeminiService::class)->detectRequestedQuestionCount('Yêu cầu soạn thật nhiều câu hỏi cho học sinh'));
 
         Http::fake();
-        $this->assertNull(app(GeminiService::class)->detectRequestedQuestionCount('soạn 5 câu'));
+        $this->assertNull(app(GeminiService::class)->detectRequestedQuestionCount('xin'));
         Http::assertNothingSent();
     }
 
