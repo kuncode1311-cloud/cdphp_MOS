@@ -1026,13 +1026,13 @@
 
         .modal-container-2col {
             background: #ffffff;
-            border-radius: 20px;
-            width: min(850px, 94vw);
-            max-height: min(580px, 94vh);
+            border-radius: 24px;
+            width: min(920px, 94vw);
+            max-height: min(620px, 92vh);
             overflow: hidden;
             display: grid;
-            grid-template-columns: 275px 1fr;
-            box-shadow: 0 25px 50px -12px rgba(15, 23, 42, 0.35);
+            grid-template-columns: 290px 1fr;
+            box-shadow: 0 25px 50px -12px rgba(76, 29, 149, 0.4);
             animation: modalPop 0.22s cubic-bezier(0.16, 1, 0.3, 1);
             position: relative;
         }
@@ -1045,29 +1045,25 @@
         @media (max-width: 768px) {
             .modal-container-2col {
                 grid-template-columns: 1fr;
-                max-height: 94vh;
+                max-height: 92vh;
                 overflow-y: auto;
                 width: min(500px, 94vw);
             }
             .summary-meta-list {
                 display: grid;
-                grid-template-columns: repeat(3, 1fr);
-                gap: 6px;
-            }
-            .summary-guarantees {
-                display: none;
+                grid-template-columns: repeat(2, 1fr);
+                gap: 8px;
             }
         }
 
-        /* Modal Left Column: Package Summary (Sạch Sẽ, Tinh Tế, Đẳng Cấp) */
+        /* Cột trái: tóm tắt gói, nền tím, chữ to, ít chi tiết */
         .modal-summary-col {
-            background: #0f172a;
+            background: linear-gradient(160deg, #1e1b4b 0%, #4c1d95 100%);
             color: #ffffff;
-            padding: 20px 18px;
+            padding: 26px 22px;
             display: flex;
             flex-direction: column;
             justify-content: space-between;
-            border-right: 1px solid rgba(255, 255, 255, 0.08);
             position: relative;
         }
 
@@ -1075,89 +1071,79 @@
             display: inline-flex;
             align-items: center;
             gap: 4px;
-            background: rgba(37, 99, 235, 0.2);
-            border: 1px solid rgba(59, 130, 246, 0.4);
-            color: #93c5fd;
-            font-size: 10px;
-            font-weight: 700;
-            padding: 2px 8px;
+            background: rgba(236, 72, 153, 0.22);
+            border: 1px solid rgba(244, 114, 182, 0.5);
+            color: #fbcfe8;
+            font-size: 11.5px;
+            font-weight: 800;
+            padding: 4px 10px;
             border-radius: 999px;
-            margin-bottom: 6px;
-            text-transform: uppercase;
-            letter-spacing: 0.3px;
+            margin-bottom: 10px;
         }
 
         .summary-pkg-title {
-            font-size: 17px;
-            font-weight: 800;
+            font-size: 22px;
+            font-weight: 900;
             color: #ffffff;
-            line-height: 1.25;
-            margin-bottom: 8px;
-            letter-spacing: -0.2px;
+            line-height: 1.2;
+            margin-bottom: 16px;
         }
 
-        /* Hộp Giá Tiền Tối Giản */
         .summary-price-box {
-            background: #1e293b;
-            border: 1px solid #334155;
-            border-radius: 10px;
-            padding: 8px 12px;
-            margin-bottom: 10px;
+            background: linear-gradient(135deg, rgba(251, 191, 36, 0.2), rgba(244, 114, 182, 0.18));
+            border: 1px solid rgba(253, 230, 138, 0.45);
+            border-radius: 14px;
+            padding: 12px 14px;
+            margin-bottom: 14px;
         }
 
         .summary-price-header {
             display: flex;
             align-items: center;
-            gap: 5px;
-            margin-bottom: 2px;
+            gap: 6px;
+            margin-bottom: 4px;
         }
 
         .summary-price-box small {
-            font-size: 9.5px;
-            color: #94a3b8;
+            font-size: 11px;
+            color: #e9d5ff;
             display: block;
-            text-transform: uppercase;
-            font-weight: 700;
-            letter-spacing: 0.4px;
+            font-weight: 800;
+            letter-spacing: 0.3px;
         }
 
         .summary-price-box b {
-            font-size: 22px;
-            color: #38bdf8;
-            font-weight: 800;
-            letter-spacing: -0.4px;
+            font-size: 30px;
+            color: #fde68a;
+            font-weight: 900;
             display: block;
             line-height: 1.1;
         }
 
-        /* Danh Sách Thông Số Gọn Gàng */
         .summary-meta-list {
             display: flex;
             flex-direction: column;
-            gap: 6px;
-            margin-bottom: 10px;
+            gap: 8px;
         }
 
         .summary-meta-item {
             display: flex;
             align-items: center;
-            gap: 8px;
-            background: rgba(255, 255, 255, 0.04);
-            border: 1px solid rgba(255, 255, 255, 0.08);
-            border-radius: 8px;
-            padding: 6px 10px;
+            gap: 10px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 12px;
+            padding: 9px 12px;
         }
 
         .meta-icon-badge {
-            width: 24px;
-            height: 24px;
-            border-radius: 6px;
+            width: 34px;
+            height: 34px;
+            border-radius: 10px;
             display: grid;
             place-items: center;
-            font-size: 12px;
+            font-size: 16px;
             flex-shrink: 0;
-            background: rgba(255, 255, 255, 0.08);
-            border: 1px solid rgba(255, 255, 255, 0.12);
+            background: rgba(255, 255, 255, 0.14);
         }
 
         .meta-content {
@@ -1167,74 +1153,49 @@
 
         .meta-label {
             display: block;
-            font-size: 9.5px;
-            color: #94a3b8;
-            font-weight: 600;
-            text-transform: uppercase;
-            letter-spacing: 0.3px;
+            font-size: 11.5px;
+            color: #ddd6fe;
+            font-weight: 700;
         }
 
         .meta-value {
             display: block;
-            font-size: 12px;
+            font-size: 15px;
             color: #ffffff;
+            font-weight: 800;
+        }
+
+        .summary-note {
+            margin: 14px 0 0;
+            font-size: 13px;
+            color: #fbcfe8;
             font-weight: 700;
+            line-height: 1.4;
         }
 
-        /* Cam Kết Dịch Vụ */
-        .summary-guarantees {
-            border-top: 1px solid rgba(255, 255, 255, 0.14);
-            padding-top: 8px;
-            margin-top: auto;
-            display: flex;
-            flex-direction: column;
-            gap: 5px;
-        }
-
-        .guarantee-item {
-            display: flex;
-            align-items: center;
-            gap: 6px;
-            font-size: 10.5px;
-            color: #f1f5f9;
-            font-weight: 600;
-            line-height: 1.25;
-        }
-
-        .guarantee-icon {
-            width: 18px;
-            height: 18px;
-            border-radius: 5px;
-            background: rgba(255, 255, 255, 0.12);
-            display: grid;
-            place-items: center;
-            font-size: 10px;
-            flex-shrink: 0;
-        }
-
-        /* Modal Right Column: Form Tinh Tế, Vừa Vặn Tuyệt Đối Trong 1 Màn Hình */
+        /* Cột phải: form */
         .modal-form-col {
-            padding: 16px 20px 14px;
+            padding: 24px 28px 20px;
             display: flex;
             flex-direction: column;
             justify-content: flex-start;
             overflow-y: auto;
             position: relative;
             scrollbar-width: thin;
-            scrollbar-color: #cbd5e1 transparent;
+            scrollbar-color: #d8b4fe transparent;
         }
 
         .modal-close-btn {
             position: absolute;
-            top: 12px;
-            right: 12px;
-            width: 28px;
-            height: 28px;
+            top: 14px;
+            right: 14px;
+            width: 32px;
+            height: 32px;
             border-radius: 50%;
             border: none;
-            background: #f1f5f9;
-            color: #64748b;
-            font-size: 13px;
+            background: #f5f3ff;
+            color: #6d28d9;
+            font-size: 14px;
             cursor: pointer;
             display: grid;
             place-items: center;
@@ -1243,112 +1204,80 @@
         }
 
         .modal-close-btn:hover {
-            background: #e2e8f0;
-            color: #0f172a;
+            background: #ede9fe;
+            color: #4c1d95;
         }
 
         .form-header {
-            margin-bottom: 7px;
-            padding-right: 28px;
+            margin-bottom: 16px;
+            padding-right: 32px;
         }
 
         .form-header h3 {
-            font-size: 16px;
+            font-size: 22px;
             font-weight: 900;
-            color: #0f172a;
-            margin-bottom: 2px;
+            color: #1e1b4b;
+            margin-bottom: 4px;
             line-height: 1.2;
         }
 
         .form-header p {
-            font-size: 11.5px;
+            font-size: 14px;
             color: #64748b;
             margin: 0;
-            line-height: 1.3;
-        }
-
-        /* Phân Khu 2 Bước Tinh Gọn (Không Bị Dính Khối, Không Bị Dài) */
-        .form-section-banner {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            background: #f8fafc;
-            border: 1px solid #e2e8f0;
-            border-radius: 7px;
-            padding: 4px 9px;
-            margin-bottom: 6px;
-            margin-top: 2px;
-        }
-
-        .form-section-title-wrap {
-            display: flex;
-            align-items: center;
-            gap: 6px;
-            font-size: 11px;
-            font-weight: 800;
-            color: #1e293b;
-            text-transform: uppercase;
-            letter-spacing: 0.3px;
-        }
-
-        .step-num-pill {
-            width: 17px;
-            height: 17px;
-            border-radius: 5px;
-            background: linear-gradient(135deg, #1a73e8, #4f46e5);
-            color: #ffffff;
-            display: grid;
-            place-items: center;
-            font-size: 10px;
-            font-weight: 900;
+            line-height: 1.4;
         }
 
         .form-grid-2 {
             display: grid;
             grid-template-columns: 1fr 1fr;
-            gap: 8px;
+            gap: 14px;
         }
 
         .form-field {
-            margin-bottom: 5px;
+            margin-bottom: 14px;
         }
 
         .form-label-row {
             display: flex;
             justify-content: space-between;
             align-items: center;
-            min-height: 15px;
-            margin-bottom: 2px;
+            min-height: 18px;
+            margin-bottom: 5px;
         }
 
         .form-label {
             display: inline-flex;
             align-items: center;
-            font-size: 11px;
-            font-weight: 700;
-            color: #334155;
-            margin-bottom: 0;
+            font-size: 13.5px;
+            font-weight: 800;
+            color: #312e81;
         }
 
         .form-input {
             width: 100%;
-            padding: 5px 10px;
-            border: 1.5px solid #cbd5e1;
-            border-radius: 8px;
-            font-size: 12px;
+            height: 46px;
+            padding: 10px 14px;
+            border: 1.5px solid #ddd6fe;
+            border-radius: 12px;
+            font-size: 15px;
             font-family: inherit;
-            color: #0f172a;
-            transition: border-color 0.15s, box-shadow 0.15s, background-color 0.15s;
-            background: #f8fafc;
+            color: #1e1b4b;
+            background: #faf5ff;
             box-sizing: border-box;
-            height: 33px;
+            transition: border-color 0.15s, box-shadow 0.15s, background-color 0.15s;
+        }
+
+        .form-input::placeholder {
+            color: #a78bfa;
+            opacity: 0.8;
         }
 
         .form-input:focus {
             outline: none;
-            border-color: #4f46e5;
+            border-color: #8b5cf6;
             background: #ffffff;
-            box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.12);
+            box-shadow: 0 0 0 4px rgba(139, 92, 246, 0.15);
         }
 
         /* ====== FORM INPUT STATES ====== */
@@ -1359,10 +1288,10 @@
         .form-input.is-invalid {
             border-color: #ef4444 !important;
             background: #fff5f5;
-            box-shadow: 0 0 0 2px rgba(239,68,68,0.15);
+            box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.15);
         }
         .field-error {
-            font-size: 10px;
+            font-size: 12px;
             color: #ef4444;
             font-weight: 700;
             display: none;
@@ -1374,43 +1303,29 @@
         }
         .required-star { color: #ef4444; font-weight: 900; margin-left: 2px; }
 
-        /* ====== SINGLE PAYMENT METHOD CARD (TINH TẾ - ĐẸP - GỌN) ====== */
-        .pay-badge-security {
-            font-size: 9.5px;
-            font-weight: 700;
-            color: #059669;
-            background: #ecfdf5;
-            border: 1px solid #a7f3d0;
-            padding: 1px 6px;
-            border-radius: 999px;
-            display: inline-flex;
-            align-items: center;
-            gap: 2px;
-        }
-
+        /* Phương thức thanh toán: một thẻ duy nhất */
         .pay-method-single-card {
             display: flex;
             align-items: center;
-            gap: 9px;
-            background: linear-gradient(135deg, #f0fdf4 0%, #ecfdf5 100%);
-            border: 1.5px solid #10b981;
-            border-radius: 9px;
-            padding: 6px 10px;
-            margin-bottom: 6px;
-            box-shadow: 0 2px 8px rgba(16, 185, 129, 0.1);
+            gap: 12px;
+            background: linear-gradient(135deg, #fdf2f8 0%, #f5f3ff 100%);
+            border: 1.5px solid #c4b5fd;
+            border-radius: 14px;
+            padding: 12px 14px;
+            margin-bottom: 14px;
         }
 
         .pay-single-icon {
-            width: 28px;
-            height: 28px;
-            border-radius: 7px;
-            background: linear-gradient(135deg, #059669, #10b981);
+            width: 40px;
+            height: 40px;
+            border-radius: 12px;
+            background: linear-gradient(135deg, #ec4899, #8b5cf6);
             color: #ffffff;
             display: grid;
             place-items: center;
-            font-size: 14px;
+            font-size: 18px;
             flex-shrink: 0;
-            box-shadow: 0 2px 6px rgba(16, 185, 129, 0.25);
+            box-shadow: 0 4px 10px rgba(236, 72, 153, 0.3);
         }
 
         .pay-single-info {
@@ -1421,71 +1336,67 @@
         .pay-single-title {
             display: flex;
             align-items: center;
-            gap: 6px;
-            font-size: 11.5px;
-            font-weight: 800;
-            color: #065f46;
-            margin-bottom: 1px;
-            line-height: 1.2;
+            gap: 8px;
+            font-size: 15px;
+            font-weight: 900;
+            color: #4c1d95;
+            margin-bottom: 2px;
         }
 
         .pay-single-desc {
-            font-size: 10px;
-            color: #047857;
-            line-height: 1.25;
-            white-space: nowrap;
-            overflow: hidden;
-            text-overflow: ellipsis;
+            font-size: 13px;
+            color: #6b21a8;
+            line-height: 1.35;
         }
 
         .pay-badge-rec {
-            background: #059669;
+            background: #ec4899;
             color: #ffffff;
-            font-size: 8.5px;
+            font-size: 10.5px;
             font-weight: 800;
-            padding: 1px 5px;
+            padding: 2px 7px;
             border-radius: 999px;
-            letter-spacing: 0.2px;
-            display: inline-block;
         }
 
         .pay-single-check {
-            width: 18px;
-            height: 18px;
+            width: 24px;
+            height: 24px;
             border-radius: 50%;
-            background: #10b981;
+            background: #8b5cf6;
             color: #ffffff;
             display: grid;
             place-items: center;
-            font-size: 10.5px;
+            font-size: 13px;
             font-weight: 900;
             flex-shrink: 0;
-            box-shadow: 0 2px 5px rgba(16, 185, 129, 0.3);
         }
 
         /* ====== SUBMIT BUTTON ====== */
         .btn-submit-order {
             width: 100%;
-            padding: 9px 14px;
-            border-radius: 9px;
-            font-size: 13px;
-            font-weight: 800;
+            padding: 15px 16px;
+            border-radius: 14px;
+            font-size: 16px;
+            font-weight: 900;
+            font-family: inherit;
             color: #ffffff;
-            background: linear-gradient(135deg, #059669 0%, #10b981 100%);
+            background: linear-gradient(135deg, #ec4899 0%, #8b5cf6 100%);
             border: none;
             cursor: pointer;
-            box-shadow: 0 3px 12px rgba(5,150,105,0.25);
+            box-shadow: 0 8px 22px -4px rgba(236, 72, 153, 0.45);
             transition: all 0.15s;
             display: flex;
             align-items: center;
             justify-content: center;
             gap: 6px;
-            letter-spacing: 0.2px;
-            margin-top: 2px;
+            margin-top: 4px;
         }
         .btn-submit-order:hover {
-            transform: translateY(-1px);
-            box-shadow: 0 5px 15px rgba(5,150,105,0.35);
+            transform: translateY(-2px);
+            box-shadow: 0 12px 26px -4px rgba(236, 72, 153, 0.55);
+        }
+        .btn-submit-order:active {
+            transform: translateY(4px);
         }
         .btn-submit-order:disabled {
             opacity: 0.65;
@@ -1498,20 +1409,14 @@
             .modal-container-2col {
                 max-height: 96vh;
             }
-            .modal-summary-col {
-                padding: 12px 14px;
-            }
             .modal-form-col {
-                padding: 12px 16px 10px;
-            }
-            .summary-guarantees {
-                display: none;
+                padding: 16px 22px 14px;
             }
             .form-field {
-                margin-bottom: 3px;
+                margin-bottom: 10px;
             }
             .form-input {
-                height: 30px;
+                height: 40px;
             }
         }
 
@@ -4425,30 +4330,10 @@
                                 <span class="meta-value" id="modal-pkg-duration">90 ngày</span>
                             </div>
                         </div>
-                        <div class="summary-meta-item">
-                            <div class="meta-icon-badge meta-icon-access">🔑</div>
-                            <div class="meta-content">
-                                <span class="meta-label">Quyền truy cập</span>
-                                <span class="meta-value" id="modal-pkg-access">Toàn bộ ngân hàng đề thi IC3 GS6</span>
-                            </div>
-                        </div>
                     </div>
                 </div>
 
-                <div class="summary-guarantees">
-                    <div class="guarantee-item">
-                        <span class="guarantee-icon">⚡</span>
-                        <span>Kích hoạt tài khoản tự động ngay khi thanh toán</span>
-                    </div>
-                    <div class="guarantee-item">
-                        <span class="guarantee-icon">🛡️</span>
-                        <span id="modal-guarantee-security">Bảo mật dữ liệu học sinh & quản lý theo lớp</span>
-                    </div>
-                    <div class="guarantee-item">
-                        <span class="guarantee-icon">💬</span>
-                        <span>Hỗ trợ kỹ thuật 24/7 qua Zalo & Hotline</span>
-                    </div>
-                </div>
+                <p class="summary-note">⚡ Kích hoạt ngay sau khi thanh toán</p>
             </div>
 
             <!-- Right Column: Form Inputs -->
@@ -4478,14 +4363,6 @@
                         </button>
                     </div>
                     @endauth
-
-                    <!-- BƯỚC 1: THÔNG TIN GIÁO VIÊN / HỌC SINH -->
-                    <div class="form-section-banner">
-                        <div class="form-section-title-wrap">
-                            <span class="step-num-pill">1</span>
-                            <span id="modal-section1-title">Thông Tin Thầy/Cô Nhận Bản Quyền</span>
-                        </div>
-                    </div>
 
                     <div id="customer-fields">
                         <!-- Họ và tên -->
@@ -4556,15 +4433,6 @@
                         </div>
                     </div>
 
-                    <!-- BƯỚC 2: HÌNH THỨC THANH TOÁN TỰ ĐỘNG DUY NHẤT -->
-                    <div class="form-section-banner">
-                        <div class="form-section-title-wrap">
-                            <span class="step-num-pill">2</span>
-                            <span>Hình Thức Chuyển Khoản Tự Động</span>
-                        </div>
-                        <span class="pay-badge-security">🛡️ An Toàn & Bảo Mật</span>
-                    </div>
-
                     <input type="hidden" name="payment_method" value="payos" id="pay-method-payos">
 
                     <div class="pay-method-single-card">
@@ -4574,21 +4442,19 @@
                                 <span>Quét Mã VietQR Tự Động</span>
                                 <span class="pay-badge-rec">⚡ Kích hoạt ngay</span>
                             </div>
-                            <div class="pay-single-desc">
-                                Mở App Ngân hàng bất kỳ để quét mã VietQR · Tự động điền STK & số tiền · Tài khoản kích hoạt ngay
-                            </div>
+                            <div class="pay-single-desc">Quét mã bằng app ngân hàng, kích hoạt ngay.</div>
                         </div>
                         <div class="pay-single-check">✓</div>
                     </div>
 
                     <!-- Ghi chú (optional) -->
-                    <div class="form-field" style="margin-bottom: 8px;">
-                        <input type="text" name="notes" id="input-notes" class="form-input" style="height:36px; font-size:12.5px;" placeholder="💬 Ghi chú thêm cho lớp / trường học (nếu có)...">
+                    <div class="form-field">
+                        <input type="text" name="notes" id="input-notes" class="form-input" placeholder="Ghi chú (không bắt buộc)">
                     </div>
 
                     <!-- Submit Button -->
                     <button type="button" id="modal-submit-btn" class="btn-submit-order" onclick="handleOrderSubmit()">
-                        🚀 Đăng Ký & Quét Mã QR Kích Hoạt Ngay →
+                        🚀 Đăng ký & quét mã QR
                     </button>
                 </form>
             </div>
@@ -4913,7 +4779,6 @@
             const banner = document.getElementById('logged-user-banner');
             const passStar = document.getElementById('password-required-star');
             const passInput = document.getElementById('input-password');
-            const sec1Title = document.getElementById('modal-section1-title');
             const labelName = document.getElementById('label-input-name');
             const labelPhone = document.getElementById('label-input-phone');
             const labelSchool = document.getElementById('label-input-school');
@@ -4922,30 +4787,25 @@
             const inputPhone = document.getElementById('input-phone');
 
             const labelStudents = document.getElementById('modal-label-students');
-            const guaranteeSecurity = document.getElementById('modal-guarantee-security');
             const inputEmail = document.getElementById('input-email');
 
             if (isStudent) {
-                if (labelStudents) labelStudents.innerText = 'Đối tượng sử dụng';
-                if (guaranteeSecurity) guaranteeSecurity.innerText = 'Tài khoản độc lập, học tại nhà không cần qua trường';
-                if (inputEmail) inputEmail.placeholder = 'hocsinh@gmail.com hoặc email phụ huynh';
-                if (sec1Title) sec1Title.innerText = 'Thông Tin Học Sinh & Phụ Huynh';
-                if (labelName) labelName.innerHTML = '👤 Họ và tên Học sinh <span class="required-star">*</span>';
-                if (inputName) inputName.placeholder = 'Ví dụ: Nguyễn Gia Huy (Học sinh)';
-                if (labelPhone) labelPhone.innerHTML = '📱 SĐT Phụ huynh (nhận Zalo & hỗ trợ) <span class="required-star">*</span>';
-                if (inputPhone) inputPhone.placeholder = 'Ví dụ: 0912 345 678 (Zalo phụ huynh)';
-                if (labelSchool) labelSchool.innerText = '🏫 Trường học / Lớp (không bắt buộc)';
-                if (inputSchool) inputSchool.placeholder = 'Ví dụ: Lớp 3A1 - TH Lê Quý Đôn';
+                if (labelStudents) labelStudents.innerText = 'Đối tượng';
+                if (inputEmail) inputEmail.placeholder = 'Email học sinh hoặc phụ huynh';
+                if (labelName) labelName.innerHTML = 'Họ và tên học sinh <span class="required-star">*</span>';
+                if (inputName) inputName.placeholder = 'Ví dụ: Nguyễn Gia Huy';
+                if (labelPhone) labelPhone.innerHTML = 'SĐT phụ huynh (Zalo) <span class="required-star">*</span>';
+                if (inputPhone) inputPhone.placeholder = 'Ví dụ: 0912 345 678';
+                if (labelSchool) labelSchool.innerText = 'Trường / Lớp';
+                if (inputSchool) inputSchool.placeholder = 'Ví dụ: 3A1 - TH Lê Quý Đôn';
             } else {
                 if (labelStudents) labelStudents.innerText = 'Sĩ số quản lý';
-                if (guaranteeSecurity) guaranteeSecurity.innerText = 'Bảo mật dữ liệu học sinh & quản lý theo lớp';
                 if (inputEmail) inputEmail.placeholder = 'giaovien@gmail.com';
-                if (sec1Title) sec1Title.innerText = 'Thông Tin Thầy/Cô Nhận Bản Quyền';
-                if (labelName) labelName.innerHTML = '👤 Họ và tên Giáo viên <span class="required-star">*</span>';
-                if (inputName) inputName.placeholder = 'Ví dụ: Thầy Trần Quang Huy / Cô Nguyễn Mai Linh';
-                if (labelPhone) labelPhone.innerHTML = '📱 Số điện thoại liên hệ (Zalo) <span class="required-star">*</span>';
+                if (labelName) labelName.innerHTML = 'Họ và tên giáo viên <span class="required-star">*</span>';
+                if (inputName) inputName.placeholder = 'Ví dụ: Cô Mai Linh';
+                if (labelPhone) labelPhone.innerHTML = 'Số điện thoại (Zalo) <span class="required-star">*</span>';
                 if (inputPhone) inputPhone.placeholder = 'Ví dụ: 0912 345 678';
-                if (labelSchool) labelSchool.innerText = '🏫 Trường học / Đơn vị';
+                if (labelSchool) labelSchool.innerText = 'Trường / Đơn vị';
                 if (inputSchool) inputSchool.placeholder = 'Ví dụ: TH Lê Quý Đôn';
             }
 
@@ -4970,8 +4830,8 @@
                 if (schoolIn) schoolIn.value = authUserSchool;
                 form.action = '/bang-gia/thue-goi/' + pkg.slug;
             } else {
-                const headingText = isStudent ? 'Đăng Ký Tài Khoản Học Sinh' : 'Đăng Ký Nhận Tài Khoản Giáo Viên';
-                const subText = isStudent ? 'Điền thông tin học sinh & phụ huynh để hệ thống cấp tài khoản và kích hoạt gói.' : 'Điền thông tin giáo viên để hệ thống cấp tài khoản và hướng dẫn thanh toán.';
+                const headingText = isStudent ? 'Đăng ký tài khoản học sinh' : 'Đăng ký tài khoản giáo viên';
+                const subText = 'Điền thông tin để kích hoạt tài khoản.';
                 document.getElementById('modal-heading').innerText = headingText;
                 document.getElementById('modal-subheading').innerText = subText;
                 if (banner) banner.style.display = 'none';
