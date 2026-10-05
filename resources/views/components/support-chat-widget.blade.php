@@ -74,7 +74,7 @@
                     (history || []).forEach((t) => {
                         const div = document.createElement('div');
                         div.className = 'sc-msg ' + (t.sender === 'user' ? 'me' : 'admin');
-                        div.innerHTML = (t.image ? `<a href="${esc(t.image)}" target="_blank"><img src="${esc(t.image)}" alt="Ảnh"></a>` : '')
+                        div.innerHTML = (t.image ? `<a href="${esc(t.image)}" target="_blank"><img src="${esc(t.image)}" alt="Ảnh" onerror="this.parentElement.replaceWith(Object.assign(document.createElement('div'),{textContent:'🖼️ Ảnh không còn khả dụng'}))"></a>` : '')
                             + (t.text ? `<div>${esc(t.text)}</div>` : '')
                             + `<div class="sc-time">${esc(t.created_at || t.time || '')}</div>`;
                         body.appendChild(div);

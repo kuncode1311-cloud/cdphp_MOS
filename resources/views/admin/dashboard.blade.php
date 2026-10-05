@@ -4822,6 +4822,10 @@
                         box-shadow: 0 6px 20px rgba(37, 99, 235, 0.32);
                         font-weight: 500;
                     }
+                    .ms-bubble-img-missing {
+                        padding: 10px 14px; border-radius: 12px; background: #f1f5f9; color: #64748b;
+                        font-size: 12.5px; font-weight: 700; max-width: 260px; line-height: 1.4;
+                    }
                     .ms-bubble-img {
                         display: block; max-width: 240px; max-height: 240px; width: auto; height: auto;
                         object-fit: cover; border-radius: 16px 16px 4px 16px;
@@ -8042,7 +8046,8 @@
     function chatImageHtml(turn) {
         if (!turn || !turn.image) return '';
         const src = escapeSupportHtml(turn.image);
-        return `<img src="${src}" class="ms-bubble-img" onclick="window.open(this.src)" title="Bấm để xem ảnh" alt="Ảnh trong cuộc trò chuyện">`;
+        // Ảnh cũ (gửi trước khi lưu vào cơ sở dữ liệu) có thể đã bị xóa khỏi máy chủ: hiện thông báo thay vì ảnh vỡ
+        return `<img src="${src}" class="ms-bubble-img" onclick="window.open(this.src)" title="Bấm để xem ảnh" alt="Ảnh trong cuộc trò chuyện" onerror="this.replaceWith(Object.assign(document.createElement('div'),{className:'ms-bubble-img-missing',textContent:'🖼️ Ảnh này không còn trên máy chủ (gửi trước khi hệ thống lưu ảnh vĩnh viễn)'}))">`;
     }
 
     // Gửi ảnh thật: tải lên máy chủ, lưu vào lịch sử chat rồi mới hiển thị
