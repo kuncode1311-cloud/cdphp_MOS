@@ -568,11 +568,16 @@ class LearningController extends Controller
         if ($request->ajax() || $request->wantsJson() || $request->header('X-Requested-With') === 'XMLHttpRequest') {
             return response()->json([
                 'success' => true,
+                'timeRangeLabel' => $analytics['timeRangeLabel'],
                 'kpis' => $analytics['kpis'],
                 'overviewInsight' => $analytics['overviewInsight'],
                 'strengthsAndWeaknesses' => $analytics['strengthsAndWeaknesses'],
                 'charts' => $analytics['charts'],
                 'calendar' => $analytics['calendar'] ?? [],
+                'strengthsHtml' => view('learning.partials.parent-strengths', [
+                    'strengthsAndWeaknesses' => $analytics['strengthsAndWeaknesses'],
+                    'timeRangeLabel' => $analytics['timeRangeLabel'],
+                ])->render(),
                 'careItemsHtml' => view('learning.partials.parent-alerts', [
                     'careItems' => $analytics['careItems'],
                     'timingObservations' => $analytics['timingObservations'],
@@ -589,6 +594,9 @@ class LearningController extends Controller
             'student' => $student,
             'availableStudents' => $availableStudents,
             'levels' => $levels,
+            // Danh sách chủ đề cho bộ lọc bảng lịch sử: lấy từ DB, gộp theo thứ tự chủ đề
+            'topicOptions' => \App\Models\Topic::query()->orderBy('position')->orderBy('id')->get(['position', 'name'])
+                ->groupBy('position')->map(fn ($g, $pos) => ['position' => (int) $pos, 'name' => $g->first()->name])->values(),
         ], $analytics));
     }
 }

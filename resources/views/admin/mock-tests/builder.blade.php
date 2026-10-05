@@ -1152,7 +1152,7 @@
                             <!-- 🔍 Ô Tìm kiếm -->
                             <div class="search-field-wrap">
                                 <span class="search-icon-fixed">🔍</span>
-                                <input type="text" id="question-search-input" placeholder="Tìm kiếm câu hỏi theo từ khóa, nội dung..." oninput="handleSearch()">
+                                <input autocomplete="off" autocapitalize="off" autocorrect="off" spellcheck="false" data-lpignore="true" data-1p-ignore data-form-type="other" type="text" id="question-search-input" placeholder="Tìm kiếm câu hỏi theo từ khóa, nội dung..." oninput="handleSearch()">
                             </div>
 
                             <!-- 📁 SELECT OPTION BỘ LỌC CHỦ ĐỀ GỌN GÀNG (Thay thế cho dải buttons dài) -->
@@ -1790,5 +1790,6 @@
 
 <!-- Toast Container 3D Gamified -->
 <div id="toast-container" class="toast-container"></div>
+@include('partials.chong-tu-dien-o-tim-kiem')
 </body>
 </html>

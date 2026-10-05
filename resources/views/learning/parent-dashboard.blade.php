@@ -247,19 +247,21 @@
                 <!-- Đỉnh cao -->
                 <div style="background: #fefce8; border: 1.5px solid #fef08a; border-radius: 999px; padding: 5px 12px; display: flex; align-items: center; gap: 6px; font-size: 11.5px; font-weight: 800; color: #854d0e;">
                     <span>👑 Điểm cao nhất:</span>
-                    <b id="tickerPeakScore" style="color: #ca8a04; font-size: 13px;">{{ $ticker['peakScore'] ?? 857 }}đ</b>
-                    <span style="font-size: 10px; color: #a16207;">({{ $ticker['peakTopic'] ?? 'Sáng tạo nội dung' }})</span>
+                    <b id="tickerPeakScore" style="color: #ca8a04; font-size: 13px;">{{ ($ticker['peakScore'] ?? 0) > 0 ? $ticker['peakScore'].'đ' : 'Chưa có' }}</b>
+                    <span id="tickerPeakTopic" style="font-size: 10px; color: #a16207;">{{ ($ticker['peakScore'] ?? 0) > 0 ? '('.($ticker['peakTopic'] ?? '').')' : '' }}</span>
                 </div>
 
                 <!-- Lượt mới nhất -->
                 <div style="background: #f0fdf4; border: 1.5px solid #bbf7d0; border-radius: 999px; padding: 5px 12px; display: flex; align-items: center; gap: 6px; font-size: 11.5px; font-weight: 800; color: #166534;">
                     <span>📊 Mới nhất:</span>
-                    <b id="tickerDiffText" style="color: {{ ($ticker['isUp'] ?? true) ? '#16a34a' : '#dc2626' }}; font-size: 12px;">{{ $ticker['diffText'] ?? '▲ Tăng 304 điểm' }}</b>
+                    <b id="tickerDiffText" style="color: {{ ($ticker['isUp'] ?? null) === true ? '#16a34a' : (($ticker['isUp'] ?? null) === false ? '#dc2626' : '#64748b') }}; font-size: 12px;">{{ $ticker['diffText'] ?? 'Chưa có biến động' }}</b>
                 </div>
 
                 <!-- Callout Badge -->
                 <div id="chartMissingPointsBadge" style="background: #fff1f2; border: 1.5px solid #fecdd3; border-radius: 999px; padding: 5px 14px; font-size: 11.5px; font-weight: 800; color: #b91c1c; display: flex; align-items: center; gap: 6px; box-shadow: 0 2px 5px rgba(239, 68, 68, 0.08);">
-                    @if($distanceToPass > 0)
+                    @if($kpis['totalAttempts'] < 1)
+                        <span style="color: #64748b;">Chưa có bài làm trong {{ $timeRangeLabel }}</span>
+                    @elseif($distanceToPass > 0)
                         <span>⚠️ Còn thiếu <b id="chartMissingPointsVal">{{ $distanceToPass }}đ</b> để đạt chuẩn (700đ)</span>
                     @else
                         <span style="color: #15803d;">🎉 Đã vượt mốc đạt chuẩn 700đ!</span>
@@ -301,7 +303,7 @@
         <div style="margin-top: 10px; background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 12px; padding: 8px 14px; font-size: 11.5px; color: #475569; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 8px;">
             <div style="display: flex; align-items: center; gap: 6px;">
                 <span style="font-size: 14px;">💡</span>
-                <span><b>Nhận xét từ hệ thống:</b> Con có phong độ rất cao ở chủ đề <b>{{ $ticker['peakTopic'] ?? 'Sáng tạo nội dung' }} ({{ $ticker['peakScore'] ?? 857 }}đ)</b>. Hãy cùng con duy trì rèn luyện để bứt phá đều ở mọi chủ đề nhé!</span>
+                <span id="chartInsightText"><b>Nhận xét từ hệ thống:</b> @if(($ticker['peakScore'] ?? 0) > 0)Điểm cao nhất của con trong {{ $timeRangeLabel }} là <b>{{ $ticker['peakScore'] }}đ</b> ở <b>{{ $ticker['peakTopic'] }}</b>. Hãy cùng con duy trì rèn luyện để bứt phá đều ở mọi chủ đề nhé!@else Con chưa có bài làm nào trong {{ $timeRangeLabel }}. Hãy nhắc con làm một bài luyện để bắt đầu nhé!@endif</span>
             </div>
             <div style="display: flex; align-items: center; gap: 8px; font-weight: 800;">
                 <span style="color: #10b981;">✓ {{ $kpis['passedAttempts'] }}/{{ $kpis['totalAttempts'] }} bài vượt mốc ({{ $kpis['passRate'] }}%)</span>
@@ -396,102 +398,8 @@
     <!-- ========================================================================= -->
     <!-- ROW 4: PHÂN TÍCH NĂNG LỰC & GỢI Ý ĐỒNG HÀNH (FULL WIDTH 100% CÂN ĐỐI 3 THẺ)-->
     <!-- ========================================================================= -->
-    @php
-        $weakness = $strengthsAndWeaknesses['weakness'] ?? null;
-        $weakScore = $weakness['avgScore'] ?? 267;
-        $weakCorrect = $weakness['totalCorrect'] ?? 4;
-        $weakTotal = $weakness['totalQuestions'] ?? 15;
-        $weakAcc = round($weakness['accuracyRate'] ?? 27);
-        $weakMissing = max(0, config('learning.pass_score', 700) - $weakScore);
-        $weakTopicName = $weakness['name'] ?? 'Chủ đề 6: An toàn và bảo mật';
-
-        $strength = $strengthsAndWeaknesses['strength'] ?? null;
-        $strScore = $strength['avgScore'] ?? 857;
-        $strCorrect = $strength['totalCorrect'] ?? 12;
-        $strTotal = $strength['totalQuestions'] ?? 14;
-        $strAcc = round($strength['accuracyRate'] ?? 86);
-        $strTopicName = $strength['name'] ?? 'Chủ đề 4: Sáng tạo nội dung';
-    @endphp
-    <div style="background: #ffffff; border-radius: 20px; padding: 20px 24px; border: 1.5px solid #e2e8f0; box-shadow: 0 1px 3px rgba(0,0,0,0.03); margin-bottom: 18px;">
-        <div style="margin-bottom: 14px;">
-            <div style="display: flex; align-items: center; gap: 8px;">
-                <span style="font-size: 20px;">🧠</span>
-                <h3 style="margin: 0; font-size: 15.5px; font-weight: 900; color: #0f172a; text-transform: uppercase; letter-spacing: 0.5px;">
-                    PHÂN TÍCH NĂNG LỰC & ĐỒNG HÀNH CÙNG CON
-                </h3>
-            </div>
-            <small style="color: #64748b; font-weight: 650; font-size: 12px; display: block; margin-top: 2px;">
-                Đánh giá chuyên sâu từng chủ đề IC3, phát huy thế mạnh nổi bật và hỗ trợ nội dung con cần ôn luyện
-            </small>
-        </div>
-
-        <!-- 3 Cột Ngang Cực Kỳ Đẹp & Cân Đối -->
-        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 14px;">
-            
-            <!-- Khung 1: Điểm con cần quan tâm ôn thêm (Hồng phấn cảnh báo) -->
-            <div style="background: #fff1f2; border: 1.5px solid #fecdd3; border-radius: 16px; padding: 16px 18px; display: flex; flex-direction: column; justify-content: space-between;">
-                <div>
-                    <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px;">
-                        <div style="display: flex; align-items: center; gap: 6px; color: #b91c1c; font-size: 13.5px; font-weight: 900;">
-                            <span style="display: inline-grid; place-items: center; width: 22px; height: 22px; border-radius: 50%; background: #ef4444; color: #ffffff; font-size: 11px;">!</span>
-                            <span>Cần ôn thêm: {{ $weakTopicName }}</span>
-                        </div>
-                        <b style="color: #b91c1c; font-size: 15px; font-weight: 900;">{{ $weakScore }}/1000</b>
-                    </div>
-
-                    <div style="font-size: 12px; color: #475569; font-weight: 650; display: flex; flex-direction: column; gap: 4px; line-height: 1.4;">
-                        <div>• Điểm thấp nhất trong các chủ đề con đã học</div>
-                        <div>• Đúng {{ $weakCorrect }}/{{ $weakTotal }} câu ({{ $weakAcc }}%), còn thiếu <b>{{ $weakMissing }} điểm</b> để đạt mốc 700</div>
-                    </div>
-                </div>
-
-                <div style="display: flex; align-items: center; gap: 10px; margin-top: 14px;">
-                    <a href="{{ route('programs') }}" style="flex: 1; text-align: center; background: #2563eb; color: #ffffff; font-size: 11.5px; font-weight: 800; padding: 8px 12px; border-radius: 8px; text-decoration: none; display: inline-flex; align-items: center; justify-content: center; gap: 4px; box-shadow: 0 2px 4px rgba(37, 99, 235, 0.2);">
-                        <span>👁</span> Xem bài học
-                    </a>
-                    <a href="{{ route('programs') }}" style="flex: 1; text-align: center; background: #4f46e5; color: #ffffff; font-size: 11.5px; font-weight: 800; padding: 8px 12px; border-radius: 8px; text-decoration: none; display: inline-flex; align-items: center; justify-content: center; gap: 4px; box-shadow: 0 2px 4px rgba(79, 70, 229, 0.2);">
-                        <span>🎮</span> Luyện tập lại
-                    </a>
-                </div>
-            </div>
-
-            <!-- Khung 2: Thế mạnh xuất sắc của con (Xanh lá vinh danh) -->
-            <div style="background: #f0fdf4; border: 1.5px solid #bbf7d0; border-radius: 16px; padding: 16px 18px; display: flex; flex-direction: column; justify-content: space-between;">
-                <div>
-                    <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px;">
-                        <div style="display: flex; align-items: center; gap: 6px; color: #15803d; font-size: 13.5px; font-weight: 900;">
-                            <span>🏆</span>
-                            <span>Thế mạnh nổi bật: {{ $strTopicName }}</span>
-                        </div>
-                        <b style="color: #15803d; font-size: 15px; font-weight: 900;">{{ $strScore }}/1000</b>
-                    </div>
-                    <div style="font-size: 12px; color: #334155; font-weight: 650; line-height: 1.45; display: flex; flex-direction: column; gap: 4px;">
-                        <div>• Con đạt độ chính xác xuất sắc <b>{{ $strAcc }}%</b> ({{ $strCorrect }}/{{ $strTotal }} câu đúng).</div>
-                        <div>• Điểm số vượt xa mốc chuẩn 700đ IC3. Ba mẹ hãy khen ngợi con nhé!</div>
-                    </div>
-                </div>
-                <div style="margin-top: 14px; background: #ffffff; border: 1px solid #dcfce7; border-radius: 8px; padding: 8px 12px; font-size: 11.5px; color: #166534; font-weight: 750; text-align: center;">
-                    🎉 Chủ đề đạt điểm cao nhất của con
-                </div>
-            </div>
-
-            <!-- Khung 3: Lời khuyên đồng hành của giáo viên/hệ thống -->
-            <div style="background: #f8fafc; border: 1.5px solid #e2e8f0; border-radius: 16px; padding: 16px 18px; display: flex; flex-direction: column; justify-content: space-between;">
-                <div>
-                    <div style="display: flex; align-items: center; gap: 6px; font-weight: 900; color: #0f172a; font-size: 13.5px; margin-bottom: 8px;">
-                        <span>💡</span>
-                        <span>Gợi ý đồng hành cùng con</span>
-                    </div>
-                    <p style="margin: 0; font-size: 12px; color: #475569; font-weight: 650; line-height: 1.5;">
-                        {{ $overviewInsight['conclusion'] ?? 'Duy trì thói quen 15 phút mỗi ngày sẽ giúp con tự tin đạt chứng chỉ Tin học Quốc tế IC3.' }}
-                    </p>
-                </div>
-                <div style="margin-top: 14px; background: #ffffff; border: 1px solid #e2e8f0; border-radius: 8px; padding: 8px 12px; font-size: 11.5px; color: #2563eb; font-weight: 750; text-align: center;">
-                    ⭐ Chuẩn bị kiến thức vững vàng cho kỳ thi IC3 Spark
-                </div>
-            </div>
-
-        </div>
+    <div id="parentStrengthsWrap">
+        @include('learning.partials.parent-strengths')
     </div>
 
     <!-- ========================================================================= -->
@@ -526,20 +434,16 @@
                 <!-- Ô tìm kiếm tức thì -->
                 <div style="position: relative; min-width: 200px; flex: 1; max-width: 320px;">
                     <span style="position: absolute; left: 11px; top: 50%; transform: translateY(-50%); font-size: 13px; color: #94a3b8; pointer-events: none;">🔍</span>
-                    <input type="text" id="tableSearchInput" placeholder="Tìm kiếm bài luyện, chủ đề..." style="width: 100%; background: #ffffff; border: 1.5px solid #cbd5e1; border-radius: 10px; padding: 7.5px 10px 7.5px 32px; font-size: 12px; font-weight: 600; color: #0f172a; outline: none; box-sizing: border-box; transition: border-color 0.2s;" onfocus="this.style.borderColor='#3b82f6'" onblur="this.style.borderColor='#cbd5e1'">
+                    <input autocomplete="off" autocapitalize="off" autocorrect="off" spellcheck="false" data-lpignore="true" data-1p-ignore data-form-type="other" type="text" id="tableSearchInput" placeholder="Tìm kiếm bài luyện, chủ đề..." style="width: 100%; background: #ffffff; border: 1.5px solid #cbd5e1; border-radius: 10px; padding: 7.5px 10px 7.5px 32px; font-size: 12px; font-weight: 600; color: #0f172a; outline: none; box-sizing: border-box; transition: border-color 0.2s;" onfocus="this.style.borderColor='#3b82f6'" onblur="this.style.borderColor='#cbd5e1'">
                 </div>
 
                 <!-- Lọc theo Chủ đề -->
                 <div style="position: relative;">
                     <select id="tableTopicSelect" style="background: #ffffff; border: 1.5px solid #cbd5e1; border-radius: 10px; padding: 7.5px 28px 7.5px 10px; font-size: 12px; font-weight: 750; color: #0f172a; outline: none; cursor: pointer; appearance: none; -webkit-appearance: none;">
                         <option value="all">📚 Tất cả chủ đề</option>
-                        <option value="1">Chủ đề 1: Căn bản công nghệ</option>
-                        <option value="2">Chủ đề 2: Công dân số</option>
-                        <option value="3">Chủ đề 3: Quản lý thông tin</option>
-                        <option value="4">Chủ đề 4: Sáng tạo nội dung</option>
-                        <option value="5">Chủ đề 5: Truyền thông</option>
-                        <option value="6">Chủ đề 6: An toàn & bảo mật</option>
-                        <option value="7">Chủ đề 7: Mở rộng</option>
+                        @foreach($topicOptions as $opt)
+                            <option value="{{ $opt['position'] }}">Chủ đề {{ $opt['position'] }}: {{ $opt['name'] }}</option>
+                        @endforeach
                     </select>
                     <span style="position: absolute; right: 10px; top: 50%; transform: translateY(-50%); font-size: 9px; color: #64748b; pointer-events: none;">▼</span>
                 </div>
@@ -1064,12 +968,38 @@ document.addEventListener('DOMContentLoaded', function () {
 
             // 2. Cập nhật Callout badge biểu đồ 1
             const ticker = data.charts.line?.ticker;
+            if (ticker) {
+                const hasPeak = Number(ticker.peakScore) > 0;
+                const peakEl = document.getElementById('tickerPeakScore');
+                if (peakEl) peakEl.textContent = hasPeak ? ticker.peakScore + 'đ' : 'Chưa có';
+                const peakTopicEl = document.getElementById('tickerPeakTopic');
+                if (peakTopicEl) peakTopicEl.textContent = hasPeak ? '(' + ticker.peakTopic + ')' : '';
+                const diffEl = document.getElementById('tickerDiffText');
+                if (diffEl) {
+                    diffEl.textContent = ticker.diffText;
+                    diffEl.style.color = ticker.isUp === true ? '#16a34a' : (ticker.isUp === false ? '#dc2626' : '#64748b');
+                }
+                const insightEl = document.getElementById('chartInsightText');
+                if (insightEl) {
+                    insightEl.innerHTML = '';
+                    const strong = document.createElement('b');
+                    strong.textContent = 'Nhận xét từ hệ thống: ';
+                    insightEl.appendChild(strong);
+                    insightEl.appendChild(document.createTextNode(hasPeak
+                        ? 'Điểm cao nhất của con trong ' + data.timeRangeLabel + ' là ' + ticker.peakScore + 'đ ở ' + ticker.peakTopic + '. Hãy cùng con duy trì rèn luyện để bứt phá đều ở mọi chủ đề nhé!'
+                        : 'Con chưa có bài làm nào trong ' + data.timeRangeLabel + '. Hãy nhắc con làm một bài luyện để bắt đầu nhé!'));
+                }
+            }
+            const strengthsWrap = document.getElementById('parentStrengthsWrap');
+            if (strengthsWrap && typeof data.strengthsHtml === 'string') strengthsWrap.innerHTML = data.strengthsHtml;
             const missingBadge = document.getElementById('chartMissingPointsBadge');
             if (missingBadge && ticker) {
-                if (ticker.distanceToPass > 0) {
-                    missingBadge.innerHTML = '<div style="font-size: 10.5px; color: #64748b; font-weight: 700;">Còn thiếu</div><div style="font-size: 14px; font-weight: 900; color: #dc2626;"><b>' + ticker.distanceToPass + ' điểm</b></div><div style="font-size: 10px; color: #dc2626;">để đạt mốc 700</div><div style="font-size: 12px; color: #dc2626; margin-top: -2px;">↓</div>';
+                if (!(k.totalAttempts > 0)) {
+                    missingBadge.innerHTML = '<span style="color: #64748b;">Chưa có bài làm trong ' + data.timeRangeLabel + '</span>';
+                } else if (ticker.distanceToPass > 0) {
+                    missingBadge.innerHTML = '<span>⚠️ Còn thiếu <b id="chartMissingPointsVal">' + ticker.distanceToPass + 'đ</b> để đạt chuẩn (' + passBaseline + 'đ)</span>';
                 } else {
-                    missingBadge.innerHTML = '<div style="color: #15803d; font-weight: 900;">✓ Đã đạt mốc chuẩn 700đ</div>';
+                    missingBadge.innerHTML = '<span style="color: #15803d;">🎉 Đã vượt mốc đạt chuẩn ' + passBaseline + 'đ!</span>';
                 }
             }
 
@@ -1279,4 +1209,6 @@ document.addEventListener('DOMContentLoaded', function () {
     }
 });
 </script>
+@include('partials.chong-tu-dien-o-tim-kiem')
+
 @endsection

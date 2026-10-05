@@ -2122,7 +2122,7 @@
                             <!-- Ô tìm kiếm -->
                             <div class="search-wrap" style="flex: 2; min-width: 220px;">
                                 <span class="search-icon">🔍</span>
-                                <input type="text" id="filter-keyword" class="search-input" style="width: 100%; box-sizing: border-box; height: 38px;" placeholder="Tìm tên học sinh, mã HS, bài thi..." onkeyup="applyAdvancedResultsFilter()">
+                                <input autocomplete="off" autocapitalize="off" autocorrect="off" spellcheck="false" data-lpignore="true" data-1p-ignore data-form-type="other" type="text" id="filter-keyword" class="search-input" style="width: 100%; box-sizing: border-box; height: 38px;" placeholder="Tìm tên học sinh, mã HS, bài thi..." onkeyup="applyAdvancedResultsFilter()">
                             </div>
 
                             <!-- Lọc Khối -->
@@ -2658,7 +2658,7 @@
                             <div style="display:flex; align-items:center; gap:10px; flex-wrap:wrap;">
                                 <div class="search-wrap" style="width:260px; position:relative;">
                                     <span class="search-icon" style="position:absolute; left:10px; top:50%; transform:translateY(-50%); font-size:12px; color:#94a3b8; pointer-events:none;">🔍</span>
-                                    <input type="text" id="user-search-input" class="search-input" style="width:100%; box-sizing:border-box; height:36px; padding-left:30px; padding-right:10px; font-size:12.5px; border:1.5px solid #cbd5e1; border-radius:8px; outline:none; background:#ffffff;" placeholder="Tìm tên, mã HS, email..." onkeyup="filterUserSearch()">
+                                    <input autocomplete="off" autocapitalize="off" autocorrect="off" spellcheck="false" data-lpignore="true" data-1p-ignore data-form-type="other" type="text" id="user-search-input" class="search-input" style="width:100%; box-sizing:border-box; height:36px; padding-left:30px; padding-right:10px; font-size:12.5px; border:1.5px solid #cbd5e1; border-radius:8px; outline:none; background:#ffffff;" placeholder="Tìm tên, mã HS, email..." onkeyup="filterUserSearch()">
                                 </div>
                                 <button type="button" class="btn-primary" onclick="openCreateUserModal()" style="padding:7px 14px; font-size:12.5px; border-radius:8px; height:36px; white-space:nowrap;">
                                     <span>＋</span> Thêm học sinh mới
@@ -2840,7 +2840,7 @@
                             <div style="display:flex; align-items:center; gap:10px; flex-wrap:wrap;">
                                 <div class="search-wrap" style="width:230px; position:relative;">
                                     <span class="search-icon" style="position:absolute; left:10px; top:50%; transform:translateY(-50%); font-size:12px; color:#94a3b8; pointer-events:none;">🔍</span>
-                                    <input type="text" id="user-search-input" class="search-input" style="width:100%; box-sizing:border-box; height:36px; padding-left:30px; padding-right:10px; font-size:12.5px; border:1.5px solid #cbd5e1; border-radius:8px; outline:none; background:#ffffff;" placeholder="Tìm theo tên, mã HS, email..." onkeyup="filterUserSearch()">
+                                    <input autocomplete="off" autocapitalize="off" autocorrect="off" spellcheck="false" data-lpignore="true" data-1p-ignore data-form-type="other" type="text" id="user-search-input" class="search-input" style="width:100%; box-sizing:border-box; height:36px; padding-left:30px; padding-right:10px; font-size:12.5px; border:1.5px solid #cbd5e1; border-radius:8px; outline:none; background:#ffffff;" placeholder="Tìm theo tên, mã HS, email..." onkeyup="filterUserSearch()">
                                 </div>
                                 <button type="button" class="btn-primary" onclick="openCreateUserModal()" style="padding:7px 14px; font-size:12.5px; border-radius:8px; height:36px; white-space:nowrap;">
                                     <span>＋</span> Thêm tài khoản mới
@@ -3812,7 +3812,7 @@
                     <div class="orders-toolbar-wrap">
                         <div class="orders-search-box">
                             <span class="orders-search-icon">🔍</span>
-                            <input type="text" id="order-search-input" placeholder="Tìm theo mã đơn, tên cô giáo, SĐT, trường học..." onkeyup="filterOrdersTable()">
+                            <input autocomplete="off" autocapitalize="off" autocorrect="off" spellcheck="false" data-lpignore="true" data-1p-ignore data-form-type="other" type="text" id="order-search-input" placeholder="Tìm theo mã đơn, tên cô giáo, SĐT, trường học..." onkeyup="filterOrdersTable()">
                         </div>
                         <div class="orders-filter-segmented">
                             <button type="button" class="order-filter-pill-tab active" data-status="" onclick="filterOrdersTable('')">
@@ -5093,7 +5093,7 @@
 
                             <div class="ms-search-pill">
                                 <span class="icon">🔍</span>
-                                <input type="text" id="chat-search-input" oninput="filterChatConversations(this.value)" placeholder="Tìm theo tên hoặc SĐT...">
+                                <input autocomplete="off" autocapitalize="off" autocorrect="off" spellcheck="false" data-lpignore="true" data-1p-ignore data-form-type="other" type="text" id="chat-search-input" oninput="filterChatConversations(this.value)" placeholder="Tìm theo tên hoặc SĐT...">
                             </div>
 
                             <div class="ms-filter-tabs">
@@ -6265,7 +6265,7 @@
             <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:16px; gap:12px; flex-wrap:wrap;">
                 <div class="search-wrap" style="flex:1; max-width:360px;">
                     <span class="search-icon">🔍</span>
-                    <input type="text" id="ts-modal-search" class="search-input" style="width:100%; box-sizing:border-box; height:38px;" placeholder="Tìm tên, mã HS, email học sinh..." onkeyup="filterTeacherModalStudents()">
+                    <input autocomplete="off" autocapitalize="off" autocorrect="off" spellcheck="false" data-lpignore="true" data-1p-ignore data-form-type="other" type="text" id="ts-modal-search" class="search-input" style="width:100%; box-sizing:border-box; height:38px;" placeholder="Tìm tên, mã HS, email học sinh..." onkeyup="filterTeacherModalStudents()">
                 </div>
                 <div style="display:flex; align-items:center; gap:10px;">
                     <span id="ts-modal-count-badge" class="pill-badge pill-grade" style="font-size:12.5px; padding:6px 14px;"></span>
@@ -11733,5 +11733,6 @@
 @endif
 
 @include('admin.partials.call-panel')
+@include('partials.chong-tu-dien-o-tim-kiem')
 </body>
 </html>
