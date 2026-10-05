@@ -157,6 +157,27 @@ class SubscriptionService
     }
 
     /**
+     * Tự hủy các đơn thanh toán online (PayOS) đã quá hạn mà chưa trả tiền.
+     * Gọi nhẹ nhàng mỗi khi mở trang quản trị/thanh toán; đơn chuyển khoản tay (chờ Admin duyệt) không bị đụng tới.
+     *
+     * @return int Số đơn vừa bị hủy
+     */
+    public function expireStaleOnlineOrders(): int
+    {
+        $count = 0;
+
+        PackageOrder::query()->expiredOnline()->get()->each(function (PackageOrder $order) use (&$count) {
+            $order->update([
+                'status' => PackageOrder::STATUS_REJECTED,
+                'notes' => trim(($order->notes ?? '') . "\n" . PackageOrder::EXPIRED_NOTE),
+            ]);
+            $count++;
+        });
+
+        return $count;
+    }
+
+    /**
      * Từ chối / Hủy đơn đăng ký thuê gói
      */
     public function rejectOrder(PackageOrder $order, ?string $reason = null): bool

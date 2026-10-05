@@ -4513,6 +4513,9 @@
                 <div class="pay-content-grid">
                     <!-- Left: VietQR Box -->
                     <div class="pay-qr-box">
+                        <div id="pay-modal-countdown" style="display:none; margin-bottom:8px; padding:5px 12px; border-radius:999px; background:#fff7ed; border:1px solid #fdba74; color:#c2410c; font-size:12px; font-weight:700;">
+                            ⏳ Mã hết hạn sau <span id="pay-modal-countdown-time" style="font-family:monospace; font-size:15px; letter-spacing:0.04em;">--:--</span>
+                        </div>
                         <div class="pay-qr-img-wrap">
                             <img src="" alt="Mã VietQR" id="pay-modal-qr-img" loading="eager">
                         </div>
@@ -4595,9 +4598,7 @@
                         </button>
                     </div>
 
-                    <button type="button" class="pay-btn-confirm" id="btn-modal-confirm-transferred" onclick="confirmModalPaymentTransferred()">
-                        <span>⚡ Tôi Đã Chuyển Khoản Xong</span>
-                    </button>
+                    <span style="font-size:11.5px; color:#64748b; font-weight:600; max-width:240px; text-align:right;">⚡ Thanh toán xong, gói được kích hoạt tự động.</span>
                 </div>
             </div>
         </div>
@@ -5111,6 +5112,8 @@
             document.getElementById('pay-modal-pkg-name').innerText = data.order.package_name;
             document.getElementById('pay-modal-status-text').innerText = 'Đang chờ thanh toán...';
             document.getElementById('pay-modal-qr-img').src = data.qr_url;
+            document.getElementById('pay-modal-qr-img').style.opacity = '1';
+            startModalCountdown(data.expires_in_seconds);
 
             document.getElementById('pay-modal-bank-name').innerText = data.bank.bank_name;
             document.getElementById('pay-modal-acc-name').innerText = data.bank.account_name;
@@ -5122,11 +5125,6 @@
             // Khôi phục giao diện ban đầu
             document.getElementById('modal-pay-details-view').style.display = 'block';
             document.getElementById('modal-pay-success').style.display = 'none';
-            const btnConfirm = document.getElementById('btn-modal-confirm-transferred');
-            if (btnConfirm) {
-                btnConfirm.disabled = false;
-                btnConfirm.innerHTML = '<span>⚡ Tôi Đã Chuyển Khoản Xong</span>';
-            }
 
             // Real-time Polling: Kiểm tra trạng thái kích hoạt mỗi 2 giây
             if (modalPollTimer) clearInterval(modalPollTimer);
@@ -5160,29 +5158,33 @@
             });
         }
 
-        function confirmModalPaymentTransferred() {
-            if (!currentModalOrderCode) return;
-            const btn = document.getElementById('btn-modal-confirm-transferred');
-            if (!btn) return;
-            btn.disabled = true;
-            btn.innerHTML = '<span>⏳ Đang gửi thông báo tới Admin...</span>';
+        // ⏳ Đếm ngược mã thanh toán online (10 phút). Hết giờ thì khóa mã, đơn tự hủy, mời khách tạo đơn mới.
+        let modalCountdownTimer = null;
+        function startModalCountdown(seconds) {
+            if (modalCountdownTimer) clearInterval(modalCountdownTimer);
+            const box = document.getElementById('pay-modal-countdown');
+            const timeEl = document.getElementById('pay-modal-countdown-time');
+            if (!box || !timeEl || !seconds || seconds <= 0) {
+                if (box) box.style.display = 'none';
+                return;
+            }
+            const deadline = Date.now() + seconds * 1000;
+            box.style.display = 'inline-block';
 
-            fetch(`/bang-gia/don-hang/${currentModalOrderCode}/da-chuyen-khoan`, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'X-CSRF-TOKEN': document.querySelector('input[name="_token"]')?.value || '{{ csrf_token() }}',
-                    'Accept': 'application/json'
+            const tick = () => {
+                const left = Math.max(0, Math.round((deadline - Date.now()) / 1000));
+                timeEl.textContent = String(Math.floor(left / 60)).padStart(2, '0') + ':' + String(left % 60).padStart(2, '0');
+                if (left <= 60) { box.style.background = '#fef2f2'; box.style.borderColor = '#fca5a5'; box.style.color = '#b91c1c'; }
+                if (left <= 0) {
+                    clearInterval(modalCountdownTimer);
+                    if (modalPollTimer) clearInterval(modalPollTimer);
+                    box.textContent = '⌛ Đơn đã hết hạn thanh toán. Vui lòng bấm "Đổi thông tin" để tạo đơn mới.';
+                    document.getElementById('pay-modal-qr-img').style.opacity = '0.15';
+                    document.getElementById('pay-modal-status-text').innerText = 'Đơn đã hết hạn';
                 }
-            })
-            .then(res => res.json())
-            .then(data => {
-                btn.innerHTML = '<span>✓ Đã báo Admin kiểm tra!</span>';
-                document.getElementById('pay-modal-status-text').innerText = 'Đang đợi kiểm tra và kích hoạt...';
-            })
-            .catch(err => {
-                btn.innerHTML = '<span>✓ Đã ghi nhận chuyển khoản</span>';
-            });
+            };
+            modalCountdownTimer = setInterval(tick, 1000);
+            tick();
         }
 
         function pollModalOrderStatus(orderCode) {

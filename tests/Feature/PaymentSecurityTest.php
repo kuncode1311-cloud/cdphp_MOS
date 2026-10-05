@@ -145,6 +145,7 @@ class PaymentSecurityTest extends TestCase
         $this->seed();
         $package = $this->package();
         $student = User::factory()->create(['role' => 'student', 'created_by' => null]);
+        Http::fake(['*' => Http::response(['code' => '00', 'data' => ['checkoutUrl' => 'https://pay.test/x', 'qrCode' => 'qr']])]);
 
         $this->actingAs($student)->post(route('pricing.order', $package), [
             'payment_method' => 'bank_transfer', 'price' => 1, 'duration_days' => 9999, 'status' => 'active',

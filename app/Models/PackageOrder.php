@@ -34,6 +34,9 @@ class PackageOrder extends Model
     public const STATUS_ACTIVE = 'active';
     public const STATUS_REJECTED = 'rejected';
 
+    /** Ghi chú tự động khi đơn thanh toán online quá hạn mà chưa trả tiền */
+    public const EXPIRED_NOTE = 'Hết hạn thanh toán online (quá thời gian mà chưa trả tiền)';
+
     public const TYPE_SUBSCRIPTION = 'subscription';
     public const TYPE_QUOTA_ADD = 'quota_add';
 
@@ -50,6 +53,7 @@ class PackageOrder extends Model
         'order_type',
         'status',
         'payment_method',
+        'payos_expires_at',
         'notes',
         'activated_at',
     ];
@@ -65,6 +69,7 @@ class PackageOrder extends Model
             'duration_days' => 'integer',
             'max_students' => 'integer',
             'activated_at' => 'datetime',
+            'payos_expires_at' => 'datetime',
         ];
     }
 
@@ -139,6 +144,60 @@ class PackageOrder extends Model
     }
 
     /**
+     * Scope: đơn thanh toán online (PayOS) đang chờ trả tiền, kể cả đã quá hạn nhưng chưa được dọn.
+     */
+    public function scopeOnlinePending(Builder $query): Builder
+    {
+        return $query->where('status', self::STATUS_PENDING)->where('payment_method', 'payos');
+    }
+
+    /**
+     * Scope: đơn thanh toán online đã quá hạn mà chưa trả tiền (cần tự hủy).
+     * Đơn cũ chưa có payos_expires_at thì tính từ lúc tạo đơn.
+     */
+    public function scopeExpiredOnline(Builder $query): Builder
+    {
+        $now = now();
+        $oldestAllowed = $now->copy()->subSeconds(\App\Services\PayosService::linkTtlSeconds());
+
+        return $query->onlinePending()->where(function (Builder $q) use ($now, $oldestAllowed) {
+            $q->where('payos_expires_at', '<=', $now)
+                ->orWhere(function (Builder $q2) use ($oldestAllowed) {
+                    $q2->whereNull('payos_expires_at')->where('created_at', '<=', $oldestAllowed);
+                });
+        });
+    }
+
+    /**
+     * Scope: đơn chờ còn hiệu lực = chờ duyệt (chuyển khoản tay) + chờ thanh toán online chưa quá hạn.
+     */
+    public function scopePendingLive(Builder $query): Builder
+    {
+        return $query->where('status', self::STATUS_PENDING)
+            ->whereNotIn('id', self::query()->expiredOnline()->select('id'));
+    }
+
+    /**
+     * Scope: đơn chờ Admin duyệt tay (chuyển khoản thường), không tính đơn đang chờ khách trả tiền online.
+     */
+    public function scopeAwaitingApproval(Builder $query): Builder
+    {
+        return $query->pendingLive()->where(function (Builder $q) {
+            $q->whereNull('payment_method')->orWhere('payment_method', '!=', 'payos');
+        });
+    }
+
+    /**
+     * Scope: đơn hiển thị ở Khu quản trị = đã kích hoạt + đang chờ còn hiệu lực (ẩn đơn hủy/từ chối/quá hạn).
+     */
+    public function scopeVisibleInAdmin(Builder $query): Builder
+    {
+        return $query->where(function (Builder $q) {
+            $q->where('status', self::STATUS_ACTIVE)->orWhere(fn (Builder $p) => $p->pendingLive());
+        });
+    }
+
+    /**
      * Kiểm tra trạng thái
      */
     public function isPending(): bool
@@ -149,6 +208,18 @@ class PackageOrder extends Model
     public function isActive(): bool
     {
         return $this->status === self::STATUS_ACTIVE;
+    }
+
+    /** Đơn đang chờ khách trả tiền online (chưa quá hạn hay đã quá hạn nhưng chưa dọn) */
+    public function isAwaitingOnlinePayment(): bool
+    {
+        return $this->isPending() && $this->payment_method === 'payos';
+    }
+
+    /** Đơn bị hệ thống tự hủy do quá hạn thanh toán online */
+    public function isExpiredByTimeout(): bool
+    {
+        return $this->isRejected() && str_contains((string) $this->notes, self::EXPIRED_NOTE);
     }
 
     public function isRejected(): bool
@@ -191,8 +262,8 @@ class PackageOrder extends Model
     {
         return match ($this->status) {
             self::STATUS_ACTIVE => 'Đã kích hoạt',
-            self::STATUS_REJECTED => 'Đã từ chối',
-            default => 'Chờ duyệt',
+            self::STATUS_REJECTED => $this->isExpiredByTimeout() ? 'Hết hạn thanh toán' : 'Đã từ chối',
+            default => $this->payment_method === 'payos' ? 'Chờ thanh toán' : 'Chờ duyệt',
         };
     }
 

@@ -23,7 +23,7 @@
     }
 
     // Đếm số đơn chờ duyệt và số tin nhắn hỗ trợ nếu chưa có từ controller
-    $pendingOrdersCount = $pendingOrdersCount ?? (\App\Models\PackageOrder::where('status', 'pending')->count());
+    $pendingOrdersCount = $pendingOrdersCount ?? (\App\Models\PackageOrder::awaitingApproval()->count());
     $pendingSupportCount = $pendingSupportCount ?? (\App\Models\SupportMessage::where('status', 'pending')->count());
 @endphp
 

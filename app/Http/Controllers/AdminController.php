@@ -169,14 +169,21 @@ class AdminController extends Controller
                 ->ordered()
                 ->get();
 
+            // Tự hủy đơn thanh toán online quá 10 phút chưa trả; bảng chỉ hiện đơn đã kích hoạt + đơn đang chờ (ẩn đơn hủy/từ chối/quá hạn)
+            app(\App\Services\SubscriptionService::class)->expireStaleOnlineOrders();
+
             $packageOrders = PackageOrder::query()
+                ->visibleInAdmin()
                 ->with(['user', 'package.levels'])
                 ->latest('id')
                 ->limit(90)
                 ->get();
 
-            $totalOrdersCount = PackageOrder::count();
-            $pendingOrdersCount = PackageOrder::where('status', PackageOrder::STATUS_PENDING)->count();
+            $totalOrdersCount = PackageOrder::visibleInAdmin()->count();
+            // "Chờ duyệt" = đơn chuyển khoản tay cần Admin duyệt; "Chờ thanh toán" = đơn online còn trong 10 phút
+            $pendingOrdersCount = PackageOrder::awaitingApproval()->count();
+            $awaitingApprovalCount = $pendingOrdersCount;
+            $awaitingPaymentCount = PackageOrder::pendingLive()->count() - $pendingOrdersCount;
             $activeOrdersCount = PackageOrder::where('status', PackageOrder::STATUS_ACTIVE)->count();
             $totalRevenue = (int) PackageOrder::where('status', PackageOrder::STATUS_ACTIVE)->sum('price');
 
@@ -201,6 +208,8 @@ class AdminController extends Controller
                 ->latest('id')
                 ->limit(90)
                 ->get();
+            $awaitingPaymentCount = 0;
+            $awaitingApprovalCount = (clone $teacherOrdersQuery)->where('status', PackageOrder::STATUS_PENDING)->count();
             $totalOrdersCount = (clone $teacherOrdersQuery)->count();
             $pendingOrdersCount = (clone $teacherOrdersQuery)->where('status', PackageOrder::STATUS_PENDING)->count();
             $activeOrdersCount = (clone $teacherOrdersQuery)->where('status', PackageOrder::STATUS_ACTIVE)->count();
@@ -248,6 +257,8 @@ class AdminController extends Controller
             'packageOrders',
             'totalOrdersCount',
             'pendingOrdersCount',
+            'awaitingPaymentCount',
+            'awaitingApprovalCount',
             'activeOrdersCount',
             'totalRevenue',
             'supportMessages',
@@ -394,7 +405,7 @@ class AdminController extends Controller
         }
 
         $pendingCount = \App\Models\SupportMessage::where('status', 'pending')->count();
-        $pendingOrdersCount = \App\Models\PackageOrder::where('status', 'pending')->count();
+        $pendingOrdersCount = \App\Models\PackageOrder::awaitingApproval()->count();
         $totalCount = \App\Models\SupportMessage::count();
 
         return response()->json([
