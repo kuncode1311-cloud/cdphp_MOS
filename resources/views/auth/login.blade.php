@@ -69,7 +69,13 @@
             height: 100%;
             object-fit: fill;
             filter: brightness(1.12) contrast(1.05) saturate(1.12);
+            /* Ẩn video cho tới khi phát được: nền tối đứng yên, không hiện ảnh tĩnh khác video rồi mới nhảy */
+            opacity: 0;
+            transition: opacity 0.8s ease;
         }
+        .video-bg.is-ready { opacity: 1; }
+        /* Chỉ khi video không tải được mới dùng ảnh nền thay thế */
+        .video-bg-container.video-failed { background: #05020a url('{{ asset('images/ic3-login-hero.jpg') }}') center / cover no-repeat; }
 
         .video-overlay {
             position: absolute;
@@ -988,11 +994,27 @@
 
     <!-- Cinematic Video Background (bg-hero.mp4) -->
     <div class="video-bg-container">
-        <video autoplay muted loop playsinline preload="auto" poster="{{ asset('images/ic3-login-hero.jpg') }}" class="video-bg">
+        <video id="loginBgVideo" autoplay muted loop playsinline preload="auto" class="video-bg">
             <source src="{{ asset('images/bg-hero.mp4') }}" type="video/mp4">
         </video>
         <div class="video-overlay"></div>
     </div>
+    <script>
+        // Đợi video phát được rồi mới hiện; lỗi tải thì mới dùng ảnh nền dự phòng
+        (function () {
+            const video = document.getElementById('loginBgVideo');
+            if (!video) return;
+            const box = video.parentElement;
+            const show = () => video.classList.add('is-ready');
+            video.addEventListener('playing', show, { once: true });
+            video.addEventListener('error', () => box.classList.add('video-failed'), true);
+            const p = video.play();
+            if (p && p.catch) p.catch(() => box.classList.add('video-failed'));
+            // Mạng quá chậm (hơn 12 giây vẫn chưa phát): hiện ảnh dự phòng để khỏi trống
+            setTimeout(() => { if (!video.classList.contains('is-ready')) box.classList.add('video-failed'); }, 12000);
+            video.addEventListener('playing', () => box.classList.remove('video-failed'));
+        })();
+    </script>
 
     <!-- Ultra-Clean Glassmorphism Card -->
     <div class="login-wrapper">
