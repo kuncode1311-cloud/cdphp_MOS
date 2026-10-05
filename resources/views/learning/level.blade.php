@@ -132,7 +132,7 @@
                     </button>
                     <label class="topic-search-box">
                         <span>🔍</span>
-                        <input id="topic-search-input" oninput="filterTopics(this.value)" type="search" placeholder="Tìm chủ đề hoặc bài luyện...">
+                        <input id="topic-search-input" name="tim-chu-de-hoc-tap" oninput="filterTopics(this.value)" type="text" inputmode="search" enterkeyhint="search" autocomplete="off" autocapitalize="off" autocorrect="off" spellcheck="false" data-lpignore="true" data-1p-ignore data-form-type="other" readonly onfocus="this.removeAttribute('readonly')" placeholder="Tìm chủ đề hoặc bài luyện...">
                     </label>
                 </div>
             </div>
@@ -453,9 +453,9 @@
         position: relative;
     }
     .topic-box:hover {
-        transform: translateY(-3px);
         box-shadow: 0 20px 45px rgba(0, 0, 0, 0.18);
     }
+    .topic-grid, .topic-box { overflow-anchor: none; }
 
     /* Topic Header (Vibrant 3D Gradient Colors) */
     .topic-box-header {
@@ -676,9 +676,18 @@
         if (!header) return;
         const card = header.closest('.topic-box');
         if (card) {
-            card.classList.toggle('collapsed');
+            const collapsed = card.classList.toggle('collapsed');
+            header.setAttribute('aria-expanded', collapsed ? 'false' : 'true');
         }
     };
+
+    // Khi quay lại trang (nút Back) hoặc trình duyệt tự điền: xoá chữ lạ trong ô tìm kiếm, hiện lại đủ chủ đề
+    (function resetTopicSearch() {
+        const input = document.getElementById('topic-search-input');
+        const reset = () => { if (input) input.value = ''; window.filterTopics(''); };
+        window.addEventListener('pageshow', reset);
+        setTimeout(reset, 300);
+    })();
 
     window.toggleAllTopics = function(collapse) {
         document.querySelectorAll('.topic-box').forEach(card => {
