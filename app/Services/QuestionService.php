@@ -173,6 +173,7 @@ class QuestionService
             // Nếu người dùng upload file ảnh mới cho option này
             if ($imageFile instanceof UploadedFile) {
                 $storedPath = $imageFile->store('options', 'public');
+                \App\Models\StoredFile::remember($storedPath);
                 $imagePath = Storage::url($storedPath);
             }
 

@@ -474,6 +474,7 @@ class AdminManagementController extends Controller
         ]);
         $file = $request->file('file');
         $path = $file->store('question-assets', 'public');
+        \App\Models\StoredFile::remember($path);
         $question->assets()->create([
             'kind' => $request->kind,
             'path' => Storage::url($path),
@@ -491,6 +492,7 @@ class AdminManagementController extends Controller
     {
         if (Str::startsWith($asset->path, '/storage/')) {
             Storage::disk('public')->delete(Str::after($asset->path, '/storage/'));
+            \App\Models\StoredFile::forget($asset->path);
         }
         $asset->delete();
 

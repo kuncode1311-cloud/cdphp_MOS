@@ -37,6 +37,7 @@ class QuestionAssetService
 
         // 1. Lưu file vào thư mục public disk (storage/app/public/question-assets)
         $path = $file->store('question-assets', 'public');
+        \App\Models\StoredFile::remember($path);
 
         // 2. Tạo bản ghi trong bảng question_assets
         return $question->assets()->create([
@@ -63,6 +64,7 @@ class QuestionAssetService
             if (Storage::disk('public')->exists($relativeDiskPath)) {
                 Storage::disk('public')->delete($relativeDiskPath);
             }
+            \App\Models\StoredFile::forget($relativeDiskPath);
         }
 
         // Xóa bản ghi trong database

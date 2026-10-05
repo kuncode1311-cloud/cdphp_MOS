@@ -9,7 +9,8 @@ use Illuminate\Support\Facades\Http;
 use Tests\TestCase;
 
 /**
- * Soạn câu hỏi từ tệp phải bám sát nội dung tệp: không ép về Tin học và gửi kèm chữ trích từ PDF.
+ * Soạn câu hỏi từ tệp: nền tảng là môn Tin học (nguồn ngoài Tin học chỉ làm bối cảnh), nguồn Tin học thì bám sát/trích nguyên văn,
+ * và luôn gửi kèm chữ trích từ PDF.
  */
 class AiQuestionFromFileTest extends TestCase
 {
@@ -40,7 +41,7 @@ class AiQuestionFromFileTest extends TestCase
         return $pdf."trailer\n<< /Size ".(count($objects) + 1)." /Root 1 0 R >>\nstartxref\n{$xref}\n%%EOF";
     }
 
-    public function test_chu_trich_tu_pdf_duoc_gui_cho_ai_va_cau_hoi_khac_chu_de_khong_bi_loc_bo(): void
+    public function test_chu_trich_tu_pdf_duoc_gui_cho_ai_va_chi_dan_tin_hoc_cho_nguon_ngoai_tin_hoc(): void
     {
         Http::preventStrayRequests();
         config([
@@ -72,7 +73,7 @@ class AiQuestionFromFileTest extends TestCase
                 ['path' => $path, 'mime_type' => 'application/pdf', 'name' => 'dia-ly.pdf'],
             ], '', false, 1);
 
-            // Câu hỏi về địa lý (không thuộc Tin học) vẫn được giữ lại
+            // Nguồn chữ không phải Tin học: không áp bộ lọc "bám nguồn" nên câu AI trả về vẫn được giữ lại
             $this->assertCount(1, $questions);
             $this->assertSame('Ha Noi la thu do cua Viet Nam dung khong', $questions[0]['title']);
 
@@ -80,9 +81,11 @@ class AiQuestionFromFileTest extends TestCase
                 $content = $request["messages"][0]["content"]; $prompt = end($content)["text"];
 
                 return str_contains($prompt, 'Ha Noi la thu do cua Viet Nam')
-                    && str_contains($prompt, 'BÁM SÁT NỘI DUNG THẬT TRONG TỆP')
-                    && str_contains($prompt, 'TRÍCH NGUYÊN VĂN')
-                    && ! str_contains($prompt, 'Mọi câu hỏi đầu ra phải thuộc Tin học');
+                    && str_contains($prompt, 'PHẠM VI BẮT BUỘC')
+                    && str_contains($prompt, 'MỌI câu hỏi phải thuộc môn Tin học')
+                    && str_contains($prompt, 'Loại B')
+                    && str_contains($prompt, 'KHÔNG hỏi chi tiết của chính tệp')
+                    && str_contains($prompt, 'TRÍCH NGUYÊN VĂN');
             });
         } finally {
             unlink($path);

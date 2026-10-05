@@ -240,8 +240,13 @@ Route::prefix('quan-tri')->name('admin.')->middleware(['auth', 'admin', 'subscri
 
 // Phục vụ tài nguyên tĩnh từ storage/app/public đảm bảo hiển thị ảnh 100% trên mọi môi trường (kể cả khi symlink bị lỗi)
 Route::get('/storage/{path}', function (string $path) {
+    // Ảnh/tệp câu hỏi đã mất khỏi đĩa (máy chủ vừa triển khai lại): phục hồi từ bản sao bền vững trong cơ sở dữ liệu
+    if (preg_match('#^(?:question-assets|options)/[A-Za-z0-9._/-]+$#', $path)) {
+        \App\Models\StoredFile::ensureOnDisk($path);
+    }
+
     // Chỉ phục vụ file nằm đúng trong storage/app/public, chặn đường dẫn kiểu ../ để không lộ .env hay mã nguồn.
-    $root = realpath(storage_path('app/public'));
+    $root = realpath(\Illuminate\Support\Facades\Storage::disk('public')->path(''));
     $fullPath = $root ? realpath($root . DIRECTORY_SEPARATOR . ltrim($path, '/')) : false;
     if (! $fullPath || ! str_starts_with($fullPath, $root . DIRECTORY_SEPARATOR) || ! is_file($fullPath)) {
         abort(404);

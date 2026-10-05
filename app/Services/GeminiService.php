@@ -260,6 +260,7 @@ class GeminiService
 
         $path = 'question-assets/ai-'.Str::uuid().'.'.$extension;
         Storage::disk('public')->put($path, $binary);
+        \App\Models\StoredFile::remember($path); // bản sao bền vững: ổ đĩa Railway bị xóa mỗi lần triển khai
 
         return Storage::url($path);
     }
@@ -463,7 +464,7 @@ class GeminiService
         // Chỉ tải PDF lên Google sau khi API riêng thất bại hoặc chưa được cấu hình.
         $questions = $this->tryPrivateApi($filePrompt, $privateFiles);
         // Mô hình đôi khi bỏ qua nội dung tệp và soạn câu chung chung; khi đó bỏ kết quả để chuyển sang Gemini.
-        if ($questions !== null && $questions !== [] && $extracted['text'] !== '' && ! $this->isGroundedInSource($questions, $extracted['text'])) {
+        if ($questions !== null && $questions !== [] && $extracted['text'] !== '' && $this->looksLikeInformatics($extracted['text']) && ! $this->isGroundedInSource($questions, $extracted['text'])) {
             $this->executionTrace[] = $this->traceRow('9Router', (string) config('services.question_ai.model'), '200', microtime(true), 'Không bám sát nội dung tệp, chuyển Gemini');
             Log::info('AI soạn đề: câu hỏi từ API riêng không bám nội dung tệp, chuyển sang Gemini.');
             $questions = null;
@@ -831,7 +832,8 @@ PROMPT;
      * Chỉ dẫn phân tích tệp tài liệu: CƠ CHẾ LINH HOẠT THÔNG MINH
      * - Ưu tiên 1: Thực hiện theo ghi chú yêu cầu của giáo viên (nếu có).
      * - Ưu tiên 2: Đọc chính xác dữ kiện thật trong tệp.
-     * - Ưu tiên 3: Chuyển dữ kiện sang ngữ cảnh Tin học/kỹ năng số khi nguồn không có bài Tin học trực tiếp.
+     * - Ưu tiên 3: Nền tảng là môn Tin học/IC3. Nguồn Tin học thì bám sát (trích nguyên văn nếu có sẵn câu hỏi);
+     *   nguồn không phải Tin học (ảnh hoạt hình, phong cảnh, truyện...) thì dùng làm bối cảnh để soạn câu hỏi Tin học/kỹ năng số.
      * - Chỉ từ chối khi ảnh hoàn toàn vô nghĩa và không có gợi ý từ giáo viên.
      */
     private function buildFilePrompt(string $context = '', bool $generateImages = false, int $questionCount = 5, string $sourceText = ''): string
@@ -849,21 +851,25 @@ IMAGE
 NO_IMAGE;
 
         return <<<PROMPT
-{$contextLine}{$sourceBlock}Bạn là chuyên gia sư phạm tiểu học. Hãy đọc kỹ toàn bộ ảnh hoặc PDF được cung cấp rồi soạn câu hỏi BÁM SÁT NỘI DUNG THẬT TRONG TỆP.
+{$contextLine}{$sourceBlock}Bạn là chuyên gia sư phạm Tin học tiểu học, chuyên soạn câu hỏi chuẩn IC3 GS6 (IC3 Spark) cho học sinh lớp 3, 4, 5. Hãy đọc kỹ toàn bộ ảnh hoặc PDF được cung cấp rồi soạn câu hỏi.
 
-NGUYÊN TẮC BẮT BUỘC (ưu tiên cao nhất):
-- Mọi câu hỏi phải lấy từ nội dung có trong tệp. Tệp thuộc chủ đề nào thì soạn theo chủ đề đó (Tin học, Toán, Tiếng Việt, tiểu sử, hướng dẫn...). TUYỆT ĐỐI không ép về Tin học và không tự thêm kiến thức chung ngoài tệp.
-- Nếu tệp đã có sẵn câu hỏi, bài tập hoặc đề kiểm tra (đặc biệt là nội dung Tin học/IC3): TRÍCH NGUYÊN VĂN câu hỏi, các phương án và đáp án đúng như trong tệp, không diễn đạt lại, không đổi nghĩa. Chỉ chuẩn hóa định dạng JSON.
-- Nếu tệp là tài liệu, bài giảng hoặc văn bản thường: soạn câu hỏi kiểm tra hiểu biết từ các dữ kiện, khái niệm, số liệu, tên riêng thật sự xuất hiện trong tệp.
-- Cố gắng soạn đúng {$questionCount} câu. Nếu nội dung tệp không đủ dữ kiện cho đủ số câu thì chỉ soạn số câu có căn cứ rõ ràng trong tệp, tuyệt đối KHÔNG bịa hoặc chèn câu hỏi chung chung cho đủ số lượng.
-- Nếu không đọc được chữ trong tệp, trả về [] thay vì tự suy đoán.
-- Luôn bám sát yêu cầu của giáo viên (nếu có) trong phạm vi nội dung tệp.
-- Từng câu hỏi phải tự chứa đủ ngữ cảnh để học sinh trả lời mà không cần nhìn vào tệp gốc; không đổi sự thật so với tệp.
+PHẠM VI BẮT BUỘC: đây là nền tảng luyện thi Tin học/IC3, nên MỌI câu hỏi phải thuộc môn Tin học và kỹ năng số (phần cứng, phần mềm, hệ điều hành, thao tác với tệp và thư mục, soạn thảo, trình chiếu, bảng tính, hình ảnh/âm thanh số, Internet, thư điện tử, an toàn thông tin, công dân số, đạo đức và bản quyền trên mạng...).
 
+BƯỚC 1 - PHÂN LOẠI NGUỒN rồi mới soạn:
+- Loại A: tệp là nội dung Tin học/IC3/kỹ năng số (tài liệu, bài giảng, đề, câu hỏi có sẵn): BÁM SÁT nội dung thật trong tệp. Nếu tệp đã có sẵn câu hỏi, phương án và đáp án thì TRÍCH NGUYÊN VĂN, không diễn đạt lại, không đổi nghĩa, chỉ chuẩn hóa định dạng JSON. Nếu là tài liệu/bài giảng thì hỏi các khái niệm, thao tác, số liệu, tên riêng thật sự có trong tệp; không tự thêm kiến thức ngoài tệp.
+- Loại B: tệp KHÔNG phải nội dung Tin học (ảnh hoạt hình, nhân vật, phong cảnh, đồ vật, truyện, bài Toán/Văn...): TUYỆT ĐỐI KHÔNG hỏi chi tiết của chính tệp (tên nhân vật, màu áo, vị trí, cốt truyện...). Hãy lấy tệp làm bối cảnh/ví dụ để soạn câu hỏi Tin học phù hợp, đúng kiến thức chuẩn. Ví dụ từ một bức ảnh: ảnh kỹ thuật số và điểm ảnh, định dạng tệp ảnh (JPG, PNG), chụp/lưu/đổi tên/sao chép/xóa tệp ảnh, tìm kiếm và tải ảnh an toàn, bản quyền hình ảnh, chia sẻ ảnh có trách nhiệm trên mạng, chỉnh sửa ảnh cơ bản.
+- Nếu giáo viên nêu rõ một môn/chủ đề khác trong yêu cầu thì làm theo giáo viên; ngược lại luôn là Tin học.
+
+NGUYÊN TẮC CHUNG:
+- Cố gắng soạn đúng {$questionCount} câu. Với loại A, nếu tệp không đủ dữ kiện cho đủ số câu thì chỉ soạn số câu có căn cứ rõ ràng, không bịa. Với loại B, soạn đủ số câu Tin học liên quan đến bối cảnh của tệp.
+- Mỗi câu phải có đáp án đúng chắc chắn theo kiến thức Tin học chuẩn; phương án nhiễu hợp lý, không mơ hồ.
+- Nếu hoàn toàn không nhận ra nội dung nào trong tệp và giáo viên cũng không nêu yêu cầu thì trả về [].
+- Luôn bám sát yêu cầu của giáo viên (nếu có), kể cả số lượng, dạng câu và phần cần tập trung.
+- Từng câu hỏi phải tự chứa đủ ngữ cảnh để học sinh trả lời mà không cần nhìn vào tệp gốc.
 QUY TRÌNH SUY LUẬN:
-1. Nhận diện loại tài liệu, mục đích, cấu trúc và các dữ kiện đọc chắc chắn.
+1. Nhận diện loại tệp (loại A Tin học hay loại B ngoài Tin học), mục đích, cấu trúc và các dữ kiện đọc chắc chắn.
 2. Xác định ý định của giáo viên: số lượng câu ({$questionCount} câu), dạng câu, mức độ, phần cần tập trung.
-3. Nếu tệp có sẵn câu hỏi: trích nguyên văn. Nếu không: chọn các dữ kiện quan trọng nhất trong tệp để hỏi.
+3. Loại A có sẵn câu hỏi: trích nguyên văn. Loại A là tài liệu: chọn các dữ kiện quan trọng nhất trong tệp để hỏi. Loại B: chọn các kiến thức Tin học gắn với bối cảnh của tệp.
 4. Chọn dạng câu phù hợp: một đáp án, nhiều đáp án hoặc ghép nối. Không ép mọi câu về cùng một dạng nếu giáo viên không yêu cầu.
 5. Tạo phương án nhiễu hợp lý, rõ nghĩa, không mơ hồ; đáp án đúng phải đối chiếu được với nội dung tệp.
 
@@ -904,6 +910,20 @@ PROMPT;
      *
      * @param  array<int, array<string, mixed>>  $questions
      */
+    private function looksLikeInformatics(string $text): bool
+    {
+        $text = mb_strtolower($text, 'UTF-8');
+        $keywords = ['máy tính', 'phần mềm', 'phần cứng', 'hệ điều hành', 'windows', 'word', 'excel', 'powerpoint', 'internet', 'trình duyệt', 'email', 'thư điện tử', 'bàn phím', 'chuột', 'màn hình', 'thư mục', 'tệp', 'tập tin', 'mạng', 'mật khẩu', 'tin học', 'ic3', 'công nghệ', 'kỹ thuật số', 'kĩ thuật số', 'digital', 'computer', 'software', 'file', 'folder'];
+        $hits = 0;
+        foreach ($keywords as $keyword) {
+            if (str_contains($text, $keyword)) {
+                $hits++;
+            }
+        }
+
+        return $hits >= 3;
+    }
+
     private function isGroundedInSource(array $questions, string $sourceText): bool
     {
         $source = mb_strtolower($sourceText, 'UTF-8');

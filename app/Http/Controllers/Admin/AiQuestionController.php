@@ -198,6 +198,7 @@ class AiQuestionController extends Controller
                 Storage::disk('public')->delete($relativePath);
                 $deleted++;
             }
+            \App\Models\StoredFile::forget($relativePath);
         }
 
         return response()->json([
@@ -261,6 +262,8 @@ class AiQuestionController extends Controller
                 $illustrationPath = $qData['illustration_path'] ?? null;
                 if (is_string($illustrationPath) && $illustrationPath !== '') {
                     $relativePath = ltrim(preg_replace('#^/storage/#', '', $illustrationPath), '/');
+                    // Ảnh có thể đã mất khỏi đĩa nếu máy chủ vừa triển khai lại: phục hồi từ bản sao trong CSDL trước khi gắn vào câu hỏi
+                    \App\Models\StoredFile::ensureOnDisk($relativePath);
                     if (\Illuminate\Support\Facades\Storage::disk('public')->exists($relativePath)) {
                         $question->assets()->create([
                             'kind' => 'question_image',
