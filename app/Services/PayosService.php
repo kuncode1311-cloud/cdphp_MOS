@@ -27,6 +27,15 @@ class PayosService
     }
 
     /**
+     * Thời gian sống của mã thanh toán online PayOS (giây). Mặc định 10 phút.
+     * Chuyển khoản VietQR thường không dùng mã này nên không bị hết hạn.
+     */
+    public static function linkTtlSeconds(): int
+    {
+        return max(60, (int) config('services.payos.link_ttl_minutes', 10) * 60);
+    }
+
+    /**
      * Kiểm tra cấu hình PayOS đã đầy đủ chưa
      */
     public function isConfigured(): bool
@@ -73,6 +82,10 @@ class PayosService
 
         $payload['signature'] = $this->generateSignature($payload);
 
+        // Link/QR PayOS chỉ có hiệu lực ngắn. expiredAt không nằm trong chữ ký tạo link của PayOS nên thêm sau khi ký.
+        $expiredAt = time() + self::linkTtlSeconds();
+        $payload['expiredAt'] = $expiredAt;
+
         try {
             $response = Http::withHeaders([
                 'x-client-id' => $this->clientId,
@@ -106,6 +119,7 @@ class PayosService
                 'accountNumber' => $data['accountNumber'] ?? '',
                 'accountName' => $data['accountName'] ?? '',
                 'orderCode' => $numericCode,
+                'expiredAt' => $expiredAt,
             ];
         } catch (\Throwable $e) {
             Log::error('PayOS Exception: ' . $e->getMessage());

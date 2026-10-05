@@ -1033,13 +1033,15 @@ class TelegramService
      */
     public function buildPendingOrdersMessage(): array
     {
+        app(SubscriptionService::class)->expireStaleOnlineOrders();
+
         $pendingOrders = PackageOrder::with('user')
-            ->where('status', PackageOrder::STATUS_PENDING)
+            ->pendingLive()
             ->latest('id')
             ->take(6)
             ->get();
 
-        $totalPending = PackageOrder::where('status', PackageOrder::STATUS_PENDING)->count();
+        $totalPending = PackageOrder::pendingLive()->count();
 
         $text = "⏳ <b>DANH SÁCH ĐƠN HÀNG CHỜ DUYỆT ({$totalPending} đơn)</b>\n";
         $text .= "━━━━━━━━━━━━━━━━━━━━\n";
@@ -1257,9 +1259,10 @@ class TelegramService
         $adminCount = User::where('role', 'admin')->count();
         $classCount = class_exists(Classroom::class) ? Classroom::count() : 0;
         $questionCount = class_exists(Question::class) ? Question::count() : 0;
-        $orderCount = PackageOrder::count();
+        app(SubscriptionService::class)->expireStaleOnlineOrders();
+        $orderCount = PackageOrder::visibleInAdmin()->count();
         $activeOrders = PackageOrder::where('status', PackageOrder::STATUS_ACTIVE)->count();
-        $pendingOrders = PackageOrder::where('status', PackageOrder::STATUS_PENDING)->count();
+        $pendingOrders = PackageOrder::pendingLive()->count();
         $totalRevenue = PackageOrder::where('status', PackageOrder::STATUS_ACTIVE)->sum('price');
 
         $text = "👥 <b>THỐNG KÊ TỔNG QUAN HỆ THỐNG IC3 QUEST</b>\n";

@@ -62,6 +62,8 @@ return [
         'api_key' => env('PAYOS_API_KEY', ''),
         'checksum_key' => env('PAYOS_CHECKSUM_KEY', ''),
         'endpoint' => env('PAYOS_ENDPOINT', 'https://api-merchant.payos.vn'),
+        // Mã thanh toán online chỉ có hiệu lực trong số phút này (mặc định 10 phút)
+        'link_ttl_minutes' => (int) env('PAYOS_LINK_TTL_MINUTES', 10),
     ],
 
     'telegram' => [

@@ -259,6 +259,60 @@
             border-radius: 10px;
         }
 
+        /* Đồng hồ đếm ngược cho mã thanh toán online (PayOS) */
+        .qr-countdown {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            margin: 0 0 8px;
+            padding: 5px 12px;
+            border-radius: 999px;
+            background: #fff7ed;
+            border: 1px solid #fdba74;
+            color: #c2410c;
+            font-size: 12px;
+            font-weight: 700;
+        }
+
+        .qr-countdown .qr-countdown-time {
+            font-family: monospace;
+            font-size: 15px;
+            letter-spacing: 0.04em;
+        }
+
+        .qr-countdown.is-urgent {
+            background: #fef2f2;
+            border-color: #fca5a5;
+            color: #b91c1c;
+        }
+
+        .qr-expired-overlay {
+            display: none;
+            position: absolute;
+            inset: 0;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+            padding: 10px;
+            background: rgba(255, 255, 255, 0.95);
+            color: #b91c1c;
+            font-size: 12.5px;
+            font-weight: 700;
+            text-align: center;
+        }
+
+        .qr-expired-overlay button {
+            border: 0;
+            border-radius: 8px;
+            padding: 6px 12px;
+            background: #2563eb;
+            color: #fff;
+            font-weight: 700;
+            font-size: 12px;
+            cursor: pointer;
+        }
+
         .qr-card-badges {
             display: flex;
             align-items: center;
@@ -605,8 +659,20 @@
             <div class="modal-content-grid">
                 <!-- Left: QR Code Card -->
                 <div class="qr-display-box">
+                    @if(! empty($payosSecondsLeft))
+                        <div class="qr-countdown" id="qr-countdown">
+                            <span>⏳ Mã thanh toán online hết hạn sau</span>
+                            <span class="qr-countdown-time" id="qr-countdown-time">--:--</span>
+                        </div>
+                    @endif
                     <div class="qr-image-wrapper">
                         <img src="{{ $vietQrUrl }}" alt="Mã VietQR Chuyển Khoản" id="vietqr-img">
+                        @if(! empty($payosSecondsLeft))
+                            <div class="qr-expired-overlay" id="qr-expired-overlay">
+                                <span>⌛ Đơn đã hết hạn thanh toán</span>
+                                <button type="button" onclick="window.location.href='{{ route('pricing.index') }}'">Chọn gói &amp; tạo đơn mới</button>
+                            </div>
+                        @endif
                     </div>
 
                     <div class="qr-card-badges">
@@ -684,9 +750,7 @@
                     ✕ Đóng / Quay Lại
                 </a>
 
-                <button type="button" class="btn-foot-confirm" id="btn-confirm-transferred" onclick="confirmPaymentTransferred()">
-                    <span>⚡ Tôi Đã Chuyển Khoản Xong</span>
-                </button>
+                <span class="qr-scan-hint" style="align-self:center;">⚡ Thanh toán xong, gói được kích hoạt tự động trong giây lát.</span>
             </div>
         </div>
     </div>
@@ -723,31 +787,6 @@
             });
         }
 
-        // ⚡ Nút "Tôi Đã Chuyển Khoản"
-        function confirmPaymentTransferred() {
-            const btn = document.getElementById('btn-confirm-transferred');
-            if (!btn) return;
-            btn.disabled = true;
-            btn.innerHTML = '<span>⏳ Đang gửi thông báo tới Admin...</span>';
-
-            fetch(`/bang-gia/don-hang/${ORDER_CODE}/da-chuyen-khoan`, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'X-CSRF-TOKEN': '{{ csrf_token() }}',
-                    'Accept': 'application/json'
-                }
-            })
-            .then(res => res.json())
-            .then(data => {
-                btn.innerHTML = '<span>✓ Đã báo Admin kiểm tra!</span>';
-                document.getElementById('live-status-text').innerText = 'Đang đợi kiểm tra và kích hoạt...';
-            })
-            .catch(err => {
-                btn.innerHTML = '<span>✓ Đã ghi nhận chuyển khoản</span>';
-            });
-        }
-
         // 🔄 Real-time Polling: Kiểm tra trạng thái đơn hàng mỗi 2.5s
         function checkStatus() {
             if (!isPolling) return;
@@ -757,6 +796,12 @@
             })
             .then(res => res.json())
             .then(data => {
+                if (data.is_expired) {
+                    isPolling = false;
+                    clearInterval(pollTimer);
+                    window.location.reload();
+                    return;
+                }
                 if (data.is_active) {
                     isPolling = false;
                     clearInterval(pollTimer);
@@ -780,6 +825,35 @@
                 window.location.href = redirectUrl || '/chuong-trinh';
             }, 2600);
         }
+
+        // ⏳ Đếm ngược mã thanh toán online (PayOS). Hết giờ thì khóa mã, đơn tự hủy; khách chọn gói để tạo đơn mới.
+        @if(! empty($payosSecondsLeft) && ! $order->isActive())
+            (function () {
+                const deadline = Date.now() + {{ (int) $payosSecondsLeft }} * 1000;
+                const box = document.getElementById('qr-countdown');
+                const timeEl = document.getElementById('qr-countdown-time');
+
+                function tick() {
+                    const left = Math.max(0, Math.round((deadline - Date.now()) / 1000));
+                    const mm = String(Math.floor(left / 60)).padStart(2, '0');
+                    const ss = String(left % 60).padStart(2, '0');
+                    timeEl.textContent = mm + ':' + ss;
+                    box.classList.toggle('is-urgent', left <= 60);
+
+                    if (left <= 0) {
+                        clearInterval(timer);
+                        isPolling = false;
+                        clearInterval(pollTimer);
+                        box.innerHTML = '<span>⌛ Đơn thanh toán online đã hết hạn</span>';
+                        const overlay = document.getElementById('qr-expired-overlay');
+                        if (overlay) overlay.style.display = 'flex';
+                    }
+                }
+
+                const timer = setInterval(tick, 1000);
+                tick();
+            })();
+        @endif
 
         @if(! $order->isActive())
             pollTimer = setInterval(checkStatus, 2500);

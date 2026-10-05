@@ -3818,14 +3818,16 @@
                             <button type="button" class="order-filter-pill-tab active" data-status="" onclick="filterOrdersTable('')">
                                 Tất cả <span class="filter-count-badge">{{ $packageOrders->count() }}</span>
                             </button>
-                            <button type="button" class="order-filter-pill-tab {{ $pendingOrdersCount > 0 ? 'tab-pending-alert' : '' }}" data-status="pending" onclick="filterOrdersTable('pending')">
-                                ⏳ Chờ duyệt <span class="filter-count-badge count-pending">{{ $pendingOrdersCount }}</span>
+                            <button type="button" class="order-filter-pill-tab" data-status="awaiting_payment" onclick="filterOrdersTable('awaiting_payment')" title="Khách đang thanh toán online, mã có hiệu lực 10 phút">
+                                💳 Chờ thanh toán <span class="filter-count-badge">{{ $awaitingPaymentCount ?? 0 }}</span>
                             </button>
+                            @if(($awaitingApprovalCount ?? 0) > 0)
+                            <button type="button" class="order-filter-pill-tab {{ ($awaitingApprovalCount ?? 0) > 0 ? 'tab-pending-alert' : '' }}" data-status="pending" onclick="filterOrdersTable('pending')" title="Khách chuyển khoản tay, chờ Admin duyệt">
+                                ⏳ Chờ duyệt <span class="filter-count-badge count-pending">{{ $awaitingApprovalCount ?? 0 }}</span>
+                            </button>
+                            @endif
                             <button type="button" class="order-filter-pill-tab" data-status="active" onclick="filterOrdersTable('active')">
                                 ✓ Đã kích hoạt <span class="filter-count-badge">{{ $activeOrdersCount }}</span>
-                            </button>
-                            <button type="button" class="order-filter-pill-tab" data-status="rejected" onclick="filterOrdersTable('rejected')">
-                                ✕ Đã từ chối <span class="filter-count-badge">{{ $packageOrders->where('status', 'rejected')->count() }}</span>
                             </button>
                         </div>
                         <input type="hidden" id="order-status-filter" value="">
@@ -3882,7 +3884,7 @@
                                             data-email="{{ strtolower($ord->user?->email ?? '') }}"
                                             data-phone="{{ strtolower($userPhone ?? '') }}"
                                             data-school="{{ strtolower($userSchool ?? '') }}"
-                                            data-status="{{ $ord->status }}">
+                                            data-status="{{ $ord->isAwaitingOnlinePayment() ? 'awaiting_payment' : $ord->status }}">
                                             
                                             <!-- CỘT 1: MÃ ĐƠN & THỜI GIAN -->
                                             <td>
@@ -3962,7 +3964,7 @@
                                             <td>
                                                 @if($ord->status === 'pending')
                                                     <span class="ord-status-badge status-pending">
-                                                        <span class="pulse-dot-amber"></span> Chờ duyệt
+                                                        <span class="pulse-dot-amber"></span> {{ $ord->isAwaitingOnlinePayment() ? 'Chờ thanh toán' : 'Chờ duyệt' }}
                                                     </span>
                                                 @elseif($ord->status === 'active')
                                                     <span class="ord-status-badge status-active">

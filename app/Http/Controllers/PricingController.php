@@ -67,7 +67,7 @@ class PricingController extends Controller
         SubscriptionService $subscriptionService,
         TelegramService $telegramService,
         PayosService $payosService
-    ): RedirectResponse
+    ): RedirectResponse|JsonResponse
     {
         $user = $request->user();
 
@@ -98,30 +98,19 @@ class PricingController extends Controller
         }
 
         $orderPayload = [
-            'payment_method' => $data['payment_method'] ?? 'bank_transfer',
+            'payment_method' => 'payos', // Hệ thống chỉ nhận thanh toán online qua PayOS
             'notes' => ! empty($extraNotes) ? implode(' · ', $extraNotes) : null,
         ];
 
         $order = $subscriptionService->createOrder($user, $package, $orderPayload);
         $this->rememberOwnedOrder($order);
 
-        // Bắn thông báo Telegram cho Ban Quản Trị
-        $telegramService->sendOrderNotification($order);
+        // Tạo mã thanh toán PayOS (hiệu lực 10 phút). Không tạo được mã thì hủy đơn để khách thử lại.
+        // Đơn chưa trả tiền không báo Admin (tránh rác khi khách bỏ dở); trả xong sẽ có thông báo thanh toán thành công.
+        if (! $this->createPayosCode($order, $payosService)) {
+            $subscriptionService->rejectOrder($order, 'Không tạo được mã thanh toán PayOS');
 
-        // Tạo liên kết ngầm PayOS nếu cần webhook tự động, KHÔNG chuyển hướng ra trang ngoài
-        if ($order->payment_method === 'payos') {
-            try {
-                $payosResult = $payosService->createPaymentLink(
-                    $order,
-                    route('pricing.payos.return', $order),
-                    route('pricing.order.checkout', $order)
-                );
-                if (! empty($payosResult['ok'])) {
-                    Cache::put("order_payos_{$order->id}", $payosResult, now()->addDay());
-                }
-            } catch (\Throwable $e) {
-                Log::warning('PayOS link create notice: ' . $e->getMessage());
-            }
+            return $this->payosUnavailableResponse($request);
         }
 
         $paymentDetails = $this->getPaymentDetails($order);
@@ -140,6 +129,7 @@ class PricingController extends Controller
                 'bank' => $paymentDetails['bankConfig'],
                 'qr_url' => $paymentDetails['vietQrUrl'],
                 'transfer_content' => $paymentDetails['transferContent'],
+                'expires_in_seconds' => $paymentDetails['payosSecondsLeft'],
                 'checkout_url' => route('pricing.order.checkout', $order),
             ]);
         }
@@ -195,28 +185,21 @@ class PricingController extends Controller
         }
 
         $order = $subscriptionService->createOrder($user, $package, [
-            'payment_method' => $data['payment_method'] ?? 'bank_transfer',
+            'payment_method' => 'payos', // Hệ thống chỉ nhận thanh toán online qua PayOS
             'notes' => implode(' · ', $extraNotes),
         ]);
         $this->rememberOwnedOrder($order);
 
-        // Bắn thông báo Telegram cho Ban Quản Trị
-        $telegramService->sendOrderNotification($order);
+        // Tạo mã thanh toán PayOS (hiệu lực 10 phút). Không tạo được mã thì hủy đơn để khách thử lại.
+        // Đơn chưa trả tiền không báo Admin (tránh rác khi khách bỏ dở); trả xong sẽ có thông báo thanh toán thành công.
+        if (! $this->createPayosCode($order, $payosService)) {
+            $subscriptionService->rejectOrder($order, 'Không tạo được mã thanh toán PayOS');
 
-        // Tạo liên kết ngầm PayOS nếu cần webhook tự động, KHÔNG chuyển hướng ra trang ngoài
-        if ($order->payment_method === 'payos') {
-            try {
-                $payosResult = $payosService->createPaymentLink(
-                    $order,
-                    route('pricing.payos.return', $order),
-                    route('pricing.order.checkout', $order)
-                );
-                if (! empty($payosResult['ok'])) {
-                    Cache::put("order_payos_{$order->id}", $payosResult, now()->addDay());
-                }
-            } catch (\Throwable $e) {
-                Log::warning('PayOS link create notice: ' . $e->getMessage());
-            }
+            // Tài khoản vừa tạo trong lần đăng ký này chưa có gì khác: xóa để khách đăng ký lại được, không bị báo trùng email
+            $order->delete();
+            $user->delete();
+
+            return $this->payosUnavailableResponse($request);
         }
 
         $paymentDetails = $this->getPaymentDetails($order);
@@ -235,6 +218,7 @@ class PricingController extends Controller
                 'bank' => $paymentDetails['bankConfig'],
                 'qr_url' => $paymentDetails['vietQrUrl'],
                 'transfer_content' => $paymentDetails['transferContent'],
+                'expires_in_seconds' => $paymentDetails['payosSecondsLeft'],
                 'checkout_url' => route('pricing.order.checkout', $order),
             ]);
         }
@@ -245,6 +229,55 @@ class PricingController extends Controller
 
         return redirect()->route('pricing.order.checkout', $order)
             ->with('ok', $welcomeMsg);
+    }
+
+    /**
+     * Gọi PayOS tạo mã thanh toán cho đơn rồi ghi nhận. Trả về false nếu PayOS lỗi/chưa cấu hình.
+     */
+    private function createPayosCode(PackageOrder $order, PayosService $payosService): bool
+    {
+        try {
+            $payosResult = $payosService->createPaymentLink(
+                $order,
+                route('pricing.payos.return', $order),
+                route('pricing.order.checkout', $order)
+            );
+        } catch (\Throwable $e) {
+            Log::warning('PayOS link create notice: ' . $e->getMessage());
+
+            return false;
+        }
+
+        return $this->rememberPayosLink($order, $payosResult);
+    }
+
+    /**
+     * Phản hồi khi PayOS tạm thời không tạo được mã thanh toán (JSON cho popup, chuyển trang cho form thường).
+     */
+    private function payosUnavailableResponse(Request $request): RedirectResponse|JsonResponse
+    {
+        $message = 'Hiện chưa tạo được mã thanh toán online. Thầy/Cô vui lòng thử lại sau ít phút hoặc nhắn Chat Tư Vấn để được hỗ trợ.';
+
+        if ($request->expectsJson() || $request->ajax()) {
+            return response()->json(['ok' => false, 'message' => $message], 503);
+        }
+
+        return back()->with('err', $message);
+    }
+
+    /**
+     * Ghi nhận kết quả tạo mã PayOS cho đơn: có mã thì lưu cache + giờ hết hạn (10 phút).
+     */
+    private function rememberPayosLink(PackageOrder $order, array $payosResult): bool
+    {
+        if (! empty($payosResult['ok'])) {
+            Cache::put("order_payos_{$order->id}", $payosResult, now()->addSeconds(PayosService::linkTtlSeconds()));
+            $order->update(['payos_expires_at' => \Illuminate\Support\Carbon::createFromTimestamp((int) ($payosResult['expiredAt'] ?? (time() + PayosService::linkTtlSeconds())), config('app.timezone'))]);
+
+            return true;
+        }
+
+        return false;
     }
 
     /**
@@ -261,6 +294,11 @@ class PricingController extends Controller
             abort(404);
         }
 
+        // Đơn đã hủy/quá hạn thì không tạo mã mới; khách chọn lại gói để tạo đơn mới
+        if (! $order->isPending()) {
+            return redirect()->route('pricing.index')->with('err', 'Đơn này đã hết hạn hoặc đã đóng. Vui lòng chọn gói và tạo đơn mới.');
+        }
+
         $payosResult = $payosService->createPaymentLink(
             $order,
             route('pricing.payos.return', $order),
@@ -268,7 +306,10 @@ class PricingController extends Controller
         );
 
         if ($payosResult['ok'] && ! empty($payosResult['checkoutUrl'])) {
-            $order->update(['payment_method' => 'payos']);
+            $order->update([
+                'payment_method' => 'payos',
+                'payos_expires_at' => \Illuminate\Support\Carbon::createFromTimestamp((int) ($payosResult['expiredAt'] ?? (time() + PayosService::linkTtlSeconds())), config('app.timezone')),
+            ]);
             return redirect()->away($payosResult['checkoutUrl']);
         }
 
@@ -341,7 +382,8 @@ class PricingController extends Controller
         }
 
         if ($order) {
-            if ($order->status === PackageOrder::STATUS_PENDING) {
+            // Cho phép cả đơn vừa bị tự hủy do quá hạn (khách trả sát giờ, webhook đến muộn) để không mất tiền oan
+            if ($order->status === PackageOrder::STATUS_PENDING || $order->isExpiredByTimeout()) {
                 $subscriptionService->activateOrder($order);
                 $telegramService->sendPaymentSuccessNotification($order);
                 Log::info("PayOS Webhook: Kích hoạt thành công đơn hàng #{$order->code} (ID: {$order->id})");
@@ -531,6 +573,18 @@ class PricingController extends Controller
     {
         $cachedPayos = Cache::get("order_payos_{$order->id}");
 
+        // Mã PayOS chỉ sống ngắn (10 phút). Số giây còn lại lấy từ giờ hết hạn lưu trong đơn, dự phòng theo cache.
+        $payosSecondsLeft = null;
+        if ($order->isAwaitingOnlinePayment()) {
+            $expiresAt = $order->payos_expires_at?->timestamp ?? ($cachedPayos['expiredAt'] ?? null);
+            if ($expiresAt) {
+                $payosSecondsLeft = max(0, (int) $expiresAt - time());
+            }
+        }
+        if ($payosSecondsLeft === 0) {
+            $cachedPayos = null;
+        }
+
         if ($order->payment_method === 'payos' && $cachedPayos && ! empty($cachedPayos['ok']) && ! empty($cachedPayos['qrCode'])) {
             $qr = $cachedPayos['qrCode'];
             $bankBin = ! empty($cachedPayos['bin']) ? $cachedPayos['bin'] : '970452';
@@ -567,6 +621,7 @@ class PricingController extends Controller
                 rawurlencode($bankConfig['account_name'])
             );
         } else {
+            $payosSecondsLeft = null; // Mã chuyển khoản thường: không đếm ngược, không hết hạn
             $bankConfig = [
                 'bank_id' => config('payment.bank_id', 'MB'),
                 'bank_name' => config('payment.bank_name', 'MB Bank (Ngân Hàng Quân Đội)'),
@@ -592,6 +647,7 @@ class PricingController extends Controller
             'vietQrUrl' => $vietQrUrl,
             'transferContent' => $transferContent,
             'cleanPkgName' => $cleanPkgName,
+            'payosSecondsLeft' => $payosSecondsLeft,
         ];
     }
 
@@ -609,6 +665,18 @@ class PricingController extends Controller
             abort(404);
         }
 
+        // Tự hủy các đơn thanh toán online quá 10 phút chưa trả tiền
+        app(SubscriptionService::class)->expireStaleOnlineOrders();
+        $order->refresh();
+
+        if ($order->isRejected()) {
+            $msg = $order->isExpiredByTimeout()
+                ? 'Đơn thanh toán online đã hết hạn (quá 10 phút chưa thanh toán). Thầy/Cô vui lòng chọn gói và tạo đơn mới nhé.'
+                : 'Đơn hàng này đã bị hủy. Thầy/Cô vui lòng chọn gói và tạo đơn mới nhé.';
+
+            return redirect()->route('pricing.index')->with('err', $msg);
+        }
+
         $order->load(['package.levels', 'user']);
         $details = $this->getPaymentDetails($order);
 
@@ -616,8 +684,9 @@ class PricingController extends Controller
         $vietQrUrl = $details['vietQrUrl'];
         $transferContent = $details['transferContent'];
         $cleanPkgName = $details['cleanPkgName'];
+        $payosSecondsLeft = $details['payosSecondsLeft'];
 
-        return view('pricing.checkout', compact('order', 'bankConfig', 'vietQrUrl', 'transferContent', 'cleanPkgName'));
+        return view('pricing.checkout', compact('order', 'bankConfig', 'vietQrUrl', 'transferContent', 'cleanPkgName', 'payosSecondsLeft'));
     }
 
     /**
@@ -625,6 +694,9 @@ class PricingController extends Controller
      */
     public function checkOrderStatus(PackageOrder $order): JsonResponse
     {
+        app(SubscriptionService::class)->expireStaleOnlineOrders();
+        $order->refresh();
+
         $isActive = $order->isActive();
         // Chỉ trình duyệt đã tạo đơn (lưu trong session) mới được tự đăng nhập và nhận email; mã đơn đơn thuần không đủ.
         $ownsOrder = in_array($order->id, session('owned_order_ids', []), true);
@@ -645,6 +717,7 @@ class PricingController extends Controller
         return response()->json([
             'status' => $order->status,
             'is_active' => $isActive,
+            'is_expired' => $order->isExpiredByTimeout(),
             'activated_at' => $order->activated_at ? $order->activated_at->format('H:i d/m/Y') : null,
             'redirect_url' => $redirectUrl,
         ]);

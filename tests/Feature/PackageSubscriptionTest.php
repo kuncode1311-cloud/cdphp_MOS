@@ -9,11 +9,20 @@ use App\Models\PackageOrder;
 use App\Models\User;
 use Carbon\Carbon;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Facades\Http;
 use Tests\TestCase;
 
 class PackageSubscriptionTest extends TestCase
 {
     use RefreshDatabase;
+
+    protected function setUp(): void
+    {
+        parent::setUp();
+        // Hệ thống chỉ thanh toán qua PayOS: giả lập PayOS tạo mã thành công để đơn được giữ lại
+        config(['services.payos.client_id' => 'cid', 'services.payos.api_key' => 'key', 'services.payos.checksum_key' => 'ck']);
+        Http::fake(['*' => Http::response(['code' => '00', 'data' => ['checkoutUrl' => 'https://pay.test/x', 'qrCode' => 'qr']])]);
+    }
 
     /**
      * Test: Khách và Người dùng có thể xem trang Bảng giá công khai
@@ -406,7 +415,6 @@ class PackageSubscriptionTest extends TestCase
         $order = PackageOrder::where('user_id', $teacher->id)->first();
         $this->assertNotNull($order);
         $this->assertEquals('payos', $order->payment_method);
-        // Do sandbox / credentials PayOS hợp lệ có thể redirect hoặc checkout
         $this->assertTrue($response->isRedirect());
     }
 
