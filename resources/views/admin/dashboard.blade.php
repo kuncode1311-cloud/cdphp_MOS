@@ -13,6 +13,39 @@
             document.documentElement.classList.add('admin-sidebar-collapsed-init');
         }
     </script>
+    <script>
+        // Trang quản trị rất nặng nên đoạn khôi phục tab cuối trang chạy muộn. Chọn sẵn tab đang đứng ngay từ đầu để
+        // F5 không bị hiện tab mặc định (Kết quả) rồi mới nhảy sang tab thật.
+        (function () {
+            try {
+                var map = {
+                    'tab-results': 'tab-results', 'ket-qua': 'tab-results', 'bao-cao': 'tab-results',
+                    'tab-levels': 'tab-levels', 'khoi-hoc': 'tab-levels', 'levels': 'tab-levels', 'cau-truc': 'tab-levels', 'programs': 'tab-levels',
+                    'tab-users': 'tab-users', 'tab-classes': 'tab-users', 'tab-users-students': 'tab-users', 'tab-users-teachers': 'tab-users',
+                    'nguoi-dung': 'tab-users', 'hoc-sinh': 'tab-users', 'giao-vien': 'tab-users', 'dai-ly': 'tab-users', 'lop-hoc': 'tab-users', 'classes': 'tab-users',
+                    'tab-packages': 'tab-packages', 'goi-dich-vu': 'tab-packages', 'packages': 'tab-packages',
+                    'tab-orders': 'tab-packages', 'don-hang': 'tab-packages', 'orders': 'tab-packages',
+                    'tab-teacher-packages': 'tab-teacher-packages', 'lich-su-thue-goi': 'tab-teacher-packages', 'don-thue-goi': 'tab-teacher-packages', 'teacher-packages': 'tab-teacher-packages',
+                    'tab-chat': 'tab-chat', 'tab_chat': 'tab-chat', 'chat': 'tab-chat', 'tin-nhan': 'tab-chat', 'messenger': 'tab-chat'
+                };
+                var orderKeys = { 'tab-orders': 1, 'don-hang': 1, 'orders': 1 };
+                var key = (location.hash || '').replace('#', '');
+                if (!map[key]) { key = localStorage.getItem('admin_active_tab') || ''; }
+                var pane = map[key];
+                if (!pane) { return; }
+                var css = '.admin-tab-pane{display:none!important}#' + pane + '{display:block!important}';
+                if (pane === 'tab-packages') {
+                    css += orderKeys[key] ? '#pkg-subview-list{display:none!important}#pkg-subview-orders{display:block!important}' : '#pkg-subview-orders{display:none!important}#pkg-subview-list{display:block!important}';
+                }
+                var st = document.createElement('style');
+                st.id = 'pre-tab-style';
+                st.textContent = css;
+                document.head.appendChild(st);
+                // Phòng khi tab không tồn tại với vai trò này: sau 4 giây gỡ luật tạm để trang không bị trống
+                setTimeout(function () { var el = document.getElementById('pre-tab-style'); if (el) { el.remove(); } }, 4000);
+            } catch (e) {}
+        })();
+    </script>
     <style>
         :root {
             --primary: #4f46e5;
@@ -10429,6 +10462,14 @@
 
     // 💎 GÓI DỊCH VỤ & ĐƠN THUÊ BẢN QUYỀN HELPERS
     function switchPackageSubView(view, btn) {
+        // Ghi nhớ đúng màn hình đang xem (Đơn hàng hay Danh sách gói) để F5 không bị đưa sang màn hình khác
+        try {
+            const tabId = view === 'list' ? 'tab-packages' : 'tab-orders';
+            localStorage.setItem('admin_active_tab', tabId);
+            if (window.location.hash !== '#' + tabId) {
+                history.replaceState(null, null, '#' + tabId);
+            }
+        } catch (e) {}
         document.querySelectorAll('.pkg-subview-pane').forEach(p => p.style.display = 'none');
         document.getElementById('btn-pkg-subview-list')?.classList.remove('active');
         document.getElementById('btn-pkg-subview-orders')?.classList.remove('active');
@@ -11120,6 +11161,7 @@
         if (tabToOpen) {
             switchAdminTab(tabToOpen, null, roleToFilter);
         }
+        document.getElementById('pre-tab-style')?.remove();
     }
 
     window.addEventListener('DOMContentLoaded', () => {
