@@ -131,74 +131,15 @@
         <!-- 4. Danh Sách Câu Hỏi Tinh Gọn - Tập Trung 100% Vào Chữ & Nút Bấm Chính -->
         @if($mistakes->isNotEmpty())
         <div class="mistakes-list">
-            @foreach($mistakes as $mistake)
-            @php
-                $q = $mistake->question;
-                $test = $mistake->practiceTest ?: $q->practiceTest;
-                $topic = $test?->topic;
-                $level = $topic?->level ?: $test?->level;
-                $isResolved = $mistake->status === 'resolved';
-                $isDanger = !$isResolved && $mistake->wrong_count >= 3;
-                $isWarning = !$isResolved && $mistake->wrong_count == 2;
-            @endphp
-            <article class="mistake-item-row {{ $isResolved ? 'is-resolved' : ($isDanger ? 'is-danger' : ($isWarning ? 'is-warning' : 'is-normal')) }}">
-                
-                <!-- Cột Nội Dung: Metadata Ngắn Gọn + Chữ Câu Hỏi Đậm Nét Rõ Ràng Nhất -->
-                <div class="mistake-content-col">
-                    <div class="mistake-meta-bar">
-                        @if($level)
-                        <span class="meta-pill-grade">Khối {{ $level->grade }}</span>
-                        @endif
-                        
-                        @if($topic)
-                        <span class="meta-topic-text">{{ $topic->name }}</span>
-                        @endif
+            @include('learning.mistakes._items')
 
-                        @if(!$isResolved)
-                            @if($isDanger)
-                            <span class="risk-tag risk-tag-danger">🚨 Đã sai {{ $mistake->wrong_count }} lần</span>
-                            @elseif($isWarning)
-                            <span class="risk-tag risk-tag-warning">⚠️ Đã sai 2 lần</span>
-                            @else
-                            <span class="risk-tag risk-tag-normal">✏️ Sai 1 lần</span>
-                            @endif
-                        @else
-                            <span class="risk-tag risk-tag-resolved">✓ Đã vượt qua</span>
-                        @endif
-
-                        <span class="meta-time-text">
-                            🕒 {{ $mistake->last_wrong_at ? $mistake->last_wrong_at->diffForHumans() : 'Gần đây' }}
-                        </span>
-                    </div>
-
-                    <!-- Tiêu đề câu hỏi to, sắc nét, tương phản tối đa, dễ nhìn nhất -->
-                    <h2 class="q-title-text">{{ $q->title ?: '(Câu hỏi tương tác thực hành)' }}</h2>
-                </div>
-
-                <!-- Cột Thao Tác: 1 Nút Duy Nhất Cực Kỳ Dễ Bấm -->
-                <div class="mistake-action-col">
-                    @if(!$isResolved)
-                    <a class="btn-revenge-main" href="{{ route('mistakes.launch', ['question_id' => $mistake->question_id]) }}">
-                        <span>🔥</span> Phục thù
-                    </a>
-                    @else
-                    <div class="resolved-action-group">
-                        <span class="badge-resolved-success">
-                            <i>✓</i> Đã giải quyết
-                        </span>
-                        <a class="btn-replay-link" href="{{ route('mistakes.launch', ['question_id' => $mistake->question_id]) }}">
-                            Luyện lại
-                        </a>
-                    </div>
-                    @endif
-                </div>
-
-            </article>
-            @endforeach
-
-            <div style="margin-top: 24px;">
-                {{ $mistakes->links() }}
+            @if($mistakes->hasMorePages())
+            <div style="margin-top: 24px; text-align: center;">
+                <button type="button" id="btn-load-more-mistakes" class="btn-revenge-now" data-next="{{ $mistakes->nextPageUrl() }}" style="display: inline-flex; cursor: pointer; border: none;">
+                    <span>⬇️</span> <b>Xem thêm câu sai</b>
+                </button>
             </div>
+            @endif
         </div>
         @else
         <div class="empty-mistake-card">
@@ -217,6 +158,39 @@
 
     </div>
 </div>
+
+<script>
+    // Bấm "Xem thêm": tải 30 câu sai tiếp theo và nối vào cuối danh sách, không tải lại trang
+    (function () {
+        const btn = document.getElementById('btn-load-more-mistakes');
+        if (!btn) return;
+        const list = document.querySelector('.mistakes-list');
+        btn.addEventListener('click', async function () {
+            const url = btn.dataset.next;
+            if (!url || btn.disabled) return;
+            btn.disabled = true;
+            const label = btn.querySelector('b');
+            const original = label.textContent;
+            label.textContent = 'Đang tải...';
+            try {
+                const res = await fetch(url, { headers: { 'X-Requested-With': 'XMLHttpRequest', 'Accept': 'application/json' } });
+                if (!res.ok) throw new Error('HTTP ' + res.status);
+                const data = await res.json();
+                btn.parentElement.insertAdjacentHTML('beforebegin', data.html);
+                if (data.next_url) {
+                    btn.dataset.next = data.next_url;
+                    label.textContent = original;
+                    btn.disabled = false;
+                } else {
+                    btn.parentElement.remove();
+                }
+            } catch (e) {
+                label.textContent = 'Chưa tải được, bấm để thử lại';
+                btn.disabled = false;
+            }
+        });
+    })();
+</script>
 
 <style>
     /* Nền Bản Đồ Phiêu Lưu Thế Giới Game */

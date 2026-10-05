@@ -24,7 +24,7 @@ class MistakeController extends Controller
     /**
      * Màn hình Sổ tay câu sai của học sinh
      */
-    public function index(Request $request): View
+    public function index(Request $request): View|JsonResponse
     {
         $user = $request->user();
         abort_unless($user, 401);
@@ -60,10 +60,19 @@ class MistakeController extends Controller
             });
         }
 
-        $mistakes = $query->orderBy('wrong_count', 'desc')
-            ->orderBy('last_wrong_at', 'desc')
-            ->paginate(15)
+        // Câu sai gần nhất lên đầu; mỗi lần hiện 30 câu, bấm "Xem thêm" để tải tiếp
+        $mistakes = $query->orderByDesc('last_wrong_at')
+            ->orderByDesc('wrong_count')
+            ->orderByDesc('id')
+            ->simplePaginate(30)
             ->withQueryString();
+
+        if ($request->ajax() || $request->wantsJson()) {
+            return response()->json([
+                'html' => view('learning.mistakes._items', ['mistakes' => $mistakes])->render(),
+                'next_url' => $mistakes->nextPageUrl(),
+            ]);
+        }
 
         return view('learning.mistakes.index', compact(
             'levels',
