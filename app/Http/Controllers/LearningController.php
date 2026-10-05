@@ -464,8 +464,11 @@ class LearningController extends Controller
         $isPreview = request()->boolean('preview') || ($isAdmin && request()->has('preview'));
 
         // Chỉ chặn học sinh khi bộ đề chưa có câu hỏi; cho phép chế độ xem thử (Preview) hoạt động bình thường để nạp câu hỏi từ Studio / Trợ lý AI
-        if (! $isPreview) {
-            abort_if($questionsCollection->isEmpty(), 404, 'Bộ đề chưa có câu hỏi trong cơ sở dữ liệu.');
+        if (! $isPreview && $questionsCollection->isEmpty()) {
+            $level = $practiceTest->is_mock ? $practiceTest->level : $practiceTest->topic?->level;
+            $back = $level ? route('levels.show', $level) : route('programs');
+
+            return redirect($back)->with('info', 'Bài luyện này đang được thầy cô chuẩn bị câu hỏi, em quay lại sau nhé! Em có thể làm thử các bài luyện khác trước.');
         }
 
         if ($practiceTest->shuffle_questions && $questionsCollection->isNotEmpty()) {

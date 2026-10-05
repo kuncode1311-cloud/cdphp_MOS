@@ -107,6 +107,12 @@
             </div>
         </section>
 
+        @if(session('info'))
+            <div role="status" style="width:min(1100px,100%); margin:0 auto 18px; padding:14px 18px; border-radius:16px; border:3px solid #ffffff; background:linear-gradient(135deg,#f59e0b,#d97706); color:#ffffff; font-weight:900; font-size:14.5px; box-shadow:0 12px 28px rgba(0,0,0,0.25);">
+                🛠️ {{ session('info') }}
+            </div>
+        @endif
+
         <!-- Khu vực danh sách chủ đề - Thu gọn mặc định -->
         <section class="topic-map-section">
             <div class="topic-toolbar">
@@ -177,6 +183,17 @@
                     <div class="topic-box-body">
                         <div class="tests-list">
                             @foreach($topic->tests as $test)
+                            @if((int) $test->question_count < 1)
+                            {{-- Bài luyện chưa có câu hỏi: khóa lại để em không bấm vào rồi gặp trang lỗi --}}
+                            <div class="test-action-card" style="opacity:.65; cursor:not-allowed; filter:grayscale(.35);" title="Thầy cô đang chuẩn bị câu hỏi">
+                                <div class="test-play-icon"><span>🔒</span></div>
+                                <div class="test-info-block">
+                                    <b class="test-name">{{ $test->name }}</b>
+                                    <div class="test-meta-row"><span>🛠️ Thầy cô đang chuẩn bị câu hỏi</span></div>
+                                </div>
+                                <div class="test-start-btn" style="background:#94a3b8;"><span>Sắp có</span></div>
+                            </div>
+                            @else
                             <a class="test-action-card" href="{{ route('tests.show', $test) }}">
                                 <div class="test-play-icon">
                                     <span>▶</span>
@@ -192,6 +209,7 @@
                                     <span>Bắt đầu</span> <b>→</b>
                                 </div>
                             </a>
+                            @endif
                             @endforeach
                         </div>
                     </div>
