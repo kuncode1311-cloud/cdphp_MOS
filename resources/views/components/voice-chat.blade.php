@@ -507,6 +507,7 @@
         };
         window.closeVoiceChat = function () {
             active = false;
+            closeActionTab();
             cancelQuizOnServer();
             stopAll();
             overlay.classList.remove('open');
@@ -542,6 +543,8 @@
         window.startVoiceChat = function () {
             if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia || !window.speechSynthesis) { return; }
             active = true;
+            closeActionTab();
+            actionTab = prepareActionTab();
             cancelQuizOnServer();
             $('vc-start').classList.remove('show');
             $('vc-talk').classList.add('show');
@@ -847,10 +850,32 @@
             a.textContent = '➡️ Mở: ' + str(action.label) + ' (tab mới)';
             appendRow(a);
         }
-        // Em yêu cầu chuyển trang: tự mở trong tab mới để cuộc trò chuyện vẫn còn nguyên. Trình duyệt chặn thì em bấm nút bên trên.
+        // Tab mới dành riêng cho trợ lý giọng nói: mở sẵn lúc bấm "Bắt đầu" (cú bấm của người dùng nên không bị chặn),
+        // rồi dùng lại khi em cần chuyển trang. Cuối phiên, tab chưa dùng sẽ được đóng.
+        var actionTab = null;
+        var actionTabUsed = false;
+        function prepareActionTab() {
+            actionTabUsed = false;
+            try {
+                var t = window.open('about:blank', '_blank');
+                if (t) { try { t.opener = null; } catch (e) {} }
+                return t;
+            } catch (e) { return null; }
+        }
+        function closeActionTab() {
+            if (actionTab && !actionTab.closed && !actionTabUsed) { try { actionTab.close(); } catch (e) {} }
+            actionTab = null;
+            actionTabUsed = false;
+        }
+        // Em yêu cầu chuyển trang: mở trong tab riêng để cuộc trò chuyện vẫn còn nguyên.
         function openInNewTab(url) {
             var w = null;
-            try { w = window.open(url, '_blank'); } catch (e) { w = null; }
+            if (actionTab && !actionTab.closed) {
+                try { actionTab.location.href = url; w = actionTab; actionTabUsed = true; } catch (e) { w = null; }
+            }
+            if (!w) {
+                try { w = window.open(url, '_blank'); } catch (e) { w = null; }
+            }
             if (w) { try { w.opener = null; } catch (e) {} }
             else { addSys('Trình duyệt đang chặn tab mới. Em bấm nút "Mở" ở trên nhé.'); }
         }
