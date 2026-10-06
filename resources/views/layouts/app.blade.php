@@ -2385,6 +2385,7 @@
     </script>
 
     <x-ai-upgrade-modal />
+    <x-tro-ly-tab />
     <x-voice-chat />
     <x-support-chat-widget />
     <x-support-ai-widget />
