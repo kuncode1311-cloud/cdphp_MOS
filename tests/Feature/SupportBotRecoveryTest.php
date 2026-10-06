@@ -229,6 +229,8 @@ class SupportBotRecoveryTest extends TestCase
     public function test_khoi_phuc_mat_khau_day_du_va_khong_luu_otp_hay_mat_khau(): void
     {
         SupportBotService::markAdminActive(); // Admin online: chỉ luồng khôi phục mới được bot xử lý
+        // Giả lập server đã cấu hình SMTP (thư vẫn bị Mail::fake chặn, không gửi thật)
+        config(['mail.default' => 'smtp']);
         Mail::fake();
         $user = User::factory()->create(['email' => 'hocsinh@gmail.com', 'password' => Hash::make('cu-mat-khau-123')]);
         $this->assertNotNull($user);

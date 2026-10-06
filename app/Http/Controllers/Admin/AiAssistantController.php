@@ -7,6 +7,7 @@ use App\Models\Package;
 use App\Models\PackageOrder;
 use App\Models\User;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
@@ -24,6 +25,7 @@ class AiAssistantController extends Controller
     private const STATUSES = ['tat-ca', 'con-han', 'het-han'];
     private const DEFAULT_EXTEND_DAYS = 30;
     private const EXPIRING_DAYS = 7;
+    private const TZ = 'Asia/Ho_Chi_Minh';
 
     public function index(Request $request): View
     {
@@ -112,31 +114,49 @@ class AiAssistantController extends Controller
 
     /** Gia hạn quyền AI: cộng thêm số ngày vào hạn hiện tại (hoặc tính từ hôm nay nếu đã hết hạn) */
     /**
-     * Cấp Trợ lý AI cho một tài khoản chưa có (tặng, dùng thử, hỗ trợ khách): tìm theo mã học sinh, email hoặc đúng họ tên.
+     * Gợi ý tài khoản khi Ban Quản Trị gõ để cấp Trợ lý AI: tìm theo tên, mã học sinh hoặc email.
+     * Trả về đủ thông tin để xác nhận đúng người trước khi cấp.
+     */
+    public function lookup(Request $request): JsonResponse
+    {
+        $q = trim((string) $request->query('q', ''));
+        if (mb_strlen($q) < 2) {
+            return response()->json(['users' => []]);
+        }
+
+        $users = User::query()
+            ->whereIn('role', ['student', 'teacher'])
+            ->where(fn ($w) => $w->where('name', 'like', "%{$q}%")->orWhere('student_code', 'like', "%{$q}%")->orWhere('email', 'like', "%{$q}%"))
+            ->with('classroom:id,name')
+            ->orderByRaw('CASE WHEN student_code = ? OR email = ? THEN 0 ELSE 1 END', [$q, $q])
+            ->orderBy('name')
+            ->limit(8)
+            ->get();
+
+        return response()->json(['users' => $users->map(fn (User $u) => [
+            'id' => $u->id,
+            'name' => $u->name,
+            'code' => $u->student_code,
+            'email' => $u->email,
+            'role' => $u->isTeacher() ? 'Giáo viên' : 'Học sinh',
+            'classroom' => $u->classroom?->name,
+            'ai_until' => $u->ai_assistant_until?->setTimezone(self::TZ)->format('d/m/Y'),
+            'ai_active' => $u->hasAiAssistant(),
+        ])->values()]);
+    }
+
+    /**
+     * Cấp Trợ lý AI cho tài khoản đã chọn trong danh sách gợi ý (tặng, dùng thử, hỗ trợ khách).
      * Tài khoản đang còn hạn thì cộng dồn thêm ngày như gia hạn.
      */
     public function grant(Request $request): RedirectResponse
     {
         $data = $request->validate([
-            'account' => ['required', 'string', 'max:120'],
+            'user_id' => ['required', 'integer', Rule::exists('users', 'id')->whereIn('role', ['student', 'teacher'])],
             'days' => ['nullable', 'integer', 'min:1', 'max:365'],
-        ], [], ['account' => 'mã học sinh, email hoặc họ tên']);
+        ], ['user_id.required' => 'Hãy gõ tên, mã học sinh hoặc email rồi CHỌN đúng tài khoản trong danh sách gợi ý.'], ['user_id' => 'tài khoản']);
 
-        $key = trim($data['account']);
-        $found = User::query()
-            ->whereIn('role', ['student', 'teacher'])
-            ->where(fn ($q) => $q->where('student_code', $key)->orWhere('email', $key)->orWhere('name', $key))
-            ->limit(3)
-            ->get();
-
-        if ($found->isEmpty()) {
-            return back()->withErrors(['account' => "Không tìm thấy tài khoản «{$key}». Thử nhập mã học sinh hoặc email."])->withInput();
-        }
-        if ($found->count() > 1) {
-            return back()->withErrors(['account' => "Có nhiều tài khoản tên «{$key}». Hãy nhập mã học sinh hoặc email để chọn đúng người."])->withInput();
-        }
-
-        return $this->extend($request, $found->first());
+        return $this->extend($request, User::findOrFail($data['user_id']));
     }
 
     public function extend(Request $request, User $user): RedirectResponse
@@ -146,12 +166,16 @@ class AiAssistantController extends Controller
         ]);
         $days = (int) ($data['days'] ?? self::DEFAULT_EXTEND_DAYS);
 
-        $base = $user->hasAiAssistant() ? $user->ai_assistant_until->copy() : now();
+        $hadAi = $user->hasAiAssistant();
+        $base = $hadAi ? $user->ai_assistant_until->copy() : now();
         $user->forceFill(['ai_assistant_until' => $base->addDays($days)])->save();
+        $until = $user->ai_assistant_until->setTimezone(self::TZ)->format('d/m/Y');
 
-        Log::info('Admin gia hạn Trợ lý AI', ['admin_id' => $request->user()->id, 'user_id' => $user->id, 'days' => $days]);
+        Log::info($hadAi ? 'Admin gia hạn Trợ lý AI' : 'Admin cấp Trợ lý AI', ['admin_id' => $request->user()->id, 'user_id' => $user->id, 'days' => $days]);
 
-        return back()->with('ok', "Đã gia hạn Trợ lý AI cho {$user->name} thêm {$days} ngày.");
+        return back()->with('ok', $hadAi
+            ? "Đã gia hạn Trợ lý AI cho {$user->name} thêm {$days} ngày (dùng đến {$until})."
+            : "Đã cấp Trợ lý AI cho {$user->name} {$days} ngày (dùng đến {$until}).");
     }
 
     /** Thu hồi quyền dùng AI ngay lập tức (không ảnh hưởng hạn học tập) */

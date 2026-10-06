@@ -8,6 +8,7 @@ use App\Models\Package;
 use App\Models\SupportMessage;
 use App\Models\User;
 use Illuminate\Http\Request;
+use Illuminate\Mail\Mailable;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Log;
@@ -408,29 +409,51 @@ class SupportBotService
 
     private function sendOtpMail(User $user, string $otp): bool
     {
-        try {
-            Mail::to($user->email)->send(new PasswordResetOtpMail($otp, $user));
-
-            return true;
-        } catch (\Throwable $e) {
-            // Chỉ ghi loại lỗi, không ghi mã OTP hay địa chỉ email
-            Log::error('SupportBot: gửi OTP thất bại (' . $e::class . ') cho user #' . $user->id);
-
-            return false;
-        }
+        return $this->deliver($user, new PasswordResetOtpMail($otp, $user), 'OTP');
     }
 
     private function sendChangedAlert(User $user, Request $request): void
     {
+        $this->deliver($user, new PasswordChangedAlertMail(
+            $user,
+            now()->format('H:i:s d/m/Y'),
+            (string) $request->ip(),
+            (string) $request->userAgent(),
+        ), 'cảnh báo đổi mật khẩu');
+    }
+
+    /**
+     * Gửi email giống các chỗ khác trong hệ thống: ưu tiên Brevo API (máy chủ thường chặn cổng SMTP), lỗi thì dùng SMTP.
+     * Chỉ trả true khi thư thật sự được gửi đi; mailer "log"/"array" chỉ ghi lại chứ không gửi nên tính là chưa gửi.
+     * Log chỉ ghi loại lỗi, không ghi mã OTP hay địa chỉ email.
+     */
+    private function deliver(User $user, Mailable $mail, string $kind): bool
+    {
+        if (BrevoMailService::isConfigured()) {
+            try {
+                if (BrevoMailService::send($user->email, $user->name, (string) $mail->envelope()->subject, $mail->render())) {
+                    return true;
+                }
+            } catch (\Throwable $e) {
+                Log::warning("SupportBot: gửi email {$kind} qua Brevo API thất bại (" . $e::class . "), thử SMTP.");
+            }
+        }
+
+        $mailer = (string) config('mail.default');
+        if (in_array($mailer, ['log', 'array'], true)) {
+            Log::error("SupportBot: chưa cấu hình gửi email thật (Brevo API lỗi/thiếu, MAIL_MAILER={$mailer}), không gửi được email {$kind} cho user #{$user->id}");
+
+            return false;
+        }
+
         try {
-            Mail::to($user->email)->send(new PasswordChangedAlertMail(
-                $user,
-                now()->format('H:i:s d/m/Y'),
-                (string) $request->ip(),
-                (string) $request->userAgent(),
-            ));
+            Mail::to($user->email)->send($mail);
+
+            return true;
         } catch (\Throwable $e) {
-            Log::warning('SupportBot: gửi email cảnh báo đổi mật khẩu thất bại (' . $e::class . ').');
+            Log::error("SupportBot: gửi email {$kind} thất bại (" . $e::class . ") cho user #{$user->id}");
+
+            return false;
         }
     }
 

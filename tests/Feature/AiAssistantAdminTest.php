@@ -153,35 +153,57 @@ class AiAssistantAdminTest extends TestCase
         }
     }
 
-    public function test_cap_tro_ly_ai_cho_tai_khoan_chua_co_theo_ma_hoc_sinh(): void
+    public function test_go_tim_hien_tai_khoan_de_xac_nhan_dung_nguoi(): void
     {
         $admin = $this->admin();
         $student = User::where('student_code', 'HS001')->firstOrFail();
-        $this->assertFalse($student->hasAiAssistant());
 
-        $this->actingAs($admin)->post(route('admin.ai-assistant.grant'), ['account' => 'HS001', 'days' => 30])
-            ->assertRedirect()->assertSessionHas('ok');
+        $res = $this->actingAs($admin)->getJson(route('admin.ai-assistant.lookup', ['q' => 'HS001']))->assertOk();
+
+        $first = $res->json('users.0');
+        $this->assertSame($student->id, $first['id']);
+        $this->assertSame($student->name, $first['name']);
+        $this->assertSame('HS001', $first['code']);
+        $this->assertSame('Học sinh', $first['role']);
+        $this->assertFalse($first['ai_active']);
+        // Gõ quá ngắn thì không tìm; không trả về tài khoản quản trị
+        $this->actingAs($admin)->getJson(route('admin.ai-assistant.lookup', ['q' => 'H']))->assertJson(['users' => []]);
+        $this->assertNotContains('admin@ic3.test', array_column($this->actingAs($admin)->getJson(route('admin.ai-assistant.lookup', ['q' => 'ic3.test']))->json('users'), 'email'));
+    }
+
+    public function test_cap_tro_ly_ai_cho_tai_khoan_da_chon(): void
+    {
+        $admin = $this->admin();
+        $student = User::where('student_code', 'HS001')->firstOrFail();
+
+        $this->actingAs($admin)->post(route('admin.ai-assistant.grant'), ['user_id' => $student->id, 'days' => 30])
+            ->assertRedirect()->assertSessionHas('ok', fn ($msg) => str_starts_with($msg, "Đã cấp Trợ lý AI cho {$student->name} 30 ngày"));
 
         $this->assertTrue($student->fresh()->hasAiAssistant());
         $this->assertTrue($student->fresh()->ai_assistant_until->between(now()->addDays(29), now()->addDays(31)));
         $this->actingAs($admin)->get(route('admin.ai-assistant.index'))->assertSee('Cấp Trợ lý AI cho tài khoản')->assertSee($student->name);
+
+        // Cấp lần nữa khi còn hạn: thông báo là gia hạn
+        $this->actingAs($admin)->post(route('admin.ai-assistant.grant'), ['user_id' => $student->id, 'days' => 10])
+            ->assertSessionHas('ok', fn ($msg) => str_starts_with($msg, "Đã gia hạn Trợ lý AI cho {$student->name} thêm 10 ngày"));
     }
 
-    public function test_cap_quyen_bao_loi_khi_khong_tim_thay_hoac_trung_ten(): void
+    public function test_cap_quyen_bat_buoc_chon_tai_khoan_hop_le(): void
     {
         $admin = $this->admin();
-        User::factory()->count(2)->create(['role' => 'student', 'name' => 'Trùng Tên']);
 
-        $this->actingAs($admin)->post(route('admin.ai-assistant.grant'), ['account' => 'KHONG-CO'])->assertSessionHasErrors('account');
-        $this->actingAs($admin)->post(route('admin.ai-assistant.grant'), ['account' => 'Trùng Tên'])->assertSessionHasErrors('account');
-        $this->assertSame(0, User::where('name', 'Trùng Tên')->whereNotNull('ai_assistant_until')->count());
+        $this->actingAs($admin)->post(route('admin.ai-assistant.grant'), ['days' => 30])->assertSessionHasErrors('user_id');
+        $this->actingAs($admin)->post(route('admin.ai-assistant.grant'), ['user_id' => $admin->id])->assertSessionHasErrors('user_id');
+        $this->assertNull($admin->fresh()->ai_assistant_until);
     }
 
     public function test_giao_vien_khong_cap_quyen_duoc(): void
     {
         $this->seed();
         $teacher = User::where('email', 'teacher@ic3.test')->firstOrFail();
+        $student = User::where('student_code', 'HS001')->firstOrFail();
 
-        $this->actingAs($teacher)->post(route('admin.ai-assistant.grant'), ['account' => 'HS001'])->assertForbidden();
+        $this->actingAs($teacher)->post(route('admin.ai-assistant.grant'), ['user_id' => $student->id])->assertForbidden();
+        $this->actingAs($teacher)->getJson(route('admin.ai-assistant.lookup', ['q' => 'HS001']))->assertForbidden();
     }
 }
