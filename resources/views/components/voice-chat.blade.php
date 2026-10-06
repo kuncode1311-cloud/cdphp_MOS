@@ -41,8 +41,9 @@
     .vc-stage { display: flex; flex-direction: column; align-items: center; gap: 8px; padding: 4px 16px 6px; flex-shrink: 0; }
     .vc-orb { --lvl: 0; position: relative; width: 132px; height: 132px; border-radius: 50%; border: 0; cursor: pointer; background: radial-gradient(circle at 35% 30%, #fff 0%, #c4b5fd 30%, #7c3aed 70%, #4c1d95 100%); box-shadow: 0 0 0 calc(8px + var(--lvl) * 26px) rgba(196,181,253,0.25), 0 0 60px rgba(167,139,250,0.6); transition: box-shadow .08s, transform .2s; }
     .vc-orb::after { content: ''; position: absolute; inset: -14px; border-radius: 50%; border: 3px solid rgba(255,255,255,0.28); opacity: 0; }
-    .vc-listening .vc-orb { transform: scale(calc(1 + var(--lvl) * 0.12)); background: radial-gradient(circle at 35% 30%, #fff 0%, #a7f3d0 30%, #10b981 70%, #065f46 100%); box-shadow: 0 0 0 calc(8px + var(--lvl) * 26px) rgba(110,231,183,0.25), 0 0 60px rgba(52,211,153,0.55); }
-    .vc-thinking .vc-orb { animation: vcThink 1.1s ease-in-out infinite; background: radial-gradient(circle at 35% 30%, #fff 0%, #fde68a 30%, #f59e0b 70%, #92400e 100%); box-shadow: 0 0 60px rgba(251,191,36,0.55); }
+    /* Cùng một tông tím cho mọi trạng thái; trạng thái thể hiện bằng nhịp đập và thẻ chữ bên dưới */
+    .vc-listening .vc-orb { transform: scale(calc(1 + var(--lvl) * 0.12)); }
+    .vc-thinking .vc-orb { animation: vcThink 1.1s ease-in-out infinite; }
     .vc-speaking .vc-orb { animation: vcSpeak 0.9s ease-in-out infinite; }
     .vc-speaking .vc-orb::after { animation: vcRing 1.4s ease-out infinite; }
     .vc-muted .vc-orb { filter: grayscale(0.8); opacity: .75; }
@@ -213,7 +214,7 @@
     /* Khung hội thoại cao theo nội dung, không kéo kín khoảng trống khi ít tin nhắn */
     .vc-panel { flex: 0 1 auto; min-height: 240px; max-height: 100%; }
     .vc-quizmode .vc-panel { flex: 1 1 auto; }
-    .vc-state { display: inline-block; align-self: center; padding: 6px 16px; border-radius: 999px; background: rgba(255,255,255,0.14); border: 2px solid rgba(255,255,255,0.28); box-shadow: 0 4px 0 rgba(0,0,0,0.18); }
+    .vc-state { display: inline-block; align-self: center; margin-top: 18px; padding: 6px 16px; border-radius: 999px; background: rgba(255,255,255,0.14); border: 2px solid rgba(255,255,255,0.28); box-shadow: 0 4px 0 rgba(0,0,0,0.18); }
     .vc-state:empty { display: none; }
     /* Dòng ghép cặp: thanh màu bên trái, ô chọn bo tròn, nổi nhẹ khi di chuột */
     .vc-rowitem { border-left: 6px solid #a78bfa; box-shadow: 0 4px 0 #c4b5fd; transition: transform .12s, box-shadow .12s; }
