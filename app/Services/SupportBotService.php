@@ -37,9 +37,9 @@ class SupportBotService
     /** Tìm lại tài khoản bằng câu hỏi xác minh: đủ thoải mái để sửa thông tin, vẫn chống dò tài khoản hàng loạt. */
     private const FIND_MAX_ATTEMPTS = 3;
     private const FIND_LOCK_MINUTES = 10;
-    /** Số lượt AI tối đa trong một giờ cho mỗi cuộc trò chuyện và mỗi IP */
-    private const AI_LIMIT_CONVERSATION = 10;
-    private const AI_LIMIT_IP = 60;
+    /** Số lượt AI tối đa trong một giờ cho mỗi cuộc trò chuyện và mỗi IP; nới rộng để test trợ lý thoải mái hơn. */
+    private const AI_LIMIT_CONVERSATION = 50;
+    private const AI_LIMIT_IP = 300;
     /** Thời gian bot ghi nhớ yêu cầu gặp người thật trong một cuộc trò chuyện */
     private const HANDOFF_HOURS = 12;
     private const SUPPORT_ADMIN_NICKNAME = 'Admin Trí Kun đẹp zai cute phô mai que';

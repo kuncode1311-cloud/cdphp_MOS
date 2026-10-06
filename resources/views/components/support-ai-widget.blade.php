@@ -86,6 +86,11 @@
                 let state = { id: null };
                 try { state = Object.assign(state, JSON.parse(localStorage.getItem(storeKey) || '{}')); } catch (e) {}
                 const save = () => { try { localStorage.setItem(storeKey, JSON.stringify(state)); } catch (e) {} };
+                const resetConversation = () => {
+                    state.id = null;
+                    state.lastHistory = [];
+                    save();
+                };
 
                 // Nút mở trang/làm bài: chỉ nhận đường dẫn cùng trang web
                 function actionHtml(action) {
@@ -167,8 +172,11 @@
                         if (data.ok) {
                             state.lastHistory = data.conversation_history || [];
                             render(state.lastHistory);
+                            return;
                         }
                     } catch (e) {}
+                    // Cuộc trò chuyện cũ có thể đã quá 24 giờ hoặc không còn thuộc phiên hiện tại.
+                    resetConversation();
                 }
 
                 $('ai-fab').addEventListener('click', () => {
@@ -186,7 +194,10 @@
                     aiTyping = true;
                     const preparedTab = prepareActionTab(text);
                     const currentHistory = state.lastHistory || [];
-                    render(currentHistory.concat([{ sender: 'user', text }]));
+                    const pendingHistory = currentHistory.concat([{ sender: 'user', text }]);
+                    state.lastHistory = pendingHistory;
+                    $('ai-text').value = '';
+                    render(pendingHistory);
                     try {
                         const res = await fetch(urls.send, {
                             method: 'POST',
@@ -208,10 +219,14 @@
                     } catch (err) {
                         if (preparedTab && !preparedTab.closed) preparedTab.close();
                         aiTyping = false;
-                        render(state.lastHistory || []);
-                        alert(err.message);
+                        state.lastHistory = (state.lastHistory || []).concat([{
+                            sender: 'bot',
+                            text: (err.message || 'Chưa gửi được, bạn thử lại nhé.') + '\nMình đã giữ khung chat sẵn, bạn nhấn Enter để gửi lại khi mạng ổn nha.'
+                        }]);
+                        render(state.lastHistory);
                     } finally {
                         $('ai-send').disabled = false;
+                        $('ai-text').focus();
                     }
                 });
             })();
