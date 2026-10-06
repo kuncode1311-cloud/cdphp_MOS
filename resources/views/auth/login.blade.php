@@ -323,6 +323,29 @@
             transform: translateY(1px);
         }
 
+        .password-actions {
+            display: flex;
+            justify-content: flex-end;
+            margin-top: 8px;
+        }
+
+        .forgot-password-link {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            color: #f9a8d4;
+            font-size: 12.5px;
+            font-weight: 850;
+            text-decoration: none;
+            text-shadow: 0 2px 10px rgba(236, 72, 153, 0.35);
+            transition: transform 0.18s ease, color 0.18s ease;
+        }
+
+        .forgot-password-link:hover {
+            color: #ffffff;
+            transform: translateY(-1px);
+        }
+
         /* ====== NÚT ĐĂNG NHẬP GOOGLE 3D TACTILE ====== */
         .social-divider {
             display: flex;
@@ -1038,6 +1061,13 @@
                 </div>
             @enderror
 
+            @if (session('ok'))
+                <div class="alert-error" style="border-color: rgba(52, 211, 153, 0.65); background: rgba(16, 185, 129, 0.16); color: #bbf7d0;">
+                    <span>✅</span>
+                    <span>{{ session('ok') }}</span>
+                </div>
+            @endif
+
             <!-- Login Form -->
             <form method="post" action="{{ route('login.store') }}" id="loginForm">
                 @csrf
@@ -1068,6 +1098,12 @@
                         <button type="button" class="btn-toggle-eye" onclick="togglePassword()" title="Hiện/ẩn mật khẩu">
                             <span id="eyeIcon">👁️</span>
                         </button>
+                    </div>
+                    <div class="password-actions">
+                        <a href="{{ route('password.forgot') }}" class="forgot-password-link">
+                            <span>🔐</span>
+                            <span>Quên mật khẩu?</span>
+                        </a>
                     </div>
                 </div>
 
@@ -1210,8 +1246,14 @@
                 .chat-tab.active { background: linear-gradient(135deg, #0068ff, #38bdf8); color: #fff; box-shadow: 0 3px 0 #0557c7; }
                 .chat-tab.active.ai { background: linear-gradient(135deg, #7c3aed, #a855f7); box-shadow: 0 3px 0 #5b21b6; }
                 .zalo-notice { align-self: center; max-width: 90%; font-size: 12px; color: #64748b; background: #e2e8f0; border-radius: 10px; padding: 6px 10px; text-align: center; margin: 6px auto; }
-                .chat-action { display: inline-block; margin-top: 8px; padding: 7px 12px; border-radius: 10px; font-size: 12.5px; font-weight: 800; text-decoration: none; color: #fff; background: linear-gradient(135deg, #7c3aed, #a855f7); box-shadow: 0 3px 0 #5b21b6; }
+                .chat-action { display: inline-flex; align-items: center; justify-content: center; margin: 5px 3px 2px 0; padding: 4px 8px; border-radius: 8px; font-size: 11.5px; line-height: 1.15; font-weight: 800; text-decoration: none; color: #fff; background: linear-gradient(135deg, #7c3aed, #a855f7); box-shadow: 0 2px 0 #5b21b6; vertical-align: baseline; }
                 .chat-action:hover { transform: translateY(-1px); }
+                .typing-bubble { width: auto; min-width: 76px; padding: 10px 13px; }
+                .typing-dots { display: inline-flex; gap: 4px; align-items: center; height: 14px; }
+                .typing-dots span { width: 6px; height: 6px; border-radius: 999px; background: #a855f7; animation: typingPulse 0.9s infinite ease-in-out; }
+                .typing-dots span:nth-child(2) { animation-delay: 0.14s; }
+                .typing-dots span:nth-child(3) { animation-delay: 0.28s; }
+                @keyframes typingPulse { 0%, 80%, 100% { opacity: .35; transform: translateY(0); } 40% { opacity: 1; transform: translateY(-3px); } }
             `;
             document.head.appendChild(style);
         })();
@@ -1226,8 +1268,9 @@
         let botSecretMode = localStorage.getItem('mos_bot_secret') === '1';
         let activeChatSupportId = localStorage.getItem('mos_active_support_id') || null;
         let adminPollingTimer = null;
+        let aiTyping = false;
 
-        const AI_GREETING = 'Xin chào! 👋 Mình là <b>Trợ lý AI</b> của IC3 Adventure.<br>Mình trả lời về <b>đăng nhập, gói bản quyền và tài liệu thi IC3</b>.<br>Bạn gõ <b>"quên mật khẩu"</b> nếu cần lấy lại mật khẩu nhé!'
+        const AI_GREETING = 'Xin chào! 👋 Mình là <b>Trợ lý AI</b> của IC3 Adventure.<br>Mình hỗ trợ <b>đăng nhập, gói bản quyền và tài liệu thi IC3</b>.<br>Quên mật khẩu? <a class="chat-action" href="{{ route('password.forgot') }}">Mở trang</a> hoặc gõ <b>"quên mật khẩu"</b>.'
             + (CHAT_IS_MEMBER ? '' : '<br><small>💡 Chat với Ban Quản Trị cần đăng nhập tài khoản. Nội dung chat với Trợ lý AI không được lưu lại.</small>');
         const ADMIN_GREETING = 'Xin chào Thầy/Cô và các bạn! 👋<br>Bạn để lại lời nhắn kèm SĐT/Zalo bên dưới, Ban Quản Trị sẽ phản hồi bạn ngay tại đây nhé!<br><small>🔒 Lịch sử chat được lưu 12 tháng để đối chiếu khi cần.</small>';
 
@@ -1357,7 +1400,7 @@
 
         // Chữ đậm **...** từ AI, và xuống dòng giữ nguyên
         function formatText(text) {
-            return escapeHtml(text).replace(/\*\*(.+?)\*\*/g, '<b>$1</b>');
+            return escapeHtml(stripInlineLinks(text)).replace(/\*\*(.+?)\*\*/g, '<b>$1</b>');
         }
 
         // Nút mở trang/làm bài do máy chủ tạo. Chỉ nhận đường dẫn cùng trang web để tránh chuyển sang trang lạ.
@@ -1366,17 +1409,40 @@
             try {
                 const url = new URL(action.url, window.location.origin);
                 if (url.origin !== window.location.origin) return '';
-                return `<a class="chat-action" href="${url.pathname}${url.search}${url.hash}">${escapeHtml(action.label)} →</a>`;
+                return `<a class="chat-action" href="${url.pathname}${url.search}${url.hash}" target="_blank" rel="noopener">${escapeHtml(action.label)} →</a>`;
             } catch (e) {
                 return '';
             }
+        }
+
+        function stripInlineLinks(text) {
+            return String(text || '')
+                .replace(/https?:\/\/mos\.app\/[^\s)]+/gi, '')
+                .replace(/\bmos\.app\/[^\s)]+/gi, '')
+                .replace(/\s{2,}/g, ' ')
+                .trim();
+        }
+
+        function actionFromText(text) {
+            const raw = String(text || '');
+            const match = raw.match(/(?:https?:\/\/mos\.app|mos\.app)(\/[^\s)]+)/i);
+            if (!match) return null;
+
+            const path = match[1];
+            let label = 'Mở trang';
+            if (path.includes('/bang-gia')) label = 'Xem bảng giá';
+            if (path.includes('/quen-mat-khau')) label = 'Quên mật khẩu';
+            if (path.includes('/dang-nhap')) label = 'Đăng nhập';
+
+            return { label, url: path };
         }
 
         function saveMessageToHistory(sender, text, time, image, channel, action) {
             const history = getChatHistory();
             const entry = { sender, text, time, channel: channel || (sender === 'bot' ? 'ai' : 'admin') };
             if (safeImageUrl(image)) entry.image = image;
-            if (action && action.label && action.url) entry.action = { label: action.label, url: action.url };
+            const inferredAction = action || (sender === 'bot' ? actionFromText(text) : null);
+            if (inferredAction && inferredAction.label && inferredAction.url) entry.action = { label: inferredAction.label, url: inferredAction.url };
             history.push(entry);
             localStorage.setItem('mos_chat_messages', JSON.stringify(history));
         }
@@ -1432,6 +1498,16 @@
                 }
                 body.appendChild(bubble);
             });
+
+            if (chatTab === 'ai' && aiTyping) {
+                const typing = document.createElement('div');
+                typing.className = 'zalo-bubble zalo-bubble-left typing-bubble';
+                typing.innerHTML = `
+                    <div style="font-weight:800; font-size:12px; color:#7c3aed; margin-bottom:5px;">🤖 Trợ lý IC3 đang nhập...</div>
+                    <div class="typing-dots"><span></span><span></span><span></span></div>
+                `;
+                body.appendChild(typing);
+            }
 
             scrollChatToBottom();
         }
@@ -1490,6 +1566,7 @@
             // Bước OTP/mật khẩu: không lưu nội dung thật vào trình duyệt
             const shownText = sentChannel === 'ai' && botSecretMode ? '🔒 Đã ẩn để bảo mật' : message;
             saveMessageToHistory('user', shownText, timeStr, null, sentChannel);
+            aiTyping = sentChannel === 'ai';
             renderChatHistory();
 
             msgInput.value = '';
@@ -1518,6 +1595,7 @@
             })
             .then(async res => ({ ok: res.ok, data: await res.json() }))
             .then(({ ok, data }) => {
+                aiTyping = false;
                 btn.disabled = false;
                 btn.textContent = '➤';
 
@@ -1559,6 +1637,8 @@
                 msgInput.focus();
             })
             .catch(() => {
+                aiTyping = false;
+                renderChatHistory();
                 btn.disabled = false;
                 btn.textContent = '➤';
             });

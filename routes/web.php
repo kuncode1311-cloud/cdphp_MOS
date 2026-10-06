@@ -40,6 +40,12 @@ use Illuminate\Support\Facades\Route;
 Route::middleware('guest')->group(function () {
     Route::get('/dang-nhap', [AuthController::class, 'create'])->name('login');
     Route::post('/dang-nhap', [AuthController::class, 'store'])->middleware('throttle:10,1,login:')->name('login.store');
+    Route::get('/quen-mat-khau', [AuthController::class, 'forgotPassword'])->name('password.forgot');
+    Route::post('/quen-mat-khau/gui-otp', [AuthController::class, 'sendForgotPasswordOtp'])->middleware('throttle:5,1,forgot-otp:')->name('password.forgot.send-otp');
+    Route::post('/quen-mat-khau/xac-minh', [AuthController::class, 'confirmForgotPasswordContact'])->middleware('throttle:8,1,forgot-confirm:')->name('password.forgot.confirm');
+    Route::post('/quen-mat-khau/kiem-tra-otp', [AuthController::class, 'verifyForgotPasswordOtp'])->middleware('throttle:8,1,forgot-verify-otp:')->name('password.forgot.verify-otp');
+    Route::post('/quen-mat-khau/dat-lai', [AuthController::class, 'resetForgotPassword'])->middleware('throttle:8,1,forgot-reset:')->name('password.forgot.reset');
+    Route::post('/quen-mat-khau/lam-lai', [AuthController::class, 'restartForgotPassword'])->name('password.forgot.restart');
 
     // Đăng nhập bằng tài khoản Google (OAuth 2.0)
     Route::get('/auth/google', [GoogleAuthController::class, 'redirectToGoogle'])->name('auth.google');
