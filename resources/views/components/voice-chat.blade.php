@@ -41,9 +41,9 @@
     .vc-stage { display: flex; flex-direction: column; align-items: center; gap: 8px; padding: 4px 16px 6px; flex-shrink: 0; }
     .vc-orb { --lvl: 0; position: relative; width: 132px; height: 132px; border-radius: 50%; border: 0; cursor: pointer; background: radial-gradient(circle at 35% 30%, #fff 0%, #f0abfc 22%, #a855f7 60%, #4c1d95 100%); box-shadow: 0 0 0 calc(8px + var(--lvl) * 26px) rgba(196,181,253,0.25), 0 0 60px rgba(167,139,250,0.6); transition: box-shadow .08s, transform .2s; }
     .vc-orb::after { content: ''; position: absolute; inset: -14px; border-radius: 50%; border: 3px solid rgba(255,255,255,0.28); opacity: 0; }
-    /* Cùng một tông tím cho mọi trạng thái; trạng thái thể hiện bằng nhịp đập và thẻ chữ bên dưới */
-    .vc-listening .vc-orb { transform: scale(calc(1 + var(--lvl) * 0.12)); }
-    .vc-thinking .vc-orb { animation: vcThink 1.1s ease-in-out infinite; }
+    /* Màu quả cầu theo trạng thái: đang nghe = xanh ngọc, đang suy nghĩ = vàng hổ phách, đang nói = tím (mặc định) */
+    .vc-listening .vc-orb { transform: scale(calc(1 + var(--lvl) * 0.12)); background: radial-gradient(circle at 35% 30%, #fff 0%, #a7f3d0 30%, #10b981 70%, #065f46 100%); box-shadow: 0 0 0 calc(8px + var(--lvl) * 26px) rgba(110,231,183,0.25), 0 0 60px rgba(52,211,153,0.55); }
+    .vc-thinking .vc-orb { animation: vcThink 1.1s ease-in-out infinite; background: radial-gradient(circle at 35% 30%, #fff 0%, #fde68a 30%, #f59e0b 70%, #92400e 100%); box-shadow: 0 0 60px rgba(251,191,36,0.55); }
     .vc-speaking .vc-orb { animation: vcSpeak 0.9s ease-in-out infinite; }
     .vc-speaking .vc-orb::after { animation: vcRing 1.4s ease-out infinite; }
     .vc-muted .vc-orb { filter: grayscale(0.8); opacity: .75; }
