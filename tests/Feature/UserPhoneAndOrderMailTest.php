@@ -38,7 +38,7 @@ class UserPhoneAndOrderMailTest extends TestCase
         $user = User::factory()->create(['phone' => '+84 912.345-678']);
 
         $this->assertSame('0912345678', $user->fresh()->phone);
-        $this->assertSame('09*****678', $user->maskedPhone());
+        $this->assertSame('09•••••678', $user->maskedPhone());
         $this->assertNull(User::factory()->create(['phone' => 'abc'])->fresh()->phone);
     }
 
@@ -117,7 +117,7 @@ class UserPhoneAndOrderMailTest extends TestCase
                 && str_contains($html, $order->code)
                 && str_contains($html, 'mua.goi@gmail.com')
                 && str_contains($html, 'HS501')
-                && str_contains($html, '09*****678')
+                && str_contains($html, '09•••••678')
                 && ! str_contains($html, '0912345678')
                 && str_contains($html, 'quên mật khẩu');
         });
@@ -166,8 +166,10 @@ class UserPhoneAndOrderMailTest extends TestCase
         $this->say('Trần Bảo Ngọc');
         $text = implode("\n", $this->say('0912 345 678')['bot_replies']);
 
-        $this->assertMatchesRegularExpression('/ba\*{3,}@gmail\.com/', $text);
-        $this->assertStringContainsString('09*****678', $text);
+        $this->assertMatchesRegularExpression('/ba(•){3,}@gmail\.com/u', $text);
+        // Không dùng dấu * để che (trùng ký hiệu in đậm, khung chat nuốt mất)
+        $this->assertStringNotContainsString('*@gmail.com', $text);
+        $this->assertStringContainsString('09•••••678', $text);
         $this->assertStringNotContainsString('baongoc@gmail.com', $text);
     }
 }

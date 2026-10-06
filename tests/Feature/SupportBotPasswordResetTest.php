@@ -143,7 +143,7 @@ class SupportBotPasswordResetTest extends TestCase
         // Mã HS
         $this->say('quên mật khẩu');
         $data = $this->say('HS001');
-        $this->assertStringContainsString('hs***@ic3.test', $data['bot_replies'][0]);
+        $this->assertStringContainsString('hs•••@ic3.test', $data['bot_replies'][0]);
 
         // Biệt danh "hs001" (trang đăng nhập tự ghép @ic3.test), bắt đầu từ trình duyệt mới
         $this->newBrowser();
