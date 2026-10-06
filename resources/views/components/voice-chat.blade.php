@@ -210,6 +210,9 @@
     .vc-quizmode .vc-bar { padding: 4px 0 2px; }
     .vc-quizmode .vc-btn { padding: 8px 16px; }
     /* Trạng thái micro/giọng nói: thẻ nhỏ rõ ràng, không bị khung khác che */
+    /* Khung hội thoại cao theo nội dung, không kéo kín khoảng trống khi ít tin nhắn */
+    .vc-panel { flex: 0 1 auto; min-height: 240px; max-height: 100%; }
+    .vc-quizmode .vc-panel { flex: 1 1 auto; }
     .vc-state { display: inline-block; align-self: center; padding: 6px 16px; border-radius: 999px; background: rgba(255,255,255,0.14); border: 2px solid rgba(255,255,255,0.28); box-shadow: 0 4px 0 rgba(0,0,0,0.18); }
     .vc-state:empty { display: none; }
     /* Dòng ghép cặp: thanh màu bên trái, ô chọn bo tròn, nổi nhẹ khi di chuột */
