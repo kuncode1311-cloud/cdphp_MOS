@@ -60,6 +60,19 @@ class MistakeController extends Controller
             });
         }
 
+        // Lọc theo chủ đề (chỉ áp dụng khi chủ đề thuộc khối đang chọn)
+        $selectedTopic = (string) $request->input('topic', 'all');
+        if ($selectedTopic !== 'all' && ctype_digit($selectedTopic)) {
+            $query->whereHas('question.practiceTest', fn ($q) => $q->where('topic_id', (int) $selectedTopic));
+        }
+
+        // Danh sách chủ đề để hiện nút lọc: theo khối đang chọn, đúng thứ tự trên trang học
+        $topics = Topic::query()
+            ->with('level')
+            ->when($selectedGrade !== 'all' && is_numeric($selectedGrade), fn ($q) => $q->whereHas('level', fn ($l) => $l->where('grade', (int) $selectedGrade)))
+            ->orderBy('level_id')->orderBy('position')
+            ->get();
+
         // Câu sai gần nhất lên đầu; mỗi lần hiện 30 câu, bấm "Xem thêm" để tải tiếp
         $mistakes = $query->orderByDesc('last_wrong_at')
             ->orderByDesc('wrong_count')
@@ -82,7 +95,9 @@ class MistakeController extends Controller
             'resolvedCount',
             'selectedGrade',
             'selectedStatus',
-            'selectedRisk'
+            'selectedRisk',
+            'topics',
+            'selectedTopic'
         ));
     }
 

@@ -108,6 +108,23 @@
 
             <div class="filter-divider"></div>
 
+            <!-- Nhóm Chủ đề: chỉ hiện các chủ đề của khối đang chọn -->
+            <div class="filter-group">
+                <span class="filter-group-label">📚 Chủ đề:</span>
+                <div class="filter-pill-cluster">
+                    <a class="filter-pill {{ $selectedTopic === 'all' ? 'active' : '' }}" href="{{ route('mistakes.index', array_merge(request()->query(), ['topic' => 'all'])) }}">
+                        Tất cả
+                    </a>
+                    @foreach($topics as $topic)
+                    <a class="filter-pill {{ (string)$selectedTopic === (string)$topic->id ? 'active' : '' }}" href="{{ route('mistakes.index', array_merge(request()->query(), ['topic' => $topic->id])) }}">
+                        {{ $topic->name }}
+                    </a>
+                    @endforeach
+                </div>
+            </div>
+
+            <div class="filter-divider"></div>
+
             <!-- Nhóm Trạng Thái -->
             <div class="filter-group">
                 <span class="filter-group-label">🎯 Trạng thái:</span>
