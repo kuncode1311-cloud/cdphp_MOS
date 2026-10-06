@@ -1,6 +1,7 @@
 <!doctype html>
 <html lang="vi">
 <head>
+    @include('partials.page-gate')
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>Cài đặt Khu Trò Chơi & Đổi Giờ Chơi — IC3 Quest</title>

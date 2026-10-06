@@ -39,7 +39,7 @@ use Illuminate\Support\Facades\Route;
 // Đọc luồng từ đây: URL → controller → model/service lấy dữ liệu → view hiển thị.
 Route::middleware('guest')->group(function () {
     Route::get('/dang-nhap', [AuthController::class, 'create'])->name('login');
-    Route::post('/dang-nhap', [AuthController::class, 'store'])->middleware('throttle:10,1')->name('login.store');
+    Route::post('/dang-nhap', [AuthController::class, 'store'])->middleware('throttle:10,1,login:')->name('login.store');
 
     // Đăng nhập bằng tài khoản Google (OAuth 2.0)
     Route::get('/auth/google', [GoogleAuthController::class, 'redirectToGoogle'])->name('auth.google');
@@ -70,15 +70,22 @@ Route::middleware(['auth', 'subscription'])->group(function () {
     Route::get('/chuong-trinh/{level:slug}', [LearningController::class, 'level'])->name('levels.show');
     Route::get('/bai-luyen/{practiceTest:slug}', [LearningController::class, 'test'])->name('tests.show');
     Route::get('/bai-luyen/{practiceTest:slug}/lam-bai', [LearningController::class, 'launch'])->name('tests.launch');
-    Route::post('/bai-luyen/{practiceTest:slug}/ket-qua', [AttemptController::class, 'store'])->middleware('throttle:30,1')->name('attempts.store');
+    Route::post('/bai-luyen/{practiceTest:slug}/ket-qua', [AttemptController::class, 'store'])->middleware('throttle:30,1,attempts:')->name('attempts.store');
 
     // Sổ Tay Câu Sai & Phòng Luyện Tập Phục Thù (Mistake Notebook & Revenge Practice)
     Route::get('/so-tay-cau-sai', [MistakeController::class, 'index'])->name('mistakes.index');
     Route::get('/so-tay-cau-sai/lam-lai', [MistakeController::class, 'launch'])->name('mistakes.launch');
-    Route::post('/so-tay-cau-sai/nop-bai', [MistakeController::class, 'submit'])->middleware('throttle:30,1')->name('mistakes.submit');
+    Route::post('/so-tay-cau-sai/nop-bai', [MistakeController::class, 'submit'])->middleware('throttle:30,1,mistakes:')->name('mistakes.submit');
+
+    // Trò chuyện bằng giọng nói với Trợ lý AI (chỉ thành viên có gói Trợ lý AI còn hạn)
+    Route::post('/tro-ly-ai/giong-noi/tra-loi', [\App\Http\Controllers\VoiceChatController::class, 'reply'])->middleware('throttle:25,1,voice-reply:')->name('voice.reply');
+    Route::post('/tro-ly-ai/giong-noi/nghe', [\App\Http\Controllers\VoiceChatController::class, 'transcribe'])->middleware('throttle:25,1,voice-stt:')->name('voice.transcribe');
+    Route::post('/tro-ly-ai/giong-noi/cau-hoi', [\App\Http\Controllers\VoiceChatController::class, 'quizStart'])->middleware('throttle:30,1,voice-quiz:')->name('voice.quiz.start');
+    Route::post('/tro-ly-ai/giong-noi/dung-cau-hoi', [\App\Http\Controllers\VoiceChatController::class, 'quizCancel'])->middleware('throttle:30,1,voice-quiz-cancel:')->name('voice.quiz.cancel');
+    Route::post('/tro-ly-ai/giong-noi/tra-loi-cau-hoi', [\App\Http\Controllers\VoiceChatController::class, 'quizAnswer'])->middleware('throttle:30,1,voice-quiz-answer:')->name('voice.quiz.answer');
 
     // Hồ Sơ Cá Nhân & Đổi Mật Khẩu với xác thực OTP
-    Route::post('/tai-khoan/gui-otp-mat-khau', [ProfileController::class, 'sendOtp'])->middleware('throttle:5,1')->name('profile.send-otp');
+    Route::post('/tai-khoan/gui-otp-mat-khau', [ProfileController::class, 'sendOtp'])->middleware('throttle:5,1,otp:')->name('profile.send-otp');
     Route::post('/tai-khoan/doi-mat-khau', [ProfileController::class, 'updatePassword'])->name('profile.password');
     Route::post('/tai-khoan/cap-nhat-email', [ProfileController::class, 'updateEmail'])->name('profile.update-email');
 
@@ -117,15 +124,15 @@ Route::middleware(['auth', 'subscription'])->group(function () {
 // Bảng giá xem công khai cho tất cả người dùng
 Route::redirect('/bang_gia', '/bang-gia');
 Route::get('/bang-gia', [PricingController::class, 'index'])->name('pricing.index');
-Route::post('/bang-gia/dang-ky-va-thue-goi/{package:slug}', [PricingController::class, 'registerAndOrder'])->middleware('throttle:6,1')->name('pricing.register_and_order');
+Route::post('/bang-gia/dang-ky-va-thue-goi/{package:slug}', [PricingController::class, 'registerAndOrder'])->middleware('throttle:6,1,register-order:')->name('pricing.register_and_order');
 Route::get('/bang-gia/thanh-toan/{order:code}', [PricingController::class, 'checkout'])->name('pricing.order.checkout');
-Route::get('/bang-gia/don-hang/{order:code}/trang-thai', [PricingController::class, 'checkOrderStatus'])->middleware('throttle:60,1')->name('pricing.order.status');
-Route::post('/bang-gia/don-hang/{order:code}/da-chuyen-khoan', [PricingController::class, 'confirmTransferred'])->middleware('throttle:6,1')->name('pricing.order.confirm_transferred');
+Route::get('/bang-gia/don-hang/{order:code}/trang-thai', [PricingController::class, 'checkOrderStatus'])->middleware('throttle:60,1,order-status:')->name('pricing.order.status');
+Route::post('/bang-gia/don-hang/{order:code}/da-chuyen-khoan', [PricingController::class, 'confirmTransferred'])->middleware('throttle:6,1,order-confirm:')->name('pricing.order.confirm_transferred');
 Route::get('/bang-gia/payos-tra-ve/{order:code}', [PricingController::class, 'payosReturn'])->name('pricing.payos.return');
 Route::post('/bang-gia/payos-webhook', [PricingController::class, 'payosWebhook'])->name('pricing.payos.webhook');
 
 // Live Chat Messenger gửi tin nhắn tư vấn trực tiếp cho Admin (Telegram)
-Route::post('/ho-tro/gui-tin-nhan', [PricingController::class, 'sendSupportMessage'])->middleware('throttle:20,1')->name('support.message.send');
+Route::post('/ho-tro/gui-tin-nhan', [PricingController::class, 'sendSupportMessage'])->middleware('throttle:20,1,support-send:')->name('support.message.send');
 Route::get('/ho-tro/anh/{token}', function (string $token) {
     $image = \App\Models\SupportImage::where('token', $token)->firstOrFail();
 
@@ -135,8 +142,8 @@ Route::get('/ho-tro/anh/{token}', function (string $token) {
         'Cache-Control' => 'private, max-age=86400',
         'X-Content-Type-Options' => 'nosniff',
     ]);
-})->where('token', '[A-Za-z0-9]{20,64}')->middleware('throttle:120,1')->name('support.image.show');
-Route::get('/ho-tro/tin-nhan/kiem-tra', [PricingController::class, 'checkSupportMessageReply'])->middleware('throttle:90,1')->name('support.message.check');
+})->where('token', '[A-Za-z0-9]{20,64}')->middleware('throttle:120,1,support-image:')->name('support.image.show');
+Route::get('/ho-tro/tin-nhan/kiem-tra', [PricingController::class, 'checkSupportMessageReply'])->middleware('throttle:90,1,support-check:')->name('support.message.check');
 
 // Telegram Webhook nhận lệnh từ bot riêng (@sp_trikun_bot)
 Route::post('/api/telegram/webhook', [TelegramBotController::class, 'handleWebhook'])->name('telegram.webhook');
@@ -216,6 +223,13 @@ Route::prefix('quan-tri')->name('admin.')->middleware(['auth', 'admin', 'subscri
         Route::put('/packages/{package}', [AdminPackageController::class, 'update'])->name('packages.update');
         Route::delete('/packages/{package}', [AdminPackageController::class, 'destroy'])->name('packages.destroy');
         Route::post('/packages/{package}/toggle', [AdminPackageController::class, 'toggle'])->name('packages.toggle');
+
+        // Trợ lý AI: gói bán, và quản lý quyền dùng AI của từng tài khoản
+        Route::get('/tro-ly-ai', [\App\Http\Controllers\Admin\AiAssistantController::class, 'index'])->name('ai-assistant.index');
+        Route::post('/tro-ly-ai/goi', [\App\Http\Controllers\Admin\AiAssistantController::class, 'storePackage'])->name('ai-assistant.packages.store');
+        Route::put('/tro-ly-ai/goi/{package}', [\App\Http\Controllers\Admin\AiAssistantController::class, 'updatePackage'])->name('ai-assistant.packages.update');
+        Route::post('/tro-ly-ai/nguoi-dung/{user}/gia-han', [\App\Http\Controllers\Admin\AiAssistantController::class, 'extend'])->name('ai-assistant.extend');
+        Route::post('/tro-ly-ai/nguoi-dung/{user}/thu-hoi', [\App\Http\Controllers\Admin\AiAssistantController::class, 'revoke'])->name('ai-assistant.revoke');
         Route::post('/orders/{order}/activate', [AdminPackageController::class, 'activateOrder'])->name('orders.activate');
         Route::post('/orders/{order}/reject', [AdminPackageController::class, 'rejectOrder'])->name('orders.reject');
 

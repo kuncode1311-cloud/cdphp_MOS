@@ -1,6 +1,7 @@
 <!doctype html>
 <html lang="vi">
 <head>
+    @include('partials.page-gate')
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>Quản Trị Gói Dịch Vụ & Đơn Thuê Bản Quyền — IC3 Quest</title>
@@ -8,208 +9,7 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@600;700;800&family=Nunito:wght@600;700;800;900&display=swap" rel="stylesheet">
     @vite(['resources/css/app.css', 'resources/js/app.js'])
-    <style>
-        :root {
-            --primary: #1072ba;
-            --primary-dark: #094775;
-            --bg-body: #f8fafc;
-            --border-color: #e2e8f0;
-        }
-        body {
-            font-family: 'Nunito', sans-serif;
-            background: var(--bg-body);
-            color: #1e293b;
-            margin: 0;
-            padding: 0;
-        }
-        .admin-pkg-topbar {
-            background: #ffffff;
-            border-bottom: 2px solid var(--border-color);
-            padding: 14px 28px;
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            position: sticky;
-            top: 0;
-            z-index: 99;
-        }
-        .admin-pkg-container {
-            max-width: 1360px;
-            margin: 0 auto;
-            padding: 28px 20px 80px;
-        }
-        .metrics-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-            gap: 16px;
-            margin-bottom: 26px;
-        }
-        .metric-card {
-            background: #ffffff;
-            border-radius: 20px;
-            border: 2px solid var(--border-color);
-            padding: 20px;
-            display: flex;
-            align-items: center;
-            gap: 16px;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.03);
-        }
-        .metric-card i {
-            width: 48px;
-            height: 48px;
-            border-radius: 14px;
-            display: grid;
-            place-items: center;
-            font-size: 24px;
-            font-style: normal;
-        }
-        .tab-nav {
-            display: flex;
-            gap: 10px;
-            border-bottom: 2px solid var(--border-color);
-            margin-bottom: 24px;
-        }
-        .tab-btn {
-            padding: 12px 22px;
-            font-size: 14.5px;
-            font-weight: 850;
-            color: #64748b;
-            text-decoration: none;
-            border-bottom: 3px solid transparent;
-            margin-bottom: -2px;
-            display: inline-flex;
-            align-items: center;
-            gap: 8px;
-            transition: all 0.15s;
-        }
-        .tab-btn:hover {
-            color: var(--primary);
-        }
-        .tab-btn.active {
-            color: var(--primary);
-            border-bottom-color: var(--primary);
-        }
-        .badge-count {
-            background: #f1f5f9;
-            color: #475569;
-            padding: 2px 8px;
-            border-radius: 99px;
-            font-size: 11.5px;
-            font-weight: 900;
-        }
-        .tab-btn.active .badge-count {
-            background: #e0f2fe;
-            color: #0369a1;
-        }
-        .action-btn {
-            display: inline-flex;
-            align-items: center;
-            gap: 6px;
-            padding: 8px 16px;
-            border-radius: 12px;
-            font-size: 13px;
-            font-weight: 850;
-            text-decoration: none;
-            cursor: pointer;
-            border: none;
-            transition: transform 0.15s;
-        }
-        .action-btn:hover {
-            transform: translateY(-2px);
-        }
-        .btn-primary-pkg {
-            background: linear-gradient(135deg, #1072ba, #0284c7);
-            color: #ffffff;
-            box-shadow: 0 4px 10px rgba(16, 114, 186, 0.25);
-        }
-        .btn-success-pkg {
-            background: linear-gradient(135deg, #10b981, #059669);
-            color: #ffffff;
-            box-shadow: 0 4px 10px rgba(16, 185, 129, 0.25);
-        }
-        .btn-danger-pkg {
-            background: #fee2e2;
-            color: #b91c1c;
-            border: 1px solid #fca5a5;
-        }
-        .table-card {
-            background: #ffffff;
-            border-radius: 24px;
-            border: 2px solid var(--border-color);
-            padding: 24px;
-            box-shadow: 0 8px 24px rgba(0,0,0,0.03);
-        }
-        table.admin-table {
-            width: 100%;
-            border-collapse: collapse;
-        }
-        table.admin-table th {
-            text-align: left;
-            padding: 12px 14px;
-            font-size: 12px;
-            font-weight: 900;
-            color: #64748b;
-            text-transform: uppercase;
-            border-bottom: 2px solid var(--border-color);
-        }
-        table.admin-table td {
-            padding: 14px;
-            font-size: 13.5px;
-            border-bottom: 1px solid var(--border-color);
-            vertical-align: middle;
-        }
-        .pkg-status-pill {
-            display: inline-flex;
-            align-items: center;
-            gap: 4px;
-            padding: 3px 10px;
-            border-radius: 99px;
-            font-size: 11.5px;
-            font-weight: 850;
-        }
-        .modal-backdrop {
-            position: fixed;
-            inset: 0;
-            background: rgba(15, 23, 42, 0.7);
-            backdrop-filter: blur(4px);
-            z-index: 999999;
-            display: none;
-            align-items: center;
-            justify-content: center;
-            padding: 20px;
-        }
-        .modal-backdrop.open {
-            display: flex;
-        }
-        .modal-content-box {
-            background: #ffffff;
-            border-radius: 24px;
-            width: min(640px, 100%);
-            max-height: 90vh;
-            overflow-y: auto;
-            padding: 28px;
-            position: relative;
-        }
-        .form-group {
-            margin-bottom: 16px;
-        }
-        .form-group label {
-            display: block;
-            font-size: 12.5px;
-            font-weight: 850;
-            color: #334155;
-            margin-bottom: 6px;
-        }
-        .form-control-custom {
-            width: 100%;
-            padding: 10px 14px;
-            border: 1.5px solid #cbd5e1;
-            border-radius: 12px;
-            font-size: 13.5px;
-            font-family: inherit;
-            box-sizing: border-box;
-        }
-    </style>
+    @include('partials.admin-pkg-styles')
 </head>
 <body>
 
@@ -634,6 +434,14 @@
                     </label>
                 </div>
 
+                <div class="form-group" style="display:flex; align-items:flex-start; gap:8px;">
+                    <input type="checkbox" name="grants_ai_assistant" id="input-ai" value="1" style="accent-color:#7c3aed; width:18px; height:18px; margin-top:2px;">
+                    <label for="input-ai" style="margin:0; font-size:13.5px; font-weight:850; cursor:pointer;">
+                        🤖 Gói Trợ lý AI
+                        <small style="display:block; font-weight:600; color:#64748b;">Mua gói này để tài khoản được dùng Trợ lý AI tra cứu kết quả và mở bài. Hạn gói là số ngày Trợ lý AI còn dùng được, không ảnh hưởng hạn học tập.</small>
+                    </label>
+                </div>
+
                 <div style="display:flex; justify-content:flex-end; gap:10px; margin-top:20px;">
                     <button type="button" class="action-btn" style="background:#f1f5f9; color:#475569;" onclick="closePackageModal()">Hủy</button>
                     <button type="submit" class="action-btn btn-primary-pkg" id="modal-submit-btn">Lưu Gói Dịch Vụ</button>
@@ -661,6 +469,7 @@
             document.getElementById('input-desc').value = '';
             document.getElementById('input-features').value = '';
             document.getElementById('input-active').checked = true;
+            document.getElementById('input-ai').checked = false;
 
             document.querySelectorAll('.pkg-level-checkbox').forEach(cb => cb.checked = false);
 
@@ -691,6 +500,7 @@
             }
 
             document.getElementById('input-active').checked = pkg.is_active;
+            document.getElementById('input-ai').checked = !!pkg.grants_ai_assistant;
 
             document.querySelectorAll('.pkg-level-checkbox').forEach(cb => {
                 cb.checked = levelIds.includes(parseInt(cb.value));

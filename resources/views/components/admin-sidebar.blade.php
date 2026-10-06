@@ -227,6 +227,9 @@
                         <span class="sub-icon">📦</span> <span class="nav-text">Danh Mục Gói Dịch Vụ</span>
                     </a>
                 @endif
+                <a href="{{ route('admin.ai-assistant.index') }}" class="nav-sub-item {{ request()->routeIs('admin.ai-assistant.*') ? 'on' : '' }}" title="Quản lý gói Trợ lý AI và tài khoản đang dùng AI">
+                    <span class="sub-icon">🤖</span> <span class="nav-text">Trợ Lý AI</span>
+                </a>
                 <a href="{{ route('pricing.index') }}" target="_blank" class="nav-sub-item" title="Xem bảng giá công khai của khách hàng">
                     <span class="sub-icon">🌐</span> <span class="nav-text">Xem Bảng Giá Khách ↗</span>
                 </a>
