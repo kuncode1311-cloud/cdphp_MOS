@@ -284,6 +284,9 @@ Route::match(['get', 'post'], '/api/stringee/answer', [SupportCallController::cl
 Route::post('/api/stringee/event', [SupportCallController::class, 'event'])->name('stringee.event');
 
 // Tài liệu API: Swagger UI tại /docs/api, file OpenAPI tại /docs/api.json (chỉ Quản trị viên tổng; khách chưa đăng nhập được chuyển tới trang đăng nhập)
+// Trang chờ của tab dùng chung cho trợ lý giọng nói (khi chưa có trang nào cần mở)
+Route::get('/tro-ly/dang-cho', fn () => view('tro-ly.dang-cho'))->name('tro-ly.cho');
+
 Route::get('/docs/api', fn () => view('docs.swagger'))
     ->middleware(['web', 'auth', 'can:viewApiDocs'])
     ->name('docs.swagger');
