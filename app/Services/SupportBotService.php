@@ -37,7 +37,9 @@ class SupportBotService
     /** Tìm lại tài khoản bằng câu hỏi xác minh: đủ thoải mái để sửa thông tin, vẫn chống dò tài khoản hàng loạt. */
     private const FIND_MAX_ATTEMPTS = 3;
     private const FIND_LOCK_MINUTES = 10;
-    /** Số lượt AI tối đa trong một giờ cho mỗi cuộc trò chuyện và mỗi IP; nới rộng để test trợ lý thoải mái hơn. */
+    /** Bật/tắt giới hạn lượt AI. Đang tắt để chat thoải mái (không giới hạn); đặt true để bật lại. */
+    private const AI_LIMIT_ENABLED = false;
+    /** Số lượt AI tối đa trong một giờ cho mỗi cuộc trò chuyện và mỗi IP (chỉ có hiệu lực khi AI_LIMIT_ENABLED = true). */
     private const AI_LIMIT_CONVERSATION = 50;
     private const AI_LIMIT_IP = 300;
     /** Thời gian bot ghi nhớ yêu cầu gặp người thật trong một cuộc trò chuyện */
@@ -1043,9 +1045,13 @@ class SupportBotService
         ];
     }
 
-    /** Giới hạn chi phí: tối đa AI_LIMIT_CONVERSATION lượt/giờ mỗi cuộc và AI_LIMIT_IP lượt/giờ mỗi IP. */
+    /** Giới hạn chi phí (khi bật): tối đa AI_LIMIT_CONVERSATION lượt/giờ mỗi cuộc và AI_LIMIT_IP lượt/giờ mỗi IP. */
     private function aiBudgetAvailable(Request $request, SupportMessage $msg): bool
     {
+        if (! self::AI_LIMIT_ENABLED) {
+            return true;
+        }
+
         [$convKey, $ipKey] = $this->budgetKeys($request, $msg);
 
         return (int) Cache::get($convKey, 0) < self::AI_LIMIT_CONVERSATION
@@ -1054,6 +1060,10 @@ class SupportBotService
 
     private function countAiUse(Request $request, SupportMessage $msg): void
     {
+        if (! self::AI_LIMIT_ENABLED) {
+            return;
+        }
+
         foreach ($this->budgetKeys($request, $msg) as $key) {
             Cache::add($key, 0, now()->addHour());
             Cache::increment($key);
