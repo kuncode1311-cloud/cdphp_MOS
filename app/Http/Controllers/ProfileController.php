@@ -97,6 +97,42 @@ class ProfileController extends Controller
     /**
      * Cập nhật địa chỉ Email của tài khoản người dùng
      */
+    /**
+     * Cập nhật số điện thoại / Zalo (học sinh nhỏ: SĐT phụ huynh). SĐT dùng để xác minh chính chủ nên cần mật khẩu hiện tại.
+     */
+    public function updatePhone(Request $request): JsonResponse
+    {
+        $user = $request->user();
+        abort_unless($user, 401);
+
+        $request->merge(['phone' => \App\Models\SupportMessage::normalizePhone((string) $request->input('phone')) ?? trim((string) $request->input('phone'))]);
+        $validated = $request->validate([
+            'phone' => ['required', 'string', 'regex:/^0[0-9]{9}$/'],
+            'current_password' => ['required', 'string'],
+        ], [
+            'phone.required' => 'Vui lòng nhập số điện thoại.',
+            'phone.regex' => 'Số điện thoại không hợp lệ (10 chữ số, ví dụ 0912345678).',
+            'current_password.required' => 'Vui lòng nhập mật khẩu hiện tại để xác nhận.',
+        ]);
+
+        if (! Hash::check($validated['current_password'], $user->password)) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Mật khẩu hiện tại chưa chính xác.',
+                'errors' => ['current_password' => ['Mật khẩu hiện tại chưa chính xác.']],
+            ], 422);
+        }
+
+        $user->phone = $validated['phone'];
+        $user->save();
+
+        return response()->json([
+            'success' => true,
+            'message' => "Đã cập nhật số điện thoại: {$user->phone}",
+            'phone' => $user->phone,
+        ]);
+    }
+
     public function updateEmail(Request $request): JsonResponse
     {
         $user = $request->user();

@@ -1707,6 +1707,10 @@
                         📧 <b id="user-email-text">{{ auth()->user()->email }}</b>
                         <button type="button" class="btn-edit-email-mini" onclick="promptUpdateEmail()" title="Bấm để đổi sang Email thật nhận mã OTP">✏️ Đổi</button>
                     </span>
+                    <span class="user-profile-email-tag" title="Số điện thoại / Zalo dùng để liên hệ và xác minh khi quên tài khoản">
+                        📱 <b id="user-phone-text">{{ auth()->user()->phone ?: 'Chưa có SĐT' }}</b>
+                        <button type="button" class="btn-edit-email-mini" onclick="openPhoneModal()" title="Thêm hoặc đổi số điện thoại">✏️ Đổi</button>
+                    </span>
                 </div>
             </div>
 
@@ -1905,6 +1909,29 @@
     @endauth
 
     @auth
+    <!-- Modal Đổi Số điện thoại (dùng chung giao diện với modal đổi email) -->
+    <div id="phone-update-modal" class="email-modal-backdrop" aria-hidden="true">
+        <div class="email-modal-box">
+            <div class="email-modal-header">
+                <button type="button" class="email-modal-close" onclick="closePhoneModal()" title="Đóng">✕</button>
+                <span class="em-icon">📱</span>
+                <h3>Cập nhật Số điện thoại</h3>
+                <p>Dùng để liên hệ hỗ trợ và xác minh chính chủ khi quên tài khoản</p>
+            </div>
+            <div class="email-modal-body">
+                <label for="phone-modal-input-field" class="email-modal-label">📞 Số điện thoại / Zalo (học sinh nhỏ: SĐT phụ huynh):</label>
+                <input type="tel" id="phone-modal-input-field" class="email-modal-input" inputmode="tel" placeholder="vd: 0912345678" autocomplete="tel">
+                <label for="phone-modal-password-field" class="email-modal-label">🔐 Mật khẩu hiện tại (để xác nhận):</label>
+                <input type="password" id="phone-modal-password-field" class="email-modal-input" placeholder="Nhập mật khẩu đang dùng" autocomplete="current-password">
+                <div id="phone-modal-alert" class="email-modal-alert"></div>
+                <div class="email-modal-actions">
+                    <button type="button" class="email-modal-btn-cancel" onclick="closePhoneModal()">Hủy bỏ</button>
+                    <button type="button" id="phone-modal-btn-save" class="email-modal-btn-save" onclick="submitPhoneUpdate()"><span>✅</span> Lưu số điện thoại</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <!-- Modal Đổi Email Inline Đẹp (Thay thế prompt() xấu) -->
     <div id="email-update-modal" class="email-modal-backdrop" aria-hidden="true">
         <div class="email-modal-box">
@@ -2284,6 +2311,66 @@
                 btnSave.innerHTML = '<span>✅</span> Lưu Email Mới';
             });
         };
+
+        // ----- Đổi số điện thoại (cần mật khẩu hiện tại) -----
+        window.openPhoneModal = function() {
+            const modal = document.getElementById('phone-update-modal');
+            const current = document.getElementById('user-phone-text')?.textContent.trim() || '';
+            const input = document.getElementById('phone-modal-input-field');
+            if (!modal || !input) return;
+            input.value = /^0\d{9}$/.test(current) ? current : '';
+            document.getElementById('phone-modal-password-field').value = '';
+            const alertEl = document.getElementById('phone-modal-alert');
+            alertEl.className = 'email-modal-alert';
+            alertEl.textContent = '';
+            modal.classList.add('open');
+            modal.removeAttribute('aria-hidden');
+            setTimeout(() => input.focus(), 180);
+        };
+        window.closePhoneModal = function() {
+            const modal = document.getElementById('phone-update-modal');
+            if (modal) { modal.classList.remove('open'); modal.setAttribute('aria-hidden', 'true'); }
+        };
+        window.submitPhoneUpdate = function() {
+            const input = document.getElementById('phone-modal-input-field');
+            const password = document.getElementById('phone-modal-password-field')?.value || '';
+            const alertEl = document.getElementById('phone-modal-alert');
+            const btn = document.getElementById('phone-modal-btn-save');
+            const phone = (input?.value || '').replace(/[\s.\-()]/g, '');
+            const fail = (msg, el) => { alertEl.className = 'email-modal-alert error'; alertEl.textContent = '⚠️ ' + msg; el && el.focus(); };
+            if (!/^(0|\+?84)\d{9}$/.test(phone)) return fail('Số điện thoại gồm 10 chữ số, ví dụ 0912345678.', input);
+            if (!password) return fail('Vui lòng nhập mật khẩu hiện tại để xác nhận.', document.getElementById('phone-modal-password-field'));
+
+            btn.disabled = true;
+            btn.innerHTML = '<span>⏳</span> Đang lưu...';
+            fetch("{{ route('profile.update-phone') }}", {
+                method: 'POST',
+                headers: { 'Accept': 'application/json', 'Content-Type': 'application/json', 'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || '{{ csrf_token() }}' },
+                body: JSON.stringify({ phone, current_password: password })
+            })
+            .then(async res => {
+                const data = await res.json();
+                if (!res.ok) throw new Error(data.message || (data.errors ? Object.values(data.errors).flat()[0] : 'Không thể cập nhật số điện thoại.'));
+                return data;
+            })
+            .then(data => {
+                const el = document.getElementById('user-phone-text');
+                if (el) el.textContent = data.phone;
+                alertEl.className = 'email-modal-alert success';
+                alertEl.textContent = '✓ ' + data.message;
+                btn.innerHTML = '<span>✅</span> Đã lưu!';
+                setTimeout(() => { window.closePhoneModal(); btn.disabled = false; btn.innerHTML = '<span>✅</span> Lưu số điện thoại'; }, 1600);
+            })
+            .catch(err => {
+                alertEl.className = 'email-modal-alert error';
+                alertEl.textContent = '✕ ' + err.message;
+                btn.disabled = false;
+                btn.innerHTML = '<span>✅</span> Lưu số điện thoại';
+            });
+        };
+        document.getElementById('phone-update-modal')?.addEventListener('click', function(e) {
+            if (e.target === this) window.closePhoneModal();
+        });
 
         // Đóng modal đổi email khi bấm ra ngoài
         document.getElementById('email-update-modal')?.addEventListener('click', function(e) {

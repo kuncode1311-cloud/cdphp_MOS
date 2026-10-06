@@ -54,7 +54,8 @@ class SubscriptionService
      */
     public function activateOrder(PackageOrder $order, ?User $admin = null): bool
     {
-        return DB::transaction(function () use ($order, $admin) {
+        $newlyActivated = false;
+        $ok = DB::transaction(function () use ($order, $admin, &$newlyActivated) {
             // Khóa dòng đơn hàng: hai lần kích hoạt đồng thời (webhook gửi lặp, hoặc admin và webhook cùng lúc) không cộng hạn hai lần
             $locked = PackageOrder::query()->whereKey($order->getKey())->lockForUpdate()->first();
             if (! $locked) {
@@ -157,9 +158,20 @@ class SubscriptionService
 
             // 4. Đánh dấu đơn hàng là đã kích hoạt
             $this->markOrderActive($order, $admin);
+            $newlyActivated = true;
 
             return true;
         });
+
+        // 5. Email xác nhận (mã đơn, gói, hạn dùng, thông tin đăng nhập) gửi SAU khi đã lưu xong; lỗi gửi thư không ảnh hưởng kích hoạt
+        if ($ok && $newlyActivated) {
+            $user = $order->user()->first();
+            if ($user) {
+                \App\Services\MailDelivery::send($user, new \App\Mail\OrderActivatedMail($order->fresh(), $user->fresh()), 'xác nhận đơn hàng');
+            }
+        }
+
+        return $ok;
     }
 
     /** Đánh dấu đơn hàng đã kích hoạt, kèm ghi chú người duyệt (nếu có) */

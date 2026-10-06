@@ -10,7 +10,6 @@ use App\Models\SupportMessage;
 use App\Models\User;
 use App\Support\VietText;
 use Illuminate\Http\Request;
-use Illuminate\Mail\Mailable;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Log;
@@ -38,8 +37,6 @@ class SupportBotService
     /** Tìm lại tài khoản bằng câu hỏi xác minh: tối đa 3 lần mỗi 30 phút cho mỗi địa chỉ IP */
     private const FIND_MAX_ATTEMPTS = 3;
     private const FIND_LOCK_MINUTES = 30;
-    /** Email ảo (do giáo viên tạo tài khoản) không nhận được thư */
-    private const NO_MAIL_DOMAINS = ['student.ic3.local', 'ic3.test'];
     /** Số lượt AI tối đa trong một giờ cho mỗi cuộc trò chuyện và mỗi IP */
     private const AI_LIMIT_CONVERSATION = 10;
     private const AI_LIMIT_IP = 60;
@@ -340,12 +337,17 @@ class SupportBotService
 
         return $this->finish($msg, [
             "Câu 2: Tài khoản do **thầy/cô tạo** thì nhập **lớp** (ví dụ: 3A1).\n"
-            . 'Nếu **tự mua gói** thì nhập **mã đơn hàng** (dạng MOS-202610-ABCDE, có trong nội dung chuyển khoản hoặc biên nhận thanh toán).',
+            . 'Nếu **tự mua gói** thì nhập **mã đơn hàng** (dạng MOS-202610-ABCDE, có trong email xác nhận hoặc nội dung chuyển khoản) hoặc **số điện thoại** đã đăng ký.',
         ], false, true);
     }
 
     private function stepFindClass(Request $request, SupportMessage $msg, array $flow, string $input): array
     {
+        // Số điện thoại đã đăng ký + họ tên khớp đúng một tài khoản
+        $phone = \App\Models\SupportMessage::normalizePhone(preg_replace('/[^0-9+]/', '', $input));
+        if ($phone !== null) {
+            return $this->revealOrFail($request, $msg, $this->findByPhone((string) ($flow['name'] ?? ''), $phone));
+        }
         // Tự mua gói: mã đơn hàng chỉ người mua biết, đủ để xác minh cùng họ tên (không cần hỏi giáo viên)
         if (preg_match('/MOS[\s-]*(\d{6})[\s-]*([A-Z0-9]{5,8})/i', $input, $m)) {
             return $this->revealOrFail($request, $msg, $this->findByOrder((string) ($flow['name'] ?? ''), 'MOS-' . $m[1] . '-' . strtoupper($m[2])));
@@ -376,13 +378,13 @@ class SupportBotService
             $this->saveFlow($request, ['step' => 'find_name']);
 
             return $this->finish($msg, [
-                'Thông tin chưa khớp với tài khoản nào. Bạn kiểm tra lại họ tên (có dấu), lớp và tên thầy/cô hoặc mã đơn hàng rồi thử lại nhé (còn ' . (self::FIND_MAX_ATTEMPTS - $attempts) . ' lần).',
+                'Thông tin chưa khớp với tài khoản nào. Bạn kiểm tra lại họ tên (có dấu), lớp và tên thầy/cô, mã đơn hàng hoặc số điện thoại rồi thử lại nhé (còn ' . (self::FIND_MAX_ATTEMPTS - $attempts) . ' lần).',
                 'Câu 1: **Họ và tên đầy đủ** của học sinh là gì?',
             ], false, true);
         }
 
         $teacher = $user->teacher?->name;
-        if (! $this->hasRealEmail($user)) {
+        if (! $user->hasDeliverableEmail()) {
             return $this->endRecovery($request, $msg,
                 'Mình tìm thấy tài khoản rồi: ' . ($user->student_code ? "em đăng nhập bằng **Mã HS {$user->student_code}**. " : '')
                 . 'Tài khoản này chưa có email nhận thư nên chưa tự đổi mật khẩu được: em nhờ '
@@ -392,7 +394,8 @@ class SupportBotService
         $this->saveFlow($request, ['step' => 'confirm', 'user_id' => $user->id]);
 
         return $this->finish($msg, [
-            'Mình tìm thấy tài khoản rồi! 🎉 ' . ($user->student_code ? "Mã HS của em là **{$user->student_code}**, " : '') . 'email đăng ký là **' . $this->maskEmail($user->email) . '**.',
+            'Mình tìm thấy tài khoản rồi! 🎉 ' . ($user->student_code ? "Mã HS của em là **{$user->student_code}**, " : '') . 'email đăng ký là **' . $this->maskEmail($user->email) . '**'
+                . ($user->phone ? ', số điện thoại **' . $user->maskedPhone() . '**' : '') . '.',
             'Để xác nhận đúng là bạn, hãy nhập **đầy đủ** địa chỉ email đó để nhận mã OTP.',
         ], false, true);
     }
@@ -424,6 +427,15 @@ class SupportBotService
         return $matches->count() === 1 ? $matches->first() : null;
     }
 
+    /** Họ tên + SĐT đã đăng ký khớp đúng một tài khoản (không nhận tài khoản quản trị) */
+    private function findByPhone(string $name, string $phone): ?User
+    {
+        $matches = User::where('phone', $phone)->where('role', '!=', 'admin')->get()
+            ->filter(fn (User $u) => VietText::norm($u->name) === VietText::norm($name));
+
+        return $matches->count() === 1 ? $matches->first() : null;
+    }
+
     /** Người mua gói: mã đơn hàng đúng và họ tên khớp chủ đơn (không nhận tài khoản quản trị) */
     private function findByOrder(string $name, string $code): ?User
     {
@@ -433,13 +445,6 @@ class SupportBotService
         }
 
         return $user;
-    }
-
-    private function hasRealEmail(User $user): bool
-    {
-        $domain = mb_strtolower((string) substr(strrchr((string) $user->email, '@'), 1));
-
-        return $domain !== '' && ! in_array($domain, self::NO_MAIL_DOMAINS, true) && ! str_ends_with($domain, '.local') && ! str_ends_with($domain, '.test');
     }
 
     private function findKey(Request $request): string
@@ -568,52 +573,17 @@ class SupportBotService
 
     private function sendOtpMail(User $user, string $otp): bool
     {
-        return $this->deliver($user, new PasswordResetOtpMail($otp, $user), 'OTP');
+        return MailDelivery::send($user, new PasswordResetOtpMail($otp, $user), 'OTP');
     }
 
     private function sendChangedAlert(User $user, Request $request): void
     {
-        $this->deliver($user, new PasswordChangedAlertMail(
+        MailDelivery::send($user, new PasswordChangedAlertMail(
             $user,
             now()->format('H:i:s d/m/Y'),
             (string) $request->ip(),
             (string) $request->userAgent(),
         ), 'cảnh báo đổi mật khẩu');
-    }
-
-    /**
-     * Gửi email giống các chỗ khác trong hệ thống: ưu tiên Brevo API (máy chủ thường chặn cổng SMTP), lỗi thì dùng SMTP.
-     * Chỉ trả true khi thư thật sự được gửi đi; mailer "log"/"array" chỉ ghi lại chứ không gửi nên tính là chưa gửi.
-     * Log chỉ ghi loại lỗi, không ghi mã OTP hay địa chỉ email.
-     */
-    private function deliver(User $user, Mailable $mail, string $kind): bool
-    {
-        if (BrevoMailService::isConfigured()) {
-            try {
-                if (BrevoMailService::send($user->email, $user->name, (string) $mail->envelope()->subject, $mail->render())) {
-                    return true;
-                }
-            } catch (\Throwable $e) {
-                Log::warning("SupportBot: gửi email {$kind} qua Brevo API thất bại (" . $e::class . "), thử SMTP.");
-            }
-        }
-
-        $mailer = (string) config('mail.default');
-        if (in_array($mailer, ['log', 'array'], true)) {
-            Log::error("SupportBot: chưa cấu hình gửi email thật (Brevo API lỗi/thiếu, MAIL_MAILER={$mailer}), không gửi được email {$kind} cho user #{$user->id}");
-
-            return false;
-        }
-
-        try {
-            Mail::to($user->email)->send($mail);
-
-            return true;
-        } catch (\Throwable $e) {
-            Log::error("SupportBot: gửi email {$kind} thất bại (" . $e::class . ") cho user #{$user->id}");
-
-            return false;
-        }
     }
 
     // =========================================================================
