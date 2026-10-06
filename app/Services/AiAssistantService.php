@@ -42,7 +42,13 @@ class AiAssistantService
             return null;
         }
 
-        return $this->parseReply($raw, $actions);
+        return $this->parseReply($raw, $actions, (string) end($turns)['text']);
+    }
+
+    /** Khách nói rõ muốn mở/vào/chuyển trang (kể cả gõ sai như "mo tang"): tự mở ngay, không chờ bấm nút. */
+    private function asksToOpen(string $text): bool
+    {
+        return (bool) preg_match('/\b(m[oở]|vào|vao|chuyển|chuyen|sang|đưa|dua|tới|toi|open|làm\s*bài|lam\s*bai)\b/iu', $text);
     }
 
     /**
@@ -159,6 +165,11 @@ class AiAssistantService
         }
         if ($user->canAccessAdmin()) {
             $actions['quan_tri'] = ['label' => 'Trang quản trị', 'url' => route('admin.dashboard')];
+        }
+
+        // Mỗi khối lớp là một trang riêng (ví dụ "khối 3"), lấy từ CSDL
+        foreach (Level::orderBy('grade')->orderBy('position')->limit(20)->get() as $level) {
+            $actions['khoi_' . $level->id] = ['label' => "Khối {$level->grade} «{$level->name}»", 'url' => route('levels.show', $level)];
         }
 
         foreach ($this->pendingTests($user) as $test) {
@@ -367,7 +378,7 @@ class AiAssistantService
      *
      * @return array{text: string, action: ?array{label: string, url: string, auto?: bool}}
      */
-    private function parseReply(string $raw, array $actions): array
+    private function parseReply(string $raw, array $actions, string $userText): array
     {
         $decoded = json_decode(trim(preg_replace('/^```(?:json)?\s*|\s*```$/m', '', $raw)), true);
 
@@ -382,7 +393,8 @@ class AiAssistantService
         $id = $decoded['action'] ?? null;
         $action = is_string($id) && isset($actions[$id]) ? $actions[$id] : null;
         if ($action !== null) {
-            $action['auto'] = (bool) ($decoded['auto'] ?? false);
+            // AI quyết định auto, nhưng nếu khách đã nói rõ "mở/vào trang" thì vẫn tự mở
+            $action['auto'] = (bool) ($decoded['auto'] ?? false) || $this->asksToOpen($userText);
         }
 
         return ['text' => trim($decoded['reply']), 'action' => $action];
