@@ -201,7 +201,8 @@ class SupportBotService
         // Chỉ bắt câu hỏi về dữ liệu của người hỏi (kết quả, bài đã làm, tiến độ), không bắt câu hỏi chung như "cách làm bài thi"
         return (bool) preg_match(
             '/k[eêế]t\s*qu[aả]|ti[eế]n\s*độ|(đ[aã]|ch[uư]a|r[oồ]i)\s*l[aà]m\s*(b[aà]i|đ[eề])|l[aà]m\s*(b[aà]i|đ[eề])\s*(n[aà]o|g[iì]|ch[uư]a|r[oồ]i)'
-            . '|đi[eể]m\s*(c[uủ]a|s[oố])\s*(t[oô]i|con|em|m[iì]nh)|con\s*(t[oô]i|m[iì]nh)|h[oọ]c\s*sinh\s*c[uủ]a|t[eệ]\s*nh[aấ]t|gi[oỏ]i\s*nh[aấ]t/iu',
+            . '|đi[eể]m\s*(c[uủ]a|s[oố])\s*(t[oô]i|con|em|m[iì]nh)|con\s*(t[oô]i|m[iì]nh)|h[oọ]c\s*sinh\s*c[uủ]a|t[eệ]\s*nh[aấ]t|gi[oỏ]i\s*nh[aấ]t'
+            . '|g[oó]i\s*(c[uủ]a|đang\s*d[uù]ng|hi[eệ]n\s*t[aạ]i)|h[aạ]n\s*(d[uù]ng|g[oó]i)|t[aà]i\s*kho[aả]n\s*(c[uủ]a|t[oô]i|m[iì]nh)|qu[aả]n\s*l[yý]|quan\s*ly/iu',
             $text
         );
     }

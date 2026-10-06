@@ -60,8 +60,17 @@ class AiAssistantService
                 'ten' => $user->name,
                 'vai_tro' => $this->roleLabel($user),
                 'ma_hoc_sinh' => $user->student_code,
+                'email' => $this->maskEmail($user->email),
+                'so_dien_thoai' => $user->maskedPhone(),
+                'trang_thai' => $user->status ?? 'active',
             ],
-            'het_han_tro_ly_ai' => $user->ai_assistant_until?->setTimezone($tz)->format('d/m/Y'),
+            'goi_dang_dung' => $this->accountPackage($user, $tz),
+            'quyen_truy_cap' => [
+                'goi_he_thong_con_hieu_luc' => $user->isSubscriptionActive(),
+                'ly_do_bi_chan' => $user->subscriptionBlockedMessage(),
+                'tro_ly_ai_con_han' => $user->hasAiAssistant(),
+                'het_han_tro_ly_ai' => $user->ai_assistant_until?->setTimezone($tz)->format('d/m/Y'),
+            ],
         ];
 
         if ($user->isAdmin()) {
@@ -83,10 +92,51 @@ class AiAssistantService
             ->all();
 
         if ($user->isTeacher()) {
+            $data['quan_ly_hoc_sinh'] = [
+                'so_hoc_sinh_hien_co' => $user->students()->count(),
+                'han_muc_hoc_sinh' => (int) $user->max_students,
+                'con_tao_duoc_them' => $user->max_students ? $user->remainingStudentSlots() : 'khong_gioi_han',
+                'cac_lop_dang_phu_trach' => $user->teachingClassrooms()->orderBy('name')->pluck('name')->values()->all(),
+                'cac_khoi_duoc_cap' => $user->teacherLevels()->orderBy('position')->pluck('name')->values()->all(),
+            ];
             $data['hoc_sinh_cua_toi'] = $this->studentsOf($user, $tz);
         }
 
         return $data;
+    }
+
+    /**
+     * Tóm tắt gói/hạn dùng theo dữ liệu tài khoản, để AI trả lời được câu hỏi "gói của tôi",
+     * "hạn dùng", "quản lý được bao nhiêu học sinh" mà không phải đoán.
+     *
+     * @return array<string, mixed>
+     */
+    private function accountPackage(User $user, string $tz): array
+    {
+        $snapshot = $user->accountSnapshot();
+
+        return [
+            'ten_goi' => $snapshot['package'],
+            'het_han' => $user->expires_at?->setTimezone($tz)->format('d/m/Y') ?? $snapshot['expires'],
+            'ke_thua_tu_giao_vien' => (bool) ($snapshot['inherited'] ?? false),
+            'giao_vien_quan_ly' => $snapshot['teacher'] ?? null,
+            'don_dang_cho_thanh_toan' => $snapshot['pending_package'] ?? null,
+            'so_hoc_sinh_quan_ly' => $snapshot['students'] ?? null,
+            'han_muc_hoc_sinh' => $snapshot['max_students'] ?? null,
+        ];
+    }
+
+    private function maskEmail(?string $email): ?string
+    {
+        $email = trim((string) $email);
+        if ($email === '' || ! str_contains($email, '@')) {
+            return null;
+        }
+
+        [$name, $domain] = explode('@', $email, 2);
+        $prefix = mb_substr($name, 0, 2);
+
+        return $prefix . str_repeat('•', max(3, mb_strlen($name) - 2)) . '@' . $domain;
     }
 
     /**
