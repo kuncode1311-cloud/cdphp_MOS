@@ -261,6 +261,7 @@ class SupportBotService
             'Nếu khách quên mật khẩu, hướng dẫn họ bấm/mở trang Quên mật khẩu hoặc gõ "quên mật khẩu" để bot xử lý từng bước.',
             'Không viết URL thô như mos.app/... trong nội dung trả lời. Nếu cần mở trang, hãy nói "bấm nút bên dưới" hoặc nêu tên trang.',
             'Khi tư vấn thanh toán: PayOS là QR thanh toán online, hệ thống tự kích hoạt gói sau khi thanh toán thành công; chuyển khoản thủ công/VietQR thì cần Ban Quản Trị kiểm tra và duyệt.',
+            'Khách chưa đăng nhập vẫn được tư vấn và hỗ trợ: xem/chọn gói, đăng ký và thuê gói ngay ở Bảng giá, thanh toán, kiểm tra đơn, quên mật khẩu, đăng nhập, liên hệ hỗ trợ. Các trang học chỉ dành cho tài khoản đã đăng nhập, nên hướng dẫn đăng nhập trước khi vào.',
             '',
             '=== TÀI LIỆU HỖ TRỢ ===',
             $this->faq(),
