@@ -134,7 +134,11 @@ class SupportMessage extends Model
         ];
         if ($action) {
             // Nút hành động của Trợ lý AI (mở trang, làm bài): chỉ lưu nhãn và đường dẫn do máy chủ tạo
-            $history[array_key_last($history)]['action'] = ['label' => (string) $action['label'], 'url' => (string) $action['url']];
+            $history[array_key_last($history)]['action'] = [
+                'label' => (string) $action['label'],
+                'url' => (string) $action['url'],
+                'auto' => (bool) ($action['auto'] ?? false),
+            ];
         }
         if ($image) {
             $history[array_key_last($history)]['image'] = $image; // Đường dẫn ảnh đã lưu trên máy chủ

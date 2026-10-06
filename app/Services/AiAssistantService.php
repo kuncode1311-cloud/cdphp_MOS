@@ -31,7 +31,7 @@ class AiAssistantService
      * Trả lời một tin nhắn của thành viên có gói Trợ lý AI.
      *
      * @param  array<int, array{role: string, text: string}>  $turns  Hội thoại gần nhất, lượt cuối là của khách
-     * @return array{text: string, action: ?array{label: string, url: string}}|null  null nếu AI không phản hồi
+     * @return array{text: string, action: ?array{label: string, url: string, auto?: bool}}|null  null nếu AI không phản hồi
      */
     public function answer(User $user, array $turns, string $faq): ?array
     {
@@ -295,10 +295,11 @@ class AiAssistantService
             '- Điểm tính theo thang 1000. Bài đạt khi điểm lớn hơn hoặc bằng điểm chuẩn của bài.',
             '- Không bao giờ yêu cầu hay tiết lộ mật khẩu hoặc mã OTP.',
             '- Khi khách muốn mở trang hoặc làm bài, chọn một mã trong mục HÀNH ĐỘNG. Nếu không cần thao tác, chọn null.',
+            '- Trường auto chỉ được true khi khách nói rõ muốn mở/chuyển/vào trang hoặc làm bài ngay. Nếu chỉ tư vấn/gợi ý thì auto là false.',
             '- Trả lời như đang chat tư vấn: thường 1-3 câu; nếu cần liệt kê thì dùng tối đa 3 gạch đầu dòng. Không lặp lời chào khi đang trong cuộc trò chuyện.',
             '',
             'ĐỊNH DẠNG TRẢ LỜI: chỉ trả về một JSON duy nhất, không có chữ nào khác, theo mẫu:',
-            '{"reply": "nội dung trả lời cho khách", "action": "mã hành động hoặc null"}',
+            '{"reply": "nội dung trả lời cho khách", "action": "mã hành động hoặc null", "auto": false}',
             '',
             '=== TÀI LIỆU HỖ TRỢ ===',
             $faq,
@@ -314,7 +315,7 @@ class AiAssistantService
     /**
      * Đọc JSON từ AI. Nếu AI trả về chữ thường hoặc JSON hỏng thì dùng nguyên văn làm câu trả lời, không chọn hành động.
      *
-     * @return array{text: string, action: ?array{label: string, url: string}}
+     * @return array{text: string, action: ?array{label: string, url: string, auto?: bool}}
      */
     private function parseReply(string $raw, array $actions): array
     {
@@ -330,6 +331,9 @@ class AiAssistantService
 
         $id = $decoded['action'] ?? null;
         $action = is_string($id) && isset($actions[$id]) ? $actions[$id] : null;
+        if ($action !== null) {
+            $action['auto'] = (bool) ($decoded['auto'] ?? false);
+        }
 
         return ['text' => trim($decoded['reply']), 'action' => $action];
     }

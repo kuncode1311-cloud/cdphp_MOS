@@ -143,19 +143,19 @@ class SupportBotService
         if ($this->looksLikePricingQuestion($text)) {
             $reply = $this->agentReplyForGate($text, 'Khách đang quan tâm mua hoặc xem gói bản quyền. Tư vấn ngắn gọn: PayOS là QR thanh toán online và tự kích hoạt gói sau khi thanh toán thành công; chuyển khoản thủ công thì chờ Ban Quản Trị duyệt. Mời bấm nút bên dưới để xem bảng giá, không viết URL thô.');
 
-            return ['text' => $reply, 'action' => ['label' => 'Xem bảng giá', 'url' => route('pricing.index')]];
+            return ['text' => $reply, 'action' => ['label' => 'Xem bảng giá', 'url' => route('pricing.index'), 'auto' => $this->wantsAutoOpen($text)]];
         }
 
         // Hỏi về tài khoản/kết quả nhưng chưa có quyền: hướng dẫn đăng nhập hoặc mua gói, không tra dữ liệu
         if ($asksAccount && ! $user) {
             $reply = $this->agentReplyForGate($text, 'Khách chưa đăng nhập nên chưa thể tra cứu dữ liệu cá nhân. Hãy mời khách đăng nhập để mình xem kết quả và tiến độ học tập.');
 
-            return ['text' => $reply, 'action' => ['label' => 'Đăng nhập', 'url' => route('login')]];
+            return ['text' => $reply, 'action' => ['label' => 'Đăng nhập', 'url' => route('login'), 'auto' => $this->wantsAutoOpen($text)]];
         }
         if ($asksAccount && ! $user->hasAiAssistant()) {
             $reply = $this->agentReplyForGate($text, 'Tài khoản chưa có gói Trợ lý AI còn hạn nên chưa thể tra cứu dữ liệu học tập tự động. Hãy giải thích ngắn gọn và mời xem gói.');
 
-            return ['text' => $reply, 'action' => ['label' => 'Xem gói Trợ lý AI', 'url' => route('pricing.index')]];
+            return ['text' => $reply, 'action' => ['label' => 'Xem gói Trợ lý AI', 'url' => route('pricing.index'), 'auto' => $this->wantsAutoOpen($text)]];
         }
 
         $turns = $this->turnsFrom($msg);
@@ -209,6 +209,11 @@ class SupportBotService
     private function looksLikePricingQuestion(string $text): bool
     {
         return (bool) preg_match('/mua\s*g[oó]i|thu[eê]\s*g[oó]i|b[aả]ng\s*gi[aá]|gi[aá]\s*(g[oó]i|bao\s*nhi[eê]u)|thanh\s*to[aá]n|payos|vietqr|đăng\s*k[yý]\s*g[oó]i|dang\s*ky\s*goi/iu', $text);
+    }
+
+    private function wantsAutoOpen(string $text): bool
+    {
+        return (bool) preg_match('/m[oơở]\s*|open|v[aà]o\s*|chuy[eể]n\s*|đưa\s*|dua\s*|t[oớ]i\s*|sang\s*|l[aà]m\s*b[aà]i/iu', $text);
     }
 
     private function agentReplyForGate(string $text, string $policy): string
