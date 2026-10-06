@@ -3,6 +3,7 @@
 @section('title', 'Sổ Tay Câu Sai & Phục Thù — IC3 Adventure')
 
 @section('content')
+<div id="so-tay-app">
 <div class="adventure-world-wrapper">
     <div class="page-wrap" style="width: min(1140px, 100%);">
         <x-staff-preview-notice />
@@ -111,7 +112,7 @@
             <!-- Nhóm Chủ đề: chỉ hiện các chủ đề của khối đang chọn -->
             <div class="filter-group">
                 <span class="filter-group-label">📚 Chủ đề:</span>
-                <select class="topic-select" aria-label="Chọn chủ đề" onchange="if (this.value) window.location.href = this.value;">
+                <select class="topic-select" aria-label="Chọn chủ đề">
                     <option value="{{ route('mistakes.index', array_merge(request()->query(), ['topic' => 'all'])) }}" {{ $selectedTopic === 'all' ? 'selected' : '' }}>
                         Tất cả chủ đề ({{ $topicCounts->sum() }} câu)
                     </option>
@@ -718,4 +719,55 @@
         }
     }
 </style>
+</div>
+
+<style>
+    #so-tay-app { transition: opacity .2s ease; }
+    #so-tay-app.is-loading { opacity: .55; pointer-events: none; }
+</style>
+<script>
+    // Đổi bộ lọc (khối, chủ đề, trạng thái) chỉ thay phần danh sách, không tải lại cả trang
+    (function () {
+        const app = document.getElementById('so-tay-app');
+        if (!app) return;
+
+        async function go(url, push) {
+            app.classList.add('is-loading');
+            try {
+                const res = await fetch(url, { headers: { 'Accept': 'text/html' } });
+                if (!res.ok) throw new Error('HTTP ' + res.status);
+                const doc = new DOMParser().parseFromString(await res.text(), 'text/html');
+                const next = doc.getElementById('so-tay-app');
+                if (!next) { window.location.href = url; return; }
+                app.innerHTML = next.innerHTML;
+                // Chạy lại các script nằm trong vùng vừa thay (ví dụ nút "Xem thêm")
+                app.querySelectorAll('script').forEach(function (old) {
+                    const s = document.createElement('script');
+                    s.textContent = old.textContent;
+                    old.replaceWith(s);
+                });
+                if (push) history.pushState({ url: url }, '', url);
+            } catch (e) {
+                window.location.href = url;
+            } finally {
+                app.classList.remove('is-loading');
+            }
+        }
+
+        app.addEventListener('click', function (e) {
+            const a = e.target.closest('a.filter-pill');
+            if (!a || !a.href || a.target) return;
+            e.preventDefault();
+            go(a.href, true);
+        });
+
+        app.addEventListener('change', function (e) {
+            if (e.target.matches('select.topic-select') && e.target.value) {
+                go(e.target.value, true);
+            }
+        });
+
+        window.addEventListener('popstate', function () { go(location.href, false); });
+    })();
+</script>
 @endsection
