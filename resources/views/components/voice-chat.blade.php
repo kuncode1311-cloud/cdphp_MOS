@@ -133,6 +133,11 @@
     .vc-quizpane .vc-quiz { width: 100%; align-self: stretch; }
     button.vc-opt { width: 100%; text-align: left; font-family: inherit; color: #1e1b4b; cursor: pointer; }
     button.vc-opt:hover { border-color: #7c3aed; background: #ede9fe; }
+    /* Đáp án như nút game 3D: nổi lên khi di chuột, lún xuống khi bấm */
+    button.vc-opt { border-width: 3px; box-shadow: 0 5px 0 #c4b5fd; transition: transform .12s, box-shadow .12s, background .2s, border-color .2s; }
+    button.vc-opt:hover { transform: translateY(-2px); box-shadow: 0 7px 0 #c4b5fd; }
+    button.vc-opt:active { transform: translateY(3px); box-shadow: 0 2px 0 #c4b5fd; }
+    .vc-quiz-tip { padding: 6px 16px 4px; }
     .vc-opt.sel { border-color: #7c3aed; background: #ddd6fe; }
     .vc-opt.sel b { background: #5b21b6; }
     .vc-quiz.done .vc-opt { pointer-events: none; }
@@ -180,8 +185,10 @@
     .vc-quizmode .vc-panel { width: auto; min-height: 0; }
     /* Căn thẻ vào giữa theo chiều dọc; thẻ cao hơn khung thì cuộn bình thường, không bị cắt */
     .vc-quizmode .vc-quizpane { display: flex; flex-direction: column; }
-    .vc-quizmode .vc-quizpane .vc-quiz { margin: 0; flex: 1 0 auto; display: flex; flex-direction: column; }
-    .vc-quizmode .vc-quiz-foot { margin-top: auto; }
+    .vc-quizmode .vc-quizpane .vc-quiz { margin: 0; flex: 0 0 auto; display: flex; flex-direction: column; }
+    .vc-quizmode .vc-quiz-foot { margin-top: 0; }
+    /* Khung câu hỏi gọn hơn: rộng vừa phải, cao theo nội dung, không kéo dài cả vùng trò chuyện */
+    .vc-quizmode .vc-quizpane { width: min(100%, 860px); align-self: center; flex: 0 1 auto; max-height: 60vh; }
     .vc-quizmode .vc-opts { align-content: start; }
     /* Thanh cuộn mảnh, bo tròn; luôn chừa chỗ cho nó để thẻ không bị co lại và giật khi nội dung dài ra */
     .vc-quizpane, .vc-log { scrollbar-width: thin; scrollbar-color: rgba(255,255,255,0.35) transparent; }
@@ -954,7 +961,7 @@
             l.textContent = (source === 'cau_sai' ? '🔁 Ôn câu từng sai' : '📝 Câu hỏi luyện tập') + (q.topic ? ' · ' + q.topic : '');
             head.appendChild(l);
             // Cô đang đọc đề: em bấm để bỏ qua phần đọc và làm luôn (không phải đợi cô đọc hết)
-            var skip = document.createElement('button'); skip.type = 'button'; skip.className = 'vc-skip'; skip.textContent = '⏭️ Bỏ qua phần đọc';
+            var skip = document.createElement('button'); skip.type = 'button'; skip.className = 'vc-skip'; skip.textContent = '⏭️ Bỏ qua đọc, chọn ngay'; skip.title = 'Bỏ qua phần cô đọc câu hỏi và chọn đáp án ngay';
             skip.addEventListener('click', function () { voiceChatTapOrb(); });
             head.appendChild(skip);
             card.appendChild(head);
