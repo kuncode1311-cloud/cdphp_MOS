@@ -144,6 +144,23 @@
 
             {{-- ============ TAB TÀI KHOẢN ============ --}}
             <section data-section="tai-khoan">
+                <div class="ai-card">
+                    <h3>🎁 Cấp Trợ lý AI cho tài khoản</h3>
+                    <p class="hint">Dùng để tặng, cho dùng thử hoặc hỗ trợ khách. Nhập mã học sinh, email hoặc đúng họ tên. Tài khoản đang còn hạn thì được cộng thêm ngày.</p>
+                    <form method="POST" action="{{ route('admin.ai-assistant.grant') }}" class="ai-form">
+                        @csrf
+                        <div class="ai-field" style="flex:1 1 280px;">
+                            <label for="ai-grant-account">Tài khoản</label>
+                            <input id="ai-grant-account" type="text" name="account" maxlength="120" required value="{{ old('account') }}" placeholder="VD: HS001 hoặc email@..." style="width:100%;box-sizing:border-box;">
+                        </div>
+                        <div class="ai-field">
+                            <label for="ai-grant-days">Số ngày</label>
+                            <input id="ai-grant-days" type="number" name="days" min="1" max="365" value="{{ old('days', 30) }}" style="width:90px;">
+                        </div>
+                        <button class="ai-btn ai-btn-green" type="submit">🎁 Cấp quyền</button>
+                    </form>
+                </div>
+
                 <div class="ai-card" id="ai-members-card">
                     <h3>Tài khoản có quyền dùng Trợ lý AI</h3>
                     <p class="hint">Sắp hết hạn được xếp lên đầu. Thu hồi sẽ tắt quyền dùng AI ngay, hạn học tập không đổi.</p>

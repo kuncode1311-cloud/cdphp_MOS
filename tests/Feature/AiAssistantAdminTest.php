@@ -152,4 +152,36 @@ class AiAssistantAdminTest extends TestCase
             $this->actingAs($admin)->get(route('admin.ai-assistant.index', ['tab' => $tab]))->assertOk();
         }
     }
+
+    public function test_cap_tro_ly_ai_cho_tai_khoan_chua_co_theo_ma_hoc_sinh(): void
+    {
+        $admin = $this->admin();
+        $student = User::where('student_code', 'HS001')->firstOrFail();
+        $this->assertFalse($student->hasAiAssistant());
+
+        $this->actingAs($admin)->post(route('admin.ai-assistant.grant'), ['account' => 'HS001', 'days' => 30])
+            ->assertRedirect()->assertSessionHas('ok');
+
+        $this->assertTrue($student->fresh()->hasAiAssistant());
+        $this->assertTrue($student->fresh()->ai_assistant_until->between(now()->addDays(29), now()->addDays(31)));
+        $this->actingAs($admin)->get(route('admin.ai-assistant.index'))->assertSee('Cấp Trợ lý AI cho tài khoản')->assertSee($student->name);
+    }
+
+    public function test_cap_quyen_bao_loi_khi_khong_tim_thay_hoac_trung_ten(): void
+    {
+        $admin = $this->admin();
+        User::factory()->count(2)->create(['role' => 'student', 'name' => 'Trùng Tên']);
+
+        $this->actingAs($admin)->post(route('admin.ai-assistant.grant'), ['account' => 'KHONG-CO'])->assertSessionHasErrors('account');
+        $this->actingAs($admin)->post(route('admin.ai-assistant.grant'), ['account' => 'Trùng Tên'])->assertSessionHasErrors('account');
+        $this->assertSame(0, User::where('name', 'Trùng Tên')->whereNotNull('ai_assistant_until')->count());
+    }
+
+    public function test_giao_vien_khong_cap_quyen_duoc(): void
+    {
+        $this->seed();
+        $teacher = User::where('email', 'teacher@ic3.test')->firstOrFail();
+
+        $this->actingAs($teacher)->post(route('admin.ai-assistant.grant'), ['account' => 'HS001'])->assertForbidden();
+    }
 }
