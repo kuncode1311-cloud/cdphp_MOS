@@ -209,6 +209,17 @@
     .vc-ans .good { color: #15803d; }
     .vc-quizmode .vc-bar { padding: 4px 0 2px; }
     .vc-quizmode .vc-btn { padding: 8px 16px; }
+    /* Trạng thái micro/giọng nói: thẻ nhỏ rõ ràng, không bị khung khác che */
+    .vc-state { display: inline-block; align-self: center; padding: 6px 16px; border-radius: 999px; background: rgba(255,255,255,0.14); border: 2px solid rgba(255,255,255,0.28); box-shadow: 0 4px 0 rgba(0,0,0,0.18); }
+    .vc-state:empty { display: none; }
+    /* Dòng ghép cặp: thanh màu bên trái, ô chọn bo tròn, nổi nhẹ khi di chuột */
+    .vc-rowitem { border-left: 6px solid #a78bfa; box-shadow: 0 4px 0 #c4b5fd; transition: transform .12s, box-shadow .12s; }
+    .vc-rowitem:hover { transform: translateY(-1px); box-shadow: 0 5px 0 #c4b5fd; }
+    .vc-rowitem select { border-color: #7c3aed; border-radius: 12px; cursor: pointer; }
+    .vc-rowitem.ok { border-left-color: #16a34a; }
+    .vc-rowitem.bad { border-left-color: #dc2626; }
+    /* Thanh nút phía dưới không bị sát mép */
+    .vc-bar { padding-bottom: calc(14px + env(safe-area-inset-bottom, 0px)); }
     /* Thẻ gọn hơn: chữ co giãn theo màn hình, đáp án xếp 2 cột, nút luôn dính ở đáy thẻ */
     /* Không cắt nội dung ở góc bo để nút dưới đáy dính được vào khung cuộn */
     .vc-quizmode .vc-quiz { overflow: visible; }
