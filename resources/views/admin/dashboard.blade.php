@@ -2,6 +2,7 @@
 <!doctype html>
 <html lang="vi">
 <head>
+    @include('partials.page-gate')
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>Quản trị IC3 Quest — Trung tâm điều hành & Kết quả học tập</title>
@@ -3251,13 +3252,12 @@
                             <table class="user-table" style="width: 100%; border-collapse: collapse;">
                                 <thead>
                                     <tr>
-                                        <th style="width:45px; text-align:center;">#</th>
+                                        
                                         <th>TÊN GÓI & ĐẶC ĐIỂM</th>
                                         <th style="width:130px; text-align:center;">ĐỐI TƯỢNG</th>
                                         <th style="width:125px;">GIÁ BÁN</th>
                                         <th style="width:110px;">THỜI HẠN</th>
-                                        <th style="width:130px;">SĨ SỐ HỌC SINH</th>
-                                        <th style="width:135px;">KHỐI ĐƯỢC CẤP</th>
+                                        <th style="width:200px;">PHẠM VI</th>
                                         <th style="width:115px; text-align:center;">TRẠNG THÁI</th>
                                         <th style="width:140px; text-align:center; padding-right:14px;">THAO TÁC</th>
                                     </tr>
@@ -3265,9 +3265,6 @@
                                 <tbody>
                                     @forelse($packages as $pkg)
                                         <tr class="pkg-row-item" data-audience="{{ $pkg->target_audience ?? 'teacher' }}">
-                                            <td style="text-align:center;">
-                                                <span class="badge-grade" style="background:#f1f5f9; color:#475569; font-weight:800; font-size:11.5px;">#{{ $pkg->position }}</span>
-                                            </td>
                                             <td>
                                                 <div style="display:flex; align-items:center; gap:8px;">
                                                     <b style="color:#0f172a; font-size:13.5px;">{{ $pkg->name }}</b>
@@ -3311,9 +3308,7 @@
                                                         👥 Tối đa {{ $pkg->max_students ?: '∞' }} HS
                                                     </span>
                                                 @endif
-                                            </td>
-                                            <td>
-                                                <div style="display:flex; gap:4px; flex-wrap:wrap;">
+                                                <div style="display:flex; gap:4px; flex-wrap:wrap; margin-top:6px;">
                                                     @forelse($pkg->levels as $lvl)
                                                         <span class="pill-badge" style="background:#ecfdf5; color:#065f46; border:1px solid #a7f3d0; font-size:11px; font-weight:800; padding:2px 6px;">
                                                             Khối {{ $lvl->grade }}
@@ -3347,12 +3342,12 @@
                                         </tr>
                                     @empty
                                         <tr id="pkg-empty-row" style="display:none;">
-                                            <td colspan="9" style="text-align:center; padding:36px; color:#94a3b8;">
+                                            <td colspan="8" style="text-align:center; padding:36px; color:#94a3b8;">
                                                 Không có gói nào trong bộ lọc này.
                                             </td>
                                         </tr>
                                         <tr id="pkg-empty-default">
-                                            <td colspan="9" style="text-align:center; padding:36px; color:#94a3b8;">
+                                            <td colspan="8" style="text-align:center; padding:36px; color:#94a3b8;">
                                                 Chưa có gói dịch vụ nào. Bấm "+ Thêm Gói Mới" để tạo gói đầu tiên.
                                             </td>
                                         </tr>

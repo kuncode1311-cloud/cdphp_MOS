@@ -298,6 +298,9 @@ class PackageSubscriptionTest extends TestCase
      */
     public function test_user_can_submit_live_chat_support_message(): void
     {
+        // Khách vãng lai không được lưu hội thoại: chỉ thành viên đã đăng nhập mới có kênh Ban Quản Trị được lưu
+        $this->actingAs(User::factory()->create(["role" => "student"]));
+
         $response = $this->postJson(route('support.message.send'), [
             'name' => 'Cô Thu Hà',
             'contact' => '0912345999',
@@ -329,7 +332,9 @@ class PackageSubscriptionTest extends TestCase
         $firstMsg = \App\Models\SupportMessage::find($messageId);
         $this->assertStringContainsString('Em muốn đăng ký gói Tiêu Chuẩn', $firstMsg->message);
         $this->assertStringContainsString('Trường mình có 80 em học sinh nhé.', $firstMsg->message);
-        $this->assertCount(2, $firstMsg->conversation_history);
+        // Chỉ đếm lượt của khách: Trợ lý AI có thể trả lời thêm khi Admin chưa online
+        $customerTurns = array_filter($firstMsg->conversation_history, fn ($turn) => $turn['sender'] === 'user');
+        $this->assertCount(2, $customerTurns);
     }
 
     /**
@@ -338,6 +343,7 @@ class PackageSubscriptionTest extends TestCase
     public function test_multi_turn_live_chat_conversation_history_preservation_and_ordering(): void
     {
         $this->seed();
+        $this->actingAs(User::factory()->create(["role" => "student"]));
         $admin = User::where('email', 'admin@ic3.test')->firstOrFail();
 
         // 1. Khách gửi tin nhắn thứ 1: "mua gói"
@@ -378,7 +384,11 @@ class PackageSubscriptionTest extends TestCase
         // 5. Kiểm tra lịch sử trò chuyện qua API kiểm tra tin nhắn
         $checkRes = $this->getJson(route('support.message.check', ['id' => $msgId]));
         $checkRes->assertOk();
-        $history = $checkRes->json('conversation_history');
+        // Bỏ lượt của Trợ lý AI (nếu có) để kiểm tra đúng thứ tự giữa Khách và Admin
+        $history = array_values(array_filter(
+            $checkRes->json('conversation_history'),
+            fn ($turn) => $turn['sender'] !== 'bot'
+        ));
 
         $this->assertIsArray($history);
         $this->assertCount(4, $history);

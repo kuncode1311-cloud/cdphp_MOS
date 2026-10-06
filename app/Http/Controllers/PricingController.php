@@ -8,6 +8,7 @@ use App\Models\PackageOrder;
 use App\Models\SupportMessage;
 use App\Services\PayosService;
 use App\Services\SubscriptionService;
+use App\Services\SupportBotService;
 use App\Services\TelegramService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
@@ -421,15 +422,35 @@ class PricingController extends Controller
             'phone' => 'nullable|string|max:30',
             'email' => 'nullable|email|max:120',
             'message' => 'required|string|max:2000',
+            'channel' => 'nullable|in:ai,admin',
         ]);
 
-        // Khách chưa đăng nhập bắt buộc nhập số điện thoại/Zalo hợp lệ (10 số, bắt đầu bằng 0 hoặc +84) để Admin liên hệ lại;
-        // không nhận chuỗi linh tinh như "222". Người đã đăng nhập (học sinh, giáo viên) đã có tài khoản nên số điện thoại là tùy chọn.
+        // Hai kênh tách biệt: 'ai' (Trợ lý AI trả lời tự động) và 'admin' (Ban Quản Trị trả lời trực tiếp)
+        $channel = $data['channel'] ?? 'admin';
+        $bot = app(SupportBotService::class);
+        $incomingText = trim((string) ($data['message'] ?? ''));
+
+        // Khách vãng lai (chưa đăng nhập): chỉ chat với Trợ lý AI, không lưu hội thoại vào CSDL, không báo Telegram
+        if (! $request->user()) {
+            return $this->answerGuestSupport($request, $bot, $incomingText, $channel);
+        }
+
+        // Kênh Ban Quản Trị: khách bắt buộc nhập SĐT/Zalo hợp lệ (10 số, bắt đầu bằng 0 hoặc +84) để Admin liên hệ lại.
+        // Người đã đăng nhập đã có tài khoản nên SĐT là tùy chọn.
         $rawContact = trim((string) ($data['phone'] ?? $data['contact'] ?? ''));
         $data['phone'] = \App\Models\SupportMessage::normalizePhone($rawContact);
-        if ($data['phone'] === null && ! $request->user()) {
+        if ($channel === 'admin' && $data['phone'] === null && ! $request->user()) {
             return response()->json([
                 'message' => 'Vui lòng nhập đúng số điện thoại hoặc Zalo (10 số, ví dụ 0912345678).',
+            ], 422);
+        }
+
+        // OTP và mật khẩu mới chỉ nhập ở Trợ lý AI; không cho gửi vào kênh Ban Quản Trị (sẽ lưu và báo Telegram)
+        $secretStep = $channel === 'ai' && $bot->isSecretStep($request);
+        if ($channel === 'admin' && $bot->isSecretStep($request)) {
+            return response()->json([
+                'ok' => false,
+                'message' => 'Bạn đang khôi phục mật khẩu. Vui lòng nhập tiếp ở tab 🤖 Trợ lý AI nhé.',
             ], 422);
         }
 
@@ -451,7 +472,8 @@ class PricingController extends Controller
             }
         }
 
-        if (! $supportMsg && $request->user()) {
+        // Kênh AI luôn có cuộc riêng (theo parent_id của trình duyệt), không gắn vào cuộc chat với Admin
+        if (! $supportMsg && $request->user() && $channel === 'admin') {
             $supportMsg = SupportMessage::where('user_id', $request->user()->id)
                 ->where('status', '!=', 'closed')
                 ->where('updated_at', '>=', now()->subHours(24))
@@ -464,13 +486,16 @@ class PricingController extends Controller
             $incomingMessage = 'Khách gửi yêu cầu tư vấn gói luyện thi IC3.';
         }
 
+        // OTP và mật khẩu mới không được lưu nguyên văn vào hội thoại
+        $storedMessage = $secretStep ? '🔒 (Đã ẩn để bảo mật)' : $incomingMessage;
+
         if ($supportMsg) {
             // Nối thêm tin nhắn vào cuộc hội thoại hiện có (lọc bỏ undefined nếu có)
             $existingMsg = trim((string) $supportMsg->message);
             if ($existingMsg === 'undefined' || empty($existingMsg)) {
-                $supportMsg->message = $incomingMessage;
+                $supportMsg->message = $storedMessage;
             } else {
-                $supportMsg->message = $existingMsg . "\n" . $incomingMessage;
+                $supportMsg->message = $existingMsg . "\n" . $storedMessage;
             }
             if (! empty($data['name']) && (empty($supportMsg->name) || $supportMsg->name === 'Khách vãng lai')) {
                 $supportMsg->name = $data['name'];
@@ -482,7 +507,7 @@ class PricingController extends Controller
                 $supportMsg->user_id = $request->user()->id;
             }
             $supportMsg->status = 'pending';
-            $supportMsg->appendConversationTurn('user', $incomingMessage);
+            $supportMsg->appendConversationTurn('user', $storedMessage, null, $channel);
             $supportMsg->updated_at = now();
             $supportMsg->save();
         } else {
@@ -491,32 +516,92 @@ class PricingController extends Controller
                 'name' => $data['name'],
                 'phone' => $data['phone'] ?? null,
                 'email' => $data['email'] ?? null,
-                'message' => $incomingMessage,
+                'message' => $storedMessage,
                 'ip_address' => $data['ip_address'],
                 'status' => 'pending',
             ]);
-            $supportMsg->appendConversationTurn('user', $incomingMessage);
+            $supportMsg->appendConversationTurn('user', $storedMessage, null, $channel);
             $supportMsg->save();
         }
 
         $this->rememberSupportMessage($supportMsg->id);
 
-        $telegramService->sendSupportMessageNotification(
-            $data['name'],
-            $data['phone'] ?? null,
-            $data['email'] ?? null,
-            $data['message'],
-            $supportMsg->id
-        );
+        // Chỉ kênh AI có Trợ lý AI trả lời (gồm các bước khôi phục mật khẩu và yêu cầu gặp người).
+        // Kênh Ban Quản Trị không có AI: tin chỉ chờ Admin trả lời.
+        $botResult = $channel === 'ai' ? $bot->handle($request, $supportMsg, $incomingMessage) : null;
+        $handoff = (bool) ($botResult['handoff'] ?? false);
+
+        // Báo Telegram: mọi tin ở kênh Ban Quản Trị, và khi khách ở kênh AI yêu cầu gặp người.
+        // Bước nhạy cảm (OTP, mật khẩu mới) không gửi nội dung sang Telegram.
+        if ($channel === 'admin' || $handoff) {
+            $notifyText = $secretStep ? '🔒 Khách đang xác thực khôi phục mật khẩu (nội dung đã ẩn)' : $data['message'];
+            if ($handoff) {
+                $notifyText = '🙋 [Khách yêu cầu gặp nhân viên] ' . $notifyText;
+            }
+            $telegramService->sendSupportMessageNotification(
+                $data['name'],
+                $data['phone'] ?? null,
+                $data['email'] ?? null,
+                $notifyText,
+                $supportMsg->id
+            );
+        }
 
         $tz = config('learning.display_timezone', 'Asia/Ho_Chi_Minh');
 
         return response()->json([
             'ok' => true,
             'message_id' => $supportMsg->id,
+            'channel' => $channel,
             'time' => now()->setTimezone($tz)->format('H:i'),
             'conversation_history' => $supportMsg->conversation_history ?? [],
+            'admin_online' => SupportBotService::adminOnline(),
+            'bot_replies' => $botResult['replies'] ?? [],
+            'bot_action' => $botResult['action'] ?? null,
+            'secret_next' => $botResult['secret_next'] ?? false,
+            'flow_active' => $botResult['flow_active'] ?? false,
             'message' => 'Cảm ơn bạn! Ban Quản Trị đã nhận được tin nhắn và sẽ phản hồi ngay tại đây.',
+        ]);
+    }
+
+    /**
+     * Trả lời khách vãng lai bằng Trợ lý AI. Lịch sử chỉ nằm trong trình duyệt khách (gửi kèm mỗi lần),
+     * máy chủ không lưu gì vào CSDL.
+     */
+    private function answerGuestSupport(Request $request, SupportBotService $bot, string $text, string $channel): JsonResponse
+    {
+        if ($channel === 'admin') {
+            return response()->json([
+                'ok' => false,
+                'message' => 'Để chat với Ban Quản Trị, bạn vui lòng đăng nhập tài khoản nhé. Trợ lý AI vẫn sẵn sàng trả lời bạn ở đây!',
+            ], 422);
+        }
+
+        // Lịch sử gửi lên chỉ giữ lượt của khách và bot, cắt độ dài để tránh bị lạm dụng
+        $history = array_values(array_filter(
+            (array) $request->input('history', []),
+            fn ($turn) => is_array($turn) && in_array($turn['sender'] ?? null, ['user', 'bot'], true)
+        ));
+
+        // Bản ghi chưa lưu (không gọi save) chỉ để bot dùng chung logic với thành viên
+        $msg = new SupportMessage(['ip_address' => $request->ip(), 'conversation_history' => []]);
+        foreach (array_slice($history, -20) as $turn) {
+            $msg->appendConversationTurn($turn['sender'], \Illuminate\Support\Str::limit((string) ($turn['text'] ?? ''), 1000, ''), null, 'ai');
+        }
+        $msg->appendConversationTurn('user', $text, null, 'ai');
+
+        $botResult = $bot->handle($request, $msg, $text);
+
+        return response()->json([
+            'ok' => true,
+            'message_id' => null,
+            'channel' => 'ai',
+            'admin_online' => SupportBotService::adminOnline(),
+            'bot_replies' => $botResult['replies'] ?? [],
+            'bot_action' => $botResult['action'] ?? null,
+            'secret_next' => $botResult['secret_next'] ?? false,
+            'flow_active' => $botResult['flow_active'] ?? false,
+            'message' => '',
         ]);
     }
 

@@ -3,6 +3,7 @@
 namespace Tests\Feature;
 
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Facades\Http;
 use Tests\TestCase;
 
 /**
@@ -23,11 +24,14 @@ class SecurityHardeningTest extends TestCase
 
     public function test_gui_chat_qua_nhieu_bi_chan_429(): void
     {
+        // Khách vãng lai chat với Trợ lý AI (không cần SĐT, không gọi mạng thật trong test)
+        Http::fake();
+
         for ($i = 0; $i < 20; $i++) {
-            $this->postJson('/ho-tro/gui-tin-nhan', ['name' => 'A', 'contact' => '0912345678', 'message' => "tin {$i}"])->assertOk();
+            $this->postJson('/ho-tro/gui-tin-nhan', ['name' => 'A', 'message' => "tin {$i}", 'channel' => 'ai'])->assertOk();
         }
 
-        $this->postJson('/ho-tro/gui-tin-nhan', ['name' => 'A', 'contact' => '0912345678', 'message' => 'tin 21'])->assertStatus(429);
+        $this->postJson('/ho-tro/gui-tin-nhan', ['name' => 'A', 'message' => 'tin 21', 'channel' => 'ai'])->assertStatus(429);
     }
 
     public function test_webhook_telegram_can_secret_token_khi_da_cau_hinh(): void

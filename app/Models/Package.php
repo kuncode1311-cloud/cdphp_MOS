@@ -47,6 +47,7 @@ class Package extends Model
         'max_students',
         'features',
         'is_active',
+        'grants_ai_assistant',
         'sort_order',
     ];
 
@@ -61,6 +62,7 @@ class Package extends Model
             'original_price' => 'integer',
             'duration_days' => 'integer',
             'max_students' => 'integer',
+            'grants_ai_assistant' => 'boolean',
             'features' => 'array',
             'is_active' => 'boolean',
             'sort_order' => 'integer',

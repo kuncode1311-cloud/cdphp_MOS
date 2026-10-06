@@ -72,6 +72,17 @@ class SubscriptionService
                 return false;
             }
 
+            // Gói Trợ lý AI: chỉ cộng thêm quyền dùng AI, không đổi hạn học tập hay sĩ số của tài khoản
+            if ($order->package?->grants_ai_assistant) {
+                $aiBase = $user->hasAiAssistant() ? $user->ai_assistant_until->copy() : Carbon::now();
+                $user->ai_assistant_until = $aiBase->addDays(max(1, (int) $order->duration_days));
+                $user->save();
+
+                $this->markOrderActive($order, $admin);
+
+                return true;
+            }
+
             $durationDays = max(1, (int) $order->duration_days);
             $currentExpiry = $user->expires_at;
             $isCurrentlyExpired = ! $currentExpiry || $currentExpiry->isPast();
@@ -145,15 +156,21 @@ class SubscriptionService
             }
 
             // 4. Đánh dấu đơn hàng là đã kích hoạt
-            $adminNote = $admin ? " (Duyệt bởi Admin: {$admin->name})" : '';
-            $order->update([
-                'status' => PackageOrder::STATUS_ACTIVE,
-                'activated_at' => Carbon::now(),
-                'notes' => trim(($order->notes ? $order->notes . "\n" : '') . 'Kích hoạt thành công' . $adminNote),
-            ]);
+            $this->markOrderActive($order, $admin);
 
             return true;
         });
+    }
+
+    /** Đánh dấu đơn hàng đã kích hoạt, kèm ghi chú người duyệt (nếu có) */
+    private function markOrderActive(PackageOrder $order, ?User $admin): void
+    {
+        $adminNote = $admin ? " (Duyệt bởi Admin: {$admin->name})" : '';
+        $order->update([
+            'status' => PackageOrder::STATUS_ACTIVE,
+            'activated_at' => Carbon::now(),
+            'notes' => trim(($order->notes ? $order->notes . "\n" : '') . 'Kích hoạt thành công' . $adminNote),
+        ]);
     }
 
     /**

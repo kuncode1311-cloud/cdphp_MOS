@@ -174,28 +174,31 @@ class SecurityAuditFixesTest extends TestCase
     {
         $this->seed();
 
-        $sent = $this->postJson(route('support.message.send'), [
+        // Khách vãng lai không được lưu hội thoại, nên chỉ thành viên đăng nhập mới có hội thoại để kiểm tra quyền truy cập
+        $sent = $this->actingAs($this->student())->postJson(route('support.message.send'), [
             'name' => 'Phụ huynh A',
-            'phone' => '0912345678',
+            'contact' => '0912345678',
             'message' => 'Tư vấn gói cho con',
+            'channel' => 'admin',
         ])->assertOk()->json('message_id');
 
-        // Người khác (phiên mới) biết ID và số điện thoại vẫn không đọc được hội thoại
+        // Người khác (phiên mới, chưa đăng nhập) biết ID và số điện thoại vẫn không đọc được hội thoại
         $this->flushSession();
+        $this->app['auth']->forgetGuards();
         $this->getJson(route('support.message.check', ['id' => $sent]))
             ->assertOk()
             ->assertJson(['ok' => false])
             ->assertJsonMissing(['contact' => '0912345678']);
 
-        $this->flushSession();
-        $response = $this->postJson(route('support.message.send'), [
+        // Người lạ chưa đăng nhập không thể chen vào kênh Ban Quản Trị của người khác
+        $this->postJson(route('support.message.send'), [
             'name' => 'Kẻ lạ',
             'phone' => '0912345678',
             'message' => 'Chen vào hội thoại',
-        ])->assertOk();
+            'channel' => 'admin',
+        ])->assertStatus(422);
 
-        // Hội thoại của phụ huynh A không bị nối thêm tin nhắn của người lạ
-        $this->assertNotSame($sent, $response->json('message_id'));
+        // Hội thoại của phụ huynh A không bị nối thêm tin nhắn nào
         $this->assertCount(1, SupportMessage::findOrFail($sent)->conversation_history ?? []);
     }
 

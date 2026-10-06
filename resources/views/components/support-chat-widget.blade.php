@@ -35,7 +35,9 @@
         </script>
     @else
         <button type="button" class="sc-fab" id="sc-fab" aria-label="Chat hỗ trợ" title="Chat với Ban Quản Trị">💬<span class="sc-dot"></span></button>
+        @include('partials.floating-panel')
         <div class="sc-panel" id="sc-panel" role="dialog" aria-label="Chat với Ban Quản Trị">
+            <div class="sc-grip" aria-hidden="true"></div>
             <div class="sc-head">
                 <span class="sc-avatar">🛟</span>
                 <div class="sc-head-text"><b>Chat với Ban Quản Trị</b><small>Mình luôn sẵn sàng giúp em</small></div>
@@ -149,6 +151,7 @@
                     }
                 });
 
+                makeFloatingPanel($('sc-panel'), { head: '.sc-head', grip: '.sc-grip', key: 'ic3_sc_panel_layout', minW: 300, minH: 340 });
                 if (state.id) poll();
                 // Khung chat đang mở thì hỏi mỗi 3 giây để thấy trả lời gần như tức thì; đóng khung thì 8 giây
                 (function loop() {

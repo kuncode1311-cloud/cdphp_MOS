@@ -116,18 +116,26 @@ class SupportMessage extends Model
     /**
      * Thêm một lượt tin nhắn vào luồng hội thoại đa chiều
      */
-    public function appendConversationTurn(string $sender, string $text, ?string $image = null): void
+    public function appendConversationTurn(string $sender, string $text, ?string $image = null, ?string $channel = null, ?array $action = null): void
     {
         $history = is_array($this->conversation_history) ? $this->conversation_history : [];
         $tz = config('learning.display_timezone', 'Asia/Ho_Chi_Minh');
         $timeStr = now()->setTimezone($tz)->format('H:i');
 
+        // Kênh: 'ai' (Trợ lý AI) hoặc 'admin' (Ban Quản Trị). Lượt của bot luôn thuộc kênh AI.
+        $channel ??= $sender === 'bot' ? 'ai' : 'admin';
+
         $history[] = [
-            'sender' => $sender, // 'user' hoặc 'admin'
+            'sender' => $sender, // 'user', 'admin' hoặc 'bot'
+            'channel' => $channel,
             'text' => trim($text),
             'time' => $timeStr,
             'timestamp' => now()->timestamp,
         ];
+        if ($action) {
+            // Nút hành động của Trợ lý AI (mở trang, làm bài): chỉ lưu nhãn và đường dẫn do máy chủ tạo
+            $history[array_key_last($history)]['action'] = ['label' => (string) $action['label'], 'url' => (string) $action['url']];
+        }
         if ($image) {
             $history[array_key_last($history)]['image'] = $image; // Đường dẫn ảnh đã lưu trên máy chủ
         }

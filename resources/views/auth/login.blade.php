@@ -2,6 +2,7 @@
 <!doctype html>
 <html lang="vi">
 <head>
+    @include('partials.page-gate')
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>Đăng nhập · IC3 Quest</title>
@@ -1129,13 +1130,15 @@
     </button>
 
     <!-- 💬 CỬA SỔ CHAT GIAO DIỆN CHUẨN ZALO (ĐÃ LƯU LỊCH SỬ & KHÔNG VỠ) -->
+    @include('partials.floating-panel')
     <div id="liveChatPopover" class="chat-popover">
+        <div class="sc-grip" aria-hidden="true"></div>
         <!-- Zalo Header -->
         <div class="zalo-header">
             <div class="zalo-header-left">
                 <div class="zalo-avatar">💬</div>
                 <div class="zalo-header-info">
-                    <h4>Hỗ Trợ Ban Quản Trị</h4>
+                    <h4 id="chatHeaderTitle">Hỗ Trợ IC3</h4>
                     <span><span class="online-dot" style="width:7px; height:7px;"></span> Đang hoạt động</span>
                 </div>
             </div>
@@ -1145,6 +1148,12 @@
             </div>
         </div>
 
+        <!-- Hai kênh tách biệt: Trợ lý AI tự động và Ban Quản Trị trả lời trực tiếp -->
+        <div class="chat-tabs" id="chatTabs" role="tablist">
+            <button type="button" class="chat-tab ai" id="chatTabAi" role="tab" onclick="switchChatTab('ai')">🤖 Trợ lý AI</button>
+            <button type="button" class="chat-tab" id="chatTabAdmin" role="tab" onclick="switchChatTab('admin')">👨‍💼 Ban Quản Trị</button>
+        </div>
+
         <!-- Khung Cuộc Trò Chuyện (Zalo Chat Body) -->
         <div class="zalo-chat-body" id="chatMessagesBody">
             <div class="zalo-date-badge">Hôm nay</div>
@@ -1152,7 +1161,7 @@
         </div>
 
         <!-- Thanh Nhập Thông Tin Người Gửi (Khách vãng lai) -->
-        <div class="zalo-sender-bar">
+        <div class="zalo-sender-bar" id="chatSenderBar">
             <div class="sender-form-box" id="senderFormBox">
                 <div class="sender-form-header">
                     <span>💡 Điền thông tin để Admin liên hệ lại qua Zalo/SĐT:</span>
@@ -1191,15 +1200,78 @@
             }
         }
 
+        // Ô nhập ở bước OTP/mật khẩu được che bằng dấu chấm (không lộ trên màn hình)
+        (function () {
+            const style = document.createElement('style');
+            style.textContent = `
+                .bot-secret { -webkit-text-security: disc; }
+                .chat-tabs { display: flex; gap: 6px; padding: 8px 12px; background: #fff; border-bottom: 1px solid #e5e7eb; }
+                .chat-tab { flex: 1; border: none; border-radius: 10px; padding: 8px 6px; font-family: inherit; font-weight: 800; font-size: 12.5px; cursor: pointer; background: #f1f5f9; color: #475569; }
+                .chat-tab.active { background: linear-gradient(135deg, #0068ff, #38bdf8); color: #fff; box-shadow: 0 3px 0 #0557c7; }
+                .chat-tab.active.ai { background: linear-gradient(135deg, #7c3aed, #a855f7); box-shadow: 0 3px 0 #5b21b6; }
+                .zalo-notice { align-self: center; max-width: 90%; font-size: 12px; color: #64748b; background: #e2e8f0; border-radius: 10px; padding: 6px 10px; text-align: center; margin: 6px auto; }
+                .chat-action { display: inline-block; margin-top: 8px; padding: 7px 12px; border-radius: 10px; font-size: 12.5px; font-weight: 800; text-decoration: none; color: #fff; background: linear-gradient(135deg, #7c3aed, #a855f7); box-shadow: 0 3px 0 #5b21b6; }
+                .chat-action:hover { transform: translateY(-1px); }
+            `;
+            document.head.appendChild(style);
+        })();
+
+        // Hai kênh tách biệt: 'ai' (Trợ lý AI tự động) và 'admin' (Ban Quản Trị trả lời trực tiếp).
+        // Hội thoại dùng chung một bản ghi trên máy chủ, giao diện chỉ lọc hiển thị theo kênh.
+        // Khách vãng lai chỉ chat với Trợ lý AI và không được lưu hội thoại trên máy chủ.
+        // Thành viên đã đăng nhập có thêm kênh Ban Quản Trị, lịch sử được lưu để đối chiếu.
+        const CHAT_IS_MEMBER = @json(auth()->check());
+        let chatTab = CHAT_IS_MEMBER && localStorage.getItem('mos_chat_tab') === 'admin' ? 'admin' : 'ai';
+        // Bước khôi phục mật khẩu đang yêu cầu OTP hoặc mật khẩu mới (máy chủ quyết định, trình duyệt chỉ ghi nhớ)
+        let botSecretMode = localStorage.getItem('mos_bot_secret') === '1';
+        let activeChatSupportId = localStorage.getItem('mos_active_support_id') || null;
+        let adminPollingTimer = null;
+
+        const AI_GREETING = 'Xin chào! 👋 Mình là <b>Trợ lý AI</b> của IC3 Adventure.<br>Mình trả lời về <b>đăng nhập, gói bản quyền và tài liệu thi IC3</b>.<br>Bạn gõ <b>"quên mật khẩu"</b> nếu cần lấy lại mật khẩu nhé!'
+            + (CHAT_IS_MEMBER ? '' : '<br><small>💡 Chat với Ban Quản Trị cần đăng nhập tài khoản. Nội dung chat với Trợ lý AI không được lưu lại.</small>');
+        const ADMIN_GREETING = 'Xin chào Thầy/Cô và các bạn! 👋<br>Bạn để lại lời nhắn kèm SĐT/Zalo bên dưới, Ban Quản Trị sẽ phản hồi bạn ngay tại đây nhé!<br><small>🔒 Lịch sử chat được lưu 12 tháng để đối chiếu khi cần.</small>';
+
         function toggleLiveChat() {
             const popover = document.getElementById('liveChatPopover');
             popover.classList.toggle('open');
             if (popover.classList.contains('open')) {
+                updateTabUI();
                 syncSenderUI();
                 renderChatHistory();
                 const msgInput = document.getElementById('chatSenderMsg');
                 if (msgInput) msgInput.focus();
                 scrollChatToBottom();
+            }
+        }
+
+        function switchChatTab(tab) {
+            chatTab = tab === 'admin' && CHAT_IS_MEMBER ? 'admin' : 'ai';
+            localStorage.setItem('mos_chat_tab', chatTab);
+            updateTabUI();
+            renderChatHistory();
+        }
+
+        // Cập nhật nút tab, tiêu đề, gợi ý nhập liệu. Chỉ kênh Ban Quản Trị cần thông tin SĐT người gửi.
+        function updateTabUI() {
+            const aiBtn = document.getElementById('chatTabAi');
+            const adminBtn = document.getElementById('chatTabAdmin');
+            const msgInput = document.getElementById('chatSenderMsg');
+            const senderBar = document.getElementById('chatSenderBar');
+            const title = document.getElementById('chatHeaderTitle');
+
+            if (aiBtn) aiBtn.classList.toggle('active', chatTab === 'ai');
+            // Khách vãng lai chỉ có một kênh (Trợ lý AI) nên ẩn thanh chọn tab
+            const tabsRow = document.getElementById('chatTabs');
+            if (tabsRow) tabsRow.style.display = CHAT_IS_MEMBER ? '' : 'none';
+            if (adminBtn) {
+                adminBtn.style.display = CHAT_IS_MEMBER ? '' : 'none';
+                adminBtn.classList.toggle('active', chatTab === 'admin');
+            }
+            if (title) title.textContent = chatTab === 'ai' ? 'Trợ lý IC3 (AI)' : 'Hỗ Trợ Ban Quản Trị';
+            if (senderBar) senderBar.style.display = chatTab === 'admin' ? 'flex' : 'none';
+            if (msgInput) {
+                msgInput.placeholder = chatTab === 'ai' ? 'Hỏi Trợ lý AI về đăng nhập, gói, tài liệu...' : 'Nhắn tin tới Ban Quản Trị...';
+                msgInput.classList.toggle('bot-secret', chatTab === 'ai' && botSecretMode);
             }
         }
 
@@ -1223,7 +1295,7 @@
             return /^(?:\+?84|0)\d{9}$/.test(digits);
         }
 
-        // Quản lý thông tin người gửi
+        // Quản lý thông tin người gửi (chỉ dùng cho kênh Ban Quản Trị)
         function syncSenderUI() {
             const savedName = localStorage.getItem('mos_chat_name') || '';
             let savedContact = localStorage.getItem('mos_chat_contact') || '';
@@ -1258,7 +1330,7 @@
         }
 
         // =========================================================================
-        // 💾 QUẢN LÝ LỊCH SỬ CHAT CỦA PHIÊN (LOCALSTORAGE)
+        // 💾 LỊCH SỬ CHAT TRÊN TRÌNH DUYỆT (LOCALSTORAGE)
         // =========================================================================
         function getChatHistory() {
             try {
@@ -1273,56 +1345,88 @@
             return typeof url === 'string' && url.startsWith('/storage/') && !url.includes('..') ? url : '';
         }
 
-        function saveMessageToHistory(sender, text, time, image) {
+        // Kênh của một tin: tin cũ không có kênh thì bot thuộc kênh AI, còn lại thuộc kênh Ban Quản Trị
+        function channelOf(item) {
+            if (item.channel) return item.channel;
+            return item.sender === 'bot' ? 'ai' : 'admin';
+        }
+
+        function escapeHtml(text) {
+            return String(text).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+        }
+
+        // Chữ đậm **...** từ AI, và xuống dòng giữ nguyên
+        function formatText(text) {
+            return escapeHtml(text).replace(/\*\*(.+?)\*\*/g, '<b>$1</b>');
+        }
+
+        // Nút mở trang/làm bài do máy chủ tạo. Chỉ nhận đường dẫn cùng trang web để tránh chuyển sang trang lạ.
+        function actionButton(action) {
+            if (!action || typeof action.url !== 'string' || typeof action.label !== 'string') return '';
+            try {
+                const url = new URL(action.url, window.location.origin);
+                if (url.origin !== window.location.origin) return '';
+                return `<a class="chat-action" href="${url.pathname}${url.search}${url.hash}">${escapeHtml(action.label)} →</a>`;
+            } catch (e) {
+                return '';
+            }
+        }
+
+        function saveMessageToHistory(sender, text, time, image, channel, action) {
             const history = getChatHistory();
-            const entry = { sender, text, time };
+            const entry = { sender, text, time, channel: channel || (sender === 'bot' ? 'ai' : 'admin') };
             if (safeImageUrl(image)) entry.image = image;
+            if (action && action.label && action.url) entry.action = { label: action.label, url: action.url };
             history.push(entry);
             localStorage.setItem('mos_chat_messages', JSON.stringify(history));
         }
 
+        // Vẽ lại khung chat, chỉ hiện tin thuộc kênh đang chọn
         function renderChatHistory() {
             const body = document.getElementById('chatMessagesBody');
             if (!body) return;
 
-            const history = getChatHistory();
-            
-            // Xóa cũ và vẽ lại
+            const isAi = chatTab === 'ai';
+            const label = isAi ? '🤖 Trợ lý IC3 (AI)' : '👨‍💼 Ban Quản Trị (Admin)';
+            const greeting = isAi ? AI_GREETING : ADMIN_GREETING;
             body.innerHTML = `
                 <div class="zalo-date-badge">Hôm nay</div>
                 <div class="zalo-bubble zalo-bubble-left">
-                    Xin chào Thầy/Cô và các bạn! 👋<br>
-                    Bạn cần hỗ trợ về <b>tài khoản đăng nhập, thuê gói bản quyền hay tài liệu thi IC3</b>?<br>
-                    Hãy để lại lời nhắn kèm SĐT/Zalo bên dưới, Ban Quản Trị sẽ phản hồi bạn ngay tại đây nhé!
+                    <div style="font-weight:800; font-size:12px; color:${isAi ? '#7c3aed' : '#0068ff'}; margin-bottom:3px;">${label}</div>
+                    ${greeting}
                     <div class="bubble-time">Vừa xong</div>
                 </div>
             `;
 
-            history.forEach(item => {
+            getChatHistory().filter(item => channelOf(item) === chatTab).forEach(item => {
                 const rawText = String(item.text || '').trim();
                 const imageUrl = safeImageUrl(item.image);
                 if ((!rawText || rawText === 'undefined') && !imageUrl) return;
-                const safeText = rawText.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
-                const imageHtml = imageUrl ? `<a href="${imageUrl}" target="_blank"><img src="${imageUrl}" alt="Ảnh từ Ban Quản Trị" style="max-width:100%; border-radius:10px; display:block; margin:4px 0;"></a>` : '';
 
                 const bubble = document.createElement('div');
-                if (item.sender === 'user') {
+                if (item.sender === 'notice') {
+                    bubble.className = 'zalo-notice';
+                    bubble.textContent = rawText;
+                } else if (item.sender === 'user') {
                     bubble.className = 'zalo-bubble zalo-bubble-right';
                     bubble.innerHTML = `
-                        <div>${safeText}</div>
+                        <div>${escapeHtml(rawText)}</div>
                         <div class="bubble-time">
                             <span>${item.time || ''}</span>
                             <span>✓✓ Đã gửi</span>
                         </div>
                     `;
                 } else {
+                    const isBot = item.sender === 'bot';
+                    const imageHtml = imageUrl ? `<a href="${imageUrl}" target="_blank"><img src="${imageUrl}" alt="Ảnh từ Ban Quản Trị" style="max-width:100%; border-radius:10px; display:block; margin:4px 0;"></a>` : '';
                     bubble.className = 'zalo-bubble zalo-bubble-left';
                     bubble.innerHTML = `
-                        <div style="font-weight:800; font-size:12px; color:#0068ff; margin-bottom:3px;">
-                            👨‍💼 Ban Quản Trị (Admin)
+                        <div style="font-weight:800; font-size:12px; color:${isBot ? '#7c3aed' : '#0068ff'}; margin-bottom:3px;">
+                            ${isBot ? '🤖 Trợ lý IC3 (AI)' : '👨‍💼 Ban Quản Trị (Admin)'}
                         </div>
                         ${imageHtml}
-                        ${safeText ? `<div style="white-space:pre-line;">${safeText}</div>` : ''}
+                        ${rawText ? `<div style="white-space:pre-line;">${formatText(rawText)}</div>` : ''}
+                        ${actionButton(item.action)}
                         <div class="bubble-time">${item.time || ''}</div>
                     `;
                 }
@@ -1341,61 +1445,68 @@
         }
 
         // =========================================================================
-        // 🚀 GỬI TIN NHẮN (GỘP PHIÊN CHAT KHÔNG BỊ TÁCH RỜI)
+        // 🚀 GỬI TIN NHẮN (MỖI KÊNH CÓ LUỒNG RIÊNG, CHUNG MỘT HỘI THOẠI)
         // =========================================================================
-        let activeChatSupportId = localStorage.getItem('mos_active_support_id') || null;
-        let adminPollingTimer = null;
-
         function sendChatMsg() {
             const nameInput = document.getElementById('chatSenderName');
             const contactInput = document.getElementById('chatSenderContact');
             const msgInput = document.getElementById('chatSenderMsg');
             const btn = document.getElementById('btnSendChat');
-            const body = document.getElementById('chatMessagesBody');
 
             const name = nameInput.value.trim() || 'Khách vãng lai';
             const contact = contactInput.value.trim();
             const message = msgInput.value.trim();
+            const sentChannel = chatTab;
 
             if (!message) {
                 msgInput.focus();
                 return;
             }
 
-            // Kiểm tra số điện thoại/Zalo trước khi gửi (10 số, bắt đầu bằng 0 hoặc +84)
-            if (!isValidPhone(contact)) {
+            // Kênh Ban Quản Trị cần SĐT/Zalo hợp lệ để Admin liên hệ lại. Kênh AI không cần.
+            if (sentChannel === 'admin' && !isValidPhone(contact)) {
                 editSenderInfo();
                 contactInput.focus();
                 alert('Vui lòng nhập đúng số điện thoại hoặc Zalo (10 số, ví dụ 0912345678).');
                 return;
             }
 
-            // Lưu thông tin người gửi
-            if (nameInput.value.trim()) localStorage.setItem('mos_chat_name', nameInput.value.trim());
-            if (contactInput.value.trim()) localStorage.setItem('mos_chat_contact', contactInput.value.trim());
-            syncSenderUI();
+            if (sentChannel === 'admin') {
+                if (nameInput.value.trim()) localStorage.setItem('mos_chat_name', nameInput.value.trim());
+                if (contactInput.value.trim()) localStorage.setItem('mos_chat_contact', contactInput.value.trim());
+                syncSenderUI();
+            }
 
-            // Hiển thị tin nhắn người dùng ngay lập tức
             const now = new Date();
             const timeStr = `${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}`;
-            
-            saveMessageToHistory('user', message, timeStr);
 
-            const userBubble = document.createElement('div');
-            userBubble.className = 'zalo-bubble zalo-bubble-right';
-            userBubble.innerHTML = `
-                <div>${message.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;")}</div>
-                <div class="bubble-time">
-                    <span>${timeStr}</span>
-                    <span>✓✓ Đã gửi</span>
-                </div>
-            `;
-            body.appendChild(userBubble);
-            scrollChatToBottom();
+            // Khách vãng lai: gửi kèm lịch sử AI đang có trong trình duyệt (máy chủ không lưu), bỏ các đoạn đã ẩn
+            const aiHistory = getChatHistory()
+                .filter(item => channelOf(item) === 'ai' && (item.sender === 'user' || item.sender === 'bot'))
+                .filter(item => !String(item.text || '').startsWith('🔒'))
+                .slice(-20)
+                .map(item => ({ sender: item.sender, text: String(item.text || '') }));
+
+            // Bước OTP/mật khẩu: không lưu nội dung thật vào trình duyệt
+            const shownText = sentChannel === 'ai' && botSecretMode ? '🔒 Đã ẩn để bảo mật' : message;
+            saveMessageToHistory('user', shownText, timeStr, null, sentChannel);
+            renderChatHistory();
 
             msgInput.value = '';
             btn.disabled = true;
             btn.textContent = '⏳';
+
+            const payload = {
+                name: name,
+                contact: contact || '',
+                phone: contact || null,
+                message: message,
+                parent_id: activeChatSupportId || null,
+                channel: sentChannel
+            };
+            if (!CHAT_IS_MEMBER) {
+                payload.history = aiHistory;
+            }
 
             fetch('{{ route("support.message.send") }}', {
                 method: 'POST',
@@ -1403,18 +1514,21 @@
                     'Content-Type': 'application/json',
                     'X-CSRF-TOKEN': '{{ csrf_token() }}'
                 },
-                body: JSON.stringify({
-                    name: name,
-                    contact: contact || '',
-                    phone: contact || null,
-                    message: message,
-                    parent_id: activeChatSupportId || null
-                })
+                body: JSON.stringify(payload)
             })
-            .then(res => res.json())
-            .then(data => {
+            .then(async res => ({ ok: res.ok, data: await res.json() }))
+            .then(({ ok, data }) => {
                 btn.disabled = false;
                 btn.textContent = '➤';
+
+                if (!ok) {
+                    // Lỗi nhập liệu (ví dụ thiếu SĐT, đang khôi phục ở tab AI): hiện thông báo trong kênh vừa gửi
+                    saveMessageToHistory('notice', data.message || 'Có lỗi xảy ra, bạn thử lại nhé.', timeStr, null, sentChannel);
+                    renderChatHistory();
+                    if (/điện thoại/i.test(data.message || '')) editSenderInfo();
+                    msgInput.focus();
+                    return;
+                }
 
                 if (data.message_id) {
                     activeChatSupportId = data.message_id;
@@ -1424,67 +1538,74 @@
                     }
                 }
 
+                botSecretMode = !!data.secret_next;
+                localStorage.setItem('mos_bot_secret', botSecretMode ? '1' : '0');
+                localStorage.setItem('mos_bot_flow', data.flow_active ? '1' : '0');
+
+                // Kênh Ban Quản Trị: nếu Admin chưa online thì báo ngay, và gợi ý kênh AI
+                if (sentChannel === 'admin' && data.admin_online === false) {
+                    saveMessageToHistory('notice', 'Ban Quản Trị hiện chưa trực tuyến. Tin nhắn đã được ghi nhận, Admin sẽ trả lời sớm nhất có thể. Bạn cũng có thể hỏi nhanh ở tab 🤖 Trợ lý AI.', data.time || timeStr, null, 'admin');
+                }
+
+                // Kênh AI: câu trả lời của trợ lý
+                const botReplies = Array.isArray(data.bot_replies) ? data.bot_replies : [];
+                botReplies.forEach((text, index) => {
+                    const isLast = index === botReplies.length - 1;
+                    saveMessageToHistory('bot', text, data.time || timeStr, null, 'ai', isLast ? data.bot_action : null);
+                });
+
+                updateTabUI();
+                renderChatHistory();
                 msgInput.focus();
             })
-            .catch(err => {
+            .catch(() => {
                 btn.disabled = false;
                 btn.textContent = '➤';
             });
         }
 
         // =========================================================================
-        // ⚡ REAL-TIME POLLING: NHẬN PHẢN HỒI TỪ ADMIN
+        // ⚡ NHẬN PHẢN HỒI TỪ ADMIN (KÊNH BAN QUẢN TRỊ) VÀ TRỢ LÝ AI
         // =========================================================================
-        let lastReceivedAdminReply = null;
-
         async function pollAdminReply() {
             if (!activeChatSupportId) return;
             try {
                 const res = await fetch(`/ho-tro/tin-nhan/kiem-tra?id=${activeChatSupportId}`);
                 if (!res.ok) return;
                 const data = await res.json();
-                if (data.ok && Array.isArray(data.conversation_history) && data.conversation_history.length) {
-                    // Tin của admin mà khung chat này chưa có thì thêm vào (có thể là chữ hoặc ảnh)
-                    const serverAdminTurns = data.conversation_history.filter(t => t.sender === 'admin');
-                    const knownAdminTurns = getChatHistory().filter(t => t.sender === 'admin').length;
-                    const body = document.getElementById('chatMessagesBody');
-                    serverAdminTurns.slice(knownAdminTurns).forEach(turn => {
-                        const turnText = String(turn.text || '').trim();
-                        const turnTime = turn.time || data.replied_at || 'Vừa xong';
-                        saveMessageToHistory('admin', turnText, turnTime, turn.image);
-                    });
-                    if (serverAdminTurns.length > knownAdminTurns) {
-                        renderChatHistory();
-                    }
-                    lastReceivedAdminReply = data.admin_reply || lastReceivedAdminReply;
-                } else if (data.ok && data.admin_reply && data.admin_reply !== lastReceivedAdminReply) {
-                    lastReceivedAdminReply = data.admin_reply;
-                    
-                    const replyTime = data.replied_at || 'Vừa xong';
-                    saveMessageToHistory('admin', data.admin_reply, replyTime);
+                if (!data.ok || !Array.isArray(data.conversation_history)) return;
 
-                    const body = document.getElementById('chatMessagesBody');
-                    const adminBubble = document.createElement('div');
-                    adminBubble.className = 'zalo-bubble zalo-bubble-left';
-                    adminBubble.innerHTML = `
-                        <div style="font-weight:800; font-size:12px; color:#0068ff; margin-bottom:3px;">
-                            👨‍💼 Ban Quản Trị (Admin)
-                        </div>
-                        <div style="white-space:pre-line;">${data.admin_reply.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;")}</div>
-                        <div class="bubble-time">${replyTime}</div>
-                    `;
-                    body.appendChild(adminBubble);
-                    scrollChatToBottom();
+                // Chỉ đếm tin của Admin và của bot (tin của khách và thông báo tạm không tính)
+                const isReply = turn => turn.sender === 'admin' || turn.sender === 'bot';
+                const serverReplies = data.conversation_history.filter(isReply);
+                const knownCount = getChatHistory().filter(isReply).length;
+
+                if (serverReplies.length > knownCount) {
+                    serverReplies.slice(knownCount).forEach(turn => {
+                        saveMessageToHistory(
+                            turn.sender,
+                            String(turn.text || '').trim(),
+                            turn.time || data.replied_at || 'Vừa xong',
+                            turn.image,
+                            turn.channel || (turn.sender === 'bot' ? 'ai' : 'admin'),
+                            turn.action
+                        );
+                    });
+                    renderChatHistory();
                 }
-            } catch(e) {}
+            } catch (e) {}
         }
 
         if (activeChatSupportId) {
             adminPollingTimer = setInterval(pollAdminReply, 2500);
         }
 
+        // Kéo và đổi kích thước khung chat (nhớ vị trí trên trình duyệt này)
+        makeFloatingPanel(document.getElementById('liveChatPopover'), { head: '.zalo-header', grip: '.sc-grip', key: 'mos_chat_popover_layout', minW: 300, minH: 360 });
+
         // Khởi tạo
         syncSenderUI();
+        updateTabUI();
         renderChatHistory();
     </script>
 </body>

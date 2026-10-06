@@ -2,6 +2,7 @@
 <!doctype html>
 <html lang="vi" translate="no" class="notranslate">
 <head>
+    @include('partials.page-gate')
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="google" content="notranslate">
@@ -1293,9 +1294,62 @@
             justify-content: center !important;
             margin: 0 0 24px !important;
         }
+        .app-sidebar .sidebar-ai-upgrade {
+            display: block; width: 100%; margin-top: 25px; padding: 16px; text-align: left; cursor: pointer;
+            border: 3.5px solid #ffffff; border-radius: 20px; color: #fff; font-family: inherit;
+            background: linear-gradient(145deg, #f59e0b 0%, #ec4899 55%, #7c3aed 100%);
+            box-shadow: 0 16px 36px rgba(0,0,0,0.18), inset 0 -6px 0 rgba(0,0,0,0.15);
+            transition: transform .15s, box-shadow .15s;
+        }
+        .app-sidebar .sidebar-ai-upgrade:hover { transform: translateY(-2px); box-shadow: 0 20px 40px rgba(0,0,0,0.22), inset 0 -6px 0 rgba(0,0,0,0.15); }
+        .app-sidebar .sidebar-ai-upgrade:active { transform: translateY(4px); box-shadow: 0 6px 14px rgba(0,0,0,0.2), inset 0 -2px 0 rgba(0,0,0,0.15); }
+        .app-sidebar .sidebar-voice-btn {
+            display: flex; align-items: center; gap: 10px; width: 100%; margin-top: 18px; padding: 12px 14px; cursor: pointer; flex-shrink: 0;
+            border: 3.5px solid #ffffff; border-radius: 18px; color: #fff; font-family: inherit; font-size: 14px; font-weight: 900;
+            background: linear-gradient(135deg, #10b981, #0ea5e9);
+            box-shadow: 0 16px 36px rgba(0,0,0,0.18), inset 0 -6px 0 rgba(0,0,0,0.15);
+            transition: transform .15s;
+        }
+        .app-sidebar .sidebar-voice-btn:hover { transform: translateY(-2px); }
+        .app-sidebar .sidebar-voice-btn:active { transform: translateY(4px); }
+        .app-sidebar .sidebar-voice-btn + .sidebar-ai-upgrade { margin-top: 12px; }
+        body.sidebar-collapsed .app-sidebar .sidebar-voice-btn b { display: none; }
+        .sidebar-ai-upgrade .sau-icon { display: block; font-size: 30px; line-height: 1; }
+        .sidebar-ai-upgrade b { display: block; margin-top: 8px; font-size: 15px; font-weight: 900; }
+        .sidebar-ai-upgrade small { display: block; margin: 5px 0 12px; font-size: 12px; font-weight: 700; line-height: 1.4; color: #fff7ed; }
+        .sidebar-ai-upgrade em { display: inline-block; padding: 7px 14px; border-radius: 12px; background: #ffffff; color: #7c2d12; font-style: normal; font-size: 12.5px; font-weight: 900; box-shadow: 0 3px 0 rgba(0,0,0,0.18); }
+
+        /* Thanh bên cuộn được để không che mục dưới cùng (Nâng cấp AI, Đăng xuất) khi màn hình thấp */
+        .app-sidebar {
+            overflow-y: auto !important;
+            overflow-x: hidden !important;
+            scrollbar-width: thin;
+            scrollbar-color: rgba(255, 255, 255, 0.28) transparent;
+            overscroll-behavior: contain;
+        }
+        .app-sidebar::-webkit-scrollbar { width: 6px; }
+        .app-sidebar::-webkit-scrollbar-thumb { background: rgba(255, 255, 255, 0.28); border-radius: 6px; }
+        .app-sidebar .sidebar-bottom { flex-shrink: 0; }
+        .app-sidebar .sidebar-ai-upgrade { flex-shrink: 0; }
+
+        /* Màn hình thấp: thu gọn khoảng cách và khung nâng cấp để thấy hết mà ít phải cuộn */
+        @media (max-height: 900px) {
+            body:not(.sidebar-collapsed) .app-sidebar { padding-top: 18px !important; padding-bottom: 14px !important; }
+            body:not(.sidebar-collapsed) .app-sidebar .brand { margin-bottom: 14px !important; }
+            body:not(.sidebar-collapsed) .app-sidebar .mini-profile { margin-bottom: 12px !important; }
+            body:not(.sidebar-collapsed) .app-sidebar .side-nav { gap: 4px !important; }
+            body:not(.sidebar-collapsed) .app-sidebar .side-nav a { padding-top: 8px !important; padding-bottom: 8px !important; }
+            .app-sidebar .sidebar-ai-upgrade { margin-top: 14px; padding: 12px 14px; }
+            .sidebar-ai-upgrade .sau-icon { display: none; }
+            .sidebar-ai-upgrade b { margin-top: 0; font-size: 14px; }
+            .sidebar-ai-upgrade small { margin: 3px 0 8px; font-size: 11px; }
+            .sidebar-ai-upgrade em { padding: 5px 12px; font-size: 12px; }
+        }
+
         body.sidebar-collapsed .app-sidebar .brand span:last-child,
         body.sidebar-collapsed .app-sidebar .side-nav a span,
         body.sidebar-collapsed .app-sidebar .side-nav a b,
+        body.sidebar-collapsed .app-sidebar .sidebar-ai-upgrade,
         body.sidebar-collapsed .app-sidebar .sidebar-quest,
         body.sidebar-collapsed .app-sidebar .sidebar-bottom span {
             display: none !important;
@@ -1394,13 +1448,26 @@
         </nav>
 
         @if(! auth()->user()?->canAccessAdmin())
-        <div class="sidebar-quest">
-            <span>🏆</span>
-            <b>Thử thách tuần</b>
-            <small>Hoàn thành 3 bài học</small>
-            <div><i></i></div>
-            <em>1/3 nhiệm vụ</em>
-        </div>
+        @php
+            $sidebarHasAi = auth()->user()?->hasAiAssistant();
+        @endphp
+        @if($sidebarHasAi)
+        <button type="button" class="sidebar-voice-btn" onclick="openVoiceChat()" title="Trò chuyện bằng giọng nói với Trợ lý AI">
+            <span>🎙️</span><b>Trò chuyện với AI</b>
+        </button>
+        @endif
+        <button type="button" class="sidebar-ai-upgrade" onclick="openAiUpgrade()" title="Mở bảng nâng cấp Trợ lý AI">
+            <span class="sau-icon">🤖</span>
+            <b>{{ $sidebarHasAi ? 'Trợ lý AI đang bật' : 'Mở khóa Trợ lý AI' }}</b>
+            <small>
+                @if($sidebarHasAi)
+                    Còn {{ max(0, (int) ceil(now()->diffInDays(auth()->user()->ai_assistant_until, false))) }} ngày. Gia hạn để không bị gián đoạn.
+                @else
+                    Hiểu điểm yếu của em và gợi ý bài luyện riêng.
+                @endif
+            </small>
+            <em>{{ $sidebarHasAi ? '🔄 Gia hạn' : '✨ Nâng cấp ngay' }}</em>
+        </button>
         @endif
 
         <div class="sidebar-bottom">
@@ -1496,6 +1563,18 @@
                         <span class="btn-upgrade-spark">✨</span>
                         <span>Nâng cấp gói</span>
                     </a>
+                @else
+                    @if(auth()->user()?->hasAiAssistant())
+                        <button type="button" class="btn-upgrade-topbar" onclick="openVoiceChat()" title="Trò chuyện bằng giọng nói với Trợ lý AI" style="border:0; cursor:pointer;">
+                            <span class="btn-upgrade-spark">🎙️</span>
+                            <span>Trò chuyện AI</span>
+                        </button>
+                    @else
+                        <button type="button" class="btn-upgrade-topbar" onclick="openAiUpgrade()" title="Nâng cấp Trợ lý AI" style="border:0; cursor:pointer;">
+                            <span class="btn-upgrade-spark">✨</span>
+                            <span>Nâng cấp AI</span>
+                        </button>
+                    @endif
                 @endif
 
                 @auth
@@ -2218,6 +2297,9 @@
         });
     </script>
 
+    <x-ai-upgrade-modal />
+    <x-voice-chat />
     <x-support-chat-widget />
+    <x-support-ai-widget />
 </body>
 </html>

@@ -304,6 +304,14 @@ class User extends Authenticatable
     }
 
     /**
+     * Gói Trợ lý AI còn hạn: tài khoản được AI đọc dữ liệu học tập của chính mình và thao tác điều hướng.
+     */
+    public function hasAiAssistant(): bool
+    {
+        return $this->ai_assistant_until !== null && $this->ai_assistant_until->isFuture();
+    }
+
+    /**
      * Kiểm tra nhanh xem Người dùng (Teacher/Student) có quyền truy cập Khối lớp này không
      */
     public function canAccessLevel(int|Level $level): bool
@@ -532,6 +540,7 @@ class User extends Authenticatable
         return [
             'email_verified_at' => 'datetime',
             'expires_at' => 'date',
+            'ai_assistant_until' => 'datetime',
             'max_students' => 'integer',
             'password' => 'hashed',
             'reward_stars' => 'integer',

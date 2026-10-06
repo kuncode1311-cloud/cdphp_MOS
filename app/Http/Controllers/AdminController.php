@@ -163,7 +163,9 @@ class AdminController extends Controller
 
         // 💎 Quản trị Gói dịch vụ & Đơn thuê bản quyền (dành cho Admin)
         if (! $isTeacher) {
+            // Gói Trợ lý AI quản lý ở mục riêng, không hiện trong Danh Mục Gói Dịch Vụ
             $packages = Package::query()
+                ->where('grants_ai_assistant', false)
                 ->with(['levels.program'])
                 ->withCount('orders')
                 ->ordered()
@@ -360,6 +362,9 @@ class AdminController extends Controller
      */
     public function pollSupportMessages(\Illuminate\Http\Request $request): \Illuminate\Http\JsonResponse
     {
+        // Admin đang mở trang quản trị: trợ lý AI tạm không trả lời thay
+        \App\Services\SupportBotService::markAdminActive();
+
         $lastId = (int) $request->query('last_id', 0);
         $activeId = (int) $request->query('active_id', 0);
 
