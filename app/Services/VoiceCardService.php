@@ -23,7 +23,7 @@ class VoiceCardService
      *
      * @return array<string, mixed>|null
      */
-    public function statsCard(User $user): ?array
+    public function statsCard(User $user, string $question = ''): ?array
     {
         if (! $user->isStudent()) {
             return null;
@@ -56,8 +56,13 @@ class VoiceCardService
 
         $weak = array_slice($mistakes['theo_chu_de'], 0, 4);
 
+        $pass = (int) ($stats['so_bai_dat'] ?? 0);
+
         return [
             'type' => 'stats',
+            // Kiểu biểu đồ chọn theo câu hỏi của người nói; số liệu luôn lấy từ CSDL
+            'focus' => $this->focusFor($question),
+            'dat' => ['dat' => $pass, 'chua_dat' => max(0, $done - $pass), 'tong' => $done],
             'title' => 'Kết quả học tập của em',
             'tiles' => $tiles,
             'bars_title' => 'Điểm các bài làm gần đây (thang ' . (int) config('learning.max_score', 1000) . ')',
@@ -67,6 +72,19 @@ class VoiceCardService
             'weak_title' => 'Chủ đề còn câu sai cần ôn',
             'weak' => array_map(fn (array $w) => ['label' => $w['chu_de'], 'value' => (int) $w['so_cau']], $weak),
         ];
+    }
+
+    /** Chọn kiểu biểu đồ theo câu hỏi: câu sai → chủ đề cần ôn; đạt/chưa đạt → tỉ lệ; còn lại → điểm các bài */
+    private function focusFor(string $question): string
+    {
+        if (preg_match('/câu\s*sai|sai\s*nhiều|cần\s*ôn|khắc\s*phục|ôn\s*lại/iu', $question)) {
+            return 'cau_sai';
+        }
+        if (preg_match('/đạt|tỉ\s*lệ|tỷ\s*lệ|trượt|chưa\s*đạt/iu', $question)) {
+            return 'dat';
+        }
+
+        return 'diem';
     }
 
     /** "27/09/2026 15:54" → "27/09" */
