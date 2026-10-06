@@ -111,6 +111,34 @@ class AiAssistantController extends Controller
     }
 
     /** Gia hạn quyền AI: cộng thêm số ngày vào hạn hiện tại (hoặc tính từ hôm nay nếu đã hết hạn) */
+    /**
+     * Cấp Trợ lý AI cho một tài khoản chưa có (tặng, dùng thử, hỗ trợ khách): tìm theo mã học sinh, email hoặc đúng họ tên.
+     * Tài khoản đang còn hạn thì cộng dồn thêm ngày như gia hạn.
+     */
+    public function grant(Request $request): RedirectResponse
+    {
+        $data = $request->validate([
+            'account' => ['required', 'string', 'max:120'],
+            'days' => ['nullable', 'integer', 'min:1', 'max:365'],
+        ], [], ['account' => 'mã học sinh, email hoặc họ tên']);
+
+        $key = trim($data['account']);
+        $found = User::query()
+            ->whereIn('role', ['student', 'teacher'])
+            ->where(fn ($q) => $q->where('student_code', $key)->orWhere('email', $key)->orWhere('name', $key))
+            ->limit(3)
+            ->get();
+
+        if ($found->isEmpty()) {
+            return back()->withErrors(['account' => "Không tìm thấy tài khoản «{$key}». Thử nhập mã học sinh hoặc email."])->withInput();
+        }
+        if ($found->count() > 1) {
+            return back()->withErrors(['account' => "Có nhiều tài khoản tên «{$key}». Hãy nhập mã học sinh hoặc email để chọn đúng người."])->withInput();
+        }
+
+        return $this->extend($request, $found->first());
+    }
+
     public function extend(Request $request, User $user): RedirectResponse
     {
         $data = $request->validate([
