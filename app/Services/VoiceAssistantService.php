@@ -77,6 +77,10 @@ class VoiceAssistantService
 
         [$body, $markerHint] = $this->extractQuizMarker($raw);
         [$body, $action] = $this->extractAction($body, $user);
+        // Khách nói rõ "mở/chuyển trang" thì tự mở ngay, không chờ bấm nút (kể cả khi AI chỉ gắn [[MO:]])
+        if ($action !== null && $this->assistant->asksToOpen($text)) {
+            $action['auto'] = true;
+        }
         [$body, $choice, $control] = $this->extractQuizControls($body, $pending);
 
         // Ra câu hỏi khi AI gắn dấu hiệu, trừ khi AI mới chỉ RỦ (câu cuối là câu hỏi) hoặc đang có câu chờ trả lời

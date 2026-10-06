@@ -46,7 +46,7 @@ class AiAssistantService
     }
 
     /** Khách nói rõ muốn mở/vào/chuyển trang (kể cả gõ sai như "mo tang"): tự mở ngay, không chờ bấm nút. */
-    private function asksToOpen(string $text): bool
+    public function asksToOpen(string $text): bool
     {
         return (bool) preg_match('/\b(m[oở]|mwor|mowr|mor|mơ|vào|vao|chuyển|chuyen|sang|đưa|dua|tới|toi|open|làm\s*bài|lam\s*bai)\b/iu', $text);
     }
