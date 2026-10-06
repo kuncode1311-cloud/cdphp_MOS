@@ -167,9 +167,18 @@ class AiAssistantService
             $actions['quan_tri'] = ['label' => 'Trang quản trị', 'url' => route('admin.dashboard')];
         }
 
+        $actions['trang_chu'] = ['label' => 'Trang của em', 'url' => route('home')];
+        $actions['lich_su_goi'] = ['label' => 'Lịch sử thuê gói', 'url' => route('pricing.history')];
+        $actions['lam_lai_cau_sai'] = ['label' => 'Làm lại các câu đã sai', 'url' => route('mistakes.launch')];
+
         // Mỗi khối lớp là một trang riêng (ví dụ "khối 3"), lấy từ CSDL
         foreach (Level::orderBy('grade')->orderBy('position')->limit(20)->get() as $level) {
             $actions['khoi_' . $level->id] = ['label' => "Khối {$level->grade} «{$level->name}»", 'url' => route('levels.show', $level)];
+        }
+
+        // Các bài luyện thi trong CSDL, để khách nhờ mở đúng bài theo tên
+        foreach (PracticeTest::orderBy('id')->limit(30)->get() as $test) {
+            $actions['bai_' . $test->id] = ['label' => "Bài luyện «{$test->name}»", 'url' => route('tests.show', $test)];
         }
 
         foreach ($this->pendingTests($user) as $test) {
