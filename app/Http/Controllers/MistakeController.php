@@ -36,15 +36,34 @@ class MistakeController extends Controller
         $selectedStatus = $request->input('status', 'unresolved');
         $selectedRisk = $request->input('risk', 'all');
 
-        // Thống kê tổng quan
-        $allMistakes = StudentMistake::where('user_id', $user->id)->get();
-        $totalUnresolved = $allMistakes->where('status', 'unresolved')->count();
-        $highRiskCount = $allMistakes->where('status', 'unresolved')->where('wrong_count', '>=', 2)->count();
-        $resolvedCount = $allMistakes->where('status', 'resolved')->count();
+        // Phạm vi theo khối: thẻ số liệu và số đếm trạng thái đều tính trên đây
+        $gradeScope = StudentMistake::where('user_id', $user->id);
+        if ($selectedGrade !== 'all' && is_numeric($selectedGrade)) {
+            $gradeInt = (int) $selectedGrade;
+            $gradeScope->whereHas('question.practiceTest.topic.level', function ($q) use ($gradeInt) {
+                $q->where('grade', $gradeInt);
+            });
+        }
 
-        // Truy vấn danh sách câu sai theo bộ lọc
-        $query = StudentMistake::where('user_id', $user->id)
-            ->with(['question.options', 'question.assets', 'question.practiceTest.topic.level', 'practiceTest']);
+        // Số câu sai theo từng chủ đề (trong khối đang chọn)
+        $topicCounts = (clone $gradeScope)->get()
+            ->countBy(fn (StudentMistake $m) => (int) $m->question?->practiceTest?->topic_id);
+
+        // Lọc theo chủ đề (chỉ áp dụng khi chủ đề thuộc khối đang chọn)
+        $selectedTopic = (string) $request->input('topic', 'all');
+        $scope = clone $gradeScope;
+        if ($selectedTopic !== 'all' && ctype_digit($selectedTopic)) {
+            $scope->whereHas('question.practiceTest', fn ($q) => $q->where('topic_id', (int) $selectedTopic));
+        }
+
+        // Thống kê theo phạm vi đã lọc (khối và chủ đề)
+        $scopedMistakes = (clone $scope)->get();
+        $totalUnresolved = $scopedMistakes->where('status', 'unresolved')->count();
+        $highRiskCount = $scopedMistakes->where('status', 'unresolved')->where('wrong_count', '>=', 2)->count();
+        $resolvedCount = $scopedMistakes->where('status', 'resolved')->count();
+
+        // Danh sách câu sai: phạm vi đã lọc + trạng thái + mức độ
+        $query = (clone $scope)->with(['question.options', 'question.assets', 'question.practiceTest.topic.level', 'practiceTest']);
 
         if ($selectedStatus !== 'all') {
             $query->where('status', $selectedStatus);
@@ -52,23 +71,6 @@ class MistakeController extends Controller
 
         if ($selectedRisk === 'high_risk') {
             $query->where('wrong_count', '>=', 2);
-        }
-
-        if ($selectedGrade !== 'all' && is_numeric($selectedGrade)) {
-            $gradeInt = (int) $selectedGrade;
-            $query->whereHas('question.practiceTest.topic.level', function ($q) use ($gradeInt) {
-                $q->where('grade', $gradeInt);
-            });
-        }
-
-        // Số câu sai theo từng chủ đề (theo trạng thái và khối đang chọn, chưa tính bộ lọc chủ đề)
-        $topicCounts = (clone $query)->get()
-            ->countBy(fn (StudentMistake $m) => (int) $m->question?->practiceTest?->topic_id);
-
-        // Lọc theo chủ đề (chỉ áp dụng khi chủ đề thuộc khối đang chọn)
-        $selectedTopic = (string) $request->input('topic', 'all');
-        if ($selectedTopic !== 'all' && ctype_digit($selectedTopic)) {
-            $query->whereHas('question.practiceTest', fn ($q) => $q->where('topic_id', (int) $selectedTopic));
         }
 
         // Danh sách chủ đề để hiện nút lọc: theo khối đang chọn, đúng thứ tự trên trang học
