@@ -251,6 +251,14 @@
     .vc-weak-track { height: 10px; border-radius: 999px; background: #ede9fe; overflow: hidden; }
     .vc-weak-fill { height: 100%; border-radius: 999px; background: linear-gradient(90deg, #f472b6, #ec4899); }
     .vc-weak-row b { color: #be185d; text-align: right; }
+    .vc-split { display: flex; height: 34px; margin: 8px 14px 0; border-radius: 999px; overflow: hidden; border: 3px solid #fff; box-shadow: 0 4px 0 rgba(0,0,0,0.12); }
+    .vc-split-ok, .vc-split-no { display: flex; align-items: center; justify-content: center; font-size: 13px; font-weight: 900; color: #fff; min-width: 0; transition: width .6s cubic-bezier(.2,.8,.2,1); }
+    .vc-split-ok { background: linear-gradient(90deg, #4ade80, #16a34a); }
+    .vc-split-no { background: linear-gradient(90deg, #fb923c, #ea580c); }
+    .vc-split-legend { display: flex; flex-wrap: wrap; gap: 14px; padding: 10px 16px 14px; font-size: 13px; font-weight: 800; color: #1e1b4b; }
+    .vc-split-legend i { display: inline-block; width: 12px; height: 12px; border-radius: 4px; margin-right: 6px; vertical-align: -1px; }
+    .vc-split-legend i.ok { background: #16a34a; }
+    .vc-split-legend i.no { background: #ea580c; }
     /* Thanh nút phía dưới không bị sát mép */
     .vc-bar { padding-bottom: calc(14px + env(safe-area-inset-bottom, 0px)); }
     /* Thẻ gọn hơn: chữ co giãn theo màn hình, đáp án xếp 2 cột, nút luôn dính ở đáy thẻ */
@@ -438,7 +446,20 @@
                 el.appendChild(grid);
             }
             var fills = [];
-            if ((card.bars || []).length) {
+            // Câu hỏi về đạt/chưa đạt: thanh tỉ lệ đúng theo số bài trong CSDL (không có cột điểm)
+            if (card.focus === 'dat' && card.dat && Number(card.dat.tong) > 0) {
+                var dt = card.dat, tot = Number(dt.tong), pOk = Math.round((Number(dt.dat) / tot) * 100), pNo = 100 - pOk;
+                var dsec = document.createElement('div'); dsec.className = 'vc-sec'; dsec.textContent = 'Tỉ lệ bài đạt và chưa đạt (' + nf(tot) + ' bài đã làm)'; el.appendChild(dsec);
+                var split = document.createElement('div'); split.className = 'vc-split';
+                var sOk = document.createElement('div'); sOk.className = 'vc-split-ok'; sOk.style.width = pOk + '%'; sOk.textContent = pOk >= 12 ? pOk + '%' : '';
+                var sNo = document.createElement('div'); sNo.className = 'vc-split-no'; sNo.style.width = pNo + '%'; sNo.textContent = pNo >= 12 ? pNo + '%' : '';
+                split.appendChild(sOk); split.appendChild(sNo); el.appendChild(split);
+                var legend = document.createElement('div'); legend.className = 'vc-split-legend';
+                legend.innerHTML = '<span><i class="ok"></i>Đạt: ' + nf(dt.dat) + ' bài</span><span><i class="no"></i>Chưa đạt: ' + nf(dt.chua_dat) + ' bài</span>';
+                el.appendChild(legend);
+            }
+            // Câu hỏi về câu sai: không vẽ cột điểm, chỉ hiện chủ đề cần ôn bên dưới
+            if ((card.bars || []).length && card.focus !== 'dat' && card.focus !== 'cau_sai') {
                 var sec = document.createElement('div'); sec.className = 'vc-sec'; sec.textContent = str(card.bars_title); el.appendChild(sec);
                 var chart = document.createElement('div'); chart.className = 'vc-chart';
                 var max = Number(card.max) || 1000;
