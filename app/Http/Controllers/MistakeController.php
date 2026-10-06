@@ -61,6 +61,10 @@ class MistakeController extends Controller
             });
         }
 
+        // Số câu sai theo từng chủ đề (theo trạng thái và khối đang chọn, chưa tính bộ lọc chủ đề)
+        $topicCounts = (clone $query)->get()
+            ->countBy(fn (StudentMistake $m) => (int) $m->question?->practiceTest?->topic_id);
+
         // Lọc theo chủ đề (chỉ áp dụng khi chủ đề thuộc khối đang chọn)
         $selectedTopic = (string) $request->input('topic', 'all');
         if ($selectedTopic !== 'all' && ctype_digit($selectedTopic)) {
@@ -98,6 +102,7 @@ class MistakeController extends Controller
             'selectedStatus',
             'selectedRisk',
             'topics',
+            'topicCounts',
             'selectedTopic'
         ));
     }

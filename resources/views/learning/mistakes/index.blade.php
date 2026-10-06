@@ -111,17 +111,26 @@
             <!-- Nhóm Chủ đề: chỉ hiện các chủ đề của khối đang chọn -->
             <div class="filter-group">
                 <span class="filter-group-label">📚 Chủ đề:</span>
-                <div class="filter-pill-cluster">
-                    <a class="filter-pill {{ $selectedTopic === 'all' ? 'active' : '' }}" href="{{ route('mistakes.index', array_merge(request()->query(), ['topic' => 'all'])) }}">
-                        Tất cả
-                    </a>
-                    @foreach($topics as $topic)
-                    <a class="filter-pill {{ (string)$selectedTopic === (string)$topic->id ? 'active' : '' }}" href="{{ route('mistakes.index', array_merge(request()->query(), ['topic' => $topic->id])) }}">
-                        {{ $topic->name }}
-                    </a>
+                <select class="topic-select" aria-label="Chọn chủ đề" onchange="if (this.value) window.location.href = this.value;">
+                    <option value="{{ route('mistakes.index', array_merge(request()->query(), ['topic' => 'all'])) }}" {{ $selectedTopic === 'all' ? 'selected' : '' }}>
+                        Tất cả chủ đề ({{ $topicCounts->sum() }} câu)
+                    </option>
+                    @foreach($topics->groupBy(fn ($t) => $t->level?->grade) as $grade => $group)
+                    <optgroup label="Khối {{ $grade }}">
+                        @foreach($group as $topic)
+                        <option value="{{ route('mistakes.index', array_merge(request()->query(), ['topic' => $topic->id])) }}" {{ (string)$selectedTopic === (string)$topic->id ? 'selected' : '' }}>
+                            {{ $topic->name }} ({{ $topicCounts[$topic->id] ?? 0 }} câu)
+                        </option>
+                        @endforeach
+                    </optgroup>
                     @endforeach
-                </div>
+                </select>
             </div>
+
+            <style>
+                .topic-select { min-width: 260px; max-width: 100%; padding: 8px 14px; border-radius: 14px; border: 3px solid #fff; background: #fff; color: #1e1b4b; font: inherit; font-weight: 800; font-size: 14px; box-shadow: 0 5px 0 rgba(0,0,0,0.15); cursor: pointer; }
+                .topic-select:focus { outline: 3px solid #a78bfa; outline-offset: 2px; }
+            </style>
 
             <div class="filter-divider"></div>
 
