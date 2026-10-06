@@ -5,8 +5,10 @@ namespace App\Services;
 use App\Mail\PasswordChangedAlertMail;
 use App\Mail\PasswordResetOtpMail;
 use App\Models\Package;
+use App\Models\PackageOrder;
 use App\Models\SupportMessage;
 use App\Models\User;
+use App\Support\VietText;
 use Illuminate\Http\Request;
 use Illuminate\Mail\Mailable;
 use Illuminate\Support\Facades\Cache;
@@ -33,6 +35,11 @@ class SupportBotService
     private const FLOW_MINUTES = 15;
     private const OTP_MINUTES = 10;
     private const OTP_MAX_ATTEMPTS = 5;
+    /** Tìm lại tài khoản bằng câu hỏi xác minh: tối đa 3 lần mỗi 30 phút cho mỗi địa chỉ IP */
+    private const FIND_MAX_ATTEMPTS = 3;
+    private const FIND_LOCK_MINUTES = 30;
+    /** Email ảo (do giáo viên tạo tài khoản) không nhận được thư */
+    private const NO_MAIL_DOMAINS = ['student.ic3.local', 'ic3.test'];
     /** Số lượt AI tối đa trong một giờ cho mỗi cuộc trò chuyện và mỗi IP */
     private const AI_LIMIT_CONVERSATION = 10;
     private const AI_LIMIT_IP = 60;
@@ -254,7 +261,7 @@ class SupportBotService
         return $this->finish($msg, [
             "Mình hỗ trợ bạn khôi phục mật khẩu nhé! 🔑\n"
             . "Bạn nhập **email đăng nhập** hoặc **Mã HS** của mình.\n"
-            . 'Gõ "hủy" nếu muốn dừng.',
+            . 'Không nhớ cả hai? Gõ **"không nhớ"** để mình hỏi vài câu xác minh và tìm lại giúp bạn. Gõ "hủy" nếu muốn dừng.',
         ], false, true);
     }
 
@@ -268,6 +275,9 @@ class SupportBotService
 
         return match ($flow['step']) {
             'identify' => $this->stepIdentify($request, $msg, $input),
+            'find_name' => $this->stepFindName($request, $msg, $input),
+            'find_class' => $this->stepFindClass($request, $msg, $flow, $input),
+            'find_teacher' => $this->stepFindTeacher($request, $msg, $flow, $input),
             'confirm' => $this->stepConfirmEmail($request, $msg, $flow, $input),
             'otp' => $this->stepVerifyOtp($request, $msg, $flow, $input),
             'password' => $this->stepSetPassword($request, $msg, $flow, $input),
@@ -277,6 +287,11 @@ class SupportBotService
 
     private function stepIdentify(Request $request, SupportMessage $msg, string $input): array
     {
+        // Không nhớ cả email lẫn Mã HS: chuyển sang hỏi câu xác minh để tìm lại tài khoản
+        if (preg_match('/^(khong|ko|k|chang|cha)\s*(nho|biet)|^quen\s*(het|luon|ca|roi)/', VietText::norm($input))) {
+            return $this->startFind($request, $msg);
+        }
+
         // Nhận đúng các cách đăng nhập như trang đăng nhập (AuthController::store)
         $lower = mb_strtolower($input);
         $user = User::query()
@@ -288,7 +303,7 @@ class SupportBotService
 
         if (! $user || blank($user->email)) {
             return $this->finish($msg, [
-                'Mình chưa tìm thấy tài khoản khớp với thông tin này. Bạn kiểm tra lại email hoặc Mã HS nhé.',
+                'Mình chưa tìm thấy tài khoản khớp với thông tin này. Bạn kiểm tra lại email hoặc Mã HS, hoặc gõ **"không nhớ"** để mình hỏi vài câu xác minh nhé.',
                 'Nếu vẫn không được, bạn để lại SĐT/Zalo, Ban Quản Trị sẽ hỗ trợ trực tiếp.',
             ], false, true);
         }
@@ -299,6 +314,150 @@ class SupportBotService
             'Tài khoản này đăng ký email **' . $this->maskEmail($user->email) . '**.',
             'Để xác nhận đúng là bạn, hãy nhập **đầy đủ** địa chỉ email đó.',
         ], false, true);
+    }
+
+    // ----- Tìm lại tài khoản khi quên cả email lẫn Mã HS: hỏi họ tên, lớp, giáo viên -----
+
+    private function startFind(Request $request, SupportMessage $msg): array
+    {
+        if ($this->findLocked($request)) {
+            return $this->endRecovery($request, $msg, 'Bạn đã thử xác minh quá nhiều lần. ' . $this->handoffNotice());
+        }
+        $this->saveFlow($request, ['step' => 'find_name']);
+
+        return $this->finish($msg, [
+            'Mình hỏi 3 câu để xác minh đúng là bạn nhé. 🕵️',
+            'Câu 1: **Họ và tên đầy đủ** của học sinh là gì? (ví dụ: Nguyễn An Nhiên)',
+        ], false, true);
+    }
+
+    private function stepFindName(Request $request, SupportMessage $msg, string $input): array
+    {
+        if (mb_strlen(VietText::norm($input)) < 2) {
+            return $this->failFlow($request, $msg, ['step' => 'find_name'], 'Bạn nhập họ và tên đầy đủ giúp mình nhé.');
+        }
+        $this->saveFlow($request, ['step' => 'find_class', 'name' => trim($input)]);
+
+        return $this->finish($msg, [
+            "Câu 2: Tài khoản do **thầy/cô tạo** thì nhập **lớp** (ví dụ: 3A1).\n"
+            . 'Nếu **tự mua gói** thì nhập **mã đơn hàng** (dạng MOS-202610-ABCDE, có trong nội dung chuyển khoản hoặc biên nhận thanh toán).',
+        ], false, true);
+    }
+
+    private function stepFindClass(Request $request, SupportMessage $msg, array $flow, string $input): array
+    {
+        // Tự mua gói: mã đơn hàng chỉ người mua biết, đủ để xác minh cùng họ tên (không cần hỏi giáo viên)
+        if (preg_match('/MOS[\s-]*(\d{6})[\s-]*([A-Z0-9]{5,8})/i', $input, $m)) {
+            return $this->revealOrFail($request, $msg, $this->findByOrder((string) ($flow['name'] ?? ''), 'MOS-' . $m[1] . '-' . strtoupper($m[2])));
+        }
+
+        $this->saveFlow($request, ['step' => 'find_teacher', 'name' => $flow['name'] ?? '', 'class' => trim($input)]);
+
+        return $this->finish($msg, ['Câu 3: Tên **thầy/cô giáo** quản lý tài khoản của em là gì? (ví dụ: Cô Mai Linh)'], false, true);
+    }
+
+    /**
+     * So khớp cả 3 thông tin với đúng MỘT tài khoản học sinh. Sai thì chỉ báo chung (không nói sai ở câu nào) để không dò được dữ liệu.
+     * Đúng thì cho biết Mã HS và email đã che; đổi mật khẩu vẫn bắt buộc OTP gửi về email nên không chiếm được tài khoản.
+     */
+    private function stepFindTeacher(Request $request, SupportMessage $msg, array $flow, string $input): array
+    {
+        return $this->revealOrFail($request, $msg, $this->findByIdentity((string) ($flow['name'] ?? ''), (string) ($flow['class'] ?? ''), $input));
+    }
+
+    /** Xác minh xong: tìm thấy đúng một tài khoản thì cho biết Mã HS + email đã che; không thì báo chung và đếm số lần thử */
+    private function revealOrFail(Request $request, SupportMessage $msg, ?User $user): array
+    {
+        if (! $user) {
+            $attempts = $this->countFindAttempt($request);
+            if ($attempts >= self::FIND_MAX_ATTEMPTS) {
+                return $this->endRecovery($request, $msg, 'Thông tin chưa khớp với tài khoản nào và bạn đã thử quá nhiều lần. ' . $this->handoffNotice());
+            }
+            $this->saveFlow($request, ['step' => 'find_name']);
+
+            return $this->finish($msg, [
+                'Thông tin chưa khớp với tài khoản nào. Bạn kiểm tra lại họ tên (có dấu), lớp và tên thầy/cô hoặc mã đơn hàng rồi thử lại nhé (còn ' . (self::FIND_MAX_ATTEMPTS - $attempts) . ' lần).',
+                'Câu 1: **Họ và tên đầy đủ** của học sinh là gì?',
+            ], false, true);
+        }
+
+        $teacher = $user->teacher?->name;
+        if (! $this->hasRealEmail($user)) {
+            return $this->endRecovery($request, $msg,
+                'Mình tìm thấy tài khoản rồi: ' . ($user->student_code ? "em đăng nhập bằng **Mã HS {$user->student_code}**. " : '')
+                . 'Tài khoản này chưa có email nhận thư nên chưa tự đổi mật khẩu được: em nhờ '
+                . ($teacher ? "**{$teacher}**" : 'thầy/cô quản lý tài khoản') . ' hoặc Ban Quản Trị đặt lại mật khẩu giúp nhé.');
+        }
+
+        $this->saveFlow($request, ['step' => 'confirm', 'user_id' => $user->id]);
+
+        return $this->finish($msg, [
+            'Mình tìm thấy tài khoản rồi! 🎉 ' . ($user->student_code ? "Mã HS của em là **{$user->student_code}**, " : '') . 'email đăng ký là **' . $this->maskEmail($user->email) . '**.',
+            'Để xác nhận đúng là bạn, hãy nhập **đầy đủ** địa chỉ email đó để nhận mã OTP.',
+        ], false, true);
+    }
+
+    /** Học sinh khớp đúng cả họ tên, lớp và giáo viên quản lý; không khớp hoặc khớp nhiều người thì trả null */
+    private function findByIdentity(string $name, string $class, string $teacher): ?User
+    {
+        $name = VietText::norm($name);
+        $class = preg_replace('/^lop\s*/', '', VietText::norm($class));
+        $teacherWords = array_values(array_diff(explode(' ', VietText::norm($teacher)), ['co', 'thay', 'gv', 'giao', 'vien', 'cua', 'em', 'la', '']));
+        if ($name === '' || $class === '' || $teacherWords === []) {
+            return null;
+        }
+
+        $matches = User::query()
+            ->where('role', 'student')
+            ->whereNotNull('classroom_id')
+            ->whereNotNull('created_by')
+            ->with(['classroom:id,name', 'teacher:id,name'])
+            ->get(['id', 'name', 'email', 'student_code', 'classroom_id', 'created_by'])
+            ->filter(function (User $u) use ($name, $class, $teacherWords) {
+                $teacherName = ' ' . VietText::norm((string) $u->teacher?->name) . ' ';
+
+                return VietText::norm($u->name) === $name
+                    && preg_replace('/^lop\s*/', '', VietText::norm((string) $u->classroom?->name)) === $class
+                    && collect($teacherWords)->every(fn ($w) => str_contains($teacherName, " {$w} "));
+            });
+
+        return $matches->count() === 1 ? $matches->first() : null;
+    }
+
+    /** Người mua gói: mã đơn hàng đúng và họ tên khớp chủ đơn (không nhận tài khoản quản trị) */
+    private function findByOrder(string $name, string $code): ?User
+    {
+        $user = PackageOrder::where('code', $code)->first()?->user;
+        if (! $user || $user->isAdmin() || VietText::norm($user->name) !== VietText::norm($name)) {
+            return null;
+        }
+
+        return $user;
+    }
+
+    private function hasRealEmail(User $user): bool
+    {
+        $domain = mb_strtolower((string) substr(strrchr((string) $user->email, '@'), 1));
+
+        return $domain !== '' && ! in_array($domain, self::NO_MAIL_DOMAINS, true) && ! str_ends_with($domain, '.local') && ! str_ends_with($domain, '.test');
+    }
+
+    private function findKey(Request $request): string
+    {
+        return 'support_bot_find_' . sha1((string) $request->ip());
+    }
+
+    private function findLocked(Request $request): bool
+    {
+        return (int) Cache::get($this->findKey($request), 0) >= self::FIND_MAX_ATTEMPTS;
+    }
+
+    private function countFindAttempt(Request $request): int
+    {
+        $key = $this->findKey($request);
+        Cache::add($key, 0, now()->addMinutes(self::FIND_LOCK_MINUTES));
+
+        return (int) Cache::increment($key);
     }
 
     private function stepConfirmEmail(Request $request, SupportMessage $msg, array $flow, string $input): array
