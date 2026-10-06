@@ -39,7 +39,7 @@
 
     /* Quả cầu */
     .vc-stage { display: flex; flex-direction: column; align-items: center; gap: 8px; padding: 4px 16px 6px; flex-shrink: 0; }
-    .vc-orb { --lvl: 0; position: relative; width: 132px; height: 132px; border-radius: 50%; border: 0; cursor: pointer; background: radial-gradient(circle at 35% 30%, #fff 0%, #c4b5fd 30%, #7c3aed 70%, #4c1d95 100%); box-shadow: 0 0 0 calc(8px + var(--lvl) * 26px) rgba(196,181,253,0.25), 0 0 60px rgba(167,139,250,0.6); transition: box-shadow .08s, transform .2s; }
+    .vc-orb { --lvl: 0; position: relative; width: 132px; height: 132px; border-radius: 50%; border: 0; cursor: pointer; background: radial-gradient(circle at 35% 30%, #fff 0%, #f0abfc 22%, #a855f7 60%, #4c1d95 100%); box-shadow: 0 0 0 calc(8px + var(--lvl) * 26px) rgba(196,181,253,0.25), 0 0 60px rgba(167,139,250,0.6); transition: box-shadow .08s, transform .2s; }
     .vc-orb::after { content: ''; position: absolute; inset: -14px; border-radius: 50%; border: 3px solid rgba(255,255,255,0.28); opacity: 0; }
     /* Cùng một tông tím cho mọi trạng thái; trạng thái thể hiện bằng nhịp đập và thẻ chữ bên dưới */
     .vc-listening .vc-orb { transform: scale(calc(1 + var(--lvl) * 0.12)); }
@@ -62,8 +62,8 @@
     .vc-row.vc-ai .vc-ava { background: linear-gradient(135deg, #a78bfa, #7c3aed); }
     .vc-row.vc-user .vc-ava { background: linear-gradient(135deg, #38bdf8, #6366f1); }
     .vc-msg { max-width: min(78%, 560px); padding: 11px 16px; border-radius: 20px; font-size: 16px; font-weight: 700; line-height: 1.6; word-break: break-word; box-shadow: 0 6px 16px rgba(0,0,0,0.18); }
-    .vc-row.vc-ai .vc-msg { background: #ffffff; color: #2e1065; border-bottom-left-radius: 6px; }
-    .vc-row.vc-user .vc-msg { background: linear-gradient(135deg, #3b82f6, #6366f1); border-bottom-right-radius: 6px; }
+    .vc-row.vc-ai .vc-msg { background: #ffffff; color: #2e1065; border-bottom-left-radius: 6px; box-shadow: inset 6px 0 0 #a78bfa, 0 6px 16px rgba(0,0,0,0.18); }
+    .vc-row.vc-user .vc-msg { background: linear-gradient(135deg, #06b6d4, #3b82f6 60%, #6366f1); border-bottom-right-radius: 6px; }
     .vc-row.vc-sys { justify-content: center; }
     .vc-row.vc-sys .vc-msg { background: rgba(255,255,255,0.14); font-size: 13.5px; text-align: center; box-shadow: none; }
     /* Thẻ thống kê: ô số liệu + biểu đồ cột + chủ đề cần ôn */
