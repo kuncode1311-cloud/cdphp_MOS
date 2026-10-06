@@ -178,7 +178,9 @@
         gap: 10px 16px; padding: 0 16px 8px;
         width: 100%; max-width: 1240px; margin: 0 auto;
     }
-    .vc-quizmode .vc-stage { flex-direction: row; justify-content: center; gap: 14px; padding: 2px 0 0; }
+    /* Chế độ câu hỏi: quả cầu và thẻ trạng thái xếp dọc, căn giữa, không bị lệch sang một bên */
+    .vc-quizmode .vc-stage { flex-direction: column; align-items: center; justify-content: center; gap: 4px; padding: 2px 0 0; }
+    .vc-quizmode .vc-state { margin-top: 2px; padding: 4px 14px; }
     .vc-quizmode .vc-orb { width: 58px; height: 58px; box-shadow: 0 0 0 calc(4px + var(--lvl) * 14px) rgba(196,181,253,0.25), 0 0 26px rgba(167,139,250,0.55); }
     .vc-quizmode .vc-orb::after { inset: -7px; border-width: 2px; }
     .vc-quizmode .vc-state { font-size: 14px; min-height: 0; }
