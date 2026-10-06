@@ -102,33 +102,14 @@
                     } catch (e) { return ''; }
                 }
 
-                function looksLikeOpenRequest(text) {
-                    return /(mở|mo trang|open|vào|vao|chuyển|chuyen|đưa|dua|tới|toi|sang|làm bài|lam bai)/iu.test(String(text || ''));
-                }
-
-                function prepareActionTab(text) {
-                    if (!looksLikeOpenRequest(text)) return null;
-                    const tab = window.open('', '_blank');
-                    if (!tab) return null;
-                    try {
-                        tab.opener = null;
-                        tab.document.write('<!doctype html><title>Trợ lý AI IC3</title><body style="font-family:system-ui;padding:24px">Trợ lý AI đang mở trang phù hợp...</body>');
-                    } catch (e) {}
-
-                    return tab;
-                }
-
-                function openActionIfNeeded(action, preparedTab = null) {
+                // Trợ lý tự chuyển trang: mở ngay trong tab hiện tại (không mở tab mới, không bị trình duyệt chặn).
+                // Cuộc trò chuyện vẫn còn nhờ lưu trong localStorage.
+                function openActionIfNeeded(action) {
                     if (!action || !action.auto || !action.url) return;
                     try {
                         const url = new URL(action.url, window.location.origin);
                         if (url.origin !== window.location.origin) return;
-                        const path = url.pathname + url.search + url.hash;
-                        if (preparedTab && !preparedTab.closed) {
-                            preparedTab.location.href = path;
-                            return;
-                        }
-                        window.open(path, '_blank', 'noopener');
+                        window.location.href = url.pathname + url.search + url.hash;
                     } catch (e) {}
                 }
 
@@ -192,7 +173,6 @@
                     if (!text) return;
                     $('ai-send').disabled = true;
                     aiTyping = true;
-                    const preparedTab = prepareActionTab(text);
                     const currentHistory = state.lastHistory || [];
                     const pendingHistory = currentHistory.concat([{ sender: 'user', text }]);
                     state.lastHistory = pendingHistory;
@@ -212,12 +192,9 @@
                         state.lastHistory = data.conversation_history || [];
                         aiTyping = false;
                         render(state.lastHistory);
-                        openActionIfNeeded(data.bot_action, preparedTab);
-                        if (preparedTab && !preparedTab.closed && !data.bot_action?.auto) {
-                            preparedTab.close();
-                        }
+                        save();
+                        openActionIfNeeded(data.bot_action);
                     } catch (err) {
-                        if (preparedTab && !preparedTab.closed) preparedTab.close();
                         aiTyping = false;
                         state.lastHistory = (state.lastHistory || []).concat([{
                             sender: 'bot',
