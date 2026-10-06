@@ -128,8 +128,11 @@
             </div>
 
             <style>
-                .topic-select { min-width: 260px; max-width: 100%; padding: 8px 14px; border-radius: 14px; border: 3px solid #fff; background: #fff; color: #1e1b4b; font: inherit; font-weight: 800; font-size: 14px; box-shadow: 0 5px 0 rgba(0,0,0,0.15); cursor: pointer; }
-                .topic-select:focus { outline: 3px solid #a78bfa; outline-offset: 2px; }
+                .topic-select { min-width: 280px; max-width: 100%; padding: 9px 14px; border-radius: 16px; border: 3px solid transparent; background: linear-gradient(#fff, #fff) padding-box, linear-gradient(90deg, #f59e0b, #ec4899, #8b5cf6) border-box; color: #4c1d95; font: inherit; font-weight: 800; font-size: 14px; box-shadow: 0 5px 0 rgba(139,92,246,0.35); cursor: pointer; }
+                .topic-select:hover { transform: translateY(-1px); }
+                .topic-select:focus { outline: 3px solid #c4b5fd; outline-offset: 2px; }
+                .topic-select option { color: #1e1b4b; font-weight: 700; }
+                .topic-select optgroup { color: #7c3aed; font-weight: 900; }
             </style>
 
             <div class="filter-divider"></div>
