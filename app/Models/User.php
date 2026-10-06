@@ -312,12 +312,12 @@ class User extends Authenticatable
         $this->attributes['phone'] = SupportMessage::normalizePhone($value);
     }
 
-    /** Số điện thoại đã che để xác nhận chính chủ: 09*****678 */
+    /** Số điện thoại đã che để xác nhận chính chủ: 09•••••678 (dùng • vì dấu * trùng ký hiệu in đậm của khung chat) */
     public function maskedPhone(): ?string
     {
         $phone = (string) $this->phone;
 
-        return $phone === '' ? null : substr($phone, 0, 2) . str_repeat('*', max(3, strlen($phone) - 5)) . substr($phone, -3);
+        return $phone === '' ? null : substr($phone, 0, 2) . str_repeat('•', max(3, strlen($phone) - 5)) . substr($phone, -3);
     }
 
     /** Email nhận được thư thật (email ảo do giáo viên tạo như @student.ic3.local thì không) */

@@ -243,7 +243,7 @@ class SupportBotRecoveryTest extends TestCase
         // 2. Nhập Email đăng nhập -> bot chỉ hiện email đã che
         $data = $this->send('hocsinh@gmail.com', ['phone' => null, 'contact' => '']);
         // Che phần đầu email, giữ nguyên tên miền
-        $this->assertStringContainsString('ho*****@gmail.com', $data['bot_replies'][0]);
+        $this->assertStringContainsString('ho•••••@gmail.com', $data['bot_replies'][0]);
         $this->assertStringNotContainsString('hocsinh@', $data['bot_replies'][0]);
 
         // 3. Nhập sai email xác nhận -> không gửi OTP

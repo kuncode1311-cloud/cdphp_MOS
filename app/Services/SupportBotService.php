@@ -680,12 +680,12 @@ class SupportBotService
         $request->session()->put(self::SESSION_KEY, $flow);
     }
 
-    /** Che bớt email: ab***@gmail.com */
+    /** Che bớt email: ab•••@gmail.com (dùng • vì dấu * trùng ký hiệu in đậm của khung chat) */
     private function maskEmail(string $email): string
     {
         [$local, $domain] = explode('@', $email, 2) + [1 => ''];
         $visible = mb_substr($local, 0, min(2, mb_strlen($local)));
 
-        return $visible . str_repeat('*', max(3, mb_strlen($local) - mb_strlen($visible))) . '@' . $domain;
+        return $visible . str_repeat('•', max(3, mb_strlen($local) - mb_strlen($visible))) . '@' . $domain;
     }
 }
