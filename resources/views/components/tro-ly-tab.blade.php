@@ -3,6 +3,7 @@
 <script>
     (function () {
         var NAME = 'ic3-tro-ly';
+        var PLACEHOLDER = {{ Js::from(route('tro-ly.cho')) }};
         var win = null;
 
         function alive() {
@@ -11,9 +12,10 @@
 
         window.troLyTab = {
             // Gọi khi người dùng bấm (cú bấm cho phép mở tab). Nếu tab đã mở thì dùng lại, không mở thêm.
+            // Tab hiện trang chờ thân thiện, không để trang trắng.
             prepare: function () {
                 try {
-                    win = window.open('', NAME);
+                    win = window.open(PLACEHOLDER, NAME);
                     if (win) { try { win.opener = null; } catch (e) {} }
                 } catch (e) { win = null; }
                 return !!alive();
@@ -30,10 +32,10 @@
                     return !!alive();
                 } catch (e) { return false; }
             },
-            // Đóng tab nếu nó vẫn còn trắng (chưa chuyển trang), để không để lại tab trống.
+            // Đóng tab nếu nó vẫn đang ở trang chờ (chưa chuyển trang), để không để lại tab trống.
             closeIfBlank: function () {
                 try {
-                    if (alive() && win.location.href === 'about:blank') { win.close(); }
+                    if (alive() && win.location.pathname === new URL(PLACEHOLDER, window.location.origin).pathname) { win.close(); }
                 } catch (e) {}
                 if (!alive()) { win = null; }
             },
