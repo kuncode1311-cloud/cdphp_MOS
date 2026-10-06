@@ -34,6 +34,8 @@ class SupportBotPasswordResetTest extends TestCase
         config(['services.gemini.api_keys' => 'test-key']);
         config(['services.question_ai.base_url' => '', 'services.question_ai.model' => '']);
         Cache::flush();
+        // Giả lập server đã cấu hình SMTP (thư vẫn bị Mail::fake chặn, không gửi thật)
+        config(['mail.default' => 'smtp']);
         Mail::fake();
         Http::fake();
         // Trong test, admin mặc định không online để bot xử lý
@@ -162,6 +164,38 @@ class SupportBotPasswordResetTest extends TestCase
 
         $this->assertStringContainsString('chưa tìm thấy', $data['bot_replies'][0]);
         Mail::assertNothingSent();
+    }
+
+    public function test_co_brevo_thi_otp_gui_qua_brevo_api_giong_trang_ho_so(): void
+    {
+        // Máy chủ thật: cổng SMTP bị chặn, gửi bằng Brevo API
+        Http::fake(['https://api.brevo.com/v3/smtp/email' => Http::response(['messageId' => '<id>'], 201), '*' => Http::response([], 200)]);
+        config(['services.brevo.key' => 'test-fake-key', 'mail.default' => 'log']);
+        $this->user();
+
+        $this->say('quên mật khẩu');
+        $this->say(self::EMAIL);
+        $data = $this->say(self::EMAIL);
+
+        $this->assertStringContainsString('đã gửi mã OTP', implode(' ', $data['bot_replies']));
+        Http::assertSent(fn ($r) => $r->url() === 'https://api.brevo.com/v3/smtp/email'
+            && ($r['to'][0]['email'] ?? null) === self::EMAIL
+            && str_contains((string) ($r['subject'] ?? ''), 'Mã OTP'));
+        Mail::assertNothingSent();
+    }
+
+    public function test_server_chua_cau_hinh_gui_mail_thi_noi_that_khong_bao_da_gui(): void
+    {
+        // MAIL_MAILER=log chỉ ghi thư vào file log, không gửi thật
+        config(['mail.default' => 'log']);
+        $this->user();
+
+        $this->startAndConfirm();
+        $data = $this->say('123456');
+
+        $this->assertNull(Cache::get('support_bot_otp_' . User::where('email', self::EMAIL)->value('id')));
+        Mail::assertNothingSent();
+        $this->assertStringNotContainsString('đã gửi mã OTP', implode(' ', $data['bot_replies']));
     }
 
     public function test_nhap_sai_email_xac_nhan_khong_gui_otp(): void

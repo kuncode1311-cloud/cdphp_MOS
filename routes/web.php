@@ -228,6 +228,7 @@ Route::prefix('quan-tri')->name('admin.')->middleware(['auth', 'admin', 'subscri
         Route::get('/tro-ly-ai', [\App\Http\Controllers\Admin\AiAssistantController::class, 'index'])->name('ai-assistant.index');
         Route::post('/tro-ly-ai/goi', [\App\Http\Controllers\Admin\AiAssistantController::class, 'storePackage'])->name('ai-assistant.packages.store');
         Route::put('/tro-ly-ai/goi/{package}', [\App\Http\Controllers\Admin\AiAssistantController::class, 'updatePackage'])->name('ai-assistant.packages.update');
+        Route::get('/tro-ly-ai/tim-tai-khoan', [\App\Http\Controllers\Admin\AiAssistantController::class, 'lookup'])->name('ai-assistant.lookup');
         Route::post('/tro-ly-ai/cap-quyen', [\App\Http\Controllers\Admin\AiAssistantController::class, 'grant'])->name('ai-assistant.grant');
         Route::post('/tro-ly-ai/nguoi-dung/{user}/gia-han', [\App\Http\Controllers\Admin\AiAssistantController::class, 'extend'])->name('ai-assistant.extend');
         Route::post('/tro-ly-ai/nguoi-dung/{user}/thu-hoi', [\App\Http\Controllers\Admin\AiAssistantController::class, 'revoke'])->name('ai-assistant.revoke');

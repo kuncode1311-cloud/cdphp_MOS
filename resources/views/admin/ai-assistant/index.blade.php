@@ -16,6 +16,19 @@
     {{-- Bộ style dùng chung của khu Gói & Bản quyền (thẻ, bảng, nút) --}}
     @include('partials.admin-pkg-styles')
     @include('partials.admin-ai-styles')
+    <style>
+        /* Cấp Trợ lý AI: danh sách gợi ý tài khoản + thẻ xác nhận đúng người */
+        .ai-grant-field { position: relative; }
+        .ai-grant-list { position: absolute; top: 100%; left: 0; right: 0; z-index: 30; margin-top: 4px; background: #fff; border: 2px solid #93c5fd; border-radius: 12px; box-shadow: 0 14px 30px rgba(15, 23, 42, 0.16); max-height: 320px; overflow-y: auto; }
+        .ai-grant-item { display: flex; justify-content: space-between; align-items: center; gap: 10px; width: 100%; padding: 9px 12px; border: none; border-bottom: 1px solid #f1f5f9; background: #fff; font-family: inherit; text-align: left; cursor: pointer; }
+        .ai-grant-item:hover, .ai-grant-item.on { background: #eff6ff; }
+        .ai-grant-item b { display: block; font-size: 13.5px; color: #0f172a; }
+        .ai-grant-item small { display: block; font-size: 12px; font-weight: 700; color: #64748b; }
+        .ai-grant-empty { padding: 12px; font-size: 13px; font-weight: 700; color: #64748b; }
+        .ai-grant-confirm { margin-top: 12px; display: flex; flex-wrap: wrap; align-items: center; gap: 10px; background: #f0fdf4; border: 2px solid #86efac; border-radius: 12px; padding: 10px 14px; font-size: 13.5px; font-weight: 700; color: #14532d; }
+        .ai-grant-confirm b { font-size: 14.5px; }
+        .ai-grant-confirm .ai-pill { margin-left: 2px; }
+    </style>
 </head>
 <body>
 
@@ -146,19 +159,22 @@
             <section data-section="tai-khoan">
                 <div class="ai-card">
                     <h3>🎁 Cấp Trợ lý AI cho tài khoản</h3>
-                    <p class="hint">Dùng để tặng, cho dùng thử hoặc hỗ trợ khách. Nhập mã học sinh, email hoặc đúng họ tên. Tài khoản đang còn hạn thì được cộng thêm ngày.</p>
-                    <form method="POST" action="{{ route('admin.ai-assistant.grant') }}" class="ai-form">
+                    <p class="hint">Dùng để tặng, cho dùng thử hoặc hỗ trợ khách. Gõ tên, mã học sinh hoặc email rồi <b>chọn đúng người</b> trong danh sách hiện ra. Tài khoản đang còn hạn thì được cộng thêm ngày.</p>
+                    <form method="POST" action="{{ route('admin.ai-assistant.grant') }}" class="ai-form" id="ai-grant-form">
                         @csrf
-                        <div class="ai-field" style="flex:1 1 280px;">
+                        <input type="hidden" name="user_id" id="ai-grant-user" value="">
+                        <div class="ai-field ai-grant-field" style="flex:1 1 280px;">
                             <label for="ai-grant-account">Tài khoản</label>
-                            <input id="ai-grant-account" type="text" name="account" maxlength="120" required value="{{ old('account') }}" placeholder="VD: HS001 hoặc email@..." style="width:100%;box-sizing:border-box;">
+                            <input id="ai-grant-account" type="text" maxlength="120" autocomplete="off" placeholder="Gõ tên, mã HS hoặc email (ít nhất 2 ký tự)..." style="width:100%;box-sizing:border-box;" aria-controls="ai-grant-list" aria-expanded="false">
+                            <div class="ai-grant-list" id="ai-grant-list" role="listbox" hidden></div>
                         </div>
                         <div class="ai-field">
                             <label for="ai-grant-days">Số ngày</label>
                             <input id="ai-grant-days" type="number" name="days" min="1" max="365" value="{{ old('days', 30) }}" style="width:90px;">
                         </div>
-                        <button class="ai-btn ai-btn-green" type="submit">🎁 Cấp quyền</button>
+                        <button class="ai-btn ai-btn-green" type="submit" id="ai-grant-submit" disabled>🎁 Cấp quyền</button>
                     </form>
+                    <div class="ai-grant-confirm" id="ai-grant-confirm" hidden></div>
                 </div>
 
                 <div class="ai-card" id="ai-members-card">
@@ -318,6 +334,79 @@
 </div>
 
 <script>
+    // Cấp Trợ lý AI: gõ để tìm, chọn đúng người trong danh sách gợi ý, xác nhận rồi mới cấp
+    (() => {
+        const input = document.getElementById('ai-grant-account');
+        if (!input) return;
+        const list = document.getElementById('ai-grant-list');
+        const hidden = document.getElementById('ai-grant-user');
+        const submit = document.getElementById('ai-grant-submit');
+        const confirmBox = document.getElementById('ai-grant-confirm');
+        const esc = v => String(v ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+        let timer = null, seq = 0, items = [], active = -1;
+
+        const describe = u => [u.code, u.role + (u.classroom ? ' · ' + u.classroom : ''), u.email].filter(Boolean).map(esc).join(' · ');
+        const aiPill = u => u.ai_active
+            ? '<span class="ai-pill ai-pill-on">AI còn hạn đến ' + esc(u.ai_until) + '</span>'
+            : (u.ai_until ? '<span class="ai-pill ai-pill-warn">AI hết hạn ' + esc(u.ai_until) + '</span>' : '<span class="ai-pill ai-pill-off">Chưa có AI</span>');
+
+        function close() { list.hidden = true; input.setAttribute('aria-expanded', 'false'); active = -1; }
+        function clearChoice() { hidden.value = ''; submit.disabled = true; confirmBox.hidden = true; }
+        function choose(u) {
+            hidden.value = u.id;
+            input.value = u.name;
+            submit.disabled = false;
+            confirmBox.innerHTML = '✅ Cấp cho: <b>' + esc(u.name) + '</b> · ' + describe(u) + ' ' + aiPill(u)
+                + (u.ai_active ? ' <span>→ sẽ được <b>cộng thêm</b> số ngày.</span>' : '');
+            confirmBox.hidden = false;
+            close();
+        }
+        function render() {
+            list.innerHTML = items.length
+                ? items.map((u, i) => '<button type="button" role="option" class="ai-grant-item' + (i === active ? ' on' : '') + '" data-i="' + i + '"><span><b>' + esc(u.name) + '</b><small>' + describe(u) + '</small></span>' + aiPill(u) + '</button>').join('')
+                : '<div class="ai-grant-empty">Không tìm thấy tài khoản nào. Thử gõ mã học sinh hoặc email.</div>';
+            list.hidden = false;
+            input.setAttribute('aria-expanded', 'true');
+        }
+
+        input.addEventListener('input', () => {
+            clearChoice();
+            clearTimeout(timer);
+            const q = input.value.trim();
+            if (q.length < 2) { close(); return; }
+            timer = setTimeout(async () => {
+                const my = ++seq;
+                try {
+                    const res = await fetch(@json(route('admin.ai-assistant.lookup')) + '?q=' + encodeURIComponent(q), { headers: { 'Accept': 'application/json' } });
+                    const data = await res.json();
+                    if (my !== seq) return; // đã gõ tiếp, bỏ kết quả cũ
+                    items = data.users || [];
+                    active = items.length ? 0 : -1;
+                    render();
+                } catch (e) { close(); }
+            }, 250);
+        });
+        input.addEventListener('keydown', e => {
+            if (list.hidden || !items.length) return;
+            if (e.key === 'ArrowDown' || e.key === 'ArrowUp') {
+                e.preventDefault();
+                active = (active + (e.key === 'ArrowDown' ? 1 : items.length - 1)) % items.length;
+                render();
+            } else if (e.key === 'Enter') {
+                e.preventDefault();
+                if (items[active]) choose(items[active]);
+            } else if (e.key === 'Escape') { close(); }
+        });
+        list.addEventListener('mousedown', e => {
+            const btn = e.target.closest('.ai-grant-item');
+            if (btn) { e.preventDefault(); choose(items[Number(btn.dataset.i)]); }
+        });
+        input.addEventListener('blur', () => setTimeout(close, 150));
+        document.getElementById('ai-grant-form').addEventListener('submit', e => {
+            if (!hidden.value) { e.preventDefault(); input.focus(); }
+        });
+    })();
+
     // Chuyển tab ngay trên trang, chỉ đổi vùng nội dung. Đổi địa chỉ để tải lại vẫn ở đúng tab.
     function showAiTab(tab) {
         document.querySelectorAll('[data-section]').forEach(section => {
