@@ -233,9 +233,9 @@
     .vc-tile:nth-child(4n+2) { background: linear-gradient(135deg, #10b981, #059669); }
     .vc-tile:nth-child(4n+3) { background: linear-gradient(135deg, #0ea5e9, #2563eb); }
     .vc-tile:nth-child(4n+4) { background: linear-gradient(135deg, #f59e0b, #ea580c); }
-    .vc-tile i { font-style: normal; font-size: 20px; }
-    .vc-tile b { font-size: 20px; font-weight: 900; }
-    .vc-tile span { font-size: 12px; font-weight: 800; opacity: .95; text-align: center; }
+    .vc-tile i { font-style: normal; font-size: 20px; color: #fff; }
+    .vc-tile b { font-size: 20px; font-weight: 900; color: #fff; }
+    .vc-tile span { font-size: 12px; font-weight: 800; color: #fff; opacity: .95; text-align: center; }
     .vc-sec { padding: 4px 14px 0; font-size: 13.5px; font-weight: 900; color: #5b21b6; }
     .vc-chart { position: relative; height: 150px; margin: 6px 14px 0; padding: 8px 6px 0; display: flex; gap: 8px; align-items: flex-end; border-radius: 14px; background: linear-gradient(180deg, #f5f3ff, #ffffff); }
     .vc-bar-col { flex: 1; min-width: 0; height: 100%; display: flex; flex-direction: column; justify-content: flex-end; align-items: center; }
@@ -491,7 +491,16 @@
                 });
                 el.appendChild(wk);
             }
-            appendRow(el);
+            // Thẻ kết quả hiện ở cột bên trái (chỗ của câu hỏi) để khung chat bên phải vẫn trò chuyện bình thường.
+            // Nếu đang làm câu hỏi thì không đè lên câu hỏi: chỉ đưa vào khung chat như trước.
+            if (quiz.on) {
+                appendRow(el);
+            } else {
+                var pn = $('vc-quizpane');
+                pn.innerHTML = '';
+                pn.appendChild(el);
+                showQuizPane(true);
+            }
             // Cột và thanh mọc lên cho dễ nhìn
             setTimeout(function () {
                 fills.forEach(function (x) { x.el.style.height = x.h + '%'; });
