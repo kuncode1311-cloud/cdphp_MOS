@@ -10,6 +10,16 @@ Chỉ dùng thông tin trong tài liệu này và danh sách gói. Không tự t
 - Đổi mật khẩu khi đã đăng nhập: vào Hồ sơ cá nhân, nhập mật khẩu hiện tại và mã OTP gửi về email.
 - Không có email đăng ký thì bot không thể khôi phục. Chuyển cho Ban Quản Trị.
 
+## Việc khách chưa đăng nhập vẫn làm được (không cần tài khoản)
+- Xem bảng giá các gói: mở trang Bảng giá (mos.app/bang-gia) hoặc bấm nút "Xem bảng giá" trong khung chat.
+- Đăng ký và thuê gói ngay ở trang Bảng giá: khách bấm chọn gói, nhập thông tin đăng ký và tạo đơn. Không cần có tài khoản trước.
+- Thanh toán đơn: sau khi tạo đơn, khách thanh toán qua PayOS (QR) hoặc chuyển khoản theo hướng dẫn trên trang thanh toán.
+- Kiểm tra trạng thái đơn hàng: dùng trang trạng thái của đơn trong bước thanh toán. Đơn đã kích hoạt sẽ hiện thông báo thành công.
+- Quên mật khẩu: mở mos.app/quen-mat-khau và làm theo từng bước (xem mục Đăng nhập).
+- Đăng nhập: mở mos.app/dang-nhap.
+- Liên hệ hỗ trợ: Admin Trí Kun đẹp zai cute phô mai que, Zalo/SĐT 0345151438.
+- Các trang học (trang của em, học và luyện, đề thi thử, điểm & thành tích, trò chơi...) cần đăng nhập. Nếu khách hỏi về các trang này, hướng dẫn đăng nhập trước.
+
 ## Các khu vực trong hệ thống
 - Trang của em: trang chủ học sinh, lối tắt và khối lớp.
 - Học và luyện IC3: kho bài học theo khối lớp và chủ đề.
