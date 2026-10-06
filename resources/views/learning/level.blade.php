@@ -70,7 +70,7 @@
                 </div>
 
                 @if(isset($mockTests) && $mockTests->isNotEmpty())
-                <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 16px;">
+                <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(min(320px, 100%), 1fr)); gap: 16px;">
                     @foreach($mockTests as $mTest)
                     <div style="background: rgba(255,255,255,0.08); border: 2px solid rgba(255,255,255,0.2); border-radius: 20px; padding: 18px 20px; display: flex; flex-direction: column; justify-content: space-between; transition: transform 0.2s; box-shadow: 0 8px 20px rgba(0,0,0,0.15);">
                         <div style="margin-bottom: 14px;">
@@ -668,6 +668,13 @@
         .topic-search-box {
             width: 100%;
         }
+    }
+    /* Điện thoại hẹp: tiêu đề chủ đề được co chữ, cụm số bài + nút mở gọn lại */
+    @media (max-width: 420px) {
+        .topic-header-text { min-width: 0; }
+        .topic-title { font-size: 18px; }
+        .topic-toggle-area { gap: 6px; }
+        .test-count-pill { padding: 5px 9px; font-size: 11.5px; }
     }
 </style>
 

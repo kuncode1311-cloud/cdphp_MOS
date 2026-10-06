@@ -13,7 +13,7 @@
         </span>
     </div>
 
-    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 16px;">
+    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(min(320px, 100%), 1fr)); gap: 16px;">
         
         <!-- CARD 1: KẾT QUẢ TỐT NHẤT HIỆN TẠI -->
         @php

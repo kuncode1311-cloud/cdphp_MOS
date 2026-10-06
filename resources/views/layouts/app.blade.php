@@ -259,6 +259,34 @@
             .branding-text h1 { font-size: 19px; }
             .branding-text small { display: none; }
         }
+        /* Máy tính bảng: thanh bên còn mở nên thanh đầu trang hẹp lại; ẩn thẻ người chơi, nút chỉ còn biểu tượng */
+        @media (max-width: 1050px) {
+            .vip-topbar { gap: 8px; }
+            .vip-topbar .vip-player-pill { display: none; }
+            .vip-adventure-branding { min-width: 0; }
+            .branding-text small { display: none; }
+            .btn-upgrade-topbar { padding: 8px 11px; }
+            .btn-upgrade-topbar > span:not(.btn-upgrade-spark) { display: none; }
+            .star-wallet-card small { display: none; }
+        }
+        /* Điện thoại: thu gọn thanh đầu trang để không tràn ngang (nút chỉ còn biểu tượng) */
+        @media (max-width: 600px) {
+            .vip-topbar { gap: 6px; padding: 0 8px; }
+            .vip-adventure-branding { min-width: 0; gap: 4px; }
+            .brand-star { display: none; }
+            .branding-text h1 { font-size: 14px; letter-spacing: 0; text-shadow: 0 2px 0 #7e4200; }
+            .vip-top-actions { gap: 5px; }
+            .btn-upgrade-topbar { padding: 7px 9px; font-size: 12px; }
+            .btn-upgrade-topbar > span:not(.btn-upgrade-spark) { display: none; }
+            .star-wallet-card { padding: 3px 8px; border-radius: 12px; }
+            .star-wallet-card small { display: none; }
+            .star-wallet-card b { font-size: 13px; }
+            .vip-top-actions .vip-icon-btn { width: 34px; height: 34px; min-width: 34px; border-radius: 10px; }
+            .vip-top-actions .vip-icon-btn span { font-size: 15px; }
+            /* Nút nổi (Trợ lý AI, chat) nhỏ gọn, sát mép để không che nội dung */
+            .sc-fab { width: 42px; height: 42px; font-size: 18px; right: 8px; bottom: 10px; border-width: 2.5px; opacity: .95; }
+            #ai-fab { bottom: 60px !important; }
+        }
 
         .star-wallet-card, .player-level-badge {
             cursor: pointer;

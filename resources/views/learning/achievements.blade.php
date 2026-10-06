@@ -299,7 +299,7 @@
        =================================================================== */
     .stat-pods-grid {
         display: grid;
-        grid-template-columns: repeat(auto-fit, minmax(290px, 1fr));
+        grid-template-columns: repeat(auto-fit, minmax(min(290px, 100%), 1fr));
         gap: 18px;
         margin-bottom: 26px;
     }
@@ -557,7 +557,7 @@
     /* Packages Grid */
     .packages-grid {
         display: grid;
-        grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+        grid-template-columns: repeat(auto-fit, minmax(min(280px, 100%), 1fr));
         gap: 18px;
     }
     .package-card {
@@ -1854,6 +1854,9 @@
         .sprite-gold   { height: 130px; }
         .sprite-silver { height: 110px; }
         .sprite-bronze { height: 108px; }
+        /* Bục 3 hạng không tràn ra ngoài màn hình hẹp */
+        .podiums-arena-trio { gap: 4px; }
+        .podium-pillar, .podium-pillar * { min-width: 0; max-width: 100%; }
     }
     @media (prefers-reduced-motion: reduce) {
         .champion-crown-orbit, .champion-halo-ray, .prop-right, .timer-clock-badge,

@@ -122,6 +122,18 @@
 
         .bar-right { justify-content: flex-end; }
 
+        /* Điện thoại: thanh trên xếp 2 hàng gọn, đáp án 1 cột, nối dây/phân loại xếp dọc */
+        @media (max-width: 640px) {
+            .arena-topbar { flex-wrap: wrap; padding: 8px 10px; gap: 6px 8px; }
+            .bar-left { order: 1; flex: 1 1 100%; justify-content: space-between; gap: 8px; min-width: 0; }
+            .stage-pill-info { font-size: 11px; padding: 4px 10px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 64vw; display: block; }
+            .bar-center { order: 2; flex: 1 1 auto; justify-content: flex-start; min-width: 0; }
+            .arena-brand { font-size: 15px; letter-spacing: 0.3px; }
+            .arena-subtitle { display: none; }
+            .bar-right { order: 3; gap: 6px; flex-shrink: 0; }
+            .hud-timer-badge { padding: 4px 8px; font-size: 12px; }
+        }
+
         .hud-timer-badge {
             display: flex;
             align-items: center;
@@ -983,6 +995,15 @@
         }
 
                 /* 📱 Clean Embedded Preview Mode (when inside Studio Preview Iframe or ?preview=1) */
+        /* Điện thoại: đặt SAU các quy tắc gốc để có hiệu lực */
+        @media (max-width: 640px) {
+            .answers-grid { grid-template-columns: 1fr; gap: 12px; }
+            .answers-grid .answer-card, .answers-grid > * { min-width: 0; }
+            .neon-wire-container { gap: 20px; }
+            .classify-item { grid-template-columns: 1fr; gap: 8px; padding: 10px 14px; }
+            .iig-stats-grid { grid-template-columns: repeat(2, 1fr); }
+        }
+
         body.is-iframe-preview .arena-topbar {
             display: none !important;
         }

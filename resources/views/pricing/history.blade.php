@@ -7,232 +7,234 @@
     <title>Lịch Sử Thuê Gói Dịch Vụ — IC3 Quest</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:ital,wght@0,400;0,500;0,600;0,700;0,800;1,600&family=Fredoka:wght@600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Fredoka:wght@600;700&display=swap" rel="stylesheet">
     <style>
-        *, *::before, *::after {
-            box-sizing: border-box;
-            margin: 0;
-            padding: 0;
-        }
+        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
         body {
             font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-            background: #f8fafc;
-            color: #202124;
+            background: radial-gradient(circle at 10% 0%, #dbeafe 0, transparent 40%), radial-gradient(circle at 95% 10%, #fce7f3 0, transparent 35%), #f1f5f9;
+            color: #0f172a;
             line-height: 1.5;
+            min-height: 100vh;
         }
 
-        .pricing-nav {
-            position: sticky;
-            top: 0;
-            z-index: 100;
-            background: rgba(255, 255, 255, 0.95);
-            backdrop-filter: blur(12px);
-            border-bottom: 1px solid #dadce0;
-            padding: 0 32px;
-            height: 64px;
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
+        /* Thanh trên cùng */
+        .hist-nav {
+            position: sticky; top: 0; z-index: 100;
+            background: linear-gradient(180deg, #1072ba 0%, #0d5c96 100%);
+            border-bottom: 4px solid #48c3f7;
+            box-shadow: inset 0 -4px 0 #073a61, 0 8px 20px rgba(6, 38, 68, 0.3);
+            padding: 0 28px; height: 68px;
+            display: flex; align-items: center; justify-content: space-between; gap: 12px;
         }
-
-        .nav-brand {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            text-decoration: none;
-            color: #202124;
+        .nav-brand { display: flex; align-items: center; gap: 10px; text-decoration: none; }
+        .brand-badge {
+            width: 40px; height: 40px; border-radius: 12px;
+            background: linear-gradient(135deg, #facc15, #f59e0b); color: #7c2d12;
+            display: grid; place-items: center; font-weight: 900; font-size: 15px;
+            border: 2.5px solid #fff; box-shadow: inset 0 -3px 0 rgba(0, 0, 0, 0.15);
         }
-
-        .brand-logo-badge {
-            width: 38px;
-            height: 38px;
-            border-radius: 10px;
-            background: linear-gradient(135deg, #1a73e8, #0d47a1);
-            color: #ffffff;
-            display: grid;
-            place-items: center;
-            font-size: 18px;
-            font-weight: 900;
+        .brand-name { font-family: 'Fredoka', sans-serif; font-size: 20px; color: #ffe658; text-shadow: 0 2px 0 #7e4200; }
+        .nav-actions { display: flex; gap: 8px; }
+        .nav-pill {
+            display: inline-flex; align-items: center; gap: 6px; padding: 8px 14px;
+            border-radius: 999px; font-size: 13px; font-weight: 800; text-decoration: none;
+            color: #fff; background: rgba(255, 255, 255, 0.14); border: 2px solid rgba(255, 255, 255, 0.35);
+            transition: transform 0.15s, background 0.15s;
         }
+        .nav-pill:hover { transform: translateY(-2px); background: rgba(255, 255, 255, 0.25); }
 
-        .history-wrapper {
-            max-width: 1040px;
-            margin: 35px auto 60px;
-            padding: 0 20px;
+        .wrap { max-width: 1040px; margin: 30px auto 60px; padding: 0 18px; }
+
+        /* Phần đầu trang */
+        .hero {
+            display: flex; justify-content: space-between; align-items: center; gap: 16px; flex-wrap: wrap;
+            background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 55%, #db2777 100%);
+            border: 3.5px solid #fff; border-radius: 26px; padding: 24px 28px; color: #fff;
+            box-shadow: 0 16px 36px rgba(79, 70, 229, 0.28), inset 0 -6px 0 rgba(0, 0, 0, 0.15);
         }
-
-        .history-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 24px;
-            flex-wrap: wrap;
-            gap: 12px;
+        .hero h1 { font-family: 'Fredoka', sans-serif; font-size: 28px; line-height: 1.2; }
+        .hero p { opacity: 0.9; font-size: 14px; margin-top: 4px; }
+        .btn-3d {
+            display: inline-flex; align-items: center; gap: 8px; padding: 12px 20px;
+            border-radius: 16px; font-weight: 800; font-size: 14px; text-decoration: none; border: 0; cursor: pointer;
+            transition: transform 0.12s, box-shadow 0.12s;
         }
+        .btn-3d:hover { transform: translateY(-2px); }
+        .btn-3d:active { transform: translateY(4px); box-shadow: none; }
+        .btn-gold { background: linear-gradient(180deg, #fde047, #f59e0b); color: #7c2d12; box-shadow: 0 6px 0 #b45309; }
+        .btn-blue { background: linear-gradient(180deg, #38bdf8, #2563eb); color: #fff; box-shadow: 0 5px 0 #1e40af; }
 
-        .history-header h1 {
-            font-size: 22px;
-            font-weight: 800;
-            color: #202124;
+        /* 3 thẻ số liệu */
+        .stats { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; margin: 20px 0 26px; }
+        .stat {
+            background: #fff; border: 3.5px solid #fff; border-radius: 22px; padding: 16px 18px;
+            display: flex; align-items: center; gap: 14px;
+            box-shadow: 0 12px 28px rgba(15, 23, 42, 0.08), inset 0 -5px 0 var(--c);
         }
+        .stat-ic { width: 52px; height: 52px; border-radius: 16px; display: grid; place-items: center; font-size: 26px; background: var(--bg); flex-shrink: 0; }
+        .stat small { display: block; font-size: 11.5px; font-weight: 800; color: #64748b; text-transform: uppercase; letter-spacing: 0.4px; }
+        .stat b { font-size: 20px; font-weight: 800; color: #0f172a; }
+        .stat span.sub { display: block; font-size: 12px; color: #64748b; font-weight: 600; }
 
-        .history-card {
-            background: #ffffff;
-            border-radius: 16px;
-            border: 1px solid #dadce0;
-            padding: 20px;
-            box-shadow: 0 1px 3px rgba(60, 64, 67, 0.08);
+        .section-title { font-size: 16px; font-weight: 800; color: #334155; margin-bottom: 12px; display: flex; align-items: center; gap: 8px; }
+
+        /* Thẻ đơn hàng */
+        .orders { display: flex; flex-direction: column; gap: 14px; }
+        .order {
+            position: relative; background: #fff; border: 3px solid #fff; border-radius: 22px;
+            padding: 18px 20px 18px 26px; overflow: hidden;
+            box-shadow: 0 10px 24px rgba(15, 23, 42, 0.08), inset 0 -4px 0 rgba(0, 0, 0, 0.06);
+            display: grid; grid-template-columns: 1.6fr 2fr auto; gap: 18px; align-items: center;
         }
+        .order::before { content: ''; position: absolute; left: 0; top: 0; bottom: 0; width: 8px; background: var(--c); }
+        .order.is-active { --c: #10b981; }
+        .order.is-pending { --c: #f59e0b; }
+        .order.is-rejected { --c: #ef4444; }
 
-        table.history-table {
-            width: 100%;
-            border-collapse: collapse;
+        .o-code { font-family: Consolas, monospace; font-size: 13px; font-weight: 700; color: #475569; }
+        .o-name { font-size: 17px; font-weight: 800; color: #0f172a; margin: 2px 0 4px; }
+        .o-levels { font-size: 12px; color: #64748b; }
+
+        .o-meta { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; }
+        .meta { background: #f8fafc; border-radius: 14px; padding: 8px 12px; }
+        .meta small { display: block; font-size: 11px; font-weight: 700; color: #94a3b8; text-transform: uppercase; }
+        .meta b { font-size: 14px; color: #0f172a; }
+        .meta b.price { color: #2563eb; }
+
+        .o-side { display: flex; flex-direction: column; align-items: flex-end; gap: 10px; min-width: 150px; }
+        .pill { display: inline-flex; align-items: center; gap: 5px; padding: 5px 12px; border-radius: 999px; font-size: 12.5px; font-weight: 800; white-space: nowrap; }
+        .pill-active { background: #dcfce7; color: #15803d; }
+        .pill-pending { background: #fef3c7; color: #b45309; }
+        .pill-rejected { background: #fee2e2; color: #b91c1c; }
+        .o-date { font-size: 12px; color: #64748b; font-weight: 600; }
+        .o-note { font-size: 12px; color: #b91c1c; font-weight: 600; text-align: right; }
+
+        .empty { background: #fff; border: 3.5px solid #fff; border-radius: 26px; padding: 46px 20px; text-align: center; box-shadow: 0 12px 28px rgba(15, 23, 42, 0.08); }
+        .empty .big { font-size: 54px; }
+        .empty p { color: #475569; font-weight: 600; margin: 8px 0 18px; }
+
+        .pager { margin-top: 18px; }
+
+        @media (max-width: 820px) {
+            .order { grid-template-columns: 1fr; gap: 12px; }
+            .o-side { flex-direction: row; justify-content: space-between; align-items: center; min-width: 0; flex-wrap: wrap; }
+            .o-note { text-align: left; }
         }
-
-        table.history-table th {
-            text-align: left;
-            padding: 10px 12px;
-            font-size: 12px;
-            font-weight: 700;
-            color: #5f6368;
-            text-transform: uppercase;
-            border-bottom: 1px solid #dadce0;
-        }
-
-        table.history-table td {
-            padding: 14px 12px;
-            font-size: 13px;
-            border-bottom: 1px solid #f1f3f4;
-            vertical-align: middle;
-        }
-
-        .status-pill {
-            display: inline-flex;
-            align-items: center;
-            gap: 4px;
-            padding: 2px 10px;
-            border-radius: 999px;
-            font-size: 11.5px;
-            font-weight: 700;
-        }
-
-        .status-pending { background: #fef7e0; color: #b06000; border: 1px solid #fce8b2; }
-        .status-active { background: #e6f4ea; color: #137333; border: 1px solid #ceead6; }
-        .status-rejected { background: #fce8e6; color: #c5221f; border: 1px solid #fad2cf; }
-
-        .btn-link {
-            padding: 6px 12px;
-            border-radius: 6px;
-            font-size: 12px;
-            font-weight: 700;
-            text-decoration: none;
-            background: #e8f0fe;
-            color: #1a73e8;
-        }
-        .btn-link:hover {
-            background: #1a73e8;
-            color: #ffffff;
+        @media (max-width: 640px) {
+            .hist-nav { padding: 0 12px; height: 60px; }
+            .brand-name { display: none; }
+            .nav-pill { padding: 7px 11px; font-size: 12px; }
+            .hero { padding: 20px; border-radius: 22px; }
+            .hero h1 { font-size: 22px; }
+            .stats { grid-template-columns: 1fr; gap: 10px; }
+            .o-meta { grid-template-columns: repeat(2, 1fr); }
         }
     </style>
 </head>
 <body>
+    @php
+        $me = auth()->user();
+        $isStudent = $me->isStudent();
+        $summary = $stats['summary'];
+    @endphp
 
-    <nav class="pricing-nav">
+    <nav class="hist-nav">
         <a href="{{ route('pricing.index') }}" class="nav-brand">
-            <div class="brand-logo-badge">IC3</div>
-            <div style="font-size:16px; font-weight:800; color:#1a73e8;">IC3 QUEST</div>
+            <div class="brand-badge">IC3</div>
+            <div class="brand-name">IC3 Quest</div>
         </a>
-
-        <div style="display:flex; align-items:center; gap:12px;">
-            <a href="{{ route('pricing.index') }}" style="font-size:13px; font-weight:700; color:#1a73e8; text-decoration:none;">
-                ← Xem Bảng Giá
-            </a>
-            @if(auth()->user()?->canAccessAdmin())
-                <a href="{{ route('admin.dashboard') }}" style="font-size:13px; font-weight:700; color:#5f6368; text-decoration:none;">
-                    🏫 Quản Trị
-                </a>
-            @else
-                <a href="{{ route('home') }}" style="font-size:13px; font-weight:700; color:#5f6368; text-decoration:none;">
-                    🏠 Trang Chủ
-                </a>
-            @endif
+        <div class="nav-actions">
+            <a href="{{ route('pricing.index') }}" class="nav-pill">💎 Bảng giá</a>
+            <a href="{{ route('home') }}" class="nav-pill">🏠 Trang chủ</a>
         </div>
     </nav>
 
-    <div class="history-wrapper">
-        <div class="history-header">
+    <div class="wrap">
+        <section class="hero">
             <div>
-                <h1>{{ auth()->user()->isStudent() ? 'Lịch Sử Đơn Mua Gói Của Em' : 'Lịch Sử Đơn Thuê Gói Dịch Vụ' }}</h1>
-                <p style="color:#5f6368; font-size:13px; margin-top:2px;">Tài khoản: <b>{{ auth()->user()->name }} ({{ auth()->user()->email }})</b></p>
+                <h1>📜 {{ $isStudent ? 'Lịch sử đơn mua gói của em' : 'Lịch sử đơn thuê gói' }}</h1>
+                <p>Tài khoản: <b>{{ $me->name }}</b>{{ $me->email ? ' · ' . $me->email : '' }}</p>
             </div>
-            <a href="{{ route('pricing.index') }}" class="btn-link" style="padding:8px 16px; font-size:13px;">
-                {{ auth()->user()->isStudent() ? '+ Mua Gói Mới' : '+ Thuê Gói Mới' }}
-            </a>
+            <a href="{{ route('pricing.index') }}" class="btn-3d btn-gold">✨ {{ $isStudent ? 'Mua gói mới' : 'Thuê gói mới' }}</a>
+        </section>
+
+        <div class="stats">
+            <div class="stat" style="--c:#10b981; --bg:#dcfce7;">
+                <div class="stat-ic">💎</div>
+                <div>
+                    <small>Gói đang dùng</small>
+                    <b>{{ $summary['package'] ?? 'Chưa có gói' }}</b>
+                    @if($summary['expires_at'])
+                        <span class="sub">Hạn dùng đến {{ \Illuminate\Support\Carbon::parse($summary['expires_at'])->format('d/m/Y') }}</span>
+                    @endif
+                </div>
+            </div>
+            <div class="stat" style="--c:#3b82f6; --bg:#dbeafe;">
+                <div class="stat-ic">🧾</div>
+                <div>
+                    <small>Tổng số đơn</small>
+                    <b>{{ $stats['total'] }} đơn</b>
+                    <span class="sub">{{ $stats['active'] }} đơn đã kích hoạt</span>
+                </div>
+            </div>
+            <div class="stat" style="--c:#f59e0b; --bg:#fef3c7;">
+                <div class="stat-ic">💰</div>
+                <div>
+                    <small>Đã thanh toán</small>
+                    <b>{{ number_format($stats['spent'], 0, ',', '.') }} đ</b>
+                    <span class="sub">Chỉ tính đơn đã kích hoạt</span>
+                </div>
+            </div>
         </div>
 
-        <div class="history-card">
-            @if($orders->isEmpty())
-                <div style="text-align:center; padding:40px; color:#5f6368;">
-                    <p style="font-size:14px; margin-bottom:12px;">{{ auth()->user()->isStudent() ? 'Em chưa có đơn mua gói nào.' : 'Thầy/Cô chưa có đơn thuê gói nào.' }}</p>
-                    <a href="{{ route('pricing.index') }}" class="btn-link">Khám Phá Các Gói Bản Quyền</a>
-                </div>
-            @else
-                <div style="overflow-x:auto;">
-                    <table class="history-table">
-                        <thead>
-                            <tr>
-                                <th>Mã đơn</th>
-                                <th>Tên gói</th>
-                                <th>Số tiền</th>
-                                <th>Thời hạn</th>
-                                <th>Sĩ số</th>
-                                <th>Trạng thái</th>
-                                <th>Ngày đặt</th>
-                                <th>Thao tác</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            @foreach($orders as $o)
-                                <tr>
-                                    <td><b>#{{ $o->code }}</b></td>
-                                    <td>
-                                        <b style="color:#202124;">{{ $o->package_name }}</b>
-                                        <small style="display:block; color:#5f6368; font-size:11px;">{{ $o->package?->levels_list_text }}</small>
-                                    </td>
-                                    <td><b style="color:#1a73e8;">{{ $o->formatted_price }}</b></td>
-                                    <td>{{ $o->duration_days }} ngày</td>
-                                    <td>{{ $o->max_students > 0 ? $o->max_students . ' HS' : 'Không giới hạn' }}</td>
-                                    <td>
-                                        @if($o->isPending())
-                                            <span class="status-pill status-pending">⏳ Chờ duyệt</span>
-                                        @elseif($o->isActive())
-                                            <span class="status-pill status-active">✓ Đã kích hoạt</span>
-                                        @else
-                                            <span class="status-pill status-rejected">✕ Từ chối</span>
-                                        @endif
-                                    </td>
-                                    <td><span style="color:#5f6368; font-size:12px;">{{ $o->created_vn }}</span></td>
-                                    <td>
-                                        @if($o->isPending())
-                                            <a href="{{ route('pricing.order.checkout', $o) }}" class="btn-link">
-                                                Mã QR
-                                            </a>
-                                        @else
-                                            <span style="color:#9aa0a6; font-size:12px;">Hoàn tất</span>
-                                        @endif
-                                    </td>
-                                </tr>
-                            @endforeach
-                        </tbody>
-                    </table>
-                </div>
+        @if($orders->isEmpty())
+            <div class="empty">
+                <div class="big">🛒</div>
+                <p>{{ $isStudent ? 'Em chưa có đơn mua gói nào.' : 'Thầy/Cô chưa có đơn thuê gói nào.' }}</p>
+                <a href="{{ route('pricing.index') }}" class="btn-3d btn-blue">Khám phá các gói</a>
+            </div>
+        @else
+            <div class="section-title">🗂️ Các đơn gần đây</div>
+            <div class="orders">
+                @foreach($orders as $o)
+                    <div class="order {{ $o->isActive() ? 'is-active' : ($o->isPending() ? 'is-pending' : 'is-rejected') }}">
+                        <div>
+                            <div class="o-code">#{{ $o->code }}</div>
+                            <div class="o-name">{{ $o->package_name }}</div>
+                            @if($o->package?->levels_list_text)
+                                <div class="o-levels">📚 {{ $o->package->levels_list_text }}</div>
+                            @endif
+                        </div>
 
-                <div style="margin-top:16px;">
-                    {{ $orders->links() }}
-                </div>
-            @endif
-        </div>
+                        <div class="o-meta">
+                            <div class="meta"><small>Số tiền</small><b class="price">{{ $o->formatted_price }}</b></div>
+                            <div class="meta"><small>Thời hạn</small><b>{{ $o->duration_days }} ngày</b></div>
+                            <div class="meta"><small>Sĩ số</small><b>{{ $o->max_students > 0 ? $o->max_students . ' HS' : 'Không giới hạn' }}</b></div>
+                        </div>
+
+                        <div class="o-side">
+                            @if($o->isActive())
+                                <span class="pill pill-active">✅ Đã kích hoạt</span>
+                            @elseif($o->isPending())
+                                <span class="pill pill-pending">⏳ Chờ thanh toán</span>
+                            @else
+                                <span class="pill pill-rejected">✖ {{ $o->isExpiredByTimeout() ? 'Hết hạn thanh toán' : 'Đã hủy' }}</span>
+                            @endif
+                            <span class="o-date">🗓️ {{ $o->created_vn }}</span>
+                            @if($o->isPending())
+                                <a href="{{ route('pricing.order.checkout', $o) }}" class="btn-3d btn-blue" style="padding:9px 14px; font-size:13px;">📱 Thanh toán ngay</a>
+                            @elseif($o->isRejected() && $o->isExpiredByTimeout())
+                                <span class="o-note">Quá 10 phút chưa thanh toán</span>
+                            @endif
+                        </div>
+                    </div>
+                @endforeach
+            </div>
+
+            <div class="pager">{{ $orders->links() }}</div>
+        @endif
     </div>
 </body>
 </html>
