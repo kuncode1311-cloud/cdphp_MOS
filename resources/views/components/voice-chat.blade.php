@@ -565,7 +565,6 @@
         window.startVoiceChat = function () {
             if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia || !window.speechSynthesis) { return; }
             active = true;
-            if (window.troLyTab) { window.troLyTab.prepare(); }
             cancelQuizOnServer();
             $('vc-start').classList.remove('show');
             $('vc-talk').classList.add('show');
