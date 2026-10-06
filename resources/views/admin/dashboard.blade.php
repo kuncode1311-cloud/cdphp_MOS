@@ -2739,6 +2739,7 @@
                                                          data-name="{{ $u->name }}"
                                                          data-email="{{ $u->email }}"
                                                          data-code="{{ $u->student_code ?? '' }}"
+                                                        data-phone="{{ $u->phone ?? '' }}"
                                                          data-status="{{ $u->status ?? 'active' }}"
                                                          data-created="{{ $u->created_date_vn }}"
                                                          data-attempts="{{ $u->attempts_count ?? $u->attempts()->count() }}"
@@ -2806,6 +2807,7 @@
                                                         data-name="{{ $u->name }}"
                                                         data-email="{{ $u->email }}"
                                                         data-code="{{ $u->student_code ?? '' }}"
+                                                        data-phone="{{ $u->phone ?? '' }}"
                                                         data-role="{{ $uRoleStr }}"
                                                         data-status="{{ $u->status ?? 'active' }}"
                                                         data-teacher-id="{{ $u->created_by ?? '' }}"
@@ -2914,6 +2916,7 @@
                                                          data-name="{{ $u->name }}"
                                                          data-email="{{ $u->email }}"
                                                          data-code="{{ $u->student_code ?? '' }}"
+                                                        data-phone="{{ $u->phone ?? '' }}"
                                                          data-status="{{ $u->status ?? 'active' }}"
                                                          data-created="{{ $u->created_date_vn }}"
                                                          data-attempts="{{ $u->attempts_count ?? $u->attempts()->count() }}"
@@ -3081,6 +3084,7 @@
                                                         data-name="{{ $u->name }}"
                                                         data-email="{{ $u->email }}"
                                                         data-code="{{ $u->student_code ?? '' }}"
+                                                        data-phone="{{ $u->phone ?? '' }}"
                                                         data-role="{{ $uRoleStr }}"
                                                         data-status="{{ $u->status ?? 'active' }}"
                                                         data-teacher-id="{{ $u->created_by ?? '' }}"
@@ -5650,6 +5654,13 @@
                         <small class="modal-field-hint">Cho phép học sinh đăng nhập nhanh bằng mã</small>
                     </div>
                     <div class="form-group">
+                        <label>
+                            <span class="label-title">📱 Số điện thoại / Zalo</span>
+                        </label>
+                        <input name="phone" id="create-user-phone" type="tel" inputmode="tel" class="form-control" placeholder="Ví dụ: 0912345678">
+                        <small class="modal-field-hint">Học sinh nhỏ: SĐT phụ huynh. Dùng để liên hệ và xác minh khi quên tài khoản</small>
+                    </div>
+                    <div class="form-group">
                         <label><span class="label-title">⚡ Trạng thái tài khoản <span class="req">*</span></span></label>
                         <select name="status" id="create-user-status" class="form-control" style="font-weight:800;">
                             <option value="active" selected>🟢 Đang hoạt động (Active)</option>
@@ -5754,6 +5765,13 @@
                         </label>
                         <input name="student_code" id="edit-user-student-code" class="form-control" placeholder="Ví dụ: HS004">
                         <small class="modal-field-hint">Mã đăng nhập nhanh của học sinh</small>
+                    </div>
+                    <div class="form-group">
+                        <label>
+                            <span class="label-title">📱 Số điện thoại / Zalo</span>
+                        </label>
+                        <input name="phone" id="edit-user-phone" type="tel" inputmode="tel" class="form-control" placeholder="Ví dụ: 0912345678">
+                        <small class="modal-field-hint">Học sinh nhỏ: SĐT phụ huynh. Để trống nếu chưa có</small>
                     </div>
                     <div class="form-group" id="edit-group-status" style="grid-column: 1 / -1;">
                         <label><span class="label-title">⚡ Trạng thái hoạt động <span class="req">*</span></span></label>
@@ -9952,6 +9970,7 @@
         document.getElementById('edit-user-name').value = d.name || '';
         document.getElementById('edit-user-email').value = d.email || '';
         document.getElementById('edit-user-student-code').value = d.studentCode || d.code || '';
+        document.getElementById('edit-user-phone').value = d.phone || '';
         document.getElementById('edit-user-password').value = '';
 
         const roleSelect = document.getElementById('edit-user-role');

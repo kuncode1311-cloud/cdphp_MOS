@@ -620,6 +620,7 @@ class AdminManagementController extends Controller
             'name' => 'required|max:100',
             'email' => ['required', 'email', Rule::unique('users')->ignore($user)],
             'student_code' => ['nullable', 'max:30', Rule::unique('users')->ignore($user)],
+            'phone' => ['nullable', 'string', 'max:20'],
             'password' => [$user ? 'nullable' : 'required', 'nullable', 'min:6'],
             'role' => ['required', Rule::enum(UserRole::class)],
             'classroom_id' => 'nullable|exists:classrooms,id',

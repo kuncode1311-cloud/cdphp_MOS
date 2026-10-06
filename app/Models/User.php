@@ -31,7 +31,7 @@ use Illuminate\Support\Facades\DB;
  * - `created_at` / `updated_at`: Thời điểm tạo và cập nhật tài khoản.
  */
 // Fillable cho phép gán hàng loạt; Hidden ẩn mật khẩu/token khi xuất model thành JSON.
-#[Fillable(['name', 'email', 'password', 'role', 'student_code', 'classroom_id', 'created_by', 'max_students', 'expires_at', 'status', 'reward_stars', 'game_time_seconds', 'google_id', 'avatar'])]
+#[Fillable(['name', 'email', 'phone', 'password', 'role', 'student_code', 'classroom_id', 'created_by', 'max_students', 'expires_at', 'status', 'reward_stars', 'game_time_seconds', 'google_id', 'avatar'])]
 #[Hidden(['password', 'remember_token'])]
 class User extends Authenticatable
 {
@@ -301,6 +301,32 @@ class User extends Authenticatable
     public function accessibleLevels(): BelongsToMany
     {
         return $this->belongsToMany(Level::class, 'level_user')->withTimestamps();
+    }
+
+    /**
+     * Số điện thoại / Zalo luôn lưu một dạng chuẩn 0xxxxxxxxx (nhận cả "0912 345 678", "+84912345678").
+     * Số không đúng định dạng thì để trống (form đã kiểm tra trước nên hiếm khi xảy ra).
+     */
+    public function setPhoneAttribute(?string $value): void
+    {
+        $this->attributes['phone'] = SupportMessage::normalizePhone($value);
+    }
+
+    /** Số điện thoại đã che để xác nhận chính chủ: 09*****678 */
+    public function maskedPhone(): ?string
+    {
+        $phone = (string) $this->phone;
+
+        return $phone === '' ? null : substr($phone, 0, 2) . str_repeat('*', max(3, strlen($phone) - 5)) . substr($phone, -3);
+    }
+
+    /** Email nhận được thư thật (email ảo do giáo viên tạo như @student.ic3.local thì không) */
+    public function hasDeliverableEmail(): bool
+    {
+        $domain = strtolower((string) substr((string) strrchr((string) $this->email, '@'), 1));
+
+        return $domain !== '' && ! in_array($domain, ['student.ic3.local', 'ic3.test'], true)
+            && ! str_ends_with($domain, '.local') && ! str_ends_with($domain, '.test');
     }
 
     /**

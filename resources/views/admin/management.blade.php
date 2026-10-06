@@ -28,6 +28,7 @@
                 <input name="name" placeholder="Họ và tên" required>
                 <input name="email" type="email" placeholder="Email đăng nhập" required>
                 <input name="student_code" placeholder="Mã học sinh (nếu có)">
+                <input name="phone" type="tel" placeholder="SĐT / Zalo (học sinh nhỏ: SĐT phụ huynh)">
                 <input name="password" placeholder="Mật khẩu khởi tạo" required>
                 <select name="role">
                     <option value="student">👨‍🎓 Học sinh</option>

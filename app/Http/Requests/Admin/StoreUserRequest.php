@@ -22,6 +22,11 @@ class StoreUserRequest extends FormRequest
 
     protected function prepareForValidation(): void
     {
+        // Chuẩn hóa SĐT: "0912 345 678", "+84912345678" đều thành 0912345678
+        if ($this->filled('phone')) {
+            $this->merge(['phone' => \App\Models\SupportMessage::normalizePhone($this->string('phone')) ?? trim((string) $this->input('phone'))]);
+        }
+
         $currentUser = $this->user();
 
         // Nếu là Giáo viên tạo: Luôn ép role là 'student'
@@ -45,6 +50,7 @@ class StoreUserRequest extends FormRequest
             'name' => ['required', 'string', 'max:100'],
             'email' => ['required', 'email', 'max:255', 'unique:users,email'],
             'student_code' => ['nullable', 'string', 'max:30', 'unique:users,student_code'],
+            'phone' => ['nullable', 'string', 'regex:/^0[0-9]{9}$/'],
             'password' => ['required', 'string', 'min:6'],
             'role' => ['required', Rule::enum(UserRole::class)],
             'status' => ['nullable', 'in:active,suspended,expired'],
@@ -83,6 +89,7 @@ class StoreUserRequest extends FormRequest
     public function messages(): array
     {
         return [
+            'phone.regex' => 'Số điện thoại không hợp lệ (10 chữ số, ví dụ 0912345678).',
             'classroom_id.exists' => 'Lớp học được chọn không thuộc quyền quản lý của bạn.',
             'level_ids.*.exists' => 'Bạn chỉ được cấp những Khối học mà bạn đang sở hữu.',
         ];

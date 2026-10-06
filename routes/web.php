@@ -88,6 +88,7 @@ Route::middleware(['auth', 'subscription'])->group(function () {
     Route::post('/tai-khoan/gui-otp-mat-khau', [ProfileController::class, 'sendOtp'])->middleware('throttle:5,1,otp:')->name('profile.send-otp');
     Route::post('/tai-khoan/doi-mat-khau', [ProfileController::class, 'updatePassword'])->name('profile.password');
     Route::post('/tai-khoan/cap-nhat-email', [ProfileController::class, 'updateEmail'])->name('profile.update-email');
+    Route::post('/tai-khoan/cap-nhat-so-dien-thoai', [ProfileController::class, 'updatePhone'])->middleware('throttle:10,1,profile-phone:')->name('profile.update-phone');
 
     // 🛡️ BỘ LỌC ĐỊNH TUYẾN THÔNG MINH: Tự động sửa lỗi & chuyển hướng nếu URL bị gõ khoảng trắng (%20), dấu gạch dưới (_)
     Route::get('/{prefix}/{slug}/{action?}', function (string $prefix, string $slug, ?string $action = null) {
