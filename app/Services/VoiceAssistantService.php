@@ -147,7 +147,8 @@ class VoiceAssistantService
                 $toolData .= $result . "\n";
                 $names[] = $call['name'];
                 if ($call['name'] === VoiceToolbox::STATS_CARD) {
-                    $card = $this->cards->statsCard($user, $text);
+                    $question = (string) (end($turns)['text'] ?? '');
+                    $card = $this->cards->statsCard($user, $question);
                 }
                 $messages[] = ['role' => 'tool', 'tool_call_id' => $call['id'], 'name' => $call['name'], 'content' => $result];
                 Log::info('VoiceAssistant: AI gọi hàm', ['user' => $user->id, 'ham' => $call['name'], 'tham_so' => $call['arguments']]);
