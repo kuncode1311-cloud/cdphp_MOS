@@ -957,5 +957,18 @@
             transform: rotate(90deg);
         }
     }
+
+    /* Điện thoại: hero xếp dọc (chữ trên, tranh dưới), lối tắt 2 cột, bỏ thẻ nổi che chữ */
+    @media (max-width: 640px) {
+        .game-hero { min-height: 0; flex-direction: column; align-items: stretch; border-radius: 24px; }
+        .hero-copy { order: 1; max-width: 100%; padding: 22px 18px 6px; }
+        .hero-bg-art { order: 2; position: relative; inset: auto; height: 210px; background-position: center right; }
+        .hero h1 { font-size: 26px; }
+        .hero-actions { flex-direction: column; align-items: stretch; }
+        .hero-actions > * { width: 100%; justify-content: center; text-align: center; }
+        .game-hero .float-card { display: none; }
+        .action-hub { grid-template-columns: repeat(2, 1fr); gap: 12px; }
+        .action-card { padding: 14px 12px; border-radius: 20px; }
+    }
 </style>
 @endsection

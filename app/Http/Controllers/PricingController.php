@@ -893,6 +893,15 @@ class PricingController extends Controller
             ->latest('id')
             ->paginate(10);
 
-        return view('pricing.history', compact('orders'));
+        // Số liệu tổng quan cho phần đầu trang (tính trên mọi đơn, không theo trang)
+        $allOrders = $user->packageOrders();
+        $stats = [
+            'total' => (clone $allOrders)->count(),
+            'active' => (clone $allOrders)->where('status', PackageOrder::STATUS_ACTIVE)->count(),
+            'spent' => (int) (clone $allOrders)->where('status', PackageOrder::STATUS_ACTIVE)->sum('price'),
+            'summary' => $user->packageSummary(),
+        ];
+
+        return view('pricing.history', compact('orders', 'stats'));
     }
 }

@@ -18,7 +18,7 @@
         </div>
 
         <!-- 3 Cột Ngang Cực Kỳ Đẹp & Cân Đối -->
-        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 14px;">
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(min(320px, 100%), 1fr)); gap: 14px;">
             
             @if($weakness)
             <!-- Khung 1: Điểm con cần quan tâm ôn thêm (Hồng phấn cảnh báo) -->

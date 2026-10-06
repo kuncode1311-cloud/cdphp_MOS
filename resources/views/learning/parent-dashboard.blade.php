@@ -108,7 +108,7 @@
     <!-- ========================================================================= -->
     <!-- ROW 1: 4 THẺ CHỈ SỐ KPI TỔNG QUAN (VỚI ICON TRÒN NỔI BẬT BÊN TRÁI)        -->
     <!-- ========================================================================= -->
-    <div id="kpiCardsWrapper" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 14px; margin-bottom: 18px;">
+    <div id="kpiCardsWrapper" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(min(250px, 100%), 1fr)); gap: 14px; margin-bottom: 18px;">
         
         <!-- CARD 1: BÀI ĐÃ LÀM -->
         <div style="background: #ffffff; border-radius: 18px; padding: 18px 20px; border: 1.5px solid #e2e8f0; box-shadow: 0 1px 3px rgba(0,0,0,0.03); display: flex; align-items: center; gap: 16px;">
@@ -494,6 +494,14 @@
 </div>
 
 <style>
+/* Điện thoại & máy tính bảng: các khối chia cột bằng style nội tuyến xếp thành 1 cột để không tràn ngang */
+@media (max-width: 1050px) {
+    .parent-dashboard-wrapper [style*="grid-template-columns: 1.35fr 1fr"],
+    .parent-dashboard-wrapper [style*="grid-template-columns: 1fr auto 1fr"] {
+        grid-template-columns: 1fr !important;
+        justify-items: center;
+    }
+}
 @keyframes modernSpin {
     0% { transform: rotate(0deg); }
     100% { transform: rotate(360deg); }
@@ -553,6 +561,8 @@ document.addEventListener('DOMContentLoaded', function () {
                 const meta = chart.getDatasetMeta(0);
                 const passMeta = chart.getDatasetMeta(1);
                 if (!meta || meta.hidden) return;
+                // Màn hình hẹp (điện thoại): bỏ nhãn điểm trên từng điểm vì quá dày, đã có thanh chú giải bên dưới
+                if (chart.width < 520) return;
 
                 const passY = (passMeta && passMeta.data && passMeta.data.length) ? passMeta.data[0].y : null;
 

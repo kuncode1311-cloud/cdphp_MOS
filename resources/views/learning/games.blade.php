@@ -164,7 +164,7 @@
         </div>
 
         <!-- Lưới các gói quy đổi 3D Card -->
-        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 20px;">
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(min(300px, 100%), 1fr)); gap: 20px;">
             @foreach($packages as $pkgId => $pkg)
                 <div class="exchange-package-card-3d" style="background: {{ $pkgId == 2 ? 'linear-gradient(145deg, #fff7ed 0%, #ffedd5 50%, #fed7aa 100%)' : 'linear-gradient(145deg, #f8fafc 0%, #f1f5f9 50%, #e2e8f0 100%)' }}; border: 3.5px solid {{ $pkgId == 2 ? '#fb923c' : '#cbd5e1' }}; border-radius: 24px; padding: 24px; display: flex; flex-direction: column; justify-content: space-between; box-shadow: 0 10px 24px rgba(0,0,0,0.08), inset 0 -4px 0 rgba(0,0,0,0.06); position: relative; overflow: hidden; transition: all 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275);">
                     
@@ -245,7 +245,7 @@
     /* 3D Stat Energy Pods (Đồng bộ với achievements.blade.php) */
     .stat-pods-grid {
         display: grid;
-        grid-template-columns: repeat(auto-fit, minmax(290px, 1fr));
+        grid-template-columns: repeat(auto-fit, minmax(min(290px, 100%), 1fr));
         gap: 18px;
     }
     .stat-pod {
