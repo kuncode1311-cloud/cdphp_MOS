@@ -102,18 +102,13 @@
                     } catch (e) { return ''; }
                 }
 
-                // Khách nhờ mở trang: mở sẵn tab dùng chung khi bấm gửi (để không bị trình duyệt chặn)
-                function looksLikeOpenRequest(text) {
-                    return /(mở|mo|vào|vao|chuyển|chuyen|đưa|dua|tới|toi|sang|làm bài|lam bai|open)/iu.test(String(text || ''));
-                }
-
-                // Trợ lý tự mở trang trong tab dùng chung. Nếu trình duyệt chặn, nút bấm bên dưới vẫn còn.
+                // Trợ lý tự chuyển trang ngay trong tab hiện tại để khách thấy ngay đã chuyển. Cuộc trò chuyện được lưu trong localStorage.
                 function openActionIfNeeded(action) {
                     if (!action || !action.auto || !action.url) return;
                     try {
                         const url = new URL(action.url, window.location.origin);
                         if (url.origin !== window.location.origin) return;
-                        if (window.troLyTab) window.troLyTab.open(url.pathname + url.search + url.hash);
+                        window.location.href = url.pathname + url.search + url.hash;
                     } catch (e) {}
                 }
 
@@ -177,7 +172,6 @@
                     if (!text) return;
                     $('ai-send').disabled = true;
                     aiTyping = true;
-                    if (looksLikeOpenRequest(text) && window.troLyTab) window.troLyTab.prepare();
                     const currentHistory = state.lastHistory || [];
                     const pendingHistory = currentHistory.concat([{ sender: 'user', text }]);
                     state.lastHistory = pendingHistory;
@@ -199,7 +193,6 @@
                         render(state.lastHistory);
                         save();
                         openActionIfNeeded(data.bot_action);
-                        if (!data.bot_action?.auto && window.troLyTab) window.troLyTab.closeIfBlank();
                     } catch (err) {
                         aiTyping = false;
                         state.lastHistory = (state.lastHistory || []).concat([{
