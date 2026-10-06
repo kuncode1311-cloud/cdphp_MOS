@@ -224,6 +224,33 @@
     .vc-rowitem select { border-color: #7c3aed; border-radius: 12px; cursor: pointer; }
     .vc-rowitem.ok { border-left-color: #16a34a; }
     .vc-rowitem.bad { border-left-color: #dc2626; }
+    /* Thẻ kết quả học tập: cùng phong cách khung câu hỏi (viền trắng, bóng nổi, đầu gradient), ô số có màu riêng */
+    .vc-statcard { box-sizing: border-box; width: min(100%, 720px); align-self: center; margin: 6px 0; border-radius: 22px; overflow: hidden; border: 3.5px solid #fff; background: #fff; color: #1e1b4b; box-shadow: 0 16px 36px rgba(0,0,0,0.25), inset 0 -6px 0 rgba(0,0,0,0.12); }
+    .vc-stat-head { padding: 12px 18px; background: linear-gradient(135deg, #7c3aed, #db2777); color: #fff; font-size: 16px; font-weight: 900; }
+    .vc-tiles { grid-template-columns: repeat(auto-fit, minmax(120px, 1fr)); gap: 10px; padding: 12px; }
+    .vc-tile { display: flex; flex-direction: column; align-items: center; gap: 2px; padding: 10px 6px; border-radius: 16px; border: 2.5px solid #fff; box-shadow: 0 5px 0 rgba(0,0,0,0.12); color: #fff; }
+    .vc-tile:nth-child(4n+1) { background: linear-gradient(135deg, #8b5cf6, #6366f1); }
+    .vc-tile:nth-child(4n+2) { background: linear-gradient(135deg, #10b981, #059669); }
+    .vc-tile:nth-child(4n+3) { background: linear-gradient(135deg, #0ea5e9, #2563eb); }
+    .vc-tile:nth-child(4n+4) { background: linear-gradient(135deg, #f59e0b, #ea580c); }
+    .vc-tile i { font-style: normal; font-size: 20px; }
+    .vc-tile b { font-size: 20px; font-weight: 900; }
+    .vc-tile span { font-size: 12px; font-weight: 800; opacity: .95; text-align: center; }
+    .vc-sec { padding: 4px 14px 0; font-size: 13.5px; font-weight: 900; color: #5b21b6; }
+    .vc-chart { position: relative; height: 150px; margin: 6px 14px 0; padding: 8px 6px 0; display: flex; gap: 8px; align-items: flex-end; border-radius: 14px; background: linear-gradient(180deg, #f5f3ff, #ffffff); }
+    .vc-bar-col { flex: 1; min-width: 0; height: 100%; display: flex; flex-direction: column; justify-content: flex-end; align-items: center; }
+    .vc-bar-val { font-size: 11px; font-weight: 900; color: #4c1d95; margin-bottom: 3px; }
+    .vc-bar-fill { width: 100%; max-width: 38px; border-radius: 10px 10px 4px 4px; background: linear-gradient(180deg, #fb923c, #ea580c); box-shadow: inset 0 -4px 0 rgba(0,0,0,0.12); }
+    .vc-bar-fill.pass { background: linear-gradient(180deg, #4ade80, #16a34a); }
+    .vc-passline { position: absolute; left: 6px; right: 6px; height: 0; border-top: 2px dashed #db2777; }
+    .vc-passline::after { content: 'Mức đạt'; position: absolute; right: 0; top: -18px; font-size: 11px; font-weight: 900; color: #db2777; }
+    .vc-xlabels { display: flex; gap: 8px; margin: 4px 14px 12px; padding: 0 6px; }
+    .vc-xlabels span { flex: 1; text-align: center; font-size: 11px; font-weight: 800; color: #6b7280; }
+    .vc-weak { display: grid; gap: 8px; padding: 6px 14px 14px; }
+    .vc-weak-row { grid-template-columns: minmax(90px, 38%) 1fr 30px; font-size: 13px; color: #1e1b4b; }
+    .vc-weak-track { height: 10px; border-radius: 999px; background: #ede9fe; overflow: hidden; }
+    .vc-weak-fill { height: 100%; border-radius: 999px; background: linear-gradient(90deg, #f472b6, #ec4899); }
+    .vc-weak-row b { color: #be185d; text-align: right; }
     /* Thanh nút phía dưới không bị sát mép */
     .vc-bar { padding-bottom: calc(14px + env(safe-area-inset-bottom, 0px)); }
     /* Thẻ gọn hơn: chữ co giãn theo màn hình, đáp án xếp 2 cột, nút luôn dính ở đáy thẻ */
