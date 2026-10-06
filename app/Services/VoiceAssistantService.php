@@ -227,6 +227,7 @@ class VoiceAssistantService
             '',
             'DẤU HIỆU (đặt ở dòng cuối, hệ thống tự làm, không giải thích dấu hiệu):',
             '- [[MO: mã]] hiện nút mở trang khi có ích; [[MO_NGAY: mã]] khi người nói nhờ mở hoặc chuyển sang trang đó (tự mở tab mới). Mã lấy trong mục TRANG hoặc từ kết quả hàm.',
+            '- QUAN TRỌNG: khi người nói muốn LÀM câu hỏi, bài tập hay luyện của một khối/chủ đề (ví dụ "làm câu hỏi khối 3 chủ đề 2") thì KHÔNG mở trang: dùng [[LUYEN: chủ đề]] (nếu chưa có câu hỏi đang hiện), hoặc hỏi lại đúng 1 câu nếu chưa rõ chủ đề. Chỉ mở trang khi người nói rõ muốn ĐI TỚI trang đó.',
         ];
         if ($pending) {
             $lines[] = '- Người nói ĐANG làm câu hỏi bên dưới. Hiểu họ muốn gì rồi dùng đúng MỘT dấu hiệu nếu cần:';
