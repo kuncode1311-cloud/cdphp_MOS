@@ -166,10 +166,11 @@ class UserPhoneAndOrderMailTest extends TestCase
         $this->say('Trần Bảo Ngọc');
         $text = implode("\n", $this->say('0912 345 678')['bot_replies']);
 
-        $this->assertMatchesRegularExpression('/ba(•){3,}@gmail\.com/u', $text);
+        $this->assertStringContainsString('baon', $text);
+        $this->assertStringContainsString('oc@gmail.com', $text);
         // Không dùng dấu * để che (trùng ký hiệu in đậm, khung chat nuốt mất)
         $this->assertStringNotContainsString('*@gmail.com', $text);
-        $this->assertStringContainsString('09•••••678', $text);
+        $this->assertStringContainsString('0912•••678', $text);
         $this->assertStringNotContainsString('baongoc@gmail.com', $text);
     }
 }

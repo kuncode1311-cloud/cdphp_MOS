@@ -143,7 +143,7 @@ class SupportBotPasswordResetTest extends TestCase
         // Mã HS
         $this->say('quên mật khẩu');
         $data = $this->say('HS001');
-        $this->assertStringContainsString('hs•••@ic3.test', $data['bot_replies'][0]);
+        $this->assertStringContainsString('hs0••01@ic3.test', $data['bot_replies'][0]);
 
         // Biệt danh "hs001" (trang đăng nhập tự ghép @ic3.test), bắt đầu từ trình duyệt mới
         $this->newBrowser();
@@ -430,5 +430,28 @@ class SupportBotPasswordResetTest extends TestCase
 
         $this->assertStringNotContainsString(self::EMAIL, $data['bot_replies'][0]);
         $this->assertStringContainsString('@gmail.com', $data['bot_replies'][0]);
+    }
+
+    public function test_sau_khi_huy_lam_lai_khong_duoc_ai_tu_gui_otp_theo_lich_su_cu(): void
+    {
+        $this->user();
+
+        $this->say('quên mật khẩu');
+        $this->say(self::EMAIL);
+        $this->say('hủy');
+
+        $restart = $this->say('z làm lại đi');
+        $this->assertTrue($restart['flow_active']);
+        $this->assertStringContainsString('email đăng nhập', implode(' ', $restart['bot_replies']));
+        Mail::assertNotSent(PasswordResetOtpMail::class);
+
+        $identify = $this->say(self::EMAIL);
+        $this->assertTrue($identify['flow_active']);
+        $this->assertStringContainsString('nhập **đầy đủ** địa chỉ email', implode(' ', $identify['bot_replies']));
+        Mail::assertNotSent(PasswordResetOtpMail::class);
+
+        $confirm = $this->say(self::EMAIL);
+        $this->assertTrue($confirm['secret_next']);
+        Mail::assertSent(PasswordResetOtpMail::class);
     }
 }

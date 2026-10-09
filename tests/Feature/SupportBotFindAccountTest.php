@@ -81,7 +81,8 @@ class SupportBotFindAccountTest extends TestCase
         $text = $this->replies($data);
 
         $this->assertStringContainsString($kid->student_code, $text);
-        $this->assertStringContainsString('an•••', $text);
+        $this->assertStringContainsString('annh', $text);
+        $this->assertStringContainsString('al@gmail.com', $text);
         $this->assertStringNotContainsString('annhien.real@gmail.com', $text, 'Không bao giờ lộ email đầy đủ');
 
         // Đi tiếp như cũ: nhập đủ email thì mới gửi OTP
@@ -111,11 +112,12 @@ class SupportBotFindAccountTest extends TestCase
         // Gõ mã đơn chữ thường, thiếu gạch vẫn nhận
         $text = $this->replies($this->answerQuestions('Trần Bảo Ngọc', 'mã đơn của em là mos 202610 k7qxz'));
 
-        $this->assertStringContainsString('ba•••', $text);
+        $this->assertStringContainsString('baon', $text);
+        $this->assertStringContainsString('oc@gmail.com', $text);
         $this->assertStringContainsString('nhập **đầy đủ** địa chỉ email', $text);
     }
 
-    public function test_ma_don_dung_nhung_sai_ten_khong_lo_thong_tin(): void
+    public function test_ma_don_dung_co_the_tim_tai_khoan_va_van_bat_xac_nhan_email(): void
     {
         $buyer = User::factory()->create(['role' => 'student', 'name' => 'Trần Bảo Ngọc', 'email' => 'baongoc@gmail.com']);
         $package = Package::create(['name' => 'Gói', 'slug' => 'goi-test-2', 'price' => 1]);
@@ -123,8 +125,9 @@ class SupportBotFindAccountTest extends TestCase
 
         $text = $this->replies($this->answerQuestions('Người Khác', 'MOS-202610-AAAAA'));
 
-        $this->assertStringContainsString('chưa khớp', $text);
-        $this->assertStringNotContainsString('ba•••', $text);
+        $this->assertStringContainsString('baon', $text);
+        $this->assertStringContainsString('nhập **đầy đủ** địa chỉ email', $text);
+        Mail::assertNothingSent();
     }
 
     public function test_sai_thong_tin_chi_bao_chung_va_khoa_sau_3_lan(): void
@@ -134,7 +137,7 @@ class SupportBotFindAccountTest extends TestCase
         // Sai lớp: không được nói là sai ở câu nào
         $text = $this->replies($this->answerQuestions('Nguyễn An Nhiên', '4A1', 'Mai Linh'));
         $this->assertStringContainsString('chưa khớp', $text);
-        $this->assertStringNotContainsString('an•••', $text);
+        $this->assertStringNotContainsString('annh', $text);
 
         // Sai thêm 2 lần nữa thì bị khóa, chuyển cho Ban Quản Trị
         foreach (range(1, 2) as $_) {

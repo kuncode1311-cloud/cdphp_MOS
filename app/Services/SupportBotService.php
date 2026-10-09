@@ -30,6 +30,7 @@ use Illuminate\Support\Facades\Mail;
 class SupportBotService
 {
     private const SESSION_KEY = 'support_bot_flow';
+    private const RECENT_RECOVERY_KEY = 'support_bot_recent_recovery';
     private const ADMIN_SEEN_KEY = 'support_admin_seen_at';
     private const FLOW_MINUTES = 15;
     private const OTP_MINUTES = 10;
@@ -98,6 +99,12 @@ class SupportBotService
             return $this->startRecovery($request, $msg);
         }
 
+        // Sau khi người dùng đã hủy/thoát luồng, các câu như "làm lại đi" hoặc nhập email tiếp
+        // vẫn phải quay về flow xác minh chính thức, không để AI suy diễn theo lịch sử chat cũ.
+        if ($this->looksLikeRecoveryContinuation($request, $msg, $text)) {
+            return $this->startRecovery($request, $msg);
+        }
+
         // Khách muốn gặp người thật: chỉ thành viên đã đăng nhập mới có kênh Ban Quản Trị (khách vãng lai không lưu chat)
         if ($this->looksLikeHandoff($text)) {
             if (! $msg->exists) {
@@ -150,12 +157,12 @@ class SupportBotService
 
         // Hỏi về tài khoản/kết quả nhưng chưa có quyền: hướng dẫn đăng nhập hoặc mua gói, không tra dữ liệu
         if ($asksAccount && ! $user) {
-            $reply = $this->agentReplyForGate($text, 'Khách chưa đăng nhập nên chưa thể tra cứu dữ liệu cá nhân. Hãy mời khách đăng nhập để mình xem kết quả và tiến độ học tập.');
+            $reply = $this->agentReplyForGate($text, 'Khách chưa đăng nhập nên chưa thể tra cứu dữ liệu cá nhân. Hãy mời khách đăng nhập để mình xem kết quả và tiến độ học tập.', true);
 
             return ['text' => $reply, 'action' => ['label' => 'Đăng nhập', 'url' => route('login'), 'auto' => $this->wantsAutoOpen($text)]];
         }
         if ($asksAccount && ! $user->hasAiAssistant()) {
-            $reply = $this->agentReplyForGate($text, 'Tài khoản chưa có gói Trợ lý AI còn hạn nên chưa thể tra cứu dữ liệu học tập tự động. Hãy giải thích ngắn gọn và mời xem gói.');
+            $reply = $this->agentReplyForGate($text, 'Tài khoản chưa có gói Trợ lý AI còn hạn nên chưa thể tra cứu dữ liệu học tập tự động. Hãy giải thích ngắn gọn và mời xem gói.', true);
 
             return ['text' => $reply, 'action' => ['label' => 'Xem gói Trợ lý AI', 'url' => route('pricing.index'), 'auto' => $this->wantsAutoOpen($text)]];
         }
@@ -219,8 +226,13 @@ class SupportBotService
         return (bool) preg_match('/m[oơở]\s*|open|v[aà]o\s*|chuy[eể]n\s*|đưa\s*|dua\s*|t[oớ]i\s*|sang\s*|l[aà]m\s*b[aà]i/iu', $text);
     }
 
-    private function agentReplyForGate(string $text, string $policy): string
+    private function agentReplyForGate(string $text, string $policy, bool $deterministic = false): string
     {
+        if ($deterministic) {
+            // Đây là câu chặn quyền/bảo mật nên trả lời cố định theo chính sách, không phụ thuộc AI.
+            return $policy;
+        }
+
         $answer = $this->client->complete(implode("\n", [
             'Bạn là agent tư vấn IC3 Adventure, nói như nhân viên hỗ trợ thật.',
             'Đọc câu người dùng, trả lời thân thiện, nhanh, đúng trọng tâm, tối đa 2 câu.',
@@ -258,7 +270,8 @@ class SupportBotService
             'Trả lời gọn: thường 1-3 câu; chỉ dùng bullet khi thật sự cần liệt kê. Không lặp lại lời chào nếu đang trò chuyện dở.',
             'Chỉ dựa vào tài liệu và dữ liệu dưới đây. Nếu không có thông tin, nói thật là chưa rõ và mời khách để lại SĐT/Zalo cho ' . self::SUPPORT_ADMIN_NICKNAME . '. Tuyệt đối không bịa.',
             'An toàn: không bao giờ yêu cầu, tiết lộ hay tạo mật khẩu hoặc mã OTP; không đăng nhập giùm; không nhận thông tin thẻ ngân hàng.',
-            'Nếu khách quên mật khẩu, hướng dẫn họ bấm/mở trang Quên mật khẩu hoặc gõ "quên mật khẩu" để bot xử lý từng bước.',
+            'Tuyệt đối không được nói đã xác thực thành công, đã tìm thấy tài khoản, đã gửi OTP, hoặc email đã khớp nếu Laravel chưa trả kết quả trong flow khôi phục mật khẩu.',
+            'Nếu khách quên mật khẩu hoặc đang tiếp tục chuyện quên mật khẩu, hướng dẫn họ gõ "quên mật khẩu" để bot xử lý từng bước chính thức.',
             'Không viết URL thô như mos.app/... trong nội dung trả lời. Nếu cần mở trang, hãy nói "bấm nút bên dưới" hoặc nêu tên trang.',
             'Khi tư vấn thanh toán: PayOS là QR thanh toán online, hệ thống tự kích hoạt gói sau khi thanh toán thành công; chuyển khoản thủ công/VietQR thì cần Ban Quản Trị kiểm tra và duyệt.',
             'Khách chưa đăng nhập vẫn được tư vấn và hỗ trợ: xem/chọn gói, đăng ký và thuê gói ngay ở Bảng giá, thanh toán, kiểm tra đơn, quên mật khẩu, đăng nhập, liên hệ hỗ trợ. Các trang học chỉ dành cho tài khoản đã đăng nhập, nên hướng dẫn đăng nhập trước khi vào.',
@@ -289,12 +302,42 @@ class SupportBotService
         // Chấp nhận cả cách gõ sai dấu/thiếu chữ như "qên pass", "ko nhớ pas"
         return (bool) preg_match(
             '/q[uư]?[eêé]n\s*(m[aậ]t|pass|pas|mk|t[aà]i|m[aậ]t\s*m[aã])'
-            . '|(kh[oô]ng|ko|k)\s*nh[oớ]\s*(pass|pas|m[aậ]t|mk|t[aà]i)'
+            . '|q[uư]?[eêé]n\s*(mail|email)'
+            . '|(kh[oô]ng|ko|k)\s*nh[oớ]\s*(pass|pas|m[aậ]t|mk|t[aà]i|mail|email)'
             . '|m[aấ]t\s*(pass|pas|m[aậ]t\s*kh[aẩ]u)'
             . '|kh[oô]i\s*ph[uụ]c|reset\s*(m[aậ]t\s*kh[aẩ]u|pass|pas)'
             . '|(kh[oô]ng|ko)\s*(th[eể]\s*)?đ[aă]ng\s*nh[aậ]p/iu',
             $text
         );
+    }
+
+    /**
+     * Nhận diện câu tiếp nối sau khi flow quên mật khẩu vừa bị hủy hoặc hết phiên.
+     * Mục tiêu là chặn AI trả lời theo ngữ cảnh cũ rồi tạo cảm giác đã xác thực/gửi OTP.
+     */
+    private function looksLikeRecoveryContinuation(Request $request, SupportMessage $msg, string $text): bool
+    {
+        $norm = VietText::norm($text);
+        $mentionsRecoveryAgain = $this->wantsRecoveryRestart($text)
+            || (bool) preg_match('/\b(lam\s*lai|thu\s*lai|tiep\s*tuc|gui\s*otp|ma\s*otp|xac\s*thuc)\b/', $norm)
+            || (bool) filter_var(trim($text), FILTER_VALIDATE_EMAIL);
+
+        if (! $mentionsRecoveryAgain) {
+            return false;
+        }
+
+        if ($request->hasSession() && (bool) $request->session()->get(self::RECENT_RECOVERY_KEY, false)) {
+            return true;
+        }
+
+        foreach (array_slice(is_array($msg->conversation_history) ? $msg->conversation_history : [], -8) as $turn) {
+            $turnText = VietText::norm((string) ($turn['text'] ?? ''));
+            if (preg_match('/quen\s*(mat\s*khau|mail|email)|khoi\s*phuc|otp|email\s*dang\s*ky|da\s*dung\s*khoi\s*phuc|xac\s*nhan\s*dung/', $turnText)) {
+                return true;
+            }
+        }
+
+        return false;
     }
 
     private function startRecovery(Request $request, SupportMessage $msg): array
@@ -390,10 +433,33 @@ class SupportBotService
             if (mb_strlen(VietText::norm($nameOnly)) >= 2) {
                 return $this->revealOrFail($request, $msg, $this->findByPhone($nameOnly, $phone), ['name' => $nameOnly]);
             }
+
+            return $this->revealOrFail($request, $msg, $this->findByPhoneOnly($phone), []);
+        }
+
+        if (preg_match('/MOS[\s-]*(\d{6})[\s-]*([A-Z0-9]{5,8})/i', $input, $m)) {
+            return $this->revealOrFail($request, $msg, $this->findByOrderOnly('MOS-' . $m[1] . '-' . strtoupper($m[2])), []);
         }
 
         $nameAndClass = $this->splitNameAndClass($input);
         if ($nameAndClass !== null) {
+            if (! empty($nameAndClass['phone'])) {
+                return $this->revealOrFail($request, $msg, $this->findByPhone($nameAndClass['name'], $nameAndClass['phone']), ['name' => $nameAndClass['name']]);
+            }
+
+            if (! empty($nameAndClass['order_code'])) {
+                return $this->revealOrFail($request, $msg, $this->findByOrder($nameAndClass['name'], $nameAndClass['order_code']), ['name' => $nameAndClass['name']]);
+            }
+
+            if (! empty($nameAndClass['teacher'])) {
+                return $this->revealOrFail(
+                    $request,
+                    $msg,
+                    $this->findByIdentity($nameAndClass['name'], $nameAndClass['class'], $nameAndClass['teacher']),
+                    ['name' => $nameAndClass['name'], 'class' => $nameAndClass['class']]
+                );
+            }
+
             $this->saveFlow($request, [
                 'step' => 'find_teacher',
                 'name' => $nameAndClass['name'],
@@ -406,8 +472,17 @@ class SupportBotService
             ], false, true);
         }
 
-        $nameMatches = $this->findNameCandidates($input);
-        if ($nameMatches === 0) {
+        $nameCandidates = $this->findNameCandidates($input);
+        if ($nameCandidates === [] && $this->looksLikeFullStudentName($input)) {
+            $this->saveFlow($request, ['step' => 'find_class', 'name' => trim($input)]);
+
+            return $this->finish($msg, [
+                'Mình đã ghi nhận họ tên **' . trim($input) . '**.',
+                "Bạn cho mình thêm **lớp** (ví dụ: 3A1), hoặc nếu tự mua gói thì nhập **mã đơn hàng** / **SĐT đã đăng ký** để xác minh đúng tài khoản nhé.",
+            ], false, true);
+        }
+
+        if ($nameCandidates === []) {
             return $this->replyRecoveryProblem(
                 $request,
                 $msg,
@@ -421,6 +496,7 @@ class SupportBotService
 
         return $this->finish($msg, [
             'Mình thấy có tài khoản có tên gần giống **' . trim($input) . '** trong hệ thống.',
+            'Gợi ý gần nhất: ' . implode('; ', $this->candidateHints($nameCandidates)) . '.',
             "Bạn cho mình thêm **lớp** (ví dụ: 3A1), hoặc nếu tự mua gói thì nhập **mã đơn hàng** / **SĐT đã đăng ký** để xác minh đúng tài khoản nhé.",
         ], false, true);
     }
@@ -431,6 +507,10 @@ class SupportBotService
             $this->saveFlow($request, ['step' => 'find_name']);
 
             return $this->finish($msg, ['Được nhé, mình quay lại câu 1. Bạn nhập **họ và tên đầy đủ** của học sinh.'], false, true);
+        }
+
+        if ($this->looksLikeFullStudentName($input)) {
+            return $this->stepFindName($request, $msg, $input);
         }
 
         if ($this->looksLikeNonAnswer($input)) {
@@ -518,7 +598,7 @@ class SupportBotService
 
         return $this->finish($msg, [
             'Mình tìm thấy tài khoản rồi! 🎉 ' . ($user->student_code ? "Mã HS của em là **{$user->student_code}**, " : '') . 'email đăng ký là **' . $this->maskEmail($user->email) . '**'
-                . ($user->phone ? ', số điện thoại **' . $user->maskedPhone() . '**' : '') . '.',
+                . ($user->phone ? ', số điện thoại **' . $this->maskPhone($user->phone) . '**' : '') . '.',
             'Để xác nhận đúng là bạn, hãy nhập **đầy đủ** địa chỉ email đó để nhận mã OTP.',
         ], false, true);
     }
@@ -542,9 +622,15 @@ class SupportBotService
             ->filter(function (User $u) use ($name, $class, $teacherWords) {
                 $teacherName = ' ' . VietText::norm((string) $u->teacher?->name) . ' ';
 
-                return VietText::norm($u->name) === $name
-                    && preg_replace('/^lop\s*/', '', VietText::norm((string) $u->classroom?->name)) === $class
-                    && collect($teacherWords)->every(fn ($w) => str_contains($teacherName, " {$w} "));
+                return (
+                    $this->matchesLooseName((string) $u->name, $name)
+                    && $this->matchesLooseClass((string) $u->classroom?->name, $class)
+                    && collect($teacherWords)->every(fn ($w) => str_contains($teacherName, " {$w} "))
+                ) || (
+                    $this->matchesLooseName((string) $u->name, $name)
+                    && $this->matchesLooseClass((string) $u->classroom?->name, $class)
+                    && $this->similarity($teacherName, implode(' ', $teacherWords)) >= 0.72
+                );
             });
 
         return $matches->count() === 1 ? $matches->first() : null;
@@ -554,7 +640,15 @@ class SupportBotService
     private function findByPhone(string $name, string $phone): ?User
     {
         $matches = User::where('phone', $phone)->where('role', '!=', 'admin')->get()
-            ->filter(fn (User $u) => VietText::norm($u->name) === VietText::norm($name));
+            ->filter(fn (User $u) => $this->matchesLooseName((string) $u->name, $name));
+
+        return $matches->count() === 1 ? $matches->first() : null;
+    }
+
+    /** SĐT đúng duy nhất cũng đủ để nhận diện bước đầu; vẫn bắt nhập email đầy đủ trước khi gửi OTP. */
+    private function findByPhoneOnly(string $phone): ?User
+    {
+        $matches = User::where('phone', $phone)->where('role', '!=', 'admin')->get();
 
         return $matches->count() === 1 ? $matches->first() : null;
     }
@@ -563,43 +657,60 @@ class SupportBotService
     private function findByOrder(string $name, string $code): ?User
     {
         $user = PackageOrder::where('code', $code)->first()?->user;
-        if (! $user || $user->isAdmin() || VietText::norm($user->name) !== VietText::norm($name)) {
+        if (! $user || $user->isAdmin() || ! $this->matchesLooseName((string) $user->name, $name)) {
             return null;
         }
 
         return $user;
     }
 
+    /** Mã đơn hàng là bí mật phía người mua; đúng mã vẫn chỉ mở bước xác nhận email đầy đủ. */
+    private function findByOrderOnly(string $code): ?User
+    {
+        $user = PackageOrder::where('code', $code)->first()?->user;
+
+        return $user && ! $user->isAdmin() ? $user : null;
+    }
+
     /** Đếm nhanh tài khoản học sinh có tên khớp/gần khớp để phản hồi tự nhiên trước khi hỏi thêm thông tin. */
-    private function findNameCandidates(string $name): int
+    private function findNameCandidates(string $name): array
     {
         $needle = VietText::norm($name);
         if ($needle === '' || mb_strlen($needle) < 2) {
-            return 0;
+            return [];
         }
 
         $words = array_values(array_filter(explode(' ', $needle), fn ($word) => mb_strlen($word) >= 2));
 
         return User::query()
-            ->where('role', 'student')
-            ->get(['id', 'name'])
-            ->filter(function (User $user) use ($needle, $words) {
+            ->where('role', '!=', 'admin')
+            ->with('classroom:id,name')
+            ->get(['id', 'name', 'classroom_id'])
+            ->map(function (User $user) use ($needle, $words) {
                 $candidate = VietText::norm((string) $user->name);
                 if ($candidate === $needle || str_contains($candidate, $needle)) {
-                    return true;
+                    $score = 100;
+                } elseif ($words !== [] && collect($words)->every(fn ($word) => str_contains($candidate, $word))) {
+                    $score = 95;
+                } else {
+                    $score = (int) round($this->similarity($candidate, $needle) * 100);
                 }
 
-                return $words !== [] && collect($words)->every(fn ($word) => str_contains($candidate, $word));
+                return ['user' => $user, 'score' => $score];
             })
+            ->filter(fn (array $row) => $row['score'] >= 70)
+            ->sortByDesc('score')
             ->take(3)
-            ->count();
+            ->pluck('user')
+            ->values()
+            ->all();
     }
 
     /**
      * Tách câu nhập tự nhiên thành họ tên và lớp nếu người dùng đã nói chung một tin.
      * Ví dụ: "Lê Minh Trí lớp 3A", "le minh tri 3a", "em tên An Nhiên học lớp 4B".
      *
-     * @return array{name: string, class: string}|null
+     * @return array{name: string, class: string, teacher?: string, phone?: string, order_code?: string}|null
      */
     private function splitNameAndClass(string $input): ?array
     {
@@ -608,11 +719,28 @@ class SupportBotService
             return null;
         }
 
+        $phone = \App\Models\SupportMessage::normalizePhone(preg_replace('/[^0-9+]/', '', $clean));
+        $orderCode = null;
+        if (preg_match('/MOS[\s-]*(\d{6})[\s-]*([A-Z0-9]{5,8})/i', $clean, $m)) {
+            $orderCode = 'MOS-' . $m[1] . '-' . strtoupper($m[2]);
+        }
+
         if (preg_match('/^(?:em\s*)?(?:ten\s*)?(.+?)\s+(?:hoc\s*)?(?:lop|lớp)\s*([0-9]{1,2}\s*[a-zA-Z][0-9]?)/iu', $clean, $m)) {
-            return [
+            $result = [
                 'name' => trim($m[1]),
                 'class' => strtoupper(str_replace(' ', '', trim($m[2]))),
             ];
+            if (preg_match('/(?:co|cô|thay|thầy|gv|giao vien|giáo viên)\s+(.+)$/iu', $clean, $teacher)) {
+                $result['teacher'] = trim($teacher[1]);
+            }
+            if ($phone !== null) {
+                $result['phone'] = $phone;
+            }
+            if ($orderCode !== null) {
+                $result['order_code'] = $orderCode;
+            }
+
+            return $result;
         }
 
         if (preg_match('/^(.+?)\s+([0-9]{1,2}\s*[a-zA-Z][0-9]?)$/u', $clean, $m)) {
@@ -626,6 +754,68 @@ class SupportBotService
         }
 
         return null;
+    }
+
+    /** Tạo gợi ý đã che nhẹ để người dùng nhận ra, nhưng chưa lộ đầy đủ danh tính. */
+    private function candidateHints(array $users): array
+    {
+        return array_map(function (User $user) {
+            $class = $user->classroom?->name ? ' - ' . $this->maskClassName($user->classroom->name) : '';
+
+            return $this->maskPersonName((string) $user->name) . $class;
+        }, $users);
+    }
+
+    private function matchesLooseName(string $candidate, string $input): bool
+    {
+        $candidate = VietText::norm($candidate);
+        $input = VietText::norm($input);
+        if ($candidate === '' || $input === '') {
+            return false;
+        }
+
+        $inputWords = array_values(array_filter(explode(' ', $input), fn ($word) => mb_strlen($word) >= 2));
+        if ($candidate === $input || str_contains($candidate, $input)) {
+            return true;
+        }
+
+        if ($inputWords !== [] && collect($inputWords)->every(fn ($word) => str_contains($candidate, $word) || $this->wordNear($candidate, $word))) {
+            return true;
+        }
+
+        return $this->similarity($candidate, $input) >= 0.78;
+    }
+
+    private function matchesLooseClass(string $candidate, string $input): bool
+    {
+        $candidate = preg_replace('/^lop\s*/', '', VietText::norm($candidate));
+        $input = preg_replace('/^lop\s*/', '', VietText::norm($input));
+
+        return $candidate !== '' && $input !== '' && ($candidate === $input || $this->similarity($candidate, $input) >= 0.82);
+    }
+
+    private function wordNear(string $candidate, string $word): bool
+    {
+        foreach (explode(' ', $candidate) as $candidateWord) {
+            if (mb_strlen($candidateWord) >= 2 && levenshtein($candidateWord, $word) <= 1) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    private function similarity(string $a, string $b): float
+    {
+        $a = VietText::norm($a);
+        $b = VietText::norm($b);
+        if ($a === '' || $b === '') {
+            return 0.0;
+        }
+
+        similar_text($a, $b, $percent);
+
+        return $percent / 100;
     }
 
     /**
@@ -1000,6 +1190,7 @@ class SupportBotService
     private function endRecovery(Request $request, SupportMessage $msg, string $reply): array
     {
         session()->forget(self::SESSION_KEY);
+        session()->put(self::RECENT_RECOVERY_KEY, true);
 
         return $this->finish($msg, [$reply], false, false);
     }
@@ -1138,14 +1329,58 @@ class SupportBotService
     {
         $flow['expires_at'] = now()->addMinutes(self::FLOW_MINUTES)->timestamp;
         $request->session()->put(self::SESSION_KEY, $flow);
+        $request->session()->forget(self::RECENT_RECOVERY_KEY);
     }
 
-    /** Che bớt email: ab•••@gmail.com (dùng • vì dấu * trùng ký hiệu in đậm của khung chat) */
+    /** Che bớt email nhưng giữ đủ ký tự đầu/cuối để người dùng dễ nhận ra. */
     private function maskEmail(string $email): string
     {
         [$local, $domain] = explode('@', $email, 2) + [1 => ''];
-        $visible = mb_substr($local, 0, min(2, mb_strlen($local)));
+        $length = mb_strlen($local);
+        if ($length <= 4) {
+            return mb_substr($local, 0, 2) . str_repeat('•', max(1, $length - 2)) . '@' . $domain;
+        }
 
-        return $visible . str_repeat('•', max(3, mb_strlen($local) - mb_strlen($visible))) . '@' . $domain;
+        $head = mb_substr($local, 0, min(4, $length - 2));
+        $tail = mb_substr($local, -2);
+
+        return $head . str_repeat('•', max(2, $length - mb_strlen($head) - 2)) . $tail . '@' . $domain;
+    }
+
+    /** Che nhẹ SĐT trong luồng xác minh: 0345•••438. */
+    private function maskPhone(string $phone): string
+    {
+        $digits = preg_replace('/\D+/', '', $phone) ?: '';
+        if (strlen($digits) <= 7) {
+            return $digits;
+        }
+
+        return substr($digits, 0, 4) . str_repeat('•', max(2, strlen($digits) - 7)) . substr($digits, -3);
+    }
+
+    /** Che tên gợi ý theo từng từ: Nguyễn A• Nhiên, đủ nhận ra nhưng chưa lộ toàn bộ. */
+    private function maskPersonName(string $name): string
+    {
+        return collect(preg_split('/\s+/', trim($name)) ?: [])
+            ->filter()
+            ->map(function (string $word, int $index) {
+                if ($index === 0 || mb_strlen($word) <= 2) {
+                    return $word;
+                }
+
+                return mb_substr($word, 0, 1) . str_repeat('•', max(1, mb_strlen($word) - 2)) . mb_substr($word, -1);
+            })
+            ->implode(' ');
+    }
+
+    /** Che nhẹ lớp gợi ý: Lớp 3A•, vẫn đủ để học sinh nhận diện. */
+    private function maskClassName(string $className): string
+    {
+        $class = trim($className);
+        if (preg_match('/^(.+?[0-9]{1,2}[A-Za-z])([0-9])$/u', $class, $m)) {
+            return $m[1] . '•';
+        }
+
+        return $class;
     }
 }
