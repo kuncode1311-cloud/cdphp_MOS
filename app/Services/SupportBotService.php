@@ -377,6 +377,10 @@ class SupportBotService
 
     private function stepIdentify(Request $request, SupportMessage $msg, string $input): array
     {
+        if ($this->asksHowToAnswerRecovery($input)) {
+            return $this->guideRecoveryStep($request, $msg, ['step' => 'identify'], $input);
+        }
+
         // Không nhớ cả email lẫn Mã HS: chuyển sang hỏi câu xác minh để tìm lại tài khoản
         if (preg_match('/^(khong|ko|k|chang|cha)\s*(nho|biet)|^quen\s*(het|luon|ca|roi)/', VietText::norm($input))) {
             return $this->startFind($request, $msg);
@@ -889,6 +893,10 @@ class SupportBotService
     private function handleRecoveryIntentByAi(Request $request, SupportMessage $msg, array $flow, string $input): ?array
     {
         $step = (string) ($flow['step'] ?? '');
+        if ($this->asksHowToAnswerRecovery($input)) {
+            return $this->guideRecoveryStep($request, $msg, $flow, $input);
+        }
+
         if (! in_array($step, ['find_name', 'find_class', 'find_teacher'], true)) {
             return null;
         }
@@ -991,6 +999,33 @@ class SupportBotService
         }
 
         return ['action' => $action, 'extracted' => is_array($args['extracted'] ?? null) ? $args['extracted'] : []];
+    }
+
+    /** Người dùng đang hỏi cách nhập ở bước hiện tại, không phải cung cấp dữ liệu xác minh. */
+    private function asksHowToAnswerRecovery(string $input): bool
+    {
+        $text = VietText::norm($input);
+
+        return (bool) preg_match('/(nhap|ghi|dien|viet|go)\s*(sao|gi|nhu\s*the\s*nao|kieu\s*gi|o\s*dau)|lam\s*sao|lam\s*the\s*nao|huong\s*dan|chi\s*(minh|toi|em)|khong\s*biet\s*(nhap|ghi|dien|viet|go)/', $text);
+    }
+
+    private function guideRecoveryStep(Request $request, SupportMessage $msg, array $flow, string $input): array
+    {
+        $this->saveFlow($request, $flow);
+
+        $step = (string) ($flow['step'] ?? 'identify');
+        $reply = match ($step) {
+            'identify' => 'Bạn nhập **email đăng nhập** hoặc **Mã HS** vào đây là được nha. Nếu không nhớ cả hai, cứ gõ **"không nhớ"**, mình sẽ hỏi vài thông tin như họ tên, lớp hoặc SĐT để tìm giúp.',
+            'find_name' => 'Bạn nhập **họ và tên đầy đủ của học sinh** trước nhé. Nếu nhớ thêm lớp hoặc SĐT thì có thể nhập chung một tin, ví dụ: `Nguyễn An Nhiên lớp 3A1`.',
+            'find_class' => 'Ở bước này bạn nhập **lớp** như `3A1`, hoặc nhập **SĐT đã đăng ký** / **mã đơn hàng** nếu tài khoản tự mua gói nha.',
+            'find_teacher' => 'Bạn nhập tên **thầy/cô quản lý tài khoản**, ví dụ `Cô Mai Linh`. Nếu muốn sửa lớp hoặc SĐT thì gõ **quay lại** nhé.',
+            'confirm' => 'Bạn nhập **đầy đủ email đăng ký** giống phần gợi ý đã che ở trên. Mình chỉ gửi OTP khi email khớp chính xác để bảo vệ tài khoản.',
+            'otp' => 'Bạn mở email vừa nhận rồi nhập **6 chữ số OTP** vào đây. Mã này sẽ được ẩn trong lịch sử để bảo mật.',
+            'password' => 'Bạn nhập **mật khẩu mới** ít nhất 6 ký tự. Không cần gửi mật khẩu cũ nha.',
+            default => 'Bạn nhập tiếp thông tin theo câu mình vừa hỏi nhé. Nếu muốn dừng thì gõ **hủy**.',
+        };
+
+        return $this->finish($msg, [$reply], in_array($step, ['otp', 'password'], true), true);
     }
 
     private function goToFindName(Request $request, SupportMessage $msg): array

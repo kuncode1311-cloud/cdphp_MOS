@@ -166,6 +166,20 @@ class SupportBotPasswordResetTest extends TestCase
         Mail::assertNothingSent();
     }
 
+    public function test_dang_o_buoc_nhap_tai_khoan_ma_hoi_cach_nhap_thi_duoc_huong_dan_tu_nhien(): void
+    {
+        $this->say('quên pas');
+        $data = $this->say('nhập sao?');
+        $text = implode("\n", $data['bot_replies']);
+
+        $this->assertTrue($data['flow_active']);
+        $this->assertStringContainsString('email', $text);
+        $this->assertStringContainsString('Mã HS', $text);
+        $this->assertStringContainsString('không nhớ', $text);
+        $this->assertStringNotContainsString('chưa tìm thấy tài khoản', $text);
+        Mail::assertNothingSent();
+    }
+
     public function test_co_brevo_thi_otp_gui_qua_brevo_api_giong_trang_ho_so(): void
     {
         // Máy chủ thật: cổng SMTP bị chặn, gửi bằng Brevo API
