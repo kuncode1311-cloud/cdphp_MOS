@@ -46,9 +46,11 @@ class VoiceQuizService
     public function catalog(User $user): array
     {
         $levels = $this->accessibleLevels($user);
-        // Đúng danh sách và thứ tự như trang học (kể cả chủ đề chưa có bài, số câu = 0), để AI đếm "chủ đề thứ n" khớp màn hình
+        // Chỉ đưa chủ đề có câu hỏi luyện thật để AI không gợi ý nhầm chủ đề rỗng/đang ẩn.
         $topics = Topic::query()
             ->whereIn('level_id', $levels->pluck('id'))
+            ->whereHas('tests', fn ($q) => $q->where('is_published', true)->where('is_mock', false)
+                ->whereHas('questions', fn ($qq) => $qq->where('is_published', true)))
             ->orderBy('position')->orderBy('id')
             ->get(['id', 'level_id', 'name']);
 
