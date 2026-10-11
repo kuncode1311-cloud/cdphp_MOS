@@ -1123,11 +1123,27 @@ class SupportBotService
         return (bool) preg_match('/^(hi|hello|helo|alo|ok|oke|uh|ừ|um|test|thu|abc|a|b|c)$/iu', $text);
     }
 
+    private function cannotRecallEmail(string $input): bool
+    {
+        $text = VietText::norm($input);
+
+        return (bool) preg_match('/(khong|ko|k|chua|chang|cha)\s*(nho|biet|ro)\s*(mail|email|gmail)|quen\s*(mail|email|gmail)|nho\s*khong\s*ra\s*(mail|email|gmail)/', $text);
+    }
+
     private function stepConfirmEmail(Request $request, SupportMessage $msg, array $flow, string $input): array
     {
         $user = User::find($flow['user_id'] ?? 0);
         if (! $user) {
             return $this->endRecovery($request, $msg, 'Có lỗi xảy ra. Bạn gõ "quên mật khẩu" để thử lại nhé.');
+        }
+
+        if ($this->cannotRecallEmail($input)) {
+            $this->saveFlow($request, ['step' => 'find_name']);
+
+            return $this->finish($msg, [
+                'Không sao nha, nếu bạn **không nhớ email đầy đủ** thì mình chuyển sang cách xác minh khác.',
+                'Bạn nhập **SĐT đã đăng ký**, **mã đơn hàng**, hoặc **họ tên học sinh kèm lớp** để mình tìm đúng tài khoản giúp nhé.',
+            ], false, true);
         }
 
         if (mb_strtolower($input) !== mb_strtolower((string) $user->email)) {

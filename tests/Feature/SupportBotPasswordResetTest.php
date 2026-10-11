@@ -224,6 +224,22 @@ class SupportBotPasswordResetTest extends TestCase
         $this->assertTrue($data['flow_active']);
     }
 
+    public function test_khong_nho_email_o_buoc_xac_nhan_thi_chuyen_sang_xac_minh_khac(): void
+    {
+        $this->user();
+        $this->say('quên mật khẩu');
+        $this->say(self::EMAIL);
+        $data = $this->say('ko nho mail');
+        $text = implode("\n", $data['bot_replies']);
+
+        $this->assertTrue($data['flow_active']);
+        $this->assertStringContainsString('không nhớ email', $text);
+        $this->assertStringContainsString('SĐT', $text);
+        $this->assertStringContainsString('mã đơn', $text);
+        $this->assertStringNotContainsString('Email chưa khớp', $text);
+        Mail::assertNothingSent();
+    }
+
     public function test_email_xac_nhan_viet_hoa_thuong_van_duoc_chap_nhan(): void
     {
         $this->user();
