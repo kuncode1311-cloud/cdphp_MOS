@@ -149,8 +149,8 @@ class SupportBotService
         $user = $request->user();
         $asksAccount = $this->looksLikeAccountQuestion($text);
 
-        if ($this->looksLikePricingQuestion($text)) {
-            $reply = $this->agentReplyForGate($text, 'Khách đang quan tâm mua hoặc xem gói bản quyền. Tư vấn ngắn gọn: PayOS là QR thanh toán online và tự kích hoạt gói sau khi thanh toán thành công; chuyển khoản thủ công thì chờ Ban Quản Trị duyệt. Mời bấm nút bên dưới để xem bảng giá, không viết URL thô.');
+        if ($this->looksLikePackageOrLevelQuestion($text)) {
+            $reply = $this->packageReplyFromDatabase($text);
 
             return ['text' => $reply, 'action' => ['label' => 'Xem bảng giá', 'url' => route('pricing.index'), 'auto' => $this->wantsAutoOpen($text)]];
         }
@@ -221,6 +221,17 @@ class SupportBotService
         return (bool) preg_match('/mua\s*g[oó]i|thu[eê]\s*g[oó]i|b[aả]ng\s*gi[aá]|gi[aá]\s*(g[oó]i|bao\s*nhi[eê]u)|thanh\s*to[aá]n|payos|vietqr|đăng\s*k[yý]\s*g[oó]i|dang\s*ky\s*goi/iu', $text);
     }
 
+    private function looksLikePackageOrLevelQuestion(string $text): bool
+    {
+        if ($this->looksLikePricingQuestion($text)) {
+            return true;
+        }
+
+        $norm = VietText::norm($text);
+
+        return (bool) preg_match('/\b(co|c[oó]|hoc|h[oọ]c|goi|g[oó]i|ban|b[aá]n|mo|m[oở])\b.*\bkhoi\s*\d+\b|\bkhoi\s*\d+\b.*\b(co|c[oó]|hoc|h[oọ]c|goi|g[oó]i|ban|b[aá]n|mo|m[oở])\b/u', $norm);
+    }
+
     private function wantsAutoOpen(string $text): bool
     {
         return (bool) preg_match('/m[oơở]\s*|open|v[aà]o\s*|chuy[eể]n\s*|đưa\s*|dua\s*|t[oớ]i\s*|sang\s*|l[aà]m\s*b[aà]i/iu', $text);
@@ -246,6 +257,56 @@ class SupportBotService
         return $answer ?: $policy;
     }
 
+    /** Tư vấn gói/khối chỉ dựa trên dữ liệu Package + Level thật trong CSDL, không để AI tự bịa tên gói, giá hoặc khối. */
+    private function packageReplyFromDatabase(string $text): string
+    {
+        $packages = Package::active()->with('levels:id,name,grade')->ordered()->get();
+        if ($packages->isEmpty()) {
+            return 'Mình kiểm tra CSDL hiện chưa thấy gói bản quyền nào đang mở bán. Bạn nhắn Zalo/SĐT **' . self::SUPPORT_ZALO_PHONE . '** để ' . self::SUPPORT_ADMIN_NICKNAME . ' kiểm tra trực tiếp nhé.';
+        }
+
+        $knownGrades = \App\Models\Level::query()->whereNotNull('grade')->orderBy('grade')->pluck('grade')->map(fn ($grade) => (int) $grade)->unique()->values();
+        $packageGrades = $packages
+            ->flatMap(function (Package $package) use ($knownGrades) {
+                $grades = $package->levels->pluck('grade')->filter()->map(fn ($grade) => (int) $grade);
+
+                return $grades->isNotEmpty() ? $grades : $knownGrades;
+            })
+            ->unique()
+            ->sort()
+            ->values();
+
+        $askedGrades = $this->askedGrades($text);
+        $missingGrades = $askedGrades->filter(fn (int $grade) => ! $packageGrades->contains($grade))->values();
+
+        $lines = [];
+        if ($missingGrades->isNotEmpty()) {
+            $lines[] = 'Mình kiểm tra theo dữ liệu hiện tại thì **chưa thấy gói đang mở cho Khối ' . $missingGrades->join(', Khối ') . '**.';
+        } elseif ($askedGrades->isNotEmpty()) {
+            $lines[] = 'Mình kiểm tra CSDL thì đang có gói phù hợp với **Khối ' . $askedGrades->join(', Khối ') . '**.';
+        } else {
+            $lines[] = 'Mình gửi bạn các gói đang mở theo dữ liệu hiện tại nhé:';
+        }
+
+        $lines[] = 'Các gói đang mở:';
+        foreach ($packages->take(6) as $package) {
+            $audience = $package->target_audience === Package::AUDIENCE_STUDENT ? 'học sinh' : 'giáo viên/trường học';
+            $lines[] = '- **' . $package->name . '**: ' . $package->formatted_price . ', ' . $package->duration_text . ', áp dụng ' . $package->levels_list_text . ', dành cho ' . $audience . '.';
+        }
+
+        $lines[] = 'Bạn bấm nút bên dưới để xem đúng bảng giá và thuê gói nha.';
+
+        return implode("\n", $lines);
+    }
+
+    /** Rút các khối lớp người dùng nhắc tới, ví dụ "khối 6", "khoi 3". */
+    private function askedGrades(string $text): \Illuminate\Support\Collection
+    {
+        preg_match_all('/khoi\s*(\d{1,2})/u', VietText::norm($text), $matches);
+
+        return collect($matches[1] ?? [])->map(fn ($grade) => (int) $grade)->filter()->unique()->values();
+    }
+
     /** Nội dung tài liệu hỗ trợ dùng chung cho cả hai cách trả lời */
     private function faq(): string
     {
@@ -269,6 +330,7 @@ class SupportBotService
             'Mọi câu khách gửi đều phải được suy nghĩ theo ngữ cảnh: nếu là chào hỏi thì chào ngắn; nếu là câu hỏi thì trả lời; nếu muốn thao tác thì hướng dẫn hoặc đưa bước tiếp theo; nếu mơ hồ thì hỏi lại đúng 1 câu ngắn.',
             'Trả lời gọn: thường 1-3 câu; chỉ dùng bullet khi thật sự cần liệt kê. Không lặp lại lời chào nếu đang trò chuyện dở.',
             'Chỉ dựa vào tài liệu và dữ liệu dưới đây. Nếu không có thông tin, nói thật là chưa rõ và mời khách để lại SĐT/Zalo cho ' . self::SUPPORT_ADMIN_NICKNAME . '. Tuyệt đối không bịa.',
+            'Không tự bịa khối lớp, tên gói, giá tiền, thời hạn, chương trình học. Hỏi về gói/khối/giá mà dữ liệu không có thì nói chưa thấy trong CSDL.',
             'An toàn: không bao giờ yêu cầu, tiết lộ hay tạo mật khẩu hoặc mã OTP; không đăng nhập giùm; không nhận thông tin thẻ ngân hàng.',
             'Tuyệt đối không được nói đã xác thực thành công, đã tìm thấy tài khoản, đã gửi OTP, hoặc email đã khớp nếu Laravel chưa trả kết quả trong flow khôi phục mật khẩu.',
             'Nếu khách quên mật khẩu hoặc đang tiếp tục chuyện quên mật khẩu, hướng dẫn họ gõ "quên mật khẩu" để bot xử lý từng bước chính thức.',

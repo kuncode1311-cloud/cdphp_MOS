@@ -3,6 +3,9 @@
 namespace Tests\Feature;
 
 use App\Mail\PasswordResetOtpMail;
+use App\Models\Level;
+use App\Models\Package;
+use App\Models\Program;
 use App\Models\SupportMessage;
 use App\Models\User;
 use App\Services\SupportBotService;
@@ -111,13 +114,41 @@ class SupportBotRecoveryTest extends TestCase
             'candidates' => [['content' => ['parts' => [['text' => 'Mình gợi ý bạn xem các gói bản quyền nhé.']]]]],
         ])]);
 
-        $data = $this->send('Gói bản quyền giá bao nhiêu?');
+        $data = $this->send('Tài liệu IC3 có những phần nào?');
 
         $this->assertSame(['Mình gợi ý bạn xem các gói bản quyền nhé.'], $data['bot_replies']);
         $this->assertFalse($data['secret_next']);
         // Khách vãng lai không được lưu vào CSDL
         $this->assertNull($data['message_id']);
         $this->assertSame(0, SupportMessage::count());
+    }
+
+    public function test_tu_van_khoi_va_goi_chi_lay_du_lieu_that_tu_csdl_khong_bia_khoi_6(): void
+    {
+        Http::fake(['*' => Http::response([
+            'candidates' => [['content' => ['parts' => [['text' => 'Bịa có khối 6 giá 999.000 đ']]]]],
+        ])]);
+        $program = Program::create(['name' => 'IC3 Spark', 'slug' => 'ic3-spark-test']);
+        $level3 = Level::create(['program_id' => $program->id, 'name' => 'Khối 3', 'slug' => 'khoi-3-test', 'grade' => 3]);
+        $package = Package::create([
+            'name' => 'Gói Khối 3 Thử',
+            'slug' => 'goi-khoi-3-thu',
+            'target_audience' => 'student',
+            'price' => 69000,
+            'duration_days' => 30,
+            'max_students' => 1,
+            'is_active' => true,
+        ]);
+        $package->levels()->sync([$level3->id]);
+
+        $data = $this->send('co khối 6 ko');
+        $text = implode("\n", $data['bot_replies']);
+
+        $this->assertStringContainsString('chưa thấy gói đang mở cho Khối 6', $text);
+        $this->assertStringContainsString('Gói Khối 3 Thử', $text);
+        $this->assertStringContainsString('69.000 đ', $text);
+        $this->assertStringNotContainsString('999.000', $text);
+        Http::assertNotSent(fn ($request) => str_contains($request->url(), 'generativelanguage'));
     }
 
     /** Cùng một trình duyệt: cookie phiên cố định cho các request liên tiếp trong test */
