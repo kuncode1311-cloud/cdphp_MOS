@@ -893,25 +893,26 @@ class SupportBotService
     private function handleRecoveryIntentByAi(Request $request, SupportMessage $msg, array $flow, string $input): ?array
     {
         $step = (string) ($flow['step'] ?? '');
-        if ($this->asksHowToAnswerRecovery($input)) {
-            return $this->guideRecoveryStep($request, $msg, $flow, $input);
-        }
-
-        if (! in_array($step, ['find_name', 'find_class', 'find_teacher'], true)) {
+        if (! in_array($step, ['identify', 'find_name', 'find_class', 'find_teacher', 'confirm', 'otp', 'password'], true)) {
             return null;
         }
 
         $decision = $this->decideRecoveryAction($step, $flow, $input);
-        if ($decision === null) {
-            return null;
+        if ($decision !== null) {
+            return match ($decision['action']) {
+                'restart', 'back_to_name' => $this->goToFindName($request, $msg),
+                'back_to_class' => $this->goToFindClass($request, $msg, $flow),
+                'guide', 'not_answer' => $this->routeRecoveryNonDataInput($request, $msg, $flow, $input),
+                'no_recall' => $this->routeRecoveryNoRecall($request, $msg, $flow),
+                default => null,
+            };
         }
 
-        return match ($decision['action']) {
-            'restart', 'back_to_name' => $this->goToFindName($request, $msg),
-            'back_to_class' => $this->goToFindClass($request, $msg, $flow),
-            'not_answer' => $this->replyRecoveryLikeStaff($request, $msg, $flow, $input),
-            default => null,
-        };
+        if ($this->asksHowToAnswerRecovery($input)) {
+            return $this->guideRecoveryStep($request, $msg, $flow, $input);
+        }
+
+        return null;
     }
 
     /**
@@ -930,6 +931,8 @@ class SupportBotService
                     'Không tự xác minh tài khoản, không gửi OTP, không đổi mật khẩu, không hỏi mật khẩu cũ.',
                     'Chỉ chọn action tiếp theo để Laravel thực thi an toàn.',
                     'Nếu người dùng đang thật sự cung cấp thông tin cho bước hiện tại, chọn continue.',
+                    'Nếu người dùng hỏi cách nhập, cách làm, cần hướng dẫn, chọn guide.',
+                    'Nếu người dùng nói không nhớ thông tin đang cần (email, mã học sinh, họ tên, lớp, giáo viên...), chọn no_recall.',
                     'Nếu người dùng nói tự nhiên/gõ sai chính tả nhưng muốn quay lại/sửa thông tin, chọn action tương ứng.',
                     'Nếu chỉ chào hỏi, nói đùa, hoặc chưa cung cấp thông tin cần thiết, chọn not_answer.',
                 ]),
@@ -945,6 +948,8 @@ class SupportBotService
                     'user_message' => $input,
                     'available_actions' => [
                         'continue' => 'Tiếp tục xử lý câu này theo bước hiện tại.',
+                        'guide' => 'Người dùng hỏi cách nhập/cách làm ở bước hiện tại.',
+                        'no_recall' => 'Người dùng nói không nhớ thông tin đang cần ở bước hiện tại.',
                         'not_answer' => 'Câu này không phải thông tin cần cho bước hiện tại.',
                         'back_to_name' => 'Quay lại nhập họ tên/câu 1.',
                         'back_to_class' => 'Quay lại nhập lớp/mã đơn/SĐT/câu 2.',
@@ -964,7 +969,7 @@ class SupportBotService
                     'properties' => [
                         'action' => [
                             'type' => 'string',
-                            'enum' => ['continue', 'not_answer', 'back_to_name', 'back_to_class', 'restart'],
+                            'enum' => ['continue', 'guide', 'no_recall', 'not_answer', 'back_to_name', 'back_to_class', 'restart'],
                         ],
                         'reason' => [
                             'type' => 'string',
@@ -994,11 +999,37 @@ class SupportBotService
 
         $args = is_array($call['arguments'] ?? null) ? $call['arguments'] : [];
         $action = (string) ($args['action'] ?? '');
-        if (! in_array($action, ['continue', 'not_answer', 'back_to_name', 'back_to_class', 'restart'], true)) {
+        if (! in_array($action, ['continue', 'guide', 'no_recall', 'not_answer', 'back_to_name', 'back_to_class', 'restart'], true)) {
             return null;
         }
 
         return ['action' => $action, 'extracted' => is_array($args['extracted'] ?? null) ? $args['extracted'] : []];
+    }
+
+    private function routeRecoveryNonDataInput(Request $request, SupportMessage $msg, array $flow, string $input): array
+    {
+        $step = (string) ($flow['step'] ?? '');
+
+        if (in_array($step, ['find_name', 'find_class', 'find_teacher'], true)) {
+            return $this->replyRecoveryLikeStaff($request, $msg, $flow, $input);
+        }
+
+        return $this->guideRecoveryStep($request, $msg, $flow, $input);
+    }
+
+    private function routeRecoveryNoRecall(Request $request, SupportMessage $msg, array $flow): array
+    {
+        $step = (string) ($flow['step'] ?? '');
+
+        return match ($step) {
+            'identify' => $this->startFind($request, $msg),
+            'confirm' => $this->startAlternativeVerification($request, $msg),
+            'find_class' => $this->goToFindClass($request, $msg, $flow),
+            'find_teacher' => $this->goToFindClass($request, $msg, $flow),
+            'otp' => $this->finish($msg, ['Nếu chưa thấy mã OTP, bạn kiểm tra Hộp thư đến hoặc Spam nhé. Nếu vẫn không có, gõ **hủy** rồi bắt đầu lại để nhận mã mới.'], true, true),
+            'password' => $this->finish($msg, ['Bạn có thể tự đặt **mật khẩu mới** bất kỳ, ít nhất 6 ký tự. Mình không cần mật khẩu cũ nha.'], true, true),
+            default => $this->guideRecoveryStep($request, $msg, $flow, ''),
+        };
     }
 
     /** Người dùng đang hỏi cách nhập ở bước hiện tại, không phải cung cấp dữ liệu xác minh. */
@@ -1026,6 +1057,16 @@ class SupportBotService
         };
 
         return $this->finish($msg, [$reply], in_array($step, ['otp', 'password'], true), true);
+    }
+
+    private function startAlternativeVerification(Request $request, SupportMessage $msg): array
+    {
+        $this->saveFlow($request, ['step' => 'find_name']);
+
+        return $this->finish($msg, [
+            'Không sao nha, nếu bạn **không nhớ email đầy đủ** thì mình chuyển sang cách xác minh khác.',
+            'Bạn nhập **SĐT đã đăng ký**, **mã đơn hàng**, hoặc **họ tên học sinh kèm lớp** để mình tìm đúng tài khoản giúp nhé.',
+        ], false, true);
     }
 
     private function goToFindName(Request $request, SupportMessage $msg): array
@@ -1138,12 +1179,7 @@ class SupportBotService
         }
 
         if ($this->cannotRecallEmail($input)) {
-            $this->saveFlow($request, ['step' => 'find_name']);
-
-            return $this->finish($msg, [
-                'Không sao nha, nếu bạn **không nhớ email đầy đủ** thì mình chuyển sang cách xác minh khác.',
-                'Bạn nhập **SĐT đã đăng ký**, **mã đơn hàng**, hoặc **họ tên học sinh kèm lớp** để mình tìm đúng tài khoản giúp nhé.',
-            ], false, true);
+            return $this->startAlternativeVerification($request, $msg);
         }
 
         if (mb_strtolower($input) !== mb_strtolower((string) $user->email)) {
