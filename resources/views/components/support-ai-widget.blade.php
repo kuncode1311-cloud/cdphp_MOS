@@ -14,7 +14,36 @@
 
     @include('partials.floating-panel')
 
-    <div class="sc-panel" id="ai-panel" role="dialog" aria-label="Trợ lý AI" style="bottom: 150px;">
+    <style>
+        /* Khung AI trong trang học cần gọn để không che khu vực nhiệm vụ chính của học sinh. */
+        #ai-panel {
+            right: 18px;
+            bottom: 96px;
+            width: min(360px, calc(100vw - 32px));
+            height: min(430px, calc(100vh - 132px));
+            max-height: min(430px, calc(100vh - 132px));
+            border-radius: 18px;
+        }
+        #ai-panel .sc-head { padding: 9px 11px; gap: 8px; }
+        #ai-panel .sc-avatar { width: 32px; height: 32px; font-size: 17px; }
+        #ai-panel .sc-head-text b { font-size: 13.5px; }
+        #ai-panel .sc-head-text small { font-size: 10.5px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        #ai-panel .sc-body { padding: 10px; gap: 7px; min-height: 0; }
+        #ai-panel .sc-msg { max-width: 82%; padding: 8px 11px; border-radius: 14px; font-size: 12.8px; line-height: 1.42; }
+        #ai-panel .sc-foot { padding: 8px 9px 9px; }
+        #ai-panel .sc-input { padding: 8px 12px; font-size: 13px; }
+        #ai-panel .sc-send { width: 36px; height: 36px; }
+        @media (max-width: 600px) {
+            #ai-panel {
+                right: 8px;
+                bottom: 108px;
+                width: min(330px, calc(100vw - 16px));
+                height: min(390px, calc(100vh - 130px));
+            }
+        }
+    </style>
+
+    <div class="sc-panel" id="ai-panel" role="dialog" aria-label="Trợ lý AI">
         <div class="sc-grip" aria-hidden="true"></div>
         <div class="sc-head">
             <span class="sc-avatar">🤖</span>
@@ -54,7 +83,7 @@
 
     <script>
         // Kéo khung theo thanh tiêu đề, kéo góc dưới để đổi kích thước; nhớ vị trí trên trình duyệt này
-        makeFloatingPanel(document.getElementById('ai-panel'), { head: '.sc-head', grip: '.sc-grip', key: 'ic3_ai_panel_layout', minW: 300, minH: 340 });
+        makeFloatingPanel(document.getElementById('ai-panel'), { head: '.sc-head', grip: '.sc-grip', key: 'ic3_ai_panel_layout_v2', minW: 300, minH: 340 });
     </script>
 
     @if($aiEntitled)
@@ -71,8 +100,8 @@
 
                 const style = document.createElement('style');
                 style.textContent = `
-                    #ai-panel .sc-msg.typing { width:auto; min-width:86px; padding:10px 13px; }
-                    #ai-panel .ai-typing-label { font-size:12px; font-weight:900; color:#7c3aed; margin-bottom:6px; }
+                    #ai-panel .sc-msg.typing { width:auto; min-width:72px; padding:8px 11px; }
+                    #ai-panel .ai-typing-label { font-size:11.5px; font-weight:900; color:#7c3aed; margin-bottom:5px; }
                     #ai-panel .ai-typing-dots { display:inline-flex; align-items:center; gap:4px; height:14px; }
                     #ai-panel .ai-typing-dots span { width:6px; height:6px; border-radius:999px; background:#a855f7; animation: aiTypingPulse .9s infinite ease-in-out; }
                     #ai-panel .ai-typing-dots span:nth-child(2) { animation-delay:.14s; }
@@ -136,7 +165,7 @@
                         const typing = document.createElement('div');
                         typing.className = 'sc-msg admin typing';
                         typing.innerHTML = `
-                            <div class="ai-typing-label">🤖 Trợ lý AI đang nhập...</div>
+                            <div class="ai-typing-label">🤖 Đang nghĩ...</div>
                             <div class="ai-typing-dots"><span></span><span></span><span></span></div>
                         `;
                         body.appendChild(typing);
