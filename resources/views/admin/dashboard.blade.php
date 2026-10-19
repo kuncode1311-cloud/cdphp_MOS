@@ -2891,6 +2891,7 @@
                                 <thead>
                                     <tr>
                                         <th id="th-col-user" class="col-user" style="text-align:left; padding-left:14px;">NGƯỜI DÙNG</th>
+                                        <th class="col-phone" style="text-align:center;">SĐT</th>
                                         <th id="th-col-role" class="col-role" style="text-align:center;">VAI TRÒ</th>
                                         <th id="th-col-status" class="col-status" style="text-align:center;">TRẠNG THÁI</th>
                                         <th id="th-col-package" class="col-package" style="text-align:center;">GÓI & LỚP HỌC</th>
@@ -2959,6 +2960,9 @@
                                                         </div>
                                                     </div>
                                                 </div>
+                                            </td>
+                                            <td class="col-phone" style="text-align:center; vertical-align:middle; padding:5px 4px; color:#0f766e; font-size:11px; font-weight:800;">
+                                                {{ $u->phone ?: 'Chưa có' }}
                                             </td>
                                             <td class="col-role" style="text-align:center; vertical-align:middle; padding:5px 4px;">
                                                 @if($u->isAdmin())
