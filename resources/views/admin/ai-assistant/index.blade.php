@@ -76,8 +76,8 @@
             {{-- ============ TAB GÓI BÁN ============ --}}
             <section data-section="goi">
                 <div class="ai-card">
-                    <h3>Tạo gói Trợ lý AI mới</h3>
-                    <p class="hint">Gói học sinh cấp cho 1 học sinh. Gói giáo viên không giới hạn số học sinh.</p>
+                    <h3>✨ Tạo gói mới</h3>
+                    <p class="hint">Chọn đối tượng, giá và thời hạn rồi mở bán.</p>
                     <form method="POST" action="{{ route('admin.ai-assistant.packages.store') }}" class="ai-form">
                         @csrf
                         <div class="ai-field" style="flex:1; min-width:220px;">
@@ -105,8 +105,8 @@
                 </div>
 
                 <div class="ai-card">
-                    <h3>Các gói Trợ lý AI</h3>
-                    <p class="hint">Sửa rồi bấm "Lưu" ở cuối dòng. Gói tạm ẩn không hiện trên bảng giá.</p>
+                    <h3>📦 Gói đang bán</h3>
+                    <p class="hint">Gói tạm ẩn sẽ không xuất hiện với khách.</p>
                     @if($packages->isEmpty())
                         <div class="ai-empty">Chưa có gói Trợ lý AI nào. Dùng form phía trên để tạo gói đầu tiên.</div>
                     @else
@@ -158,8 +158,8 @@
             {{-- ============ TAB TÀI KHOẢN ============ --}}
             <section data-section="tai-khoan">
                 <div class="ai-card">
-                    <h3>🎁 Cấp Trợ lý AI cho tài khoản</h3>
-                    <p class="hint">Dùng để tặng, cho dùng thử hoặc hỗ trợ khách. Gõ tên, mã học sinh hoặc email rồi <b>chọn đúng người</b> trong danh sách hiện ra. Tài khoản đang còn hạn thì được cộng thêm ngày.</p>
+                    <h3>🎁 Cấp quyền nhanh</h3>
+                    <p class="hint">Tặng hoặc gia hạn AI cho một tài khoản.</p>
                     <form method="POST" action="{{ route('admin.ai-assistant.grant') }}" class="ai-form" id="ai-grant-form">
                         @csrf
                         <input type="hidden" name="user_id" id="ai-grant-user" value="">
@@ -178,8 +178,8 @@
                 </div>
 
                 <div class="ai-card" id="ai-members-card">
-                    <h3>Tài khoản có quyền dùng Trợ lý AI</h3>
-                    <p class="hint">Sắp hết hạn được xếp lên đầu. Thu hồi sẽ tắt quyền dùng AI ngay, hạn học tập không đổi.</p>
+                    <h3>👥 Tài khoản đang dùng AI</h3>
+                    <p class="hint">Tài khoản sắp hết hạn được đưa lên đầu.</p>
 
                     <div class="ai-filters">
                         @foreach(['tat-ca' => 'Tất cả', 'con-han' => 'Đang dùng', 'het-han' => 'Đã hết hạn'] as $key => $label)
