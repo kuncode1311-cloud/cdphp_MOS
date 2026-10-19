@@ -2772,6 +2772,8 @@
                                                         <div style="font-size:10.5px; color:#64748b; margin-top:1px; display:flex; align-items:center; gap:5px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">
                                                             <span style="color:#475569; font-weight:500; overflow:hidden; text-overflow:ellipsis;" title="{{ $u->email }}">{{ $u->email }}</span>
                                                             <span style="color:#cbd5e1; flex-shrink:0;">•</span>
+                                                            <span style="color:#0f766e; font-weight:700; flex-shrink:0;">📞 {{ $u->phone ?: 'Chưa có SĐT' }}</span>
+                                                            <span style="color:#cbd5e1; flex-shrink:0;">•</span>
                                                             <span style="color:#64748b; font-weight:600; flex-shrink:0;">📅 {{ $u->created_date_vn }}</span>
                                                         </div>
                                                     </div>
