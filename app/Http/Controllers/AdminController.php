@@ -217,8 +217,11 @@ class AdminController extends Controller
             $activeOrdersCount = (clone $teacherOrdersQuery)->where('status', PackageOrder::STATUS_ACTIVE)->count();
             $totalRevenue = (int) (clone $teacherOrdersQuery)->where('status', PackageOrder::STATUS_ACTIVE)->sum('price');
             $packages = Package::where('is_active', true)->orderBy('sort_order')->get();
-            $supportMessages = collect();
-            $pendingSupportCount = 0;
+            // Giáo viên chỉ thấy các cuộc trò chuyện do học sinh của mình gửi.
+            $supportMessages = \App\Models\SupportMessage::with('user')
+                ->where('teacher_id', $user->id)
+                ->latest('id')->limit(50)->get();
+            $pendingSupportCount = (clone $supportMessages)->where('status', 'pending')->count();
         }
 
         $activeTeacherOrder = $isTeacher
@@ -368,7 +371,11 @@ class AdminController extends Controller
         $lastId = (int) $request->query('last_id', 0);
         $activeId = (int) $request->query('active_id', 0);
 
-        $newMessages = \App\Models\SupportMessage::with('user')->where('id', '>', $lastId)
+        $messageQuery = \App\Models\SupportMessage::with('user')->where('id', '>', $lastId);
+        if ($request->user()?->isTeacher() && ! $request->user()?->isAdmin()) {
+            $messageQuery->where('teacher_id', $request->user()->id);
+        }
+        $newMessages = $messageQuery
             ->latest('id')
             ->get()
             ->map(function ($m) {
@@ -394,7 +401,9 @@ class AdminController extends Controller
 
         $activeMessage = null;
         if ($activeId > 0) {
-            $active = \App\Models\SupportMessage::find($activeId);
+            $active = \App\Models\SupportMessage::query()
+                ->when($request->user()?->isTeacher() && ! $request->user()?->isAdmin(), fn ($q) => $q->where('teacher_id', $request->user()->id))
+                ->find($activeId);
             if ($active) {
                 $activeMessage = [
                     'id' => $active->id,
@@ -638,6 +647,9 @@ class AdminController extends Controller
         }
 
         $supportMessage = \App\Models\SupportMessage::find($messageId);
+        if ($supportMessage && $request->user()?->isTeacher() && ! $request->user()?->isAdmin() && $supportMessage->teacher_id !== $request->user()->id) {
+            abort(403, 'Bạn không có quyền trả lời cuộc trò chuyện này.');
+        }
         if ($supportMessage) {
             $supportMessage->status = 'responded';
             $supportMessage->admin_reply = $replyText;

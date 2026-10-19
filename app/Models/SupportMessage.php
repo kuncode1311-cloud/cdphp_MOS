@@ -17,6 +17,7 @@ class SupportMessage extends Model
 
     protected $fillable = [
         'user_id',
+        'teacher_id',
         'name',
         'phone',
         'email',
@@ -72,6 +73,11 @@ class SupportMessage extends Model
     public function user(): \Illuminate\Database\Eloquent\Relations\BelongsTo
     {
         return $this->belongsTo(User::class);
+    }
+
+    public function teacher(): \Illuminate\Database\Eloquent\Relations\BelongsTo
+    {
+        return $this->belongsTo(User::class, 'teacher_id');
     }
 
     /**

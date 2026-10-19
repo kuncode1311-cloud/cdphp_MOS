@@ -424,11 +424,15 @@ class PricingController extends Controller
             'phone' => 'nullable|string|max:30',
             'email' => 'nullable|email|max:120',
             'message' => 'required|string|max:2000',
-            'channel' => 'nullable|in:ai,admin',
+            'channel' => 'nullable|in:ai,admin,teacher',
         ]);
 
         // Hai kênh tách biệt: 'ai' (Trợ lý AI trả lời tự động) và 'admin' (Ban Quản Trị trả lời trực tiếp)
         $channel = $data['channel'] ?? 'admin';
+        $studentTeacher = $request->user()?->isStudent() ? $request->user()->teacher : null;
+        if ($channel === 'admin' && $studentTeacher) {
+            $channel = 'teacher';
+        }
         $bot = app(SupportBotService::class);
         $incomingText = trim((string) ($data['message'] ?? ''));
 
@@ -442,7 +446,7 @@ class PricingController extends Controller
         // Người đã đăng nhập đã có tài khoản nên SĐT là tùy chọn.
         $rawContact = trim((string) ($data['phone'] ?? $data['contact'] ?? ''));
         $data['phone'] = \App\Models\SupportMessage::normalizePhone($rawContact);
-        if ($channel === 'admin' && $data['phone'] === null && ! $request->user()) {
+        if (in_array($channel, ['admin', 'teacher'], true) && $data['phone'] === null && ! $request->user()) {
             return response()->json([
                 'message' => 'Vui lòng nhập đúng số điện thoại hoặc Zalo (10 số, ví dụ 0912345678).',
             ], 422);
@@ -509,6 +513,9 @@ class PricingController extends Controller
             if (! $supportMsg->user_id && $request->user()) {
                 $supportMsg->user_id = $request->user()->id;
             }
+            if ($channel === 'teacher' && $studentTeacher) {
+                $supportMsg->teacher_id = $studentTeacher->id;
+            }
             $supportMsg->status = 'pending';
             $supportMsg->appendConversationTurn('user', $storedMessage, null, $channel);
             $supportMsg->updated_at = now();
@@ -516,6 +523,7 @@ class PricingController extends Controller
         } else {
             $supportMsg = new SupportMessage([
                 'user_id' => $request->user()?->id,
+                'teacher_id' => $studentTeacher?->id,
                 'name' => $data['name'],
                 'phone' => $data['phone'] ?? null,
                 'email' => $data['email'] ?? null,
