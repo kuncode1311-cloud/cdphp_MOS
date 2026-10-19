@@ -32,10 +32,12 @@
     .ai-card { background: rgba(255,255,255,.96); border: 1px solid #dbeafe; border-radius: 22px; padding: 22px; margin-bottom: 18px; box-shadow: 0 18px 38px rgba(30,64,175,.10); }
     .ai-card h3 { margin: 0 0 5px; font-size: 18px; font-weight: 900; color: #0f172a; letter-spacing: -.02em; }
     .ai-card p.hint { margin: 0 0 16px; font-size: 12.5px; font-weight: 600; color: #64748b; }
-    .ai-card table { width: 100%; border-collapse: collapse; font-size: 13.5px; }
-    .ai-card th { text-align: left; font-size: 10.5px; font-weight: 900; color: #64748b; text-transform: uppercase; letter-spacing: .06em; padding: 12px 10px; background: #f8fafc; border-bottom: 1px solid #e2e8f0; }
-    .ai-card td { padding: 12px 10px; border-bottom: 1px solid #eef2f7; color: #1e293b; font-weight: 600; vertical-align: middle; }
+    .ai-card table { width: 100%; border-collapse: separate; border-spacing: 0; font-size: 13.5px; border: 1px solid #dbe5f1; border-radius: 14px; overflow: hidden; }
+    .ai-card th { text-align: left; font-size: 10.5px; font-weight: 900; color: #64748b; text-transform: uppercase; letter-spacing: .06em; padding: 12px 10px; background: #f1f5f9; border-bottom: 2px solid #cbd5e1; border-right: 1px solid #e2e8f0; }
+    .ai-card td { padding: 12px 10px; border-bottom: 1px solid #e2e8f0; border-right: 1px solid #eef2f7; color: #1e293b; font-weight: 600; vertical-align: middle; }
+    .ai-card th:last-child, .ai-card td:last-child { border-right: 0; }
     .ai-card tr:last-child td { border-bottom: none; }
+    .ai-card tbody tr:hover td { background: #f8fbff; }
     .ai-card input, .ai-card select { padding: 7px 9px; border: 1px solid #cbd5e1; border-radius: 8px; font-family: inherit; font-weight: 700; font-size: 13px; background: #fff; }
     .ai-card input:focus, .ai-card select:focus { outline: 2px solid #bfdbfe; border-color: #3b82f6; }
 

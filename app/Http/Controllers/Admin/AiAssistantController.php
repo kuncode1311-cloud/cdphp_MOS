@@ -112,6 +112,22 @@ class AiAssistantController extends Controller
         return back()->with('ok', "Đã lưu gói \"{$package->name}\".");
     }
 
+    /** Xóa gói AI chưa phát sinh đơn; gói đã bán chỉ được tạm ẩn để giữ lịch sử. */
+    public function destroyPackage(Request $request, Package $package): RedirectResponse
+    {
+        abort_unless($package->grants_ai_assistant, 404);
+
+        if ($package->orders()->exists()) {
+            return back()->with('err', "Gói \"{$package->name}\" đã có đơn hàng nên không thể xóa. Hãy bỏ chọn Đang bán để tạm ẩn.");
+        }
+
+        $name = $package->name;
+        $package->delete();
+        Log::info('Admin xóa gói Trợ lý AI', ['admin_id' => $request->user()->id, 'package_id' => $package->id]);
+
+        return back()->with('ok', "Đã xóa gói \"{$name}\".");
+    }
+
     /** Gia hạn quyền AI: cộng thêm số ngày vào hạn hiện tại (hoặc tính từ hôm nay nếu đã hết hạn) */
     /**
      * Gợi ý tài khoản khi Ban Quản Trị gõ để cấp Trợ lý AI: tìm theo tên, mã học sinh hoặc email.

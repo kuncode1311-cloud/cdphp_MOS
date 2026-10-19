@@ -42,6 +42,9 @@
             @if(session('ok'))
                 <div class="ai-flash">✓ {{ session('ok') }}</div>
             @endif
+            @if(session('err'))
+                <div class="ai-flash ai-flash-err">⚠️ {{ session('err') }}</div>
+            @endif
             @if($errors->any())
                 <div class="ai-flash ai-flash-err">⚠️ {{ $errors->first() }}</div>
             @endif
@@ -140,11 +143,16 @@
                                                 {{ $pkg->is_active ? 'Đang bán' : 'Tạm ẩn' }}
                                             </label>
                                         </td>
-                                        <td style="text-align:right;">
+                                        <td style="text-align:right; white-space:nowrap;">
                                             <form id="pkg-{{ $pkg->id }}" method="POST" action="{{ route('admin.ai-assistant.packages.update', $pkg) }}" style="margin:0;">
                                                 @csrf
                                                 @method('PUT')
                                                 <button type="submit" class="ai-btn ai-btn-green">Lưu</button>
+                                            </form>
+                                            <form method="POST" action="{{ route('admin.ai-assistant.packages.destroy', $pkg) }}" style="display:inline-block; margin:0 0 0 5px;" onsubmit="return confirm('Xóa gói này? Gói đã có đơn sẽ được giữ lại và chỉ có thể tạm ẩn.');">
+                                                @csrf
+                                                @method('DELETE')
+                                                <button type="submit" class="ai-btn ai-btn-red" title="Xóa gói">Xóa</button>
                                             </form>
                                         </td>
                                     </tr>
