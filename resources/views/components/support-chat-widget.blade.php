@@ -8,7 +8,7 @@
     $scUser = auth()->user();
 @endphp
 @if($scUser->isStudent())
-    @if($scUser->created_by)
+    @if(false && $scUser->created_by)
         @php
             $scTeacher = $scUser->teacher;
         @endphp
@@ -40,7 +40,7 @@
             <div class="sc-grip" aria-hidden="true"></div>
             <div class="sc-head">
                 <span class="sc-avatar">🛟</span>
-                <div class="sc-head-text"><b>Chat với Ban Quản Trị</b><small>Mình luôn sẵn sàng giúp em</small></div>
+                <div class="sc-head-text"><b>{{ $scUser->created_by ? 'Nhắn giáo viên' : 'Chat với Ban Quản Trị' }}</b><small>{{ $scUser->created_by ? 'Giáo viên phụ trách sẽ trả lời em' : 'Mình luôn sẵn sàng giúp em' }}</small></div>
                 <button type="button" class="sc-close" id="sc-close" aria-label="Đóng">✕</button>
             </div>
             <div class="sc-body" id="sc-body">
