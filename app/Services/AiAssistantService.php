@@ -171,15 +171,20 @@ class AiAssistantService
         $actions['lich_su_goi'] = ['label' => 'Lịch sử thuê gói', 'url' => route('pricing.history')];
         $actions['lam_lai_cau_sai'] = ['label' => 'Làm lại các câu đã sai', 'url' => route('mistakes.launch')];
 
-        // Mỗi khối lớp là một trang riêng (ví dụ "khối 3"), lấy từ CSDL
-        foreach (Level::orderBy('grade')->orderBy('position')->limit(20)->get() as $level) {
-            $actions['khoi_' . $level->id] = ['label' => "Khối {$level->grade} «{$level->name}»", 'url' => route('levels.show', $level)];
-        }
+        // Mỗi khối lớp là một trang riêng (ví dụ "khối 3"), chỉ đưa những khối tài khoản thật sự
+        // được truy cập — không để AI mời mở khối chưa sở hữu rồi dẫn tới trang không hợp lệ.
+        $accessibleLevelIds = $this->accessibleLevelIds($user);
+        Level::orderBy('grade')->orderBy('position')
+            ->when($accessibleLevelIds !== null, fn (Builder $q) => $q->whereIn('id', $accessibleLevelIds ?: [0]))
+            ->limit(20)->get()
+            ->each(function (Level $level) use (&$actions) {
+                $actions['khoi_' . $level->id] = ['label' => "Khối {$level->grade} «{$level->name}»", 'url' => route('levels.show', $level)];
+            });
 
-        // Các bài luyện thi trong CSDL, để khách nhờ mở đúng bài theo tên
-        foreach (PracticeTest::orderBy('id')->limit(30)->get() as $test) {
+        // Các bài luyện thi, chỉ lấy bài thuộc khối tài khoản được truy cập, để khách nhờ mở đúng bài theo tên
+        $this->accessibleTests($user)->limit(30)->get()->each(function (PracticeTest $test) use (&$actions) {
             $actions['bai_' . $test->id] = ['label' => "Bài luyện «{$test->name}»", 'url' => route('tests.show', $test)];
-        }
+        });
 
         foreach ($this->pendingTests($user) as $test) {
             $actions['lam_' . $test->id] = ['label' => "Làm bài «{$test->name}»", 'url' => route('tests.launch', $test)];

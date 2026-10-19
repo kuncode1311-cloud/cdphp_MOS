@@ -2,6 +2,7 @@
 
 namespace Tests\Feature;
 
+use App\Models\Level;
 use App\Models\Package;
 use App\Models\PracticeTest;
 use App\Models\SupportMessage;
@@ -158,6 +159,23 @@ class AiAssistantTest extends TestCase
 
         $this->assertSame('Mình mở bài cho bạn nhé!', $data['bot_replies'][0]);
         $this->assertSame(route('tests.launch', $test), $data['bot_action']['url']);
+    }
+
+    public function test_khong_moi_mo_khoi_lop_chua_duoc_cap_quyen(): void
+    {
+        $test = $this->publishedTest();
+        $ownedLevelId = $this->levelIdOf($test);
+        $student = $this->member('student');
+        $student->accessibleLevels()->attach($ownedLevelId);
+
+        $otherLevel = Level::where('id', '!=', $ownedLevelId)->firstOrFail();
+
+        $this->ask($student, 'Xin chào', '{"reply":"Chào bạn!","action":null}');
+        $prompt = $this->sentSystemPrompt();
+
+        $this->assertStringContainsString('khoi_' . $ownedLevelId . ':', $prompt);
+        $this->assertStringNotContainsString('khoi_' . $otherLevel->id . ':', $prompt);
+        $this->assertStringNotContainsString($otherLevel->name, $prompt);
     }
 
     public function test_hanh_dong_khong_co_trong_danh_sach_bi_loai_bo(): void
