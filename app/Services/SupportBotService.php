@@ -260,7 +260,7 @@ class SupportBotService
     /** Tư vấn gói/khối chỉ dựa trên dữ liệu Package + Level thật trong CSDL, không để AI tự bịa tên gói, giá hoặc khối. */
     private function packageReplyFromDatabase(string $text): string
     {
-        $packages = Package::active()->with('levels:id,name,grade')->ordered()->get();
+        $packages = Package::active()->where('grants_ai_assistant', false)->with('levels:id,name,grade')->ordered()->get();
         if ($packages->isEmpty()) {
             return 'Mình kiểm tra CSDL hiện chưa thấy gói bản quyền nào đang mở bán. Bạn nhắn Zalo/SĐT **' . self::SUPPORT_ZALO_PHONE . '** để ' . self::SUPPORT_ADMIN_NICKNAME . ' kiểm tra trực tiếp nhé.';
         }
@@ -318,7 +318,7 @@ class SupportBotService
     /** Prompt cho khách chung: tài liệu FAQ và gói bản quyền lấy trực tiếp từ CSDL */
     private function systemPrompt(): string
     {
-        $packages = Package::active()->ordered()->get(['name', 'price', 'duration_days'])
+        $packages = Package::active()->where('grants_ai_assistant', false)->ordered()->get(['name', 'price', 'duration_days'])
             ->map(fn (Package $p) => sprintf('- %s: %s đ, dùng %d ngày', $p->name, number_format((int) $p->price, 0, ',', '.'), (int) $p->duration_days))
             ->implode("\n");
 

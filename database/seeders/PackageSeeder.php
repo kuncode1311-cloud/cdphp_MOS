@@ -87,7 +87,6 @@ class PackageSeeder extends Seeder
                     'Quản lý tối đa 300 học sinh',
                     'Mở khóa TOÀN BỘ 3 Khối lớp (Khối 3, 4, 5)',
                     'Không giới hạn số lượt làm bài & thi thử',
-                    'Trợ lý AI phân tích điểm mạnh & lỗ hổng kiến thức',
                     'Quyền truy cập Studio tùy chỉnh và tạo bộ đề riêng',
                     'Cấu hình xáo trộn câu hỏi & bảo mật phòng thi',
                     'Bàn giao hệ thống & Hỗ trợ kỹ thuật VIP 1-1',

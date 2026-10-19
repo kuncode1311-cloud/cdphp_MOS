@@ -434,14 +434,6 @@
                     </label>
                 </div>
 
-                <div class="form-group" style="display:flex; align-items:flex-start; gap:8px;">
-                    <input type="checkbox" name="grants_ai_assistant" id="input-ai" value="1" style="accent-color:#7c3aed; width:18px; height:18px; margin-top:2px;">
-                    <label for="input-ai" style="margin:0; font-size:13.5px; font-weight:850; cursor:pointer;">
-                        🤖 Gói Trợ lý AI
-                        <small style="display:block; font-weight:600; color:#64748b;">Mua gói này để tài khoản được dùng Trợ lý AI tra cứu kết quả và mở bài. Hạn gói là số ngày Trợ lý AI còn dùng được, không ảnh hưởng hạn học tập.</small>
-                    </label>
-                </div>
-
                 <div style="display:flex; justify-content:flex-end; gap:10px; margin-top:20px;">
                     <button type="button" class="action-btn" style="background:#f1f5f9; color:#475569;" onclick="closePackageModal()">Hủy</button>
                     <button type="submit" class="action-btn btn-primary-pkg" id="modal-submit-btn">Lưu Gói Dịch Vụ</button>
@@ -469,7 +461,6 @@
             document.getElementById('input-desc').value = '';
             document.getElementById('input-features').value = '';
             document.getElementById('input-active').checked = true;
-            document.getElementById('input-ai').checked = false;
 
             document.querySelectorAll('.pkg-level-checkbox').forEach(cb => cb.checked = false);
 
@@ -500,7 +491,6 @@
             }
 
             document.getElementById('input-active').checked = pkg.is_active;
-            document.getElementById('input-ai').checked = !!pkg.grants_ai_assistant;
 
             document.querySelectorAll('.pkg-level-checkbox').forEach(cb => {
                 cb.checked = levelIds.includes(parseInt(cb.value));

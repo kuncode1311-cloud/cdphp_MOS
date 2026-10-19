@@ -34,8 +34,9 @@ class PricingController extends Controller
      */
     public function index(): View
     {
-        // 🌟 Lấy danh sách gói Giáo viên & Nhà trường
+        // 🌟 Lấy danh sách gói Giáo viên & Nhà trường (Gói Trợ lý AI quản lý ở mục riêng, không hiện ở đây)
         $teacherPackages = Package::active()
+            ->where('grants_ai_assistant', false)
             ->forTeachers()
             ->ordered()
             ->take(6)
@@ -44,6 +45,7 @@ class PricingController extends Controller
 
         // 🌟 Lấy danh sách gói Học sinh & Khách lẻ tự luyện
         $studentPackages = Package::active()
+            ->where('grants_ai_assistant', false)
             ->forStudents()
             ->ordered()
             ->take(6)

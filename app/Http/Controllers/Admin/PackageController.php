@@ -51,7 +51,10 @@ class PackageController extends Controller
         unset($data['level_ids']);
 
         $data['is_active'] = $request->boolean('is_active', true);
-        $data['grants_ai_assistant'] = $request->boolean('grants_ai_assistant');
+
+        // Gói Trợ lý AI quản lý riêng ở Admin\AiAssistantController, màn này không được bật cờ đó
+        // để tránh gói chồng chéo giữa 2 nơi quản lý.
+        $data['grants_ai_assistant'] = false;
 
         // Gói tự luyện cá nhân của Học sinh luôn cố định 1 HS
         if (($data['target_audience'] ?? 'teacher') === 'student') {
@@ -89,7 +92,10 @@ class PackageController extends Controller
         unset($data['level_ids']);
 
         $data['is_active'] = $request->boolean('is_active', true);
-        $data['grants_ai_assistant'] = $request->boolean('grants_ai_assistant');
+
+        // Gói Trợ lý AI quản lý riêng ở Admin\AiAssistantController, màn này không được bật cờ đó
+        // để tránh gói chồng chéo giữa 2 nơi quản lý.
+        $data['grants_ai_assistant'] = false;
 
         // Gói tự luyện cá nhân của Học sinh luôn cố định 1 HS
         if (($data['target_audience'] ?? $package->target_audience) === 'student') {
