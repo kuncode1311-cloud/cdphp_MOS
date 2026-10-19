@@ -6,8 +6,9 @@ use App\Models\SupportMessage;
 use Illuminate\Console\Command;
 
 /**
- * Xóa lịch sử chat hỗ trợ của thành viên quá 12 tháng (đúng cam kết hiển thị trong khung chat).
- * Khách vãng lai không được lưu nên không có dữ liệu để xóa.
+ * Xóa lịch sử chat hỗ trợ (kênh Ban Quản Trị, gồm cả khách vãng lai và thành viên) quá 12 tháng
+ * (đúng cam kết hiển thị trong khung chat). Chat ở kênh Trợ lý AI của khách vãng lai không lưu DB
+ * nên không có dữ liệu để xóa.
  */
 class PruneSupportChats extends Command
 {

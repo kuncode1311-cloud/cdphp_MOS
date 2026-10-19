@@ -959,6 +959,13 @@ class SupportBotService
             return null;
         }
 
+        // Ở bước tìm tên, một câu đã rõ ràng là họ tên đầy đủ thì luôn tra thẳng CSDL (stepFindName),
+        // không để AI đoán nhầm là "chưa trả lời" rồi hỏi lại chung chung dù hệ thống có thể tìm thấy
+        // tài khoản và gợi ý ngay (tên gần giống, lớp...).
+        if ($step === 'find_name' && $this->looksLikeFullStudentName($input)) {
+            return null;
+        }
+
         $decision = $this->decideRecoveryAction($step, $flow, $input);
         if ($decision !== null) {
             return match ($decision['action']) {
@@ -1370,7 +1377,7 @@ class SupportBotService
 
     private function guestHandoffNotice(): string
     {
-        return 'Nếu cần người thật hỗ trợ ngay, bạn nhắn Zalo/SĐT **' . self::SUPPORT_ZALO_PHONE . '** gặp ' . self::SUPPORT_ADMIN_NICKNAME . ' nhé. Nếu đã có tài khoản, bạn đăng nhập để mở tab 👨‍💼 Ban Quản Trị thì admin xem lịch sử và hỗ trợ chuẩn hơn.';
+        return 'Bạn chuyển sang tab 👨‍💼 Ban Quản Trị để nhắn trực tiếp cho admin nhé (không cần đăng nhập, chỉ cần để lại tên và SĐT/Zalo). Hoặc nhắn thẳng Zalo/SĐT **' . self::SUPPORT_ZALO_PHONE . '** gặp ' . self::SUPPORT_ADMIN_NICKNAME . '.';
     }
 
     /** Khóa đếm lượt AI: thành viên theo cuộc trò chuyện đã lưu, khách vãng lai theo phiên trình duyệt. */
