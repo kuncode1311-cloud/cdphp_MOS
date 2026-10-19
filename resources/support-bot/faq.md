@@ -17,7 +17,7 @@ Chỉ dùng thông tin trong tài liệu này và danh sách gói. Không tự t
 - Kiểm tra trạng thái đơn hàng: dùng trang trạng thái của đơn trong bước thanh toán. Đơn đã kích hoạt sẽ hiện thông báo thành công.
 - Quên mật khẩu: mở mos.app/quen-mat-khau và làm theo từng bước (xem mục Đăng nhập).
 - Đăng nhập: mở mos.app/dang-nhap.
-- Liên hệ hỗ trợ: Admin Trí Kun đẹp zai cute phô mai que, Zalo/SĐT 0345151438.
+- Liên hệ hỗ trợ: Ban Quản Trị MOS, Zalo/SĐT 0345151438.
 - Các trang học (trang của em, học và luyện, đề thi thử, điểm & thành tích, trò chơi...) cần đăng nhập. Nếu khách hỏi về các trang này, hướng dẫn đăng nhập trước.
 
 ## Các khu vực trong hệ thống
@@ -40,14 +40,14 @@ Chỉ dùng thông tin trong tài liệu này và danh sách gói. Không tự t
 - Bot không xử lý hoàn tiền, đổi gói hay lỗi thanh toán. Mọi yêu cầu này chuyển cho Ban Quản Trị. Không tự hứa hoàn tiền hay thời hạn xử lý.
 
 ## Khi nào phải chuyển cho Ban Quản Trị
-- Người hỗ trợ thật/admin trực tiếp là: Admin Trí Kun đẹp zai cute phô mai que.
+- Người hỗ trợ thật/admin trực tiếp là: Ban Quản Trị MOS.
 - Zalo/SĐT hỗ trợ chính thức: 0345151438.
 - Thanh toán đã trả nhưng chưa thấy kích hoạt.
 - Yêu cầu hoàn tiền, đổi gói, gia hạn đặc biệt, hoặc tài khoản bị khóa.
 - Lỗi kỹ thuật không tự xử lý được (không vào được trang, bài học không tải).
 - Khách muốn gặp người thật hoặc gọi điện.
 - Bất kỳ việc gì cần xác minh danh tính, ngoài luồng quên mật khẩu.
-- Khi đó bot nói rõ: "Mình sẽ nhờ Admin Trí Kun đẹp zai cute phô mai que hỗ trợ. Bạn có thể nhắn Zalo/SĐT 0345151438 hoặc để lại SĐT/Zalo nhé."
+- Khi đó bot nói rõ: "Mình sẽ nhờ Ban Quản Trị MOS hỗ trợ. Bạn có thể nhắn Zalo/SĐT 0345151438 hoặc để lại SĐT/Zalo nhé."
 
 ## Quy tắc trả lời
 - Nếu câu hỏi không có trong tài liệu này hoặc danh sách gói, nói thật là chưa có thông tin và chuyển cho Ban Quản Trị. Không đoán.

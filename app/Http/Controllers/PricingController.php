@@ -430,9 +430,10 @@ class PricingController extends Controller
         $bot = app(SupportBotService::class);
         $incomingText = trim((string) ($data['message'] ?? ''));
 
-        // Khách vãng lai (chưa đăng nhập): chỉ chat với Trợ lý AI, không lưu hội thoại vào CSDL, không báo Telegram
-        if (! $request->user()) {
-            return $this->answerGuestSupport($request, $bot, $incomingText, $channel);
+        // Khách vãng lai (chưa đăng nhập) ở kênh Trợ lý AI: không lưu hội thoại vào CSDL, không báo Telegram.
+        // Kênh Ban Quản Trị vẫn cho khách vãng lai nhắn thẳng cho Admin (lưu CSDL + báo Telegram) để được tư vấn trước khi có tài khoản.
+        if (! $request->user() && $channel === 'ai') {
+            return $this->answerGuestSupport($request, $bot, $incomingText);
         }
 
         // Kênh Ban Quản Trị: khách bắt buộc nhập SĐT/Zalo hợp lệ (10 số, bắt đầu bằng 0 hoặc +84) để Admin liên hệ lại.
@@ -568,15 +569,8 @@ class PricingController extends Controller
      * Trả lời khách vãng lai bằng Trợ lý AI. Lịch sử chỉ nằm trong trình duyệt khách (gửi kèm mỗi lần),
      * máy chủ không lưu gì vào CSDL.
      */
-    private function answerGuestSupport(Request $request, SupportBotService $bot, string $text, string $channel): JsonResponse
+    private function answerGuestSupport(Request $request, SupportBotService $bot, string $text): JsonResponse
     {
-        if ($channel === 'admin') {
-            return response()->json([
-                'ok' => false,
-                'message' => 'Để chat với Ban Quản Trị, bạn vui lòng đăng nhập tài khoản nhé. Trợ lý AI vẫn sẵn sàng trả lời bạn ở đây!',
-            ], 422);
-        }
-
         // Lịch sử gửi lên chỉ giữ lượt của khách và bot, cắt độ dài để tránh bị lạm dụng
         $history = array_values(array_filter(
             (array) $request->input('history', []),

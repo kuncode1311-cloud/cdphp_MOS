@@ -45,7 +45,7 @@ class SupportBotService
     private const AI_LIMIT_IP = 300;
     /** Thời gian bot ghi nhớ yêu cầu gặp người thật trong một cuộc trò chuyện */
     private const HANDOFF_HOURS = 12;
-    private const SUPPORT_ADMIN_NICKNAME = 'Admin Trí Kun đẹp zai cute phô mai que';
+    private const SUPPORT_ADMIN_NICKNAME = 'Ban Quản Trị MOS';
     private const SUPPORT_ZALO_PHONE = '0345151438';
 
     public function __construct(

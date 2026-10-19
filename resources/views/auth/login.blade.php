@@ -1260,10 +1260,10 @@
 
         // Hai kênh tách biệt: 'ai' (Trợ lý AI tự động) và 'admin' (Ban Quản Trị trả lời trực tiếp).
         // Hội thoại dùng chung một bản ghi trên máy chủ, giao diện chỉ lọc hiển thị theo kênh.
-        // Khách vãng lai chỉ chat với Trợ lý AI và không được lưu hội thoại trên máy chủ.
-        // Thành viên đã đăng nhập có thêm kênh Ban Quản Trị, lịch sử được lưu để đối chiếu.
+        // Khách vãng lai chat được cả hai kênh: Trợ lý AI (không lưu trên máy chủ) và Ban Quản Trị
+        // (lưu lại theo trình duyệt, cần nhập SĐT/Zalo để Admin liên hệ lại).
         const CHAT_IS_MEMBER = @json(auth()->check());
-        let chatTab = CHAT_IS_MEMBER && localStorage.getItem('mos_chat_tab') === 'admin' ? 'admin' : 'ai';
+        let chatTab = localStorage.getItem('mos_chat_tab') === 'admin' ? 'admin' : 'ai';
         // Bước khôi phục mật khẩu đang yêu cầu OTP hoặc mật khẩu mới (máy chủ quyết định, trình duyệt chỉ ghi nhớ)
         let botSecretMode = localStorage.getItem('mos_bot_secret') === '1';
         let activeChatSupportId = localStorage.getItem('mos_active_support_id') || null;
@@ -1271,7 +1271,7 @@
         let aiTyping = false;
 
         const AI_GREETING = 'Xin chào! 👋 Mình là <b>Trợ lý AI</b> của IC3 Adventure.<br>Mình hỗ trợ <b>đăng nhập, gói bản quyền và tài liệu thi IC3</b>.<br>Quên mật khẩu? <a class="chat-action" href="{{ route('password.forgot') }}">Mở trang</a> hoặc gõ <b>"quên mật khẩu"</b>.'
-            + (CHAT_IS_MEMBER ? '' : '<br><small>💡 Chat với Ban Quản Trị cần đăng nhập tài khoản. Nội dung chat với Trợ lý AI không được lưu lại.</small>');
+            + (CHAT_IS_MEMBER ? '' : '<br><small>💡 Cần người thật hỗ trợ? Chuyển sang tab 👨‍💼 Ban Quản Trị. Nội dung chat với Trợ lý AI không được lưu lại.</small>');
         const ADMIN_GREETING = 'Xin chào Thầy/Cô và các bạn! 👋<br>Bạn để lại lời nhắn kèm SĐT/Zalo bên dưới, Ban Quản Trị sẽ phản hồi bạn ngay tại đây nhé!<br><small>🔒 Lịch sử chat được lưu 12 tháng để đối chiếu khi cần.</small>';
 
         function toggleLiveChat() {
@@ -1288,7 +1288,7 @@
         }
 
         function switchChatTab(tab) {
-            chatTab = tab === 'admin' && CHAT_IS_MEMBER ? 'admin' : 'ai';
+            chatTab = tab === 'admin' ? 'admin' : 'ai';
             localStorage.setItem('mos_chat_tab', chatTab);
             updateTabUI();
             renderChatHistory();
@@ -1303,11 +1303,7 @@
             const title = document.getElementById('chatHeaderTitle');
 
             if (aiBtn) aiBtn.classList.toggle('active', chatTab === 'ai');
-            // Khách vãng lai chỉ có một kênh (Trợ lý AI) nên ẩn thanh chọn tab
-            const tabsRow = document.getElementById('chatTabs');
-            if (tabsRow) tabsRow.style.display = CHAT_IS_MEMBER ? '' : 'none';
             if (adminBtn) {
-                adminBtn.style.display = CHAT_IS_MEMBER ? '' : 'none';
                 adminBtn.classList.toggle('active', chatTab === 'admin');
             }
             if (title) title.textContent = chatTab === 'ai' ? 'Trợ lý IC3 (AI)' : 'Hỗ Trợ Ban Quản Trị';
