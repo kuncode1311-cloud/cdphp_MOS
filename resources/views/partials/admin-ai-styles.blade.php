@@ -1,5 +1,6 @@
 {{-- Style dùng chung của các trang Trợ lý AI trong khu quản trị (gói AI, huấn luyện AI giọng nói) --}}
 <style>
+    [hidden] { display: none !important; }
     /* Khung chung: sidebar bên trái, nội dung bên phải */
     .shell { min-height: 100vh; display: grid; grid-template-columns: 270px minmax(0, 1fr); transition: grid-template-columns 0.22s cubic-bezier(0.4, 0, 0.2, 1); }
     .shell.sidebar-collapsed, html.admin-sidebar-collapsed-init .shell { grid-template-columns: 70px minmax(0, 1fr); }
@@ -79,6 +80,7 @@
     .ai-check { display: inline-flex; align-items: center; gap: 6px; font-size: 13px; font-weight: 700; color: #334155; }
     .ai-check input { width: 16px; height: 16px; accent-color: #1d4ed8; }
     .ai-inline { display: inline-flex; gap: 6px; align-items: center; margin: 0; }
+    .ai-actions { display: inline-flex; align-items: center; justify-content: flex-end; gap: 8px; flex-wrap: wrap; }
     .ai-inline input { width: 64px; }
     .ai-remain { display: block; font-size: 11.5px; font-weight: 700; color: #64748b; }
     .ai-row-warn td { background: #fffbeb; }

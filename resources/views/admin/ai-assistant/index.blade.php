@@ -243,6 +243,7 @@
                                             @endif
                                         </td>
                                         <td style="text-align:right;">
+                                            <div class="ai-actions">
                                             <form method="POST" action="{{ route('admin.ai-assistant.extend', $member) }}" class="ai-inline">
                                                 @csrf
                                                 <input type="number" name="days" value="30" min="1" max="365" aria-label="Số ngày gia hạn">
@@ -253,6 +254,7 @@
                                                 @csrf
                                                 <button type="submit" class="ai-btn ai-btn-red">Thu hồi</button>
                                             </form>
+                                            </div>
                                         </td>
                                     </tr>
                                 @endforeach
