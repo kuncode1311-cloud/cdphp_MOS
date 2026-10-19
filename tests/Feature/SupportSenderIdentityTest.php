@@ -54,20 +54,20 @@ class SupportSenderIdentityTest extends TestCase
         $this->assertSame('teacher', $msg->resolveSender()['type']);
     }
 
-    public function test_khach_vang_lai_khong_duoc_luu_chat_va_phai_dang_nhap_de_chat_admin(): void
+    public function test_khach_vang_lai_duoc_chat_kenh_admin_nhung_kenh_ai_khong_luu_gi(): void
     {
         Http::fake();
         $this->seed();
         $before = SupportMessage::count();
 
-        // Khách vãng lai không có kênh Ban Quản Trị, và không tạo bản ghi nào trong CSDL
+        // Khách vãng lai giờ được nhắn thẳng kênh Ban Quản Trị, tạo bản ghi thật trong CSDL
         $this->postJson(route('support.message.send'), ['name' => 'A', 'contact' => '0901234567', 'message' => 'm1', 'channel' => 'admin'])
-            ->assertStatus(422)
-            ->assertJsonFragment(['message' => 'Để chat với Ban Quản Trị, bạn vui lòng đăng nhập tài khoản nhé. Trợ lý AI vẫn sẵn sàng trả lời bạn ở đây!']);
+            ->assertOk();
+        $this->assertSame($before + 1, SupportMessage::count());
 
+        // Kênh Trợ lý AI của khách vãng lai vẫn không lưu gì vào CSDL
         $this->postJson(route('support.message.send'), ['name' => 'B', 'message' => 'Gói giá bao nhiêu?', 'channel' => 'ai'])->assertOk();
-
-        $this->assertSame($before, SupportMessage::count());
+        $this->assertSame($before + 1, SupportMessage::count());
     }
 
     public function test_thanh_vien_chat_admin_luu_so_dien_thoai_da_chuan_hoa(): void

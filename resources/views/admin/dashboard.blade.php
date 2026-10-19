@@ -5309,7 +5309,7 @@
                                                     <div>
                                                         @if(!empty($turn['image']))<img src="{{ $turn['image'] }}" class="ms-bubble-img" onclick="window.open(this.src)" title="Bấm để xem ảnh" alt="Ảnh đã gửi cho khách">@endif
                                                         @if(!empty($turn['text']))<div class="ms-bubble-text">{{ $turn['text'] }}</div>@endif
-                                                        <div class="ms-bubble-meta">{{ $turn['created_at'] ?? $turn['time'] ?? '' }} · ✓✓ Ban Quản Trị</div>
+                                                        <div class="ms-bubble-meta">{{ $turn['created_at'] ?? $turn['time'] ?? '' }} · {{ ($turn['sender'] ?? '') === 'bot' ? '🤖 Trợ lý AI' : '✓✓ Ban Quản Trị' }}</div>
                                                     </div>
                                                 </div>
                                             @endif
@@ -7693,11 +7693,12 @@
                             </div>
                         `;
                     } else {
+                        const outLabel = sender === 'bot' ? '🤖 Trợ lý AI' : '✓✓ Ban Quản Trị';
                         html += `
                             <div class="ms-message-row outgoing" style="display:flex;">
                                 <div>
                                     ${chatImageHtml(turn)}${text ? `<div class="ms-bubble-text">${text}</div>` : ''}
-                                    <div class="ms-bubble-meta">${turnTime ? turnTime + ' · ' : ''}✓✓ Ban Quản Trị</div>
+                                    <div class="ms-bubble-meta">${turnTime ? turnTime + ' · ' : ''}${outLabel}</div>
                                 </div>
                             </div>
                         `;
