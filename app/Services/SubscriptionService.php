@@ -6,6 +6,7 @@ use App\Models\Package;
 use App\Models\PackageOrder;
 use App\Models\User;
 use Carbon\Carbon;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
 
@@ -204,6 +205,40 @@ class SubscriptionService
         });
 
         return $count;
+    }
+
+    /**
+     * Dự phòng cho webhook PayOS: chủ động hỏi thẳng PayOS xem đơn đã thanh toán chưa rồi tự kích
+     * hoạt, phòng trường hợp webhook không gọi được về server (cấu hình sai, mạng lỗi...). Gọi khi
+     * khách/admin đang chờ xem trạng thái đơn (ví dụ trang kiểm tra thanh toán tự poll định kỳ).
+     * Có khoá ngắn hạn để không gọi API PayOS dồn dập khi trang poll liên tục.
+     *
+     * @return bool Đơn vừa được kích hoạt nhờ bước đối chiếu này
+     */
+    public function reconcilePayosOrder(PackageOrder $order, PayosService $payosService): bool
+    {
+        if ($order->payment_method !== 'payos' || ! $order->isPending() || $order->isExpiredByTimeout()) {
+            return false;
+        }
+
+        $lockKey = "payos_reconcile_lock_{$order->id}";
+        if (Cache::has($lockKey)) {
+            return false;
+        }
+        Cache::put($lockKey, true, now()->addSeconds(5));
+
+        $cached = Cache::get("order_payos_{$order->id}");
+        $orderCode = (int) ($cached['orderCode'] ?? 0);
+        if ($orderCode <= 0) {
+            return false;
+        }
+
+        $info = $payosService->getPaymentLinkInformation($orderCode);
+        if (! $info || $info['status'] !== 'PAID' || $info['amountPaid'] < (int) $order->price) {
+            return false;
+        }
+
+        return $this->activateOrder($order);
     }
 
     /**

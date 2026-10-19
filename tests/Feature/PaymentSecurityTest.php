@@ -107,15 +107,17 @@ class PaymentSecurityTest extends TestCase
 
         $bad = $this->webhook($order);
         $bad['signature'] = str_repeat('a', 64);
-        $this->postJson(route('pricing.payos.webhook'), $bad)->assertStatus(400);
+        // Webhook luôn trả 200 (PayOS dùng mã trạng thái để coi URL có "hoạt động" hay không);
+        // an toàn vẫn được giữ bằng việc không kích hoạt đơn, kiểm tra ở assertTrue cuối hàm.
+        $this->postJson(route('pricing.payos.webhook'), $bad)->assertOk();
 
         // Kẻ gian sửa số tiền nhưng giữ nguyên chữ ký cũ
         $tampered = $this->webhook($order);
         $tampered['data']['amount'] = 1000;
-        $this->postJson(route('pricing.payos.webhook'), $tampered)->assertStatus(400);
+        $this->postJson(route('pricing.payos.webhook'), $tampered)->assertOk();
 
         // Không có chữ ký
-        $this->postJson(route('pricing.payos.webhook'), ['data' => ['orderCode' => (int) ($order->id.'051006'), 'amount' => 149000]])->assertStatus(400);
+        $this->postJson(route('pricing.payos.webhook'), ['data' => ['orderCode' => (int) ($order->id.'051006'), 'amount' => 149000]])->assertOk();
 
         $this->assertTrue($order->fresh()->isPending());
     }
@@ -124,7 +126,7 @@ class PaymentSecurityTest extends TestCase
     {
         $order = $this->pendingOrder();
 
-        $this->postJson(route('pricing.payos.webhook'), $this->webhook($order, ['amount' => 1000]))->assertStatus(422);
+        $this->postJson(route('pricing.payos.webhook'), $this->webhook($order, ['amount' => 1000]))->assertOk();
         $this->postJson(route('pricing.payos.webhook'), $this->webhook($order, [], true, ['success' => false]))->assertOk();
         $this->postJson(route('pricing.payos.webhook'), $this->webhook($order, ['code' => '01']))->assertOk();
 

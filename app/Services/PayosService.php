@@ -131,6 +131,47 @@ class PayosService
     }
 
     /**
+     * Tra cứu trực tiếp trạng thái một link thanh toán từ PayOS (gọi API thật, không qua webhook).
+     * Dùng làm phương án dự phòng khi webhook PayOS vì lý do nào đó (cấu hình sai, mạng lỗi...)
+     * không gọi được về server, để đơn không bị kẹt mãi ở "đang chờ thanh toán" dù khách đã trả tiền.
+     *
+     * @return array{status: string, amountPaid: int}|null
+     */
+    public function getPaymentLinkInformation(int $orderCode): ?array
+    {
+        if (! $this->isConfigured()) {
+            return null;
+        }
+
+        try {
+            $response = Http::withHeaders([
+                'x-client-id' => $this->clientId,
+                'x-api-key' => $this->apiKey,
+            ])->timeout(10)->get("{$this->endpoint}/v2/payment-requests/{$orderCode}");
+
+            if (! $response->successful()) {
+                return null;
+            }
+
+            $resData = $response->json();
+            if (($resData['code'] ?? '') !== '00') {
+                return null;
+            }
+
+            $data = $resData['data'] ?? [];
+
+            return [
+                'status' => (string) ($data['status'] ?? ''),
+                'amountPaid' => (int) ($data['amountPaid'] ?? 0),
+            ];
+        } catch (\Throwable $e) {
+            Log::warning('PayOS Get Payment Info Exception: ' . $e->getMessage());
+
+            return null;
+        }
+    }
+
+    /**
      * Xác thực dữ liệu Webhook từ PayOS gửi sang
      */
     public function verifyWebhookData(array $webhookPayload): ?array

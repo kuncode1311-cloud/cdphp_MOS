@@ -357,7 +357,11 @@ class PricingController extends Controller
 
         if (! $data) {
             Log::warning('PayOS Webhook verification failed.');
-            return response()->json(['success' => false, 'message' => 'Invalid signature'], 400);
+
+            // Luôn trả 200: PayOS dùng mã trạng thái để coi URL webhook có "hoạt động" hay không
+            // (kể cả lúc chỉ ping xác minh URL, không có chữ ký hợp lệ). Trả lỗi 4xx ở đây sẽ khiến
+            // PayOS đánh dấu webhook là hỏng, dù server vẫn nhận request bình thường.
+            return response()->json(['success' => false, 'message' => 'Invalid signature']);
         }
 
         Log::info('PayOS Webhook hợp lệ', ['orderCode' => $data['orderCode'] ?? null, 'amount' => $data['amount'] ?? null]);
@@ -394,7 +398,9 @@ class PricingController extends Controller
         // Số tiền PayOS báo về phải khớp đúng giá đơn, nếu không thì không kích hoạt.
         if ($order && isset($data['amount']) && (int) $data['amount'] !== (int) $order->price) {
             Log::warning("PayOS Webhook: Số tiền {$data['amount']} không khớp giá đơn #{$order->code} ({$order->price}).");
-            return response()->json(['success' => false, 'message' => 'Amount mismatch'], 422);
+
+            // Trả 200 (không kích hoạt đơn) thay vì mã lỗi, cùng lý do: tránh PayOS coi webhook là hỏng.
+            return response()->json(['success' => false, 'message' => 'Amount mismatch']);
         }
 
         if ($order) {
@@ -794,9 +800,12 @@ class PricingController extends Controller
     /**
      * Kiểm tra trạng thái đơn hàng theo thời gian thực (Real-time Polling cho Popup/Checkout)
      */
-    public function checkOrderStatus(PackageOrder $order): JsonResponse
+    public function checkOrderStatus(PackageOrder $order, SubscriptionService $subscriptionService, PayosService $payosService): JsonResponse
     {
-        app(SubscriptionService::class)->expireStaleOnlineOrders();
+        // Dự phòng cho webhook PayOS: trang đang poll trạng thái đơn, nhân tiện hỏi thẳng PayOS xem
+        // đã thanh toán chưa, phòng khi webhook không gọi được về server.
+        $subscriptionService->reconcilePayosOrder($order, $payosService);
+        $subscriptionService->expireStaleOnlineOrders();
         $order->refresh();
 
         $isActive = $order->isActive();

@@ -113,7 +113,7 @@ class SecurityAuditFixesTest extends TestCase
             ]);
         });
 
-        $this->postJson(route('pricing.payos.webhook'), [])->assertStatus(422);
+        $this->postJson(route('pricing.payos.webhook'), [])->assertOk();
 
         $this->assertSame(PackageOrder::STATUS_PENDING, $order->fresh()->status);
     }
@@ -190,13 +190,17 @@ class SecurityAuditFixesTest extends TestCase
             ->assertJson(['ok' => false])
             ->assertJsonMissing(['contact' => '0912345678']);
 
-        // Người lạ chưa đăng nhập không thể chen vào kênh Ban Quản Trị của người khác
-        $this->postJson(route('support.message.send'), [
+        // Người lạ chưa đăng nhập được phép nhắn kênh Ban Quản Trị (khách vãng lai), nhưng dù biết
+        // đúng số điện thoại của phụ huynh A, tin nhắn phải tạo hội thoại MỚI của riêng họ, không
+        // được chen/nối vào hội thoại cũ (chỉ đúng trình duyệt đã tạo mới nối tiếp được).
+        $strangerId = $this->postJson(route('support.message.send'), [
             'name' => 'Kẻ lạ',
             'phone' => '0912345678',
             'message' => 'Chen vào hội thoại',
             'channel' => 'admin',
-        ])->assertStatus(422);
+        ])->assertOk()->json('message_id');
+
+        $this->assertNotEquals($sent, $strangerId);
 
         // Hội thoại của phụ huynh A không bị nối thêm tin nhắn nào
         $this->assertCount(1, SupportMessage::findOrFail($sent)->conversation_history ?? []);
