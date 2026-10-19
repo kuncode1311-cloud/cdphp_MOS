@@ -2891,7 +2891,7 @@
                                 <thead>
                                     <tr>
                                         <th id="th-col-user" class="col-user" style="text-align:left; padding-left:14px;">NGƯỜI DÙNG</th>
-                                        <th class="col-phone" style="text-align:center;">SĐT</th>
+                                        <th id="th-col-phone" class="col-phone" style="display:table-cell !important; width:10% !important; text-align:center; color:#334155 !important;">SĐT</th>
                                         <th id="th-col-role" class="col-role" style="text-align:center;">VAI TRÒ</th>
                                         <th id="th-col-status" class="col-status" style="text-align:center;">TRẠNG THÁI</th>
                                         <th id="th-col-package" class="col-package" style="text-align:center;">GÓI & LỚP HỌC</th>
